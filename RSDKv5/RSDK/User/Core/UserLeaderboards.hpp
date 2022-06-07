@@ -41,8 +41,7 @@ enum LeaderboardLoadTypes {
 struct UserLeaderboards;
 struct LeaderboardLoadList;
 
-struct LeaderboardLoadInfo
-{
+struct LeaderboardLoadInfo {
     LeaderboardLoadList *parent;
     int32 status;
     LeaderboardAvail avail;
@@ -91,9 +90,9 @@ struct UserLeaderboards {
         memset(&loadList, 0, sizeof(loadList));
         memset(&entryInfo, 0, sizeof(entryInfo));
 
-        loadList.parent       = this;
+        loadList.parent    = this;
         entryInfo.loadList = &loadList;
-        entryInfo.parent      = this;
+        entryInfo.parent   = this;
     }
 
     virtual void StageLoad()
@@ -101,11 +100,11 @@ struct UserLeaderboards {
         this->currentLeaderboard = NULL;
         this->status             = STATUS_NONE;
 
-        this->loadList.prev       = NULL;
-        this->loadList.next       = NULL;
-        this->loadList.last       = NULL;
-        this->loadList.count      = 0;
-        this->loadList.unused     = 0;
+        this->loadList.prev   = NULL;
+        this->loadList.next   = NULL;
+        this->loadList.last   = NULL;
+        this->loadList.count  = 0;
+        this->loadList.unused = 0;
 
         this->entryInfo.Setup();
     }
@@ -180,10 +179,7 @@ inline int32 GetLeaderboardsStatus() { return leaderboards->GetStatus(); }
 
 inline LeaderboardAvail LeaderboardEntryViewSize() { return leaderboards->entryInfo.viewSize; }
 inline LeaderboardAvail LeaderboardEntryLoadSize() { return leaderboards->entryInfo.loadSize; }
-inline void LoadLeaderboardEntries(int32 start, uint32 length, int32 type)
-{
-    leaderboards->entryInfo.LoadLeaderboardEntries(start, length, type);
-}
+inline void LoadLeaderboardEntries(int32 start, uint32 length, int32 type) { leaderboards->entryInfo.LoadLeaderboardEntries(start, length, type); }
 void ResetLeaderboardInfo();
 LeaderboardEntry *ReadLeaderboardEntry(int32 entryID);
 #endif

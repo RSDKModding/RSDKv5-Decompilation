@@ -50,7 +50,7 @@ enum InputDeviceAPIs {
     DEVICE_API_RAWINPUT,
     DEVICE_API_STEAM,
 
-    // CUSTOM APIs
+// CUSTOM APIs
 #if RETRO_INPUTDEVICE_SDL2
     DEVICE_API_SDL2, // custom-made for SDL2 API, afaik it's not in original RSDKv5 (since it could be in a mac-version, but I do not have that so...)
 #endif
@@ -531,10 +531,10 @@ inline int32 ControllerIDForInputID(uint8 controllerID)
 #if RETRO_REV02
 inline int32 MostRecentActiveControllerID(bool32 confirmOnly, bool32 unassignedOnly, uint32 maxInactiveTimer)
 {
-    uint32 mostRecentTime     = -1;
+    uint32 mostRecentTime   = -1;
     int32 mostRecentValidID = 0;
     int32 mostRecentID      = 0;
-    uint32 maxTime            = maxInactiveTimer ? maxInactiveTimer : -1;
+    uint32 maxTime          = maxInactiveTimer ? maxInactiveTimer : -1;
 
     if (InputDeviceCount) {
         for (int32 i = 0; i < InputDeviceCount; ++i) {

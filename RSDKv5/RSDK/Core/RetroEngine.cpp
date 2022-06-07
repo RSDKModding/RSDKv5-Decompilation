@@ -99,7 +99,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
             if (SKU::userCore->CheckEnginePause())
                 continue;
 
-            // Focus Checks
+                // Focus Checks
 #if !RETRO_USE_ORIGINAL_CODE
             if (customSettings.disableFocusPause)
                 engine.focusState = 0;
@@ -789,7 +789,7 @@ void RSDK::LoadGameConfig()
         sceneInfo.activeCategory = ReadInt8(&info);
         int32 startScene         = ReadInt16(&info);
 
-        uint8 objCnt       = ReadInt8(&info);
+        uint8 objCnt      = ReadInt8(&info);
         globalObjectCount = TYPE_DEFAULT_COUNT;
         for (int32 i = 0; i < objCnt; ++i) {
             ReadString(&info, textBuffer);
@@ -813,9 +813,9 @@ void RSDK::LoadGameConfig()
             for (int32 r = 0; r < 0x10; ++r) {
                 if ((activeGlobalRows[i] >> r & 1)) {
                     for (int32 c = 0; c < 0x10; ++c) {
-                        uint8 red                       = ReadInt8(&info);
-                        uint8 green                     = ReadInt8(&info);
-                        uint8 blue                      = ReadInt8(&info);
+                        uint8 red                      = ReadInt8(&info);
+                        uint8 green                    = ReadInt8(&info);
+                        uint8 blue                     = ReadInt8(&info);
                         globalPalette[i][(r << 4) + c] = rgb32To16_B[blue] | rgb32To16_G[green] | rgb32To16_R[red];
                     }
                 }

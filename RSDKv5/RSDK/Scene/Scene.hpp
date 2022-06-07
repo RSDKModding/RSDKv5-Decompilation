@@ -56,7 +56,6 @@ enum EngineStates {
     ENGINESTATE_NONE,
 };
 
-
 struct SceneInfo {
     Entity *entity;
     SceneListEntry *listData;

@@ -89,7 +89,7 @@ bool RenderDevice::Init()
     uint32 windowFlags = 0;
     if (videoSettings.bordered && videoSettings.windowed)
         windowFlags = DX9_WINDOWFLAGS_BORDERED;
-    else 
+    else
         windowFlags = DX9_WINDOWFLAGS_BORDERLESS;
 
     AdjustWindowRect(&winRect, windowFlags, false);
@@ -702,7 +702,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 
         ID3DBlob *shaderBlob = nullptr;
         ID3DBlob *errorBlob  = nullptr;
-        HRESULT result       = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "VSMain", "vs_3_0", flags, 0, &shaderBlob, &errorBlob);
+        HRESULT result = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "VSMain", "vs_3_0", flags, 0, &shaderBlob, &errorBlob);
 
         if (FAILED(result)) {
             if (errorBlob) {
@@ -784,7 +784,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 
         ID3DBlob *shaderBlob = nullptr;
         ID3DBlob *errorBlob  = nullptr;
-        HRESULT result       = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "PSMain", "ps_3_0", flags, 0, &shaderBlob, &errorBlob);
+        HRESULT result = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "PSMain", "ps_3_0", flags, 0, &shaderBlob, &errorBlob);
 
         if (FAILED(result)) {
             if (errorBlob) {
@@ -810,7 +810,6 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                 return;
             }
         }
-
 
         fileData = NULL;
     }
@@ -912,8 +911,8 @@ bool RenderDevice::SetupRendering()
     if (!InitGraphicsAPI() || !InitShaders())
         return false;
 
-    int32 size  = videoSettings.pixWidth >= SCREEN_YSIZE ? videoSettings.pixWidth : SCREEN_YSIZE;
-    scanlines = (ScanlineInfo *)malloc(size * sizeof(ScanlineInfo));
+    int32 size = videoSettings.pixWidth >= SCREEN_YSIZE ? videoSettings.pixWidth : SCREEN_YSIZE;
+    scanlines  = (ScanlineInfo *)malloc(size * sizeof(ScanlineInfo));
     memset(scanlines, 0, size * sizeof(ScanlineInfo));
 
     videoSettings.windowState = WINDOWSTATE_ACTIVE;
@@ -1216,13 +1215,13 @@ void RenderDevice::ProcessEvent(MSG Msg)
         case WM_LBUTTONDOWN:
             touchInfo.down[0] = 1;
             touchInfo.count   = 1;
-            handledMsg             = true;
+            handledMsg        = true;
             break;
 
         case WM_LBUTTONUP:
             touchInfo.down[0] = 0;
             touchInfo.count   = 0;
-            handledMsg             = true;
+            handledMsg        = true;
             break;
 
         case WM_MBUTTONDOWN:

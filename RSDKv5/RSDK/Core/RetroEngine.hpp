@@ -81,7 +81,7 @@ enum GameRegions {
 #define RETRO_ANDROID (7)
 #define RETRO_UWP     (8)
 
-#define sprintf_s(x, _,...) sprintf(x, __VA_ARGS__)
+#define sprintf_s(x, _, ...) sprintf(x, __VA_ARGS__)
 
 #if defined _WIN32
 #undef sprintf_s
@@ -132,9 +132,9 @@ enum GameRegions {
 #define RETRO_RENDERDEVICE_DIRECTX11 (0)
 #define RETRO_RENDERDEVICE_NX        (0)
 // CUSTOM
-#define RETRO_RENDERDEVICE_SDL2     (0)
-#define RETRO_RENDERDEVICE_GLFW     (0)
-#define RETRO_RENDERDEVICE_EGL      (0)
+#define RETRO_RENDERDEVICE_SDL2 (0)
+#define RETRO_RENDERDEVICE_GLFW (0)
+#define RETRO_RENDERDEVICE_EGL  (0)
 
 // ============================
 // AUDIO DEVICE BACKENDS
@@ -142,7 +142,7 @@ enum GameRegions {
 #define RETRO_AUDIODEVICE_XAUDIO (0)
 #define RETRO_AUDIODEVICE_NX     (0)
 // CUSTOM
-#define RETRO_AUDIODEVICE_SDL2   (0)
+#define RETRO_AUDIODEVICE_SDL2 (0)
 
 // ============================
 // INPUT DEVICE BACKENDS
@@ -153,8 +153,8 @@ enum GameRegions {
 #define RETRO_INPUTDEVICE_STEAM    (0)
 #define RETRO_INPUTDEVICE_NX       (0)
 // CUSTOM
-#define RETRO_INPUTDEVICE_SDL2     (0)
-#define RETRO_INPUTDEVICE_GLFW     (0)
+#define RETRO_INPUTDEVICE_SDL2 (0)
+#define RETRO_INPUTDEVICE_GLFW (0)
 
 // ============================
 // USER CORE BACKENDS
@@ -380,7 +380,7 @@ enum GameRegions {
 #include <GLFW/glfw3.h>
 #elif RETRO_RENDERDEVICE_EGL
 #include <glad/glad.h>
-#include <EGL/egl.h>    // EGL library
+#include <EGL/egl.h> // EGL library
 #include <EGL/eglext.h> // EGL extensions
 #endif
 
@@ -476,9 +476,9 @@ struct RetroEngine {
     bool32 drawLayerVisible[DRAWGROUP_COUNT];
 
     // Image/Video support
-    double displayTime           = 0.0;
-    double videoStartDelay       = 0.0;
-    double imageDelta            = 0.0;
+    double displayTime       = 0.0;
+    double videoStartDelay   = 0.0;
+    double imageDelta        = 0.0;
     bool32 (*skipCallback)() = NULL;
 
     bool32 streamsEnabled = true;

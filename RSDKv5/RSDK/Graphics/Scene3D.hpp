@@ -6,8 +6,8 @@ namespace RSDK
 
 #define RSDK_SIGNATURE_MDL (0x4C444D) // "MDL"
 
-#define SCENE3D_COUNT    (0x20)
-#define MODEL_COUNT      (0x100)
+#define SCENE3D_COUNT      (0x20)
+#define MODEL_COUNT        (0x100)
 #define SCENE3D_VERT_COUNT (0x4000)
 
 enum Scene3DDrawTypes {

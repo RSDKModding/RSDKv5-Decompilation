@@ -56,7 +56,6 @@ struct UserAchievements {
 #if RETRO_REV02
 extern UserAchievements *achievements;
 
-
 // ====================
 // API Cores
 // ====================

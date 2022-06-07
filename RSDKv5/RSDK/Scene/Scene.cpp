@@ -281,7 +281,6 @@ void RSDK::LoadSceneFile()
 
         uint8 unknown9 = ReadInt8(&info); // usually 3, 4, or 5
         */
-        
 
         // Skip over Metadata, since we won't be using it at all in-game
         Seek_Cur(&info, 0x10);
@@ -535,7 +534,7 @@ void RSDK::LoadSceneFile()
                         case VAR_FLOAT:
                             if (varList[v].active)
                                 ReadBytes(&info, &entityBuffer[varList[v].offset], sizeof(float));
-                            else 
+                            else
                                 ReadBytes(&info, tempBuffer, sizeof(float));
                             break;
 

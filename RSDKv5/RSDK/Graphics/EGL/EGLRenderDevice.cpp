@@ -58,8 +58,7 @@ bool RenderDevice::Init()
     PrintLog(PRINT_NORMAL, "EGL init");
 
 #if RETRO_PLATFORM == RETRO_SWITCH
-    if (eglBindAPI(EGL_OPENGL_API) == EGL_FALSE)
-    {
+    if (eglBindAPI(EGL_OPENGL_API) == EGL_FALSE) {
         PrintLog(PRINT_NORMAL, "[EGL] eglBindApi failure: %d", eglGetError());
         return false;
     }
@@ -87,10 +86,10 @@ bool RenderDevice::Init()
     // TODO: icon, best way i can see we do it is stb_image
     if (!SetupRendering() || !AudioDevice::Init())
         return false;
-        PrintLog(PRINT_NORMAL, "postaudio");
+    PrintLog(PRINT_NORMAL, "postaudio");
 
     InitInputDevices();
-            PrintLog(PRINT_NORMAL, "postinput");
+    PrintLog(PRINT_NORMAL, "postinput");
 
     return true;
 }
@@ -117,7 +116,7 @@ bool RenderDevice::SetupRendering()
         PrintLog(PRINT_NORMAL, "[EGL] Surface creation failed: %d", eglGetError());
         return false;
     }
-        PrintLog(PRINT_NORMAL, "postsurf");
+    PrintLog(PRINT_NORMAL, "postsurf");
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     // clang-format off
@@ -137,18 +136,18 @@ bool RenderDevice::SetupRendering()
         PrintLog(PRINT_NORMAL, "[EGL] Context creation failed: %d", eglGetError());
         return false;
     }
-    
+
     PrintLog(PRINT_NORMAL, "ctx");
 
     eglMakeCurrent(display, surface, surface, context);
-        PrintLog(PRINT_NORMAL, "make current");
+    PrintLog(PRINT_NORMAL, "make current");
 
     GetDisplays();
-        PrintLog(PRINT_NORMAL, "postdisp");
+    PrintLog(PRINT_NORMAL, "postdisp");
 
     if (!InitGraphicsAPI() || !InitShaders())
         return false;
-        PrintLog(PRINT_NORMAL, "postshader");
+    PrintLog(PRINT_NORMAL, "postshader");
 
     int32 size = videoSettings.pixWidth >= SCREEN_YSIZE ? videoSettings.pixWidth : SCREEN_YSIZE;
     scanlines  = (ScanlineInfo *)malloc(size * sizeof(ScanlineInfo));
@@ -166,7 +165,7 @@ void RenderDevice::GetDisplays()
     displayCount         = 1;
     displayInfo.displays = (decltype(displayInfo.displays))malloc(sizeof(displayInfo.displays->internal));
     memcpy(&displayInfo.displays[0].internal, window, sizeof(displayInfo.displays->internal));
-        PrintLog(PRINT_NORMAL, "display memcpy");
+    PrintLog(PRINT_NORMAL, "display memcpy");
 
     displayWidth[0]  = displayInfo.displays[0].width;
     displayHeight[0] = displayInfo.displays[0].height;
@@ -320,7 +319,6 @@ bool RenderDevice::InitGraphicsAPI()
 
     PrintLog(PRINT_NORMAL, "posttex");
 
-
     return true;
 }
 
@@ -419,7 +417,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = 54;
 #else
-            startVert   = 18;
+            startVert = 18;
 #endif
             glBindTexture(GL_TEXTURE_2D, imageTexture);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -435,7 +433,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[0];
 #else
-            startVert   = 6;
+            startVert = 6;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[0]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -443,7 +441,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[1];
 #else
-            startVert   = 12;
+            startVert = 12;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[1]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);

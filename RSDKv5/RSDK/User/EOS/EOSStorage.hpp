@@ -12,10 +12,10 @@ struct EOSUserStorage : UserStorage {
         storageStatus = STATUS_OK;
         return storageStatus;
     }
-    bool32 GetUsername(String *userName) 
-    { 
+    bool32 GetUsername(String *userName)
+    {
         // get EGS username
-        return false; 
+        return false;
     }
     bool32 TryLoadUserFile(const char *filename, void *buffer, uint32 size, void (*callback)(int32 status))
     {

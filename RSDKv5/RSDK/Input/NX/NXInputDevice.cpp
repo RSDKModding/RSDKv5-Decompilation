@@ -38,7 +38,7 @@ void UpdateInputNX(InputDeviceNX *device, int64 *buttonMasks, int32 *hDelta, int
     device->hDelta_R = hDelta[1] + 128.0;
     device->vDelta_R = vDelta[1] + 128.0;
 
-    div        = sqrtf((device->hDelta_R * device->hDelta_R) + (device->vDelta_R * device->vDelta_R));
+    div              = sqrtf((device->hDelta_R * device->hDelta_R) + (device->vDelta_R * device->vDelta_R));
     device->hDelta_R = device->hDelta_R / div;
     device->vDelta_R = device->vDelta_R / div;
     if (div <= 15728.0) {

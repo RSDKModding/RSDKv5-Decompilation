@@ -2,7 +2,7 @@
 
 struct SteamStats : UserStats {
     inline void TryTrackStat(StatInfo *stat)
-    { 
+    {
         // steam has no stats
     }
 };

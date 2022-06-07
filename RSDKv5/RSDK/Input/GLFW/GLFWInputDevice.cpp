@@ -62,7 +62,7 @@ void RSDK::SKU::InputDeviceGLFW::ProcessInput(int32 controllerID)
     stickR[controllerID].keyUp.press |= stickR[controllerID].vDelta > INPUT_DEADZONE;
     stickR[controllerID].keyDown.press |= stickR[controllerID].vDelta < -INPUT_DEADZONE;
     stickR[controllerID].keyLeft.press |= stickR[controllerID].hDelta < -INPUT_DEADZONE;
-    stickR[controllerID].keyRight.press |= stickR[controllerID].hDelta  > INPUT_DEADZONE;
+    stickR[controllerID].keyRight.press |= stickR[controllerID].hDelta > INPUT_DEADZONE;
 
     triggerL[controllerID].keyBumper.press |= this->states[currentState].buttons[GLFW_GAMEPAD_BUTTON_LEFT_BUMPER];
     triggerL[controllerID].keyTrigger.press |= this->states[currentState].axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] > INPUT_DEADZONE;
@@ -85,7 +85,6 @@ void RSDK::SKU::InputDeviceGLFW::ProcessInput(int32 controllerID)
     controller[controllerID].keyStickR.press |= this->states[currentState].buttons[GLFW_GAMEPAD_BUTTON_RIGHT_THUMB];
     stickL[controllerID].hDeltaR = this->states[currentState].axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
     stickL[controllerID].vDeltaR = this->states[currentState].axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
-
 
     controller[controllerID].keyBumperL.press |= this->states[currentState].buttons[GLFW_GAMEPAD_BUTTON_LEFT_BUMPER];
     controller[controllerID].keyTriggerL.press |= this->states[currentState].axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] > INPUT_DEADZONE;

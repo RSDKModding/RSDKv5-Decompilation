@@ -2,7 +2,6 @@
 
 #include "iniparser/iniparser.h"
 
-
 // ====================
 // API Cores
 // ====================
@@ -168,7 +167,7 @@ void RSDK::SKU::ReleaseUserCore()
 #if RETRO_USERCORE_DUMMY
     dummyCore = nullptr;
 #endif
-    userCore  = nullptr;
+    userCore = nullptr;
 #endif
 }
 

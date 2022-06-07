@@ -209,7 +209,7 @@ RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, uint8 contr
     else if (strstr(name, "PS4") || strstr(name, "PS5"))
         controllerType = DEVICE_PS4;
     else if (strstr(name, "Nintendo") || strstr(name, "Switch")) {
-        controllerType = DEVICE_SWITCH_PRO;
+        controllerType   = DEVICE_SWITCH_PRO;
         device->swapABXY = true;
     }
     else if (strstr(name, "Saturn"))
@@ -252,11 +252,11 @@ void RSDK::SKU::InitSDL2InputAPI()
         if (SDL_GameControllerAddMapping(mappingBuffer) >= 0) {
             // char deviceName[0x100];
             // memset(deviceName, 0, sizeof(deviceName));
-            // 
+            //
             // uint32 id;
             // GenerateHashCRC(&id, deviceName);
             // device = InitSDL2InputDevice(id);
-            // 
+            //
             // device->gamePadType |= gamePadMappings[g].type;
             // memcpy(device->buttons, gamePadMappings[g].buttons, sizeof(device->buttons));
             // PrintLog(PRINT_NORMAL, "%s Detected - Vendor ID: %x ProductID: %x", gamePadMappings[g].name, deviceInfo.mouse.dwId,

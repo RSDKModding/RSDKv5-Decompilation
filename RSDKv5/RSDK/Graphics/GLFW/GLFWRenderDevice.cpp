@@ -12,7 +12,6 @@
 #define _GLDEFINE "\n"
 #endif
 
-
 GLFWwindow *RenderDevice::window;
 GLuint RenderDevice::VAO;
 GLuint RenderDevice::VBO;
@@ -41,7 +40,7 @@ bool RenderDevice::Init()
     GLFWmonitor *monitor = NULL;
     int32 w, h;
 #if RETRO_PLATFORM == RETRO_SWITCH
-    videoSettings.windowed = false;
+    videoSettings.windowed    = false;
     videoSettings.exclusiveFS = true;
     videoSettings.fsWidth = w = 1920;
     videoSettings.fsHeight = h = 1080;

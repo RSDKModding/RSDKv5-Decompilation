@@ -77,7 +77,6 @@ typedef enum {
 typedef void (*ModCallback)(void *);
 typedef std::function<void(void *)> ModCallbackSTD;
 
-
 #if RETRO_PLATFORM == RETRO_WIN
 typedef HMODULE modLogicHandle;
 #elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID

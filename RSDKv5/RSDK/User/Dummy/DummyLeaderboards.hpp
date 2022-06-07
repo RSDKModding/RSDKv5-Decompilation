@@ -13,12 +13,13 @@ struct DummyLeaderboardCallback {
 // This is the "dummy" struct, it serves as the base in the event a suitable API isn't loaded (such as in this decomp)
 // This struct should never be removed, other structs such as "SteamLeaderboards" would be added and "leaderboards" would be set to that instead
 struct DummyLeaderboards : UserLeaderboards {
-    void FrameInit() { 
+    void FrameInit()
+    {
         UserLeaderboards::FrameInit();
 
         for (int32 i = callbackList.Count() - 1; i >= 0; --i) {
             DummyLeaderboardCallback *item = callbackList.At(i);
-        
+
             if (item) {
                 if (item->loadTime) {
                     item->loadTime--;
@@ -37,7 +38,6 @@ struct DummyLeaderboards : UserLeaderboards {
                 }
             }
         }
-
     }
 
     void FetchLeaderboard(LeaderboardID *leaderboard, bool32 isUser);
@@ -51,4 +51,3 @@ struct DummyLeaderboards : UserLeaderboards {
     List<DummyLeaderboardCallback> callbackList;
 };
 #endif
-

@@ -151,10 +151,10 @@ RSDK::SKU::InputDeviceRaw *RSDK::SKU::InitRawInputDevice(uint32 id)
 void RSDK::SKU::InitHIDAPI()
 {
     RAWINPUTDEVICE rawInputDevice = {};
-    rawInputDevice.hwndTarget  = RenderDevice::windowHandle;
-    rawInputDevice.usUsagePage = HID_USAGE_PAGE_GENERIC;
-    rawInputDevice.usUsage     = HID_USAGE_GENERIC_GAMEPAD;
-    rawInputDevice.dwFlags     = 0;
+    rawInputDevice.hwndTarget     = RenderDevice::windowHandle;
+    rawInputDevice.usUsagePage    = HID_USAGE_PAGE_GENERIC;
+    rawInputDevice.usUsage        = HID_USAGE_GENERIC_GAMEPAD;
+    rawInputDevice.dwFlags        = 0;
 
     if (!RegisterRawInputDevices(&rawInputDevice, 1, sizeof(rawInputDevice)))
         PrintLog(PRINT_NORMAL, "Unable to Register HID Device.");
@@ -187,7 +187,7 @@ void RSDK::SKU::InitHIDDevices()
         }
         else {
             RID_DEVICE_INFO deviceInfo;
-            deviceInfo.cbSize         = sizeof(RID_DEVICE_INFO);
+            deviceInfo.cbSize = sizeof(RID_DEVICE_INFO);
 
             uint8 deviceID            = 0;
             InputDeviceRaw *devicePtr = GetRawInputDevice(&deviceID);
@@ -204,7 +204,7 @@ void RSDK::SKU::InitHIDDevices()
 
             for (int32 d = 0; d < rawInputListSize; ++d) {
                 uint32 deviceInfoSize = deviceInfo.cbSize;
-                UINT allocatedBytes = GetRawInputDeviceInfo(pRawInputDeviceList[d].hDevice, RIDI_DEVICEINFO, &deviceInfo, &deviceInfoSize);
+                UINT allocatedBytes   = GetRawInputDeviceInfo(pRawInputDeviceList[d].hDevice, RIDI_DEVICEINFO, &deviceInfo, &deviceInfoSize);
 
                 char deviceName[0x100];
                 memset(deviceName, 0, sizeof(deviceName));

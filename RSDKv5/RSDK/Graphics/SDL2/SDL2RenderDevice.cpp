@@ -33,8 +33,8 @@ bool RenderDevice::Init()
     float hdp = 0, vdp = 0;
 
     bool landscape = dm.h < dm.w;
-    int32 h          = landscape ? dm.w : dm.h;
-    int32 w          = landscape ? dm.h : dm.w;
+    int32 h        = landscape ? dm.w : dm.h;
+    int32 w        = landscape ? dm.h : dm.w;
 
     videoSettings.windowWidth = ((float)SCREEN_YSIZE * h / w);
 
@@ -588,8 +588,8 @@ bool RenderDevice::SetupRendering()
     if (!InitGraphicsAPI() || !InitShaders())
         return false;
 
-    int32 size  = videoSettings.pixWidth >= SCREEN_YSIZE ? videoSettings.pixWidth : SCREEN_YSIZE;
-    scanlines = (ScanlineInfo *)malloc(size * sizeof(ScanlineInfo));
+    int32 size = videoSettings.pixWidth >= SCREEN_YSIZE ? videoSettings.pixWidth : SCREEN_YSIZE;
+    scanlines  = (ScanlineInfo *)malloc(size * sizeof(ScanlineInfo));
     memset(scanlines, 0, size * sizeof(ScanlineInfo));
 
     videoSettings.windowState = WINDOWSTATE_ACTIVE;
@@ -625,8 +625,8 @@ void RenderDevice::GetDisplays()
     if (displayInfo.displays)
         free(displayInfo.displays);
 
-    displayInfo.displays        = (decltype(displayInfo.displays))malloc(sizeof(SDL_DisplayMode) * displayCount);
-    int32  newDisplayCount         = 0;
+    displayInfo.displays          = (decltype(displayInfo.displays))malloc(sizeof(SDL_DisplayMode) * displayCount);
+    int32 newDisplayCount         = 0;
     bool32 foundFullScreenDisplay = false;
 
     for (int32 d = displayCount - 1; d >= 0; --d) {
@@ -776,7 +776,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
         case SDL_FINGERMOTION:
         case SDL_FINGERDOWN:
         case SDL_FINGERUP: {
-            int32 count          = SDL_GetNumTouchFingers(event.tfinger.touchId);
+            int32 count     = SDL_GetNumTouchFingers(event.tfinger.touchId);
             touchInfo.count = 0;
             for (int32 i = 0; i < count; i++) {
                 SDL_Finger *finger = SDL_GetTouchFinger(event.tfinger.touchId, i);

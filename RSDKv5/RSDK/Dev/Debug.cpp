@@ -102,10 +102,10 @@ void RSDK::AddViewableVariable(const char *name, void *value, int32 type, int32 
 {
     if (viewableVarCount < VIEWVAR_COUNT) {
         ViewableVariable *viewVar = &viewableVarList[viewableVarCount++];
-        
+
         strncpy(viewVar->name, name, 0x10);
         viewVar->value = value;
-        
+
         switch (type) {
             case VIEWVAR_BOOL:
                 viewVar->type = VIEWVAR_DISPLAY_BOOL;

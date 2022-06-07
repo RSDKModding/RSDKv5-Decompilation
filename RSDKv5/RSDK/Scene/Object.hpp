@@ -206,9 +206,9 @@ extern TypeGroupList typeGroups[TYPEGROUP_COUNT];
 
 extern bool32 validDraw;
 
-void RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(),
-                    void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(),
-                    void (*editorDraw)(), void (*editorLoad)(), void (*serialize)());
+void RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(), void (*lateUpdate)(),
+                    void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(),
+                    void (*serialize)());
 
 #if RETRO_USE_MOD_LOADER
 void RegisterObject_STD(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, std::function<void()> update,
