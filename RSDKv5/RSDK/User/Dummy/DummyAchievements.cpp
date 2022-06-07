@@ -5,7 +5,7 @@ void DummyAchievements::TryUnlockAchievement(AchievementID *id)
         PrintLog(PRINT_NORMAL, "DUMMY TryUnlockAchievement(%s)", id->identifier);
 
         int32 i = 0;
-        for (; i < (int)achievementList.size(); ++i) {
+        for (; i < (int32)achievementList.size(); ++i) {
             if (achievementList[i].identifier == id->identifier) {
                 if (!achievementList[i].achieved) {
                     achievementStack.push_back(i);
@@ -36,7 +36,7 @@ void DummyAchievements::SetAchievementNames(String **names, int32 count)
     GetCString(nameBuffer, names[0]);
     achievementText = nameBuffer;
 
-    for (int32 i = 1; i < count && i < (int)achievementList.size(); ++i) {
+    for (int32 i = 1; i < count && i < (int32)achievementList.size(); ++i) {
         GetCString(nameBuffer, names[i]);
         achievementList[i].name = nameBuffer;
     }

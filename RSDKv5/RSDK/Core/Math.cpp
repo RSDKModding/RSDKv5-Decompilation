@@ -82,7 +82,7 @@ void RSDK::CalculateTrigAngles()
 
         for (int32 x = 0; x < 0x100; ++x) {
             // 40.743664 = 0x100 / (2 * M_PI) (roughly)
-            *arcTan = (int)(float)((float)atan2((float)y, x) * 40.743664);
+            *arcTan = (int32)(float)((float)atan2((float)y, x) * 40.743664);
             arcTan += 0x100;
         }
     }

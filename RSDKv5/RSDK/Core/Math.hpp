@@ -6,7 +6,7 @@ namespace RSDK
 
 // not "math" but works best here
 #define intToVoid(x) (void *)(size_t)(x)
-#define voidToInt(x) (int)(size_t)(x)
+#define voidToInt(x) (int32)(size_t)(x)
 
 #define minVal(a, b)                      ((a) < (b) ? (a) : (b))
 #define maxVal(a, b)                      ((a) > (b) ? (a) : (b))

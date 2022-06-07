@@ -181,7 +181,7 @@ void RSDK::SKU::InitGLFWInputAPI()
         // i'll do this later it's not using the usercore dir*/
     }
 
-    for (int i = GLFW_JOYSTICK_1; i < GLFW_JOYSTICK_LAST; ++i) {
+    for (int32 i = GLFW_JOYSTICK_1; i < GLFW_JOYSTICK_LAST; ++i) {
         if (glfwJoystickIsGamepad(i)) {
             uint32 hash;
             char idBuffer[0x20];

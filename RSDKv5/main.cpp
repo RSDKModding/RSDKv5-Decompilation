@@ -11,7 +11,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-static int s_nxlinkSock = -1;
+static int32 s_nxlinkSock = -1;
 
 static void initNxLink()
 {
@@ -38,12 +38,12 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     return RSDK_main(1, &lpCmdLine, RSDK::LinkGameLogic);
 }
 #else
-int main(int argc, char *argv[]) { return RSDK_main(argc, argv, (void *)RSDK::LinkGameLogic); }
+int32 main(int32 argc, char *argv[]) { return RSDK_main(argc, argv, (void *)RSDK::LinkGameLogic); }
 #endif
 
 #endif
 
-int RSDK_main(int argc, char **argv, void *linkLogicPtr)
+int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)
 {
 #ifdef __SWITCH__
     initNxLink();
@@ -51,7 +51,7 @@ int RSDK_main(int argc, char **argv, void *linkLogicPtr)
 
     RSDK::linkGameLogic = (RSDK::LogicLinkHandle)linkLogicPtr;
 
-    int exitCode = RSDK::RunRetroEngine(argc, argv);
+    int32 exitCode = RSDK::RunRetroEngine(argc, argv);
 
 #ifdef __SWITCH__
     socketExit();

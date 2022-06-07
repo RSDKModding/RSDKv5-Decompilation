@@ -194,7 +194,7 @@ struct AchievementInfo {
 
 extern std::string achievementText;
 extern std::vector<AchievementInfo> achievementList;
-extern std::vector<int> achievementStack;
+extern std::vector<int32> achievementStack;
 
 // End Dummy Achievement code
 

@@ -20,7 +20,7 @@ IDirect3DTexture9 *RenderDevice::screenTextures[SCREEN_COUNT];
 IDirect3DTexture9 *RenderDevice::imageTexture;
 D3DVIEWPORT9 RenderDevice::dx9ViewPort;
 
-int RenderDevice::adapterCount = 0;
+int32 RenderDevice::adapterCount = 0;
 RECT RenderDevice::monitorDisplayRect;
 GUID RenderDevice::deviceIdentifier;
 

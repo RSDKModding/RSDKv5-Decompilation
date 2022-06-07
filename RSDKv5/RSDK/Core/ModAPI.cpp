@@ -3,7 +3,7 @@
 // Start Dummy Achievements
 std::string RSDK::achievementText = "Achievement!";
 std::vector<RSDK::AchievementInfo> RSDK::achievementList;
-std::vector<int> RSDK::achievementStack;
+std::vector<int32> RSDK::achievementStack;
 // End Dummy Achievements
 
 #if RETRO_USE_MOD_LOADER
@@ -649,7 +649,7 @@ bool32 RSDK::ForeachModID(String *id)
         return false;
     }
     string set = modList[foreachStackPtr->id].id;
-    InitString(id, (char *)set.c_str(), (int)set.length());
+    InitString(id, (char *)set.c_str(), (int32)set.length());
     return true;
 }
 
@@ -704,7 +704,7 @@ void RSDK::GetModPath(const char *id, String *result)
 
     char buf[0x200];
     sprintf_s(buf, (int32)sizeof(buf), "%smods/%s", SKU::userFileDir, id);
-    InitString(result, buf, (int)strlen(buf));
+    InitString(result, buf, (int32)strlen(buf));
 }
 
 std::string GetModPath_i(const char *id)
@@ -789,7 +789,7 @@ void RSDK::GetSettingsString(const char *id, const char *key, String *result, co
 {
     if (!id) {
         if (!currentMod) {
-            InitString(result, (char *)fallback, (int)strlen(fallback));
+            InitString(result, (char *)fallback, (int32)strlen(fallback));
             return;
         }
         id = currentMod->id.c_str();
@@ -799,10 +799,10 @@ void RSDK::GetSettingsString(const char *id, const char *key, String *result, co
     if (!v.length()) {
         if (currentMod->id == id)
             SetSettingsString(key, result);
-        InitString(result, (char *)fallback, (int)strlen(fallback));
+        InitString(result, (char *)fallback, (int32)strlen(fallback));
         return;
     }
-    InitString(result, (char *)v.c_str(), (int)v.length());
+    InitString(result, (char *)v.c_str(), (int32)v.length());
 }
 
 std::string GetNidConfigValue(const char *key)
@@ -853,10 +853,10 @@ void RSDK::GetConfigString(const char *key, String *result, const char *fallback
 {
     std::string v = GetNidConfigValue(key);
     if (!v.length()) {
-        InitString(result, (char *)fallback, (int)strlen(fallback));
+        InitString(result, (char *)fallback, (int32)strlen(fallback));
         return;
     }
-    InitString(result, (char *)v.c_str(), (int)v.length());
+    InitString(result, (char *)v.c_str(), (int32)v.length());
 }
 
 bool32 RSDK::ForeachConfigCategory(String *category)
@@ -896,7 +896,7 @@ bool32 RSDK::ForeachConfigCategory(String *category)
         foreachStackPtr--;
         return false;
     }
-    InitString(category, (char *)cat.c_str(), (int)cat.length());
+    InitString(category, (char *)cat.c_str(), (int32)cat.length());
     return true;
 }
 
@@ -943,7 +943,7 @@ bool32 RSDK::ForeachConfig(String *config)
         return false;
     }
     string r = cat + ":" + key;
-    InitString(config, (char *)r.c_str(), (int)r.length());
+    InitString(config, (char *)r.c_str(), (int32)r.length());
     return true;
 }
 
@@ -1227,7 +1227,7 @@ int32 RSDK::GetAchievementIndexByID(const char *id)
 
     return -1;
 }
-int32 RSDK::GetAchievementCount() { return (int)achievementList.size(); }
+int32 RSDK::GetAchievementCount() { return (int32)achievementList.size(); }
 #endif
 
 // Start custom achievement code

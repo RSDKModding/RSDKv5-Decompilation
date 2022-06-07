@@ -42,7 +42,7 @@ void RSDK::SKU::TryUnlockAchievement(AchievementID *id)
     PrintLog(PRINT_NORMAL, "DUMMY TryUnlockAchievement(%s)", id->identifier);
 
     int32 i = 0;
-    for (; i < (int)achievementList.size(); ++i) {
+    for (; i < (int32)achievementList.size(); ++i) {
         if (achievementList[i].identifier == id->identifier) {
             if (!achievementList[i].achieved) {
                 achievementStack.push_back(i);
