@@ -383,56 +383,38 @@ inline void ReadString(FileInfo *info, char *buffer)
     buffer[size] = 0;
 }
 
-inline int32 ReadZLibRSDK(FileInfo *info, uint8 **buffer)
-{
-    if (!buffer)
-        return 0;
-
-    uLongf complen  = ReadInt32(info, false) - 4;
-    uint32 decompLE = ReadInt32(info, false);
-    uLongf destLen  = (uint32)((decompLE << 24) | ((decompLE << 8) & 0x00FF0000) | ((decompLE >> 8) & 0x0000FF00) | (decompLE >> 24));
-
-    uint8 *compData = NULL;
-    AllocateStorage((int32)complen, (void **)&compData, DATASET_TMP, false);
-    AllocateStorage((int32)destLen, (void **)buffer, DATASET_TMP, false);
-    ReadBytes(info, compData, (int32)complen);
-
-    uncompress(*buffer, &destLen, compData, complen);
-
-    RemoveStorageEntry((void **)&compData);
-
-    return (int32)destLen;
-}
-
-inline int32 ReadZLib(FileInfo *info, uint8 **buffer, int32 cSize, int32 size)
-{
-    if (!buffer)
-        return 0;
-
-    uLongf complen  = cSize;
-    uint32 decompLE = size;
-    uLongf destLen  = (uint32)((decompLE << 24) | ((decompLE << 8) & 0x00FF0000) | ((decompLE >> 8) & 0x0000FF00) | (decompLE >> 24));
-
-    uint8 *compData = NULL;
-    AllocateStorage((int32)complen, (void **)&compData, DATASET_TMP, false);
-    ReadBytes(info, compData, (int32)complen);
-
-    int32 result = uncompress(*buffer, &destLen, compData, complen);
-    compData     = NULL;
-    return (int32)destLen;
-}
-
-inline int32 ReadZLib(FileInfo *info, uint8 **cBuffer, int32 cSize, uint8 **buffer, int32 size)
+inline int32 Uncompress(FileInfo *info, uint8 **cBuffer, int32 cSize, uint8 **buffer, int32 size)
 {
     if (!buffer || !cBuffer)
         return 0;
 
-    uLongf complen = cSize;
+    uLongf cLen    = cSize;
     uLongf destLen = size;
 
-    int32 result = uncompress(*buffer, &destLen, *cBuffer, complen);
+    int32 result = uncompress(*buffer, &destLen, *cBuffer, cLen);
     *cBuffer     = NULL;
     return (int32)destLen;
+}
+
+inline int32 ReadCompressed(FileInfo *info, uint8 **buffer)
+{
+    if (!buffer)
+        return 0;
+
+    uint32 cSize  = ReadInt32(info, false) - 4;
+    uint32 sizeBE = ReadInt32(info, false);
+
+    uint32 sizeLE = (uint32)((sizeBE << 24) | ((sizeBE << 8) & 0x00FF0000) | ((sizeBE >> 8) & 0x0000FF00) | (sizeBE >> 24));
+    AllocateStorage(sizeLE, (void **)buffer, DATASET_TMP, false);
+
+    uint8 *cBuffer = NULL;
+    AllocateStorage(cSize, (void **)&cBuffer, DATASET_TMP, false);
+    ReadBytes(info, cBuffer, cSize);
+
+    uint32 newSize = Uncompress(info, &cBuffer, cSize, buffer, sizeLE);
+    RemoveStorageEntry((void **)&cBuffer);
+
+    return newSize;
 }
 
 inline void ClearDataFiles()

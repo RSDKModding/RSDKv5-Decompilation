@@ -351,12 +351,12 @@ void RSDK::LoadSceneFile()
             }
 
             uint8 *scrollIndexes = NULL;
-            ReadZLibRSDK(&info, (uint8 **)&scrollIndexes);
+            ReadCompressed(&info, (uint8 **)&scrollIndexes);
             memcpy(layer->lineScroll, scrollIndexes, TILE_SIZE * size * sizeof(uint8));
             scrollIndexes = NULL;
 
             uint8 *tileLayout = NULL;
-            ReadZLibRSDK(&info, (uint8 **)&tileLayout);
+            ReadCompressed(&info, (uint8 **)&tileLayout);
 
             int32 id = 0;
             for (int32 y = 0; y < layer->ysize; ++y) {
@@ -598,7 +598,7 @@ void RSDK::LoadTileConfig(char *filepath)
         }
 
         uint8 *buffer = NULL;
-        ReadZLibRSDK(&info, &buffer);
+        ReadCompressed(&info, &buffer);
 
         int32 bufPos = 0;
         for (int32 p = 0; p < CPATH_COUNT; ++p) {

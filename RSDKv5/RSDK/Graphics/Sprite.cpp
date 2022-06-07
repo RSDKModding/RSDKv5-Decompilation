@@ -521,7 +521,7 @@ void RSDK::ImagePNG::ProcessScanlines()
     // again, this is a BAD idea!! IDAT chunks should be stored and processed as a group at the end of reading
 
     // decode all loaded IDAT chunks into pixels
-    ReadZLib(&info, (uint8 **)&chunkBuffer, chunkSize, (uint8 **)&pixelsPtr, dataSize);
+    Uncompress(&info, (uint8 **)&chunkBuffer, chunkSize, (uint8 **)&pixelsPtr, dataSize);
 
     Unfilter(pixelsPtr);
 
