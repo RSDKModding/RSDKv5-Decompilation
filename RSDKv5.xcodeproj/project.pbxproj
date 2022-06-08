@@ -13,7 +13,6 @@
 		C9555DAE2744FE06006E1353 /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9555DAD2744FE06006E1353 /* tinyxml2.cpp */; };
 		C965667626BCF1E80076832A /* Theora.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C965667526BCF1E80076832A /* Theora.framework */; };
 		C965667726BCF1E80076832A /* Theora.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C965667526BCF1E80076832A /* Theora.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		C96881FA25DF3C8B00BEE4B8 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C96881F925DF3C8A00BEE4B8 /* Info.plist */; };
 		C968886525DF3EF300BEE4B8 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C968886425DF3EF300BEE4B8 /* SDL2.framework */; };
 		C968886625DF3EF300BEE4B8 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C968886425DF3EF300BEE4B8 /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C968886E25DF3F4C00BEE4B8 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C968886A25DF3F4B00BEE4B8 /* dictionary.cpp */; };
@@ -91,15 +90,13 @@
 
 /* Begin PBXFileReference section */
 		C92834E92631150A00D51CCE /* Ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Ogg.framework; path = dependencies/mac/libogg/macosx/Ogg.framework; sourceTree = "<group>"; };
-		C92834EC2631151B00D51CCE /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vorbis.framework; path = dependencies/mac/libvorbis/macosx/Vorbis.framework; sourceTree = "<group>"; };
 		C928353B26A3F28200D51CCE /* cocoaHelpers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = cocoaHelpers.hpp; path = dependencies/mac/cocoaHelpers.hpp; sourceTree = SOURCE_ROOT; };
 		C928353C26A3F28200D51CCE /* cocoaHelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = cocoaHelpers.mm; path = dependencies/mac/cocoaHelpers.mm; sourceTree = SOURCE_ROOT; };
 		C9555DAC2744FE06006E1353 /* tinyxml2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tinyxml2.h; path = dependencies/all/tinyxml2/tinyxml2.h; sourceTree = SOURCE_ROOT; };
 		C9555DAD2744FE06006E1353 /* tinyxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tinyxml2.cpp; path = dependencies/all/tinyxml2/tinyxml2.cpp; sourceTree = SOURCE_ROOT; };
 		C965667526BCF1E80076832A /* Theora.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Theora.framework; path = dependencies/mac/libtheora/macosx/Theora.framework; sourceTree = "<group>"; };
 		C96881F125DF3C8700BEE4B8 /* RSDKv5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSDKv5.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C96881F925DF3C8A00BEE4B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C96881FE25DF3C8B00BEE4B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../dependencies/mac/RSDKv5/Assets.xcassets; sourceTree = "<group>"; };
+		C96881FE25DF3C8B00BEE4B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../dependencies/mac/Assets.xcassets; sourceTree = "<group>"; };
 		C968886425DF3EF300BEE4B8 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = dependencies/mac/SDL2.framework; sourceTree = "<group>"; };
 		C968886A25DF3F4B00BEE4B8 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dictionary.cpp; path = dependencies/all/iniparser/dictionary.cpp; sourceTree = SOURCE_ROOT; };
 		C968886B25DF3F4B00BEE4B8 /* dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dictionary.h; path = dependencies/all/iniparser/dictionary.h; sourceTree = SOURCE_ROOT; };
@@ -278,7 +275,6 @@
 				C968886925DF3F3C00BEE4B8 /* iniparser */,
 				C9CDC7DE282E44CB00E4C97E /* stb_vorbis */,
 				C96881FE25DF3C8B00BEE4B8 /* Assets.xcassets */,
-				C96881F925DF3C8A00BEE4B8 /* Info.plist */,
 			);
 			path = RSDKv5;
 			sourceTree = "<group>";
@@ -287,7 +283,6 @@
 			isa = PBXGroup;
 			children = (
 				C965667526BCF1E80076832A /* Theora.framework */,
-				C92834EC2631151B00D51CCE /* Vorbis.framework */,
 				C92834E92631150A00D51CCE /* Ogg.framework */,
 				C968886425DF3EF300BEE4B8 /* SDL2.framework */,
 			);
@@ -631,7 +626,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C96881FA25DF3C8B00BEE4B8 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -825,14 +819,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = dependencies/mac/RSDKv5/RSDKv5.entitlements;
+				CODE_SIGN_ENTITLEMENTS = dependencies/mac/RSDKv5.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/dependencies/mac",
 					"$(PROJECT_DIR)/dependencies/mac/libogg/macosx",
-					"$(PROJECT_DIR)/dependencies/mac/libvorbis/macosx",
 					"$(PROJECT_DIR)/dependencies/mac/libtheora/macosx",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -844,7 +837,7 @@
 					"$(PROJECT_DIR)/dependencies/mac",
 					"$(PROJECT_DIR)/RSDKv5/",
 				);
-				INFOPLIST_FILE = "$(PROJECT_DIR)/dependencies/mac/RSDKv5/Info.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/dependencies/mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -861,14 +854,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = dependencies/mac/RSDKv5/RSDKv5.entitlements;
+				CODE_SIGN_ENTITLEMENTS = dependencies/mac/RSDKv5.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/dependencies/mac",
 					"$(PROJECT_DIR)/dependencies/mac/libogg/macosx",
-					"$(PROJECT_DIR)/dependencies/mac/libvorbis/macosx",
 					"$(PROJECT_DIR)/dependencies/mac/libtheora/macosx",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = "RSDK_USE_SDL2=1";
@@ -877,7 +869,7 @@
 					"$(PROJECT_DIR)/dependencies/mac",
 					"$(PROJECT_DIR)/RSDKv5/",
 				);
-				INFOPLIST_FILE = "$(PROJECT_DIR)/dependencies/mac/RSDKv5/Info.plist";
+				INFOPLIST_FILE = "$(PROJECT_DIR)/dependencies/mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

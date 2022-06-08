@@ -3,6 +3,7 @@
 
 #if RETRO_RENDERDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2
 #define FileIO                                          SDL_RWops
+#define fOpen(path, mode)                               SDL_RWFromFile(path, mode)
 #define fRead(buffer, elementSize, elementCount, file)  SDL_RWread(file, buffer, elementSize, elementCount)
 #define fSeek(file, offset, whence)                     SDL_RWseek(file, offset, whence)
 #define fTell(file)                                     SDL_RWtell(file)
@@ -392,6 +393,8 @@ inline int32 Uncompress(uint8 **cBuffer, int32 cSize, uint8 **buffer, int32 size
     uLongf destLen = size;
 
     int32 result = uncompress(*buffer, &destLen, *cBuffer, cLen);
+    (void)result;
+    
     return (int32)destLen;
 }
 
