@@ -1,6 +1,6 @@
 *
 !.gitignore
-!iniparser/
-!stb_vorbis/
+!iniparser
+!stb_vorbis
 !tinyxml2
 !README.md
