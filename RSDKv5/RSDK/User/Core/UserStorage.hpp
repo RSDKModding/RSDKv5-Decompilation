@@ -1,10 +1,7 @@
 #ifndef USER_STORAGE_H
 #define USER_STORAGE_H
 
-namespace RSDK
-{
-
-namespace SKU
+namespace RSDK::SKU
 {
 
 #if RETRO_REV02
@@ -418,8 +415,6 @@ bool32 TrySaveUserFile(const char *filename, void *buffer, uint32 size, void (*c
 
 void InitUserDirectory();
 
-} // namespace SKU
-
-} // namespace RSDK
+} // namespace RSDK::SKU
 
 #endif

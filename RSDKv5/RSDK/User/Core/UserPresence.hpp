@@ -1,10 +1,7 @@
 #ifndef USER_PRESENCE_H
 #define USER_PRESENCE_H
 
-namespace RSDK
-{
-
-namespace SKU
+namespace RSDK::SKU
 {
 
 #if RETRO_REV02
@@ -49,8 +46,6 @@ extern UserRichPresence *richPresence;
 inline void SetPresence(int32 id, String *message) { richPresence->SetPresence(id, message); }
 #endif
 
-} // namespace SKU
-
-} // namespace RSDK
+} // namespace RSDK::SKU
 
 #endif // USER_PRESENCE_H

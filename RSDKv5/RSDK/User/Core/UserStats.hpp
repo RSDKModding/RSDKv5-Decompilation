@@ -3,10 +3,7 @@
 
 #include <vector>
 
-namespace RSDK
-{
-
-namespace SKU
+namespace RSDK::SKU
 {
 
 #if RETRO_REV02
@@ -67,8 +64,6 @@ inline bool32 GetStatsEnabled() { return stats->enabled; }
 inline void SetStatsEnabled(bool32 enabled) { stats->enabled = enabled; }
 #endif
 
-} // namespace SKU
-
-} // namespace RSDK
+} // namespace RSDK::SKU
 
 #endif // USER_STATS_H

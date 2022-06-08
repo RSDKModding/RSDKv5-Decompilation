@@ -2,12 +2,7 @@
 #define READER_H
 
 #if RETRO_RENDERDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2
-#define FileIO SDL_RWops
-#if RETRO_PLATFORM != RETRO_ANDROID
-#define fOpen(path, mode) SDL_RWFromFile(path, mode)
-#else
-SDL_RWops *fOpen(const char *path, const char *mode);
-#endif
+#define FileIO                                          SDL_RWops
 #define fRead(buffer, elementSize, elementCount, file)  SDL_RWread(file, buffer, elementSize, elementCount)
 #define fSeek(file, offset, whence)                     SDL_RWseek(file, offset, whence)
 #define fTell(file)                                     SDL_RWtell(file)
@@ -21,6 +16,11 @@ SDL_RWops *fOpen(const char *path, const char *mode);
 #define fTell(file)                                     ftell(file)
 #define fClose(file)                                    fclose(file)
 #define fWrite(buffer, elementSize, elementCount, file) fwrite(buffer, elementSize, elementCount, file)
+#endif
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+#undef fOpen
+FileIO *fOpen(const char *path, const char *mode);
 #endif
 
 #include <miniz/miniz.h>
@@ -383,7 +383,7 @@ inline void ReadString(FileInfo *info, char *buffer)
     buffer[size] = 0;
 }
 
-inline int32 Uncompress(FileInfo *info, uint8 **cBuffer, int32 cSize, uint8 **buffer, int32 size)
+inline int32 Uncompress(uint8 **cBuffer, int32 cSize, uint8 **buffer, int32 size)
 {
     if (!buffer || !cBuffer)
         return 0;
@@ -392,7 +392,6 @@ inline int32 Uncompress(FileInfo *info, uint8 **cBuffer, int32 cSize, uint8 **bu
     uLongf destLen = size;
 
     int32 result = uncompress(*buffer, &destLen, *cBuffer, cLen);
-    *cBuffer     = NULL;
     return (int32)destLen;
 }
 
@@ -411,7 +410,7 @@ inline int32 ReadCompressed(FileInfo *info, uint8 **buffer)
     AllocateStorage(cSize, (void **)&cBuffer, DATASET_TMP, false);
     ReadBytes(info, cBuffer, cSize);
 
-    uint32 newSize = Uncompress(info, &cBuffer, cSize, buffer, sizeLE);
+    uint32 newSize = Uncompress(&cBuffer, cSize, buffer, sizeLE);
     RemoveStorageEntry((void **)&cBuffer);
 
     return newSize;

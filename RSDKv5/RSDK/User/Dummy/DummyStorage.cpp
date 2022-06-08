@@ -67,15 +67,13 @@ void DummyUserStorage::ProcessFileLoadTime()
                         uint8 *bufTest = (uint8 *)file->fileBuffer;
                         // quick and dirty zlib check
                         if (bufTest[0] == 0x78 && (bufTest[1] == 0x01 || bufTest[1] == 0x9C)) {
-                            uLongf destLen = file->fileSize;
+                            uint8 *cBuffer = NULL;
+                            AllocateStorage(file->fileSize, (void **)&cBuffer, DATASET_TMP, false);
+                            memcpy(cBuffer, file->fileBuffer, file->fileSize);
 
-                            uint8 *compData = NULL;
-                            AllocateStorage(file->fileSize, (void **)&compData, DATASET_TMP, false);
-                            memcpy(compData, file->fileBuffer, file->fileSize);
+                            Uncompress(&cBuffer, file->fileSize, (uint8 **)&file->fileBuffer, file->fileSize);
 
-                            uncompress((Bytef *)file->fileBuffer, &destLen, compData, file->fileSize);
-
-                            RemoveStorageEntry((void **)&compData);
+                            RemoveStorageEntry((void **)&cBuffer);
                         }
                     }
                     break;

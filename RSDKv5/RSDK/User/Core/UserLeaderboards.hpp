@@ -1,11 +1,7 @@
 #ifndef USER_LEADERBOARDS_H
 #define USER_LEADERBOARDS_H
 
-namespace RSDK
-{
-
-namespace SKU
-{
+namespace RSDK::SKU {
 
 struct LeaderboardID {
     int32 idPS4;        // leaderboard id (PS4)
@@ -184,8 +180,6 @@ void ResetLeaderboardInfo();
 LeaderboardEntry *ReadLeaderboardEntry(int32 entryID);
 #endif
 
-} // namespace SKU
-
-} // namespace RSDK
+} // namespace RSDK::SKU
 
 #endif // USER_LEADERBOARDS_H
