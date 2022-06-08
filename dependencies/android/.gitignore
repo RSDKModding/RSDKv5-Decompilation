@@ -1,0 +1,5 @@
+*
+!.gitignore
+!README.md
+!libogg/include/ogg/config_types.h
+!androidHelpers.cpp
