@@ -134,7 +134,11 @@ bool RenderDevice::SetupRendering()
     };
     // clang-format on
 #elif RETRO_PLATFORM == RETRO_ANDROID
-    EGLint *contextAttributeList = NULL;
+    static const EGLint contextAttributeList[] = { 
+        EGL_CONTEXT_MAJOR_VERSION,       3, 
+        EGL_CONTEXT_MINOR_VERSION,       1,
+        EGL_NONE 
+    };
 #endif
 
     context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttributeList);
@@ -186,8 +190,9 @@ bool RenderDevice::InitGraphicsAPI()
         return false;
     }
 #endif
-
+PrintLog(PRINT_NORMAL, "pregl");
     glClearColor(0.0, 0.0, 0.0, 1.0);
+    PrintLog(PRINT_NORMAL, "postgl 1");
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_DITHER);
     glDisable(GL_BLEND);
@@ -195,11 +200,14 @@ bool RenderDevice::InitGraphicsAPI()
     glDisable(GL_CULL_FACE);
 
     // setup buffers
+    PrintLog(PRINT_NORMAL, "postgl 1.5");
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
+        PrintLog(PRINT_NORMAL, "postgl 1.5 1");
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(RenderVertex) * (!RETRO_REV02 ? 24 : 60), NULL, GL_DYNAMIC_DRAW);
+    PrintLog(PRINT_NORMAL, "postgl 2");
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), 0);
     glEnableVertexAttribArray(0);
@@ -207,6 +215,7 @@ bool RenderDevice::InitGraphicsAPI()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, tex));
     glEnableVertexAttribArray(2);
+    PrintLog(PRINT_NORMAL, "postgl 3");
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     videoSettings.fsWidth  = 1920;

@@ -29,25 +29,13 @@ android {
         }
         externalNativeBuild {
             ndkBuild {
-                path 'Android.mk'
+                path 'jni/Android.mk'
             }
         }
        
     }
     lintOptions {
         abortOnError false
-    }
-    
-    if (buildAsLibrary) {
-        libraryVariants.all { variant ->
-            variant.outputs.each { output ->
-                def outputFile = output.outputFile
-                if (outputFile != null && outputFile.name.endsWith(".aar")) {
-                    def fileName = "com.decomp.rsdkv5.aar"
-                    output.outputFile = new File(outputFile.parent, fileName)
-                }
-            }
-        }
     }
 }
 

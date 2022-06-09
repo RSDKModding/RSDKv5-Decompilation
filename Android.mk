@@ -14,7 +14,7 @@ include $(CLEAR_VARS)
 LOCAL_ARM_MODE := arm
 LOCAL_MODULE   := libogg
 LOCAL_CFLAGS   := -ffast-math -fsigned-char -O2 -fPIC -DPIC \
-                  -DBYTE_ORDER=LITTLE_ENDIAN -D_ARM_ASSEM_
+                  -DBYTE_ORDER=LITTLE_ENDIAN -D_ARM_ASSEM_ -w
 
 LOCAL_C_INCLUDES := $(OGG_INCLUDES)
 
@@ -34,7 +34,7 @@ include $(CLEAR_VARS)
 LOCAL_ARM_MODE := arm
 LOCAL_MODULE   := libtheora
 LOCAL_CFLAGS   := -ffast-math -fsigned-char -O2 -fPIC -DPIC \
-                  -DBYTE_ORDER=LITTLE_ENDIAN -D_ARM_ASSEM_
+                  -DBYTE_ORDER=LITTLE_ENDIAN -D_ARM_ASSEM_ -w
 
 LOCAL_C_INCLUDES := $(OGG_INCLUDES) $(THEORA_INCLUDES)
 
@@ -51,7 +51,7 @@ include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := RSDK
+LOCAL_MODULE := RetroEngine
 
 LOCAL_CFLAGS := -fexceptions -frtti -DRSDK_USE_GL3
 
@@ -100,9 +100,9 @@ LOCAL_SRC_FILES += \
 	dependencies/android/androidHelpers.cpp
 
 
-LOCAL_SHARED_LIBRARIES := libogg libtheora Game
+LOCAL_SHARED_LIBRARIES := libogg libtheora
 LOCAL_LDLIBS := -lGLESv3 -lEGL -llog -lz -landroid -ljnigraphics
-LOCAL_SRC_FILES := $(subst jni/, , $(LOCAL_SRC_FILES))
+LOCAL_SRC_FILES := $(subst jni/RSDKv5/, , $(LOCAL_SRC_FILES))
 
 include $(BUILD_SHARED_LIBRARY)
 

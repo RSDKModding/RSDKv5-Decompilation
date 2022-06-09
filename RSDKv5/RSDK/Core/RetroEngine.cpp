@@ -1032,7 +1032,7 @@ void RSDK::InitGameLink()
 #if RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
         char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_ANDROID
-        sprintf(buffer, "%slib%s.so", SKU::userFileDir, gameLogicName);
+        sprintf(buffer, "lib%s.so", gameLogicName);
 #else
         sprintf(buffer, "%s%s.so", SKU::userFileDir, gameLogicName);
 #endif

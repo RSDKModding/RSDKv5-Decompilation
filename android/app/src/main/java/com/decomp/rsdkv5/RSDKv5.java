@@ -3,13 +3,27 @@ package com.decomp.rsdkv5;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Environment;
-import android.view.Surface;
-import android.view.SurfaceHolder;
+import android.widget.RelativeLayout;
 
 import java.io.File;
 
-public class RSDKv5 extends Activity implements SurfaceHolder.Callback {
+public class RSDKv5 extends Activity {
+    RSDKSurface surface;
+    RelativeLayout layout;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        surface = new RSDKSurface(getApplication());
+
+        layout = new RelativeLayout(this);
+        layout.addView(surface);
+
+        setContentView(layout);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -28,7 +42,6 @@ public class RSDKv5 extends Activity implements SurfaceHolder.Callback {
         nativeOnResume();
     }
 
-
     protected void onStop() {
         super.onStop();
         nativeOnStop();
@@ -43,32 +56,9 @@ public class RSDKv5 extends Activity implements SurfaceHolder.Callback {
         return p + "/";
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int w, int h) {
-        nativeSetSurface(surfaceHolder.getSurface());
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        nativeSetSurface(null);
-    }
-
-
-    // NATIVE START
-    static {
-        System.loadLibrary("RSDK");
-    }
-    // RENDER
     public static native void nativeOnStart(String basepath);
     public static native void nativeOnResume();
     public static native void nativeOnPause();
     public static native void nativeOnStop();
-    public static native void nativeSetSurface(Surface surface);
-    // INPUT
-    // AUDIO
+
 }
