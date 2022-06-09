@@ -46,27 +46,6 @@ LOCAL_SRC_FILES := \
 
 include $(BUILD_STATIC_LIBRARY)
 
-#######################################
-#GAME
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := Game
-
-LOCAL_C_INCLUDES := \
-    $(LOCAL_PATH)/Game \
-    $(LOCAL_PATH)/Game/Objects
-
-WILDCARD_SETUP := \
-  $(wildcard $(LOCAL_PATH)/Game/*.c) \
-  $(wildcard $(LOCAL_PATH)/Game/Objects/All.c)
-
-LOCAL_SRC_FILES := \
-	$(subst jni/, , $(WILDCARD_SETUP))
-
-LOCAL_LDLIBS := -llog
-
-include $(BUILD_SHARED_LIBRARY)
-
 ######################################################################
 #RSDK
 
