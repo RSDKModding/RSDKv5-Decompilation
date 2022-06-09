@@ -169,7 +169,6 @@ void RSDK::UnloadMods()
 
 void RSDK::LoadMods()
 {
-    sleep(5);
     UnloadMods();
 
 #if RETRO_USE_MOD_LOADER
