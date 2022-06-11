@@ -222,6 +222,8 @@ PrintLog(PRINT_NORMAL, "pregl");
     videoSettings.fsHeight = 1080;
 #elif RETRO_PLATFORM == RETRO_ANDROID
     customSettings.maxPixWidth = 510;
+    videoSettings.fsWidth = 0;
+    videoSettings.fsHeight = 0;
 #endif
 
     // EGL should only be fullscreen only apps
@@ -645,7 +647,7 @@ void RenderDevice::GetWindowSize(int32 *width, int32 *height)
     if (width)
         eglQuerySurface(display, surface, EGL_WIDTH, width);
     if (height)
-        eglQuerySurface(display, surface, EGL_HEIGHT, width);
+        eglQuerySurface(display, surface, EGL_HEIGHT, height);
 }
 
 void RenderDevice::SetupImageTexture(int32 width, int32 height, uint8 *imagePixels)

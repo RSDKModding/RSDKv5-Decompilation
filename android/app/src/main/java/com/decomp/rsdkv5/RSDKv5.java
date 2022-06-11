@@ -52,6 +52,7 @@ public class RSDKv5 extends Activity {
         requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
         String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/RSDK/v5";
         //getExternalStorageDirectory is deprecated. I do not care.
+        //rmg 20220610 i'm a changed woman EDIT: nvm not yet
         new File(p).mkdirs();
         return p + "/";
     }
