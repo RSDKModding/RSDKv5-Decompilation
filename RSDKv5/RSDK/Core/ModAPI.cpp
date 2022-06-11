@@ -398,7 +398,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                 std::string fl = file.string().c_str();
 #if RETRO_PLATFORM == RETRO_ANDROID
                 // only load ones that are compiled. this is to still allow lang mods to work
-                fl = "lib" + buf;
+                fl          = "lib" + buf;
 #endif
                 link_handle = (void *)dlopen(fl.c_str(), RTLD_LOCAL | RTLD_LAZY);
 #define getAddress dlsym

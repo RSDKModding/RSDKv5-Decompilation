@@ -3,7 +3,11 @@
 #include <D3Dcompiler.h>
 #endif
 
+// for some reason this seems to be applying "thick frame" instead of thin frame (intended)
+// it is for this reason that I'm unable to get the cool mini window toolbar that og mania has :(
+// tldr: microsoft sucks again
 #define DX9_WINDOWFLAGS_BORDERED   (WS_POPUP | (WS_BORDER | WS_DLGFRAME) | (WS_SYSMENU | WS_GROUP))
+
 #define DX9_WINDOWFLAGS_BORDERLESS (WS_POPUP)
 
 HWND RenderDevice::windowHandle;
@@ -167,7 +171,7 @@ void RenderDevice::FlipScreen()
     }
 
     dx9Device->SetViewport(&displayInfo.viewport);
-    dx9Device->Clear(0, NULL, D3DCLEAR_TARGET, 0xFF000000, 1.0, 0);
+    dx9Device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
     dx9Device->SetViewport(&dx9ViewPort);
 
     if (SUCCEEDED(dx9Device->BeginScene())) {
@@ -197,8 +201,7 @@ void RenderDevice::FlipScreen()
         }
 
         if (videoSettings.shaderSupport) {
-            float2 screenDim = { 0, 0 };
-            screenDim.x      = videoSettings.dimMax * videoSettings.dimPercent;
+            float2 screenDim = { videoSettings.dimMax * videoSettings.dimPercent, 0 };
 
             dx9Device->SetPixelShaderConstantF(0, &pixelSize.x, 1);   // pixelSize
             dx9Device->SetPixelShaderConstantF(1, &textureSize.x, 1); // textureSize
@@ -309,9 +312,8 @@ void RenderDevice::Release(bool32 isRefresh)
         screenTextures[i] = NULL;
     }
 
-    if (!isRefresh) {
-        if (displayInfo.displays)
-            free(displayInfo.displays);
+    if (!isRefresh && displayInfo.displays) {
+        free(displayInfo.displays);
         displayInfo.displays = NULL;
     }
 
@@ -335,9 +337,8 @@ void RenderDevice::Release(bool32 isRefresh)
         dx9Context = NULL;
     }
 
-    if (!isRefresh) {
-        if (scanlines)
-            free(scanlines);
+    if (!isRefresh && scanlines) {
+        free(scanlines);
         scanlines = NULL;
     }
 }
@@ -414,7 +415,7 @@ void RenderDevice::RefreshWindow()
     }
 
     ShowWindow(windowHandle, SW_SHOW);
-    RedrawWindow(windowHandle, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+    RedrawWindow(windowHandle, NULL, NULL, RDW_UPDATENOW | RDW_INVALIDATE);
 
     if (!InitGraphicsAPI() || !InitShaders())
         return;
@@ -489,14 +490,25 @@ bool RenderDevice::InitGraphicsAPI()
     viewSize.y = 0;
 
     D3DPRESENT_PARAMETERS presentParams;
-    memset(&presentParams, 0, sizeof(presentParams));
+    ZeroMemory(&presentParams, sizeof(presentParams));
     if (videoSettings.windowed || !videoSettings.exclusiveFS) {
-        presentParams.BackBufferFormat     = D3DFMT_UNKNOWN;
-        presentParams.BackBufferCount      = 1;
-        presentParams.SwapEffect           = D3DSWAPEFFECT_DISCARD;
-        presentParams.PresentationInterval = 0;
-        presentParams.hDeviceWindow        = windowHandle;
-        presentParams.Windowed             = true;
+        presentParams.BackBufferWidth  = 0;
+        presentParams.BackBufferHeight = 0;
+        presentParams.BackBufferFormat = D3DFMT_UNKNOWN;
+        presentParams.BackBufferCount  = 1;
+
+        presentParams.MultiSampleType    = D3DMULTISAMPLE_NONE;
+        presentParams.MultiSampleQuality = 0;
+
+        presentParams.SwapEffect             = D3DSWAPEFFECT_DISCARD;
+        presentParams.hDeviceWindow          = windowHandle;
+        presentParams.Windowed               = true;
+        presentParams.EnableAutoDepthStencil = false;
+        presentParams.AutoDepthStencilFormat = D3DFMT_UNKNOWN;
+        presentParams.Flags                  = 0;
+
+        presentParams.FullScreen_RefreshRateInHz = 0;
+        presentParams.PresentationInterval       = D3DPRESENT_INTERVAL_DEFAULT;
 
         if (videoSettings.windowed) {
             viewSize.x = (float)videoSettings.windowWidth;
@@ -515,15 +527,26 @@ bool RenderDevice::InitGraphicsAPI()
             bufferHeight = displayHeight[dxAdapter];
         }
 
-        presentParams.BackBufferWidth            = bufferWidth;
-        presentParams.BackBufferHeight           = bufferHeight;
-        presentParams.BackBufferCount            = videoSettings.tripleBuffered ? 2 : 1;
-        presentParams.BackBufferFormat           = D3DFMT_X8R8G8B8;
-        presentParams.PresentationInterval       = videoSettings.vsync ? 1 : 0x80000000;
-        presentParams.SwapEffect                 = D3DSWAPEFFECT_DISCARD;
+        presentParams.BackBufferWidth  = bufferWidth;
+        presentParams.BackBufferHeight = bufferHeight;
+        // for some reason this seems to force the window to have permanent top focus after coming out of fullscreen
+        // despite this being 1:1 with the original code and it not having that behaviour
+        // tldr: microsoft sucks
+        presentParams.BackBufferFormat = D3DFMT_X8R8G8B8; 
+        presentParams.BackBufferCount  = videoSettings.tripleBuffered ? 2 : 1;
+
+        presentParams.MultiSampleType    = D3DMULTISAMPLE_NONE;
+        presentParams.MultiSampleQuality = 0;
+
+        presentParams.SwapEffect             = D3DSWAPEFFECT_DISCARD;
+        presentParams.hDeviceWindow          = windowHandle;
+        presentParams.Windowed               = false;
+        presentParams.EnableAutoDepthStencil = false;
+        presentParams.AutoDepthStencilFormat = D3DFMT_UNKNOWN;
+        presentParams.Flags                  = 0;
+
         presentParams.FullScreen_RefreshRateInHz = videoSettings.refreshRate;
-        presentParams.hDeviceWindow              = windowHandle;
-        presentParams.Windowed                   = false;
+        presentParams.PresentationInterval       = videoSettings.vsync ? D3DPRESENT_INTERVAL_ONE : D3DPRESENT_INTERVAL_IMMEDIATE;
 
         viewSize.x = (float)bufferWidth;
         viewSize.y = (float)bufferHeight;
@@ -533,7 +556,6 @@ bool RenderDevice::InitGraphicsAPI()
         return false;
 
     if (videoSettings.shaderSupport) {
-
         D3DVERTEXELEMENT9 elements[4];
 
         elements[0].Type       = D3DDECLTYPE_FLOAT3;
@@ -904,7 +926,7 @@ bool RenderDevice::SetupRendering()
     if (!dx9Context)
         return false;
 
-    memset(&deviceIdentifier, 0, sizeof(deviceIdentifier));
+    ZeroMemory(&deviceIdentifier, sizeof(deviceIdentifier));
 
     GetDisplays();
 
@@ -940,7 +962,7 @@ void RenderDevice::GetDisplays()
 
         if (windowMonitor == monitor) {
             MONITORINFO lpmi;
-            memset(&lpmi, 0, sizeof(lpmi));
+            ZeroMemory(&lpmi, sizeof(lpmi));
             lpmi.cbSize = sizeof(MONITORINFO);
 
             GetMonitorInfo(windowMonitor, &lpmi);
@@ -950,7 +972,7 @@ void RenderDevice::GetDisplays()
     }
 
     D3DADAPTER_IDENTIFIER9 adapterIdentifier;
-    memset(&adapterIdentifier, 0, sizeof(adapterIdentifier));
+    ZeroMemory(&adapterIdentifier, sizeof(adapterIdentifier));
     dx9Context->GetAdapterIdentifier(dxAdapter, 0, &adapterIdentifier);
 
     // no change, don't reload anything
@@ -1010,7 +1032,10 @@ void RenderDevice::ProcessEvent(MSG Msg)
     bool handledMsg = false;
 
     switch (Msg.message) {
-        case WM_QUIT: isRunning = false; break;
+        case WM_QUIT:
+            isRunning  = false;
+            handledMsg = true;
+            break;
 
         // called when holding "ALT" down
         case WM_SYSKEYDOWN: {
@@ -1045,13 +1070,16 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F4: // alt + f4
                     if (GetAsyncKeyState(VK_MENU))
                         isRunning = false;
+
                     handledMsg = true;
                     break;
 
                 case VK_F10:
-                    if (engine.devMenu)
+                    if (engine.devMenu) {
                         engine.showPaletteOverlay ^= 1;
-                    handledMsg = true;
+
+                        handledMsg = true;
+                    }
                     break;
             }
 
@@ -1076,13 +1104,13 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 default:
 #if RETRO_INPUTDEVICE_KEYBOARD
                     SKU::UpdateKeyState(activeButtons);
-                    handledMsg = false;
 #endif
                     break;
 
                 case VK_BACK:
                     if (engine.devMenu) {
                         engine.gameSpeed = engine.fastForwardSpeed;
+
                         handledMsg       = true;
                     }
                     break;
@@ -1093,74 +1121,100 @@ void RenderDevice::ProcessEvent(MSG Msg)
                             CloseDevMenu();
                         else
                             OpenDevMenu();
+
+                        handledMsg = true;
                     }
                     else {
 #if RETRO_INPUTDEVICE_KEYBOARD
                         SKU::UpdateKeyState(activeButtons);
-                        handledMsg = false;
 #endif
                     }
                     break;
 
 #if !RETRO_USE_ORIGINAL_CODE
                 case VK_F1:
-                    sceneInfo.listPos--;
-                    if (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart) {
-                        sceneInfo.activeCategory--;
-                        if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
-                            sceneInfo.activeCategory = sceneInfo.categoryCount - 1;
+                    if (engine.devMenu) {
+                        sceneInfo.listPos--;
+                        if (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart) {
+                            sceneInfo.activeCategory--;
+                            if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
+                                sceneInfo.activeCategory = sceneInfo.categoryCount - 1;
+                            }
+                            sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd - 1;
                         }
-                        sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd - 1;
-                    }
 
-                    InitSceneLoad();
+                        InitSceneLoad();
+
+                        handledMsg = true;
+                    }
                     break;
 
                 case VK_F2:
-                    sceneInfo.listPos++;
-                    if (sceneInfo.listPos >= sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd) {
-                        sceneInfo.activeCategory++;
-                        if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
-                            sceneInfo.activeCategory = 0;
+                    if (engine.devMenu) {
+                        sceneInfo.listPos++;
+                        if (sceneInfo.listPos >= sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd) {
+                            sceneInfo.activeCategory++;
+                            if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
+                                sceneInfo.activeCategory = 0;
+                            }
+                            sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
                         }
-                        sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
-                    }
 
-                    InitSceneLoad();
+                        InitSceneLoad();
+
+                        handledMsg = true;
+                    }
                     break;
 #endif
 
                 case VK_F3:
                     if (userShaderCount) {
                         videoSettings.shaderID = (videoSettings.shaderID + 1) % userShaderCount;
+
                         handledMsg             = true;
                     }
                     break;
 
 #if !RETRO_USE_ORIGINAL_CODE
                 case VK_F5:
-                    // Quick-Reload
-                    InitSceneLoad();
+                    if (engine.devMenu) {
+                        // Quick-Reload
+                        InitSceneLoad();
+
+                        handledMsg = true;
+                    }
                     break;
 
                 case VK_F6:
-                    if (engine.devMenu && videoSettings.screenCount > 1)
+                    if (engine.devMenu && videoSettings.screenCount > 1) {
                         videoSettings.screenCount--;
+
+                        handledMsg = true;
+                    }
                     break;
 
                 case VK_F7:
-                    if (engine.devMenu && videoSettings.screenCount < SCREEN_COUNT)
+                    if (engine.devMenu && videoSettings.screenCount < SCREEN_COUNT) {
                         videoSettings.screenCount++;
+
+                        handledMsg = true;
+                    }
                     break;
 
                 case VK_F9:
-                    if (engine.devMenu)
+                    if (engine.devMenu) {
                         showHitboxes ^= 1;
+
+                        handledMsg = true;
+                    }
                     break;
 
                 case VK_F10:
-                    if (engine.devMenu)
+                    if (engine.devMenu) {
                         engine.showPaletteOverlay ^= 1;
+
+                        handledMsg = true;
+                    }
                     break;
 #endif
 
@@ -1168,6 +1222,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F11:
                     if (engine.devMenu) {
                         engine.frameStep = true;
+
                         handledMsg       = true;
                     }
                     break;
@@ -1177,6 +1232,8 @@ void RenderDevice::ProcessEvent(MSG Msg)
                     if (engine.devMenu) {
                         if (sceneInfo.state != ENGINESTATE_NONE)
                             sceneInfo.state ^= ENGINESTATE_STEPOVER;
+
+                        handledMsg = true;
                     }
                     break;
             }
@@ -1205,6 +1262,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
 
                 case VK_BACK:
                     engine.gameSpeed = 1;
+
                     handledMsg       = true;
                     break;
             }
@@ -1215,12 +1273,14 @@ void RenderDevice::ProcessEvent(MSG Msg)
         case WM_LBUTTONDOWN:
             touchInfo.down[0] = 1;
             touchInfo.count   = 1;
+
             handledMsg        = true;
             break;
 
         case WM_LBUTTONUP:
             touchInfo.down[0] = 0;
             touchInfo.count   = 0;
+
             handledMsg        = true;
             break;
 

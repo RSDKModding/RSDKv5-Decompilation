@@ -1,4 +1,5 @@
 #include "resource.h"
+
 #if !RETRO_USE_ORIGINAL_CODE
 #include <D3Dcompiler.h>
 #endif
@@ -362,9 +363,8 @@ void RenderDevice::Release(bool32 isRefresh)
         rasterState = NULL;
     }
 
-    if (!isRefresh) {
-        if (displayInfo.displays)
-            free(displayInfo.displays);
+    if (!isRefresh && displayInfo.displays) {
+        free(displayInfo.displays);
         displayInfo.displays = NULL;
     }
 
@@ -394,10 +394,8 @@ void RenderDevice::Release(bool32 isRefresh)
         dx11Context = NULL;
     }
 
-    if (!isRefresh) {
-        if (scanlines)
-            free(scanlines);
-
+    if (!isRefresh && scanlines) {
+        free(scanlines);
         scanlines = NULL;
     }
 }
@@ -482,7 +480,7 @@ void RenderDevice::RefreshWindow()
     }
 
     ShowWindow(windowHandle, SW_SHOW);
-    RedrawWindow(windowHandle, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+    RedrawWindow(windowHandle, NULL, NULL, RDW_UPDATENOW | RDW_INVALIDATE);
 
     if (!InitGraphicsAPI() || !InitShaders())
         return;
@@ -569,7 +567,7 @@ bool RenderDevice::InitGraphicsAPI()
     }
     else {
         PrintLog(PRINT_NORMAL, "ERROR: HLSL model 5 shader support not detected. shader support is required for the DX11 backend!\nIf this issue "
-                               "persists, maybe try using the DX9 backend instead?");
+                               "persists, try using the DX9 backend instead?");
         return false; // unlike DX9, DX11 doesn't support shaderless rendering, so just kill it here
     }
 
@@ -1201,7 +1199,7 @@ bool RenderDevice::SetupRendering()
     if (FAILED(hr))
         return false;
 
-    memset(&deviceIdentifier, 0, sizeof(deviceIdentifier));
+    ZeroMemory(&deviceIdentifier, sizeof(deviceIdentifier));
 
     GetDisplays();
 
@@ -1249,7 +1247,7 @@ void RenderDevice::GetDisplays()
 
             if (windowMonitor == monitor) {
                 MONITORINFO lpmi;
-                memset(&lpmi, 0, sizeof(lpmi));
+                ZeroMemory(&lpmi, sizeof(lpmi));
                 lpmi.cbSize = sizeof(MONITORINFO);
 
                 GetMonitorInfo(windowMonitor, &lpmi);
@@ -1262,7 +1260,7 @@ void RenderDevice::GetDisplays()
     }
 
     DXGI_ADAPTER_DESC adapterIdentifier;
-    memset(&adapterIdentifier, 0, sizeof(adapterIdentifier));
+    ZeroMemory(&adapterIdentifier, sizeof(adapterIdentifier));
     adapterList[dxAdapter]->GetDesc(&adapterIdentifier);
 
     // no change, don't reload anything
