@@ -229,15 +229,24 @@ char RSDK::drawGroupNames[0x10][0x10] = {
 
 void RSDK::RenderDeviceBase::ProcessDimming()
 {
+    // Bug Details:
+    // if you've ever used debug mode before the first frame of v5 executes you may've seen how the game starts dimmed
+    // this is because dimLimit hasn't been initialized yet, so it starts at 0. Likewise, the timer also starts at 0
+    // this leads the game to immediately begin dimming when it shouldn't be
+    // Fix:
+    // initialize dimLimit before ProcessStage(), maybe in RenderDevice::SetupRendering() or something
+
     if (videoSettings.dimTimer < videoSettings.dimLimit) {
         if (videoSettings.dimPercent < 1.0) {
             videoSettings.dimPercent += 0.05f;
+
             if (videoSettings.dimPercent > 1.0)
                 videoSettings.dimPercent = 1.0;
         }
     }
-    else if (videoSettings.dimPercent > 0.25) {
-        videoSettings.dimPercent *= 0.9f;
+    else {
+        if (videoSettings.dimPercent > 0.25) 
+            videoSettings.dimPercent *= 0.9f;
     }
 }
 

@@ -501,7 +501,7 @@ struct RetroEngine {
     // Image/Video support
     double displayTime       = 0.0;
     double videoStartDelay   = 0.0;
-    double imageDelta        = 0.0;
+    double imageFadeSpeed        = 0.0;
     bool32 (*skipCallback)() = NULL;
 
     bool32 streamsEnabled = true;

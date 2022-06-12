@@ -389,9 +389,9 @@ void RSDK::ProcessEngine()
         case ENGINESTATE_SHOWIMAGE:
             ProcessInput();
 
-            if (engine.imageDelta <= 0.0 || videoSettings.dimMax >= 1.0) {
+            if (engine.imageFadeSpeed <= 0.0 || videoSettings.dimMax >= 1.0) {
                 if (engine.displayTime <= 0.0) {
-                    videoSettings.dimMax += engine.imageDelta;
+                    videoSettings.dimMax += engine.imageFadeSpeed;
                     if (videoSettings.dimMax <= 0.0) {
                         videoSettings.shaderID    = engine.storedShaderID;
                         videoSettings.screenCount = 1;
@@ -407,10 +407,10 @@ void RSDK::ProcessEngine()
                 }
             }
             else {
-                videoSettings.dimMax += engine.imageDelta;
+                videoSettings.dimMax += engine.imageFadeSpeed;
                 if (videoSettings.dimMax >= 1.0) {
-                    engine.imageDelta    = -engine.imageDelta;
-                    videoSettings.dimMax = 1.0;
+                    engine.imageFadeSpeed = -engine.imageFadeSpeed;
+                    videoSettings.dimMax  = 1.0;
                 }
             }
             break;

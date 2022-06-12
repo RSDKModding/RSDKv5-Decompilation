@@ -983,7 +983,7 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double speed,
         videoSettings.screenCount = 0; // "Image Display Mode"
         engine.skipCallback       = skipCallback;
         sceneInfo.state           = ENGINESTATE_SHOWIMAGE;
-        engine.imageDelta         = speed / 60.0;
+        engine.imageFadeSpeed     = speed / 60.0;
 
         image.palette = NULL;
         image.pixels  = NULL;
@@ -1009,7 +1009,7 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double speed,
         videoSettings.screenCount = 0; // "Image Display Mode"
         engine.skipCallback       = skipCallback;
         sceneInfo.state           = ENGINESTATE_SHOWIMAGE;
-        engine.imageDelta         = speed / 60.0;
+        engine.imageFadeSpeed     = speed / 60.0;
 
         image.palette = NULL;
         image.pixels  = NULL;
