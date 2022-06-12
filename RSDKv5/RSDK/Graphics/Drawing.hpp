@@ -362,19 +362,19 @@ inline void AddDrawListRef(uint8 drawGroup, uint16 entityID)
 inline uint16 GetDrawListRef(uint8 drawGroup, uint16 entityID)
 {
     DrawList *list = &drawGroups[drawGroup];
-    if (drawGroup >= DRAWGROUP_COUNT || entityID >= list->entityCount)
-        return 0;
-    else
+    if (drawGroup < DRAWGROUP_COUNT && entityID < list->entityCount)
         return list->entries[entityID];
+
+    return 0;
 }
 
 inline Entity *GetDrawListRefPtr(uint8 drawGroup, uint16 entityID)
 {
     DrawList *listPtr = &drawGroups[drawGroup];
-    if (drawGroup >= DRAWGROUP_COUNT || entityID >= listPtr->entityCount)
-        return NULL;
-    else
+    if (drawGroup < DRAWGROUP_COUNT || entityID < listPtr->entityCount)
         return &objectEntityList[listPtr->entries[entityID]];
+
+    return NULL;
 }
 
 inline void SetDrawLayerProperties(uint8 drawGroup, bool32 sorted, void (*callback)())
@@ -386,7 +386,7 @@ inline void SetDrawLayerProperties(uint8 drawGroup, bool32 sorted, void (*callba
     }
 }
 
-void SwapDrawListEntries(uint8 drawGroup, uint16 startSlotID, uint16 endSlotID, int32 count);
+void SwapDrawListEntries(uint8 drawGroup, uint16 slot1, uint16 slot2, int32 count);
 
 void FillScreen(uint32 color, int32 alphaR, int32 alphaG, int32 alphaB);
 

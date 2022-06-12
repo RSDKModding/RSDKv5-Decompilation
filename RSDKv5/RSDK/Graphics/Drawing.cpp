@@ -519,7 +519,7 @@ void RSDK::SetVideoSetting(int32 id, int32 value)
     }
 }
 
-void RSDK::SwapDrawListEntries(uint8 drawGroup, uint16 startSlotID, uint16 endSlotID, int32 count)
+void RSDK::SwapDrawListEntries(uint8 drawGroup, uint16 slot1, uint16 slot2, int32 count)
 {
     if (drawGroup < DRAWGROUP_COUNT) {
         DrawList *list = &drawGroups[drawGroup];
@@ -531,9 +531,9 @@ void RSDK::SwapDrawListEntries(uint8 drawGroup, uint16 startSlotID, uint16 endSl
             int32 slotB = -1;
             if (count > 0) {
                 for (int32 i = 0; i < count; ++i) {
-                    if (list->entries[i] == startSlotID)
+                    if (list->entries[i] == slot1)
                         slotA = i;
-                    if (list->entries[i] == endSlotID)
+                    if (list->entries[i] == slot2)
                         slotB = i;
                 }
 
