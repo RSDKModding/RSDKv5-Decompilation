@@ -84,10 +84,10 @@ void RenderDevice::CopyFrameBuffer()
     for (int32 s = 0; s < videoSettings.screenCount; ++s) {
         SDL_LockTexture(screenTexture[s], NULL, (void **)&pixels, &pitch);
 
-        uint16 *frameBufferPtr = screens[s].frameBuffer;
+        uint16 *frameBuffer = screens[s].frameBuffer;
         for (int32 y = 0; y < SCREEN_YSIZE; ++y) {
-            memcpy(pixels, frameBufferPtr, screens[s].size.x * sizeof(uint16));
-            frameBufferPtr += screens[s].pitch;
+            memcpy(pixels, frameBuffer, screens[s].size.x * sizeof(uint16));
+            frameBuffer += screens[s].pitch;
             pixels += pitch / sizeof(uint16);
         }
 

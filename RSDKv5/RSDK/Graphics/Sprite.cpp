@@ -17,21 +17,22 @@ uint8 TraceGifPrefix(uint32 *prefix, int32 code, int32 clearCode);
 
 void InitGifDecoder(ImageGIF *image)
 {
-    uint8 val                      = ReadInt8(&image->info);
+    uint8 initCodeSize             = ReadInt8(&image->info);
     image->decoder->fileState      = LOADING_IMAGE;
     image->decoder->position       = 0;
     image->decoder->bufferSize     = 0;
     image->decoder->buffer[0]      = 0;
-    image->decoder->depth          = val;
-    image->decoder->clearCode      = 1 << val;
+    image->decoder->depth          = initCodeSize;
+    image->decoder->clearCode      = 1 << initCodeSize;
     image->decoder->eofCode        = image->decoder->clearCode + 1;
     image->decoder->runningCode    = image->decoder->eofCode + 1;
-    image->decoder->runningBits    = val + 1;
+    image->decoder->runningBits    = initCodeSize + 1;
     image->decoder->maxCodePlusOne = 1 << image->decoder->runningBits;
     image->decoder->stackPtr       = 0;
     image->decoder->prevCode       = NO_SUCH_CODE;
     image->decoder->shiftState     = 0;
-    image->decoder->shiftData      = 0u;
+    image->decoder->shiftData      = 0;
+
     for (int32 i = 0; i <= LZ_MAX_CODE; ++i) image->decoder->prefix[i] = (uint8)NO_SUCH_CODE;
 }
 void ReadGifLine(ImageGIF *image, uint8 *line, int32 length, int32 offset)
@@ -41,32 +42,34 @@ void ReadGifLine(ImageGIF *image, uint8 *line, int32 length, int32 offset)
     int32 eofCode   = image->decoder->eofCode;
     int32 clearCode = image->decoder->clearCode;
     int32 prevCode  = image->decoder->prevCode;
+
     if (stackPtr != 0) {
         while (stackPtr != 0) {
-            if (i >= length) {
+            if (i >= length)
                 break;
-            }
+
             line[offset++] = image->decoder->stack[--stackPtr];
             i++;
         }
     }
+
     while (i < length) {
         int32 gifCode = ReadGifCode(image);
         if (gifCode == eofCode) {
-            if (i != length - 1 | image->decoder->pixelCount != 0) {
+            if (i != length - 1 || image->decoder->pixelCount != 0)
                 return;
-            }
+
             i++;
         }
         else {
             if (gifCode == clearCode) {
-                for (int32 j = 0; j <= LZ_MAX_CODE; j++) {
-                    image->decoder->prefix[j] = NO_SUCH_CODE;
-                }
+                for (int32 p = 0; p <= LZ_MAX_CODE; p++) image->decoder->prefix[p] = NO_SUCH_CODE;
+
                 image->decoder->runningCode    = image->decoder->eofCode + 1;
                 image->decoder->runningBits    = image->decoder->depth + 1;
                 image->decoder->maxCodePlusOne = 1 << image->decoder->runningBits;
-                prevCode                       = (image->decoder->prevCode = NO_SUCH_CODE);
+
+                prevCode = image->decoder->prevCode = NO_SUCH_CODE;
             }
             else {
                 if (gifCode < clearCode) {
@@ -74,50 +77,51 @@ void ReadGifLine(ImageGIF *image, uint8 *line, int32 length, int32 offset)
                     i++;
                 }
                 else {
-                    if (gifCode<0 | gifCode> LZ_MAX_CODE) {
+                    if (gifCode < 0 || gifCode > LZ_MAX_CODE)
                         return;
-                    }
-                    int32 code;
+
+                    int32 code = gifCode;
                     if (image->decoder->prefix[gifCode] == NO_SUCH_CODE) {
-                        if (gifCode != image->decoder->runningCode - 2) {
+                        if (gifCode != image->decoder->runningCode - 2)
                             return;
-                        }
+
                         code = prevCode;
-                        image->decoder->suffix[image->decoder->runningCode - 2] =
-                            (image->decoder->stack[stackPtr++] = TraceGifPrefix(image->decoder->prefix, prevCode, clearCode));
+
+                        image->decoder->suffix[image->decoder->runningCode - 2] = image->decoder->stack[stackPtr++] =
+                            TraceGifPrefix(image->decoder->prefix, prevCode, clearCode);
                     }
-                    else {
-                        code = gifCode;
-                    }
+
                     int32 c = 0;
                     while (c++ <= LZ_MAX_CODE && code > clearCode && code <= LZ_MAX_CODE) {
                         image->decoder->stack[stackPtr++] = image->decoder->suffix[code];
                         code                              = image->decoder->prefix[code];
                     }
-                    if (c >= LZ_MAX_CODE | code > LZ_MAX_CODE) {
+
+                    if (c >= LZ_MAX_CODE || code > LZ_MAX_CODE)
                         return;
-                    }
+
                     image->decoder->stack[stackPtr++] = (uint8)code;
-                    while (stackPtr != 0 && i++ < length) {
-                        line[offset++] = image->decoder->stack[--stackPtr];
-                    }
+
+                    while (stackPtr != 0 && i++ < length) line[offset++] = image->decoder->stack[--stackPtr];
                 }
+
                 if (prevCode != NO_SUCH_CODE) {
-                    if (image->decoder->runningCode<2 | image->decoder->runningCode> FIRST_CODE) {
+                    if (image->decoder->runningCode < 2 || image->decoder->runningCode > FIRST_CODE)
                         return;
-                    }
+
                     image->decoder->prefix[image->decoder->runningCode - 2] = prevCode;
-                    if (gifCode == image->decoder->runningCode - 2) {
+
+                    if (gifCode == image->decoder->runningCode - 2)
                         image->decoder->suffix[image->decoder->runningCode - 2] = TraceGifPrefix(image->decoder->prefix, prevCode, clearCode);
-                    }
-                    else {
+                    else
                         image->decoder->suffix[image->decoder->runningCode - 2] = TraceGifPrefix(image->decoder->prefix, gifCode, clearCode);
-                    }
                 }
+
                 prevCode = gifCode;
             }
         }
     }
+
     image->decoder->prevCode = prevCode;
     image->decoder->stackPtr = stackPtr;
 }
@@ -126,16 +130,18 @@ int32 ReadGifCode(ImageGIF *image)
 {
     while (image->decoder->shiftState < image->decoder->runningBits) {
         uint8 b = ReadGifByte(image);
-        image->decoder->shiftData |= (uint32)((uint32)b << image->decoder->shiftState);
+        image->decoder->shiftData |= (uint32)b << image->decoder->shiftState;
         image->decoder->shiftState += 8;
     }
-    int32 result = (int32)((unsigned long)image->decoder->shiftData & (unsigned long)(codeMasks[image->decoder->runningBits]));
+
+    int32 result = (int32)(image->decoder->shiftData & (uint32)codeMasks[image->decoder->runningBits]);
     image->decoder->shiftData >>= image->decoder->runningBits;
     image->decoder->shiftState -= image->decoder->runningBits;
     if (++image->decoder->runningCode > image->decoder->maxCodePlusOne && image->decoder->runningBits < LZ_BITS) {
         image->decoder->maxCodePlusOne <<= 1;
         image->decoder->runningBits++;
     }
+
     return result;
 }
 
@@ -148,11 +154,12 @@ uint8 ReadGifByte(ImageGIF *image)
     uint8 b;
     if (image->decoder->position == image->decoder->bufferSize) {
         b                          = ReadInt8(&image->info);
-        image->decoder->bufferSize = (int32)b;
+        image->decoder->bufferSize = b;
         if (image->decoder->bufferSize == 0) {
             image->decoder->fileState = LOAD_COMPLETE;
             return c;
         }
+
         ReadBytes(&image->info, image->decoder->buffer, image->decoder->bufferSize);
         b                        = image->decoder->buffer[0];
         image->decoder->position = 1;
@@ -160,6 +167,7 @@ uint8 ReadGifByte(ImageGIF *image)
     else {
         b = image->decoder->buffer[image->decoder->position++];
     }
+
     return b;
 }
 
@@ -170,20 +178,21 @@ uint8 TraceGifPrefix(uint32 *prefix, int32 code, int32 clearCode)
 
     return code;
 }
-void ReadGifPictureData(ImageGIF *image, int32 width, int32 height, bool32 interlaced, uint8 *gfxData)
+void ReadGifPictureData(ImageGIF *image, int32 width, int32 height, bool32 interlaced, uint8 *pixels)
 {
-    int32 array[]  = { 0, 4, 2, 1 };
-    int32 array2[] = { 8, 8, 4, 2 };
+    int32 initialRows[] = { 0, 4, 2, 1 };
+    int32 rowInc[]      = { 8, 8, 4, 2 };
+
     InitGifDecoder(image);
     if (interlaced) {
-        for (int32 i = 0; i < 4; ++i) {
-            for (int32 j = array[i]; j < height; j += array2[i]) {
-                ReadGifLine(image, gfxData, width, j * width);
+        for (int32 p = 0; p < 4; ++p) {
+            for (int32 y = initialRows[p]; y < height; y += rowInc[p]) {
+                ReadGifLine(image, pixels, width, y * width);
             }
         }
         return;
     }
-    for (int32 h = 0; h < height; ++h) ReadGifLine(image, gfxData, width, h * width);
+    for (int32 h = 0; h < height; ++h) ReadGifLine(image, pixels, width, h * width);
 }
 
 bool32 ImageGIF::Load(const char *fileName, bool32 loadHeader)
@@ -194,9 +203,11 @@ bool32 ImageGIF::Load(const char *fileName, bool32 loadHeader)
     if (fileName) {
         if (!LoadFile(&info, fileName, FMODE_RB))
             return false;
+
         Seek_Set(&info, 6);
         width  = ReadInt16(&info);
         height = ReadInt16(&info);
+
         if (loadHeader)
             return true;
     }

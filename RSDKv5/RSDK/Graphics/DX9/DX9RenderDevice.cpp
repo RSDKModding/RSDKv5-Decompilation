@@ -124,7 +124,7 @@ void RenderDevice::CopyFrameBuffer()
 
         if (SUCCEEDED(screenTextures[s]->LockRect(0, &rect, NULL, D3DLOCK_DISCARD))) {
             WORD *pixels           = (WORD *)rect.pBits;
-            uint16 *frameBufferPtr = screens[s].frameBuffer;
+            uint16 *frameBuffer = screens[s].frameBuffer;
 
             int32 screenPitch = screens[s].pitch;
             int32 pitch       = (rect.Pitch >> 1) - screenPitch;
@@ -132,24 +132,24 @@ void RenderDevice::CopyFrameBuffer()
             for (int32 y = 0; y < SCREEN_YSIZE; ++y) {
                 int32 pixelCount = screenPitch >> 4;
                 for (int32 x = 0; x < pixelCount; ++x) {
-                    pixels[0]  = frameBufferPtr[0];
-                    pixels[1]  = frameBufferPtr[1];
-                    pixels[2]  = frameBufferPtr[2];
-                    pixels[3]  = frameBufferPtr[3];
-                    pixels[4]  = frameBufferPtr[4];
-                    pixels[5]  = frameBufferPtr[5];
-                    pixels[6]  = frameBufferPtr[6];
-                    pixels[7]  = frameBufferPtr[7];
-                    pixels[8]  = frameBufferPtr[8];
-                    pixels[9]  = frameBufferPtr[9];
-                    pixels[10] = frameBufferPtr[10];
-                    pixels[11] = frameBufferPtr[11];
-                    pixels[12] = frameBufferPtr[12];
-                    pixels[13] = frameBufferPtr[13];
-                    pixels[14] = frameBufferPtr[14];
-                    pixels[15] = frameBufferPtr[15];
+                    pixels[0]  = frameBuffer[0];
+                    pixels[1]  = frameBuffer[1];
+                    pixels[2]  = frameBuffer[2];
+                    pixels[3]  = frameBuffer[3];
+                    pixels[4]  = frameBuffer[4];
+                    pixels[5]  = frameBuffer[5];
+                    pixels[6]  = frameBuffer[6];
+                    pixels[7]  = frameBuffer[7];
+                    pixels[8]  = frameBuffer[8];
+                    pixels[9]  = frameBuffer[9];
+                    pixels[10] = frameBuffer[10];
+                    pixels[11] = frameBuffer[11];
+                    pixels[12] = frameBuffer[12];
+                    pixels[13] = frameBuffer[13];
+                    pixels[14] = frameBuffer[14];
+                    pixels[15] = frameBuffer[15];
 
-                    frameBufferPtr += 16;
+                    frameBuffer += 16;
                     pixels += 16;
                 }
 
