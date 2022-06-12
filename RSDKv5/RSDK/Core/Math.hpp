@@ -108,7 +108,7 @@ uint8 ArcTanLookup(int32 x, int32 y);
 extern uint32 randSeed;
 
 inline void SetRandSeed(int32 key) { randSeed = key; }
-inline int32 GetRandomValue(int32 min, int32 max)
+inline int32 Rand(int32 min, int32 max)
 {
     int32 seed1 = 1103515245 * randSeed + 12345;
     int32 seed2 = 1103515245 * seed1 + 12345;
@@ -124,7 +124,7 @@ inline int32 GetRandomValue(int32 min, int32 max)
     else
         return max;
 }
-inline int32 GetSeededRandomValue(int32 min, int32 max, int32 *randSeed)
+inline int32 RandSeeded(int32 min, int32 max, int32 *randSeed)
 {
     if (!randSeed)
         return 0;

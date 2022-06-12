@@ -234,29 +234,29 @@ inline void SetTileInfo(uint16 layerID, int32 tileX, int32 tileY, uint16 tile)
     }
 }
 
-inline int32 GetTileAngle(uint16 tile, uint8 cLayer, uint8 cMode)
+inline int32 GetTileAngle(uint16 tile, uint8 cPlane, uint8 cMode)
 {
     switch (cMode) {
         default: return 0;
-        case CMODE_FLOOR: return collisionMasks[cLayer & 1][tile & 0xFFF].floorAngle;
-        case CMODE_LWALL: return collisionMasks[cLayer & 1][tile & 0xFFF].lWallAngle;
-        case CMODE_ROOF: return collisionMasks[cLayer & 1][tile & 0xFFF].roofAngle;
-        case CMODE_RWALL: return collisionMasks[cLayer & 1][tile & 0xFFF].rWallAngle;
+        case CMODE_FLOOR: return collisionMasks[cPlane & 1][tile & 0xFFF].floorAngle;
+        case CMODE_LWALL: return collisionMasks[cPlane & 1][tile & 0xFFF].lWallAngle;
+        case CMODE_ROOF: return collisionMasks[cPlane & 1][tile & 0xFFF].roofAngle;
+        case CMODE_RWALL: return collisionMasks[cPlane & 1][tile & 0xFFF].rWallAngle;
     }
 }
-inline void SetTileAngle(uint16 tile, uint8 cLayer, uint8 cMode, int32 value)
+inline void SetTileAngle(uint16 tile, uint8 cPlane, uint8 cMode, int32 angle)
 {
     switch (cMode) {
         default: break;
-        case CMODE_FLOOR: collisionMasks[cLayer & 1][tile & 0xFFF].floorAngle = value; break;
-        case CMODE_LWALL: collisionMasks[cLayer & 1][tile & 0xFFF].lWallAngle = value; break;
-        case CMODE_ROOF: collisionMasks[cLayer & 1][tile & 0xFFF].roofAngle = value; break;
-        case CMODE_RWALL: collisionMasks[cLayer & 1][tile & 0xFFF].rWallAngle = value; break;
+        case CMODE_FLOOR: collisionMasks[cPlane & 1][tile & 0xFFF].floorAngle = angle; break;
+        case CMODE_LWALL: collisionMasks[cPlane & 1][tile & 0xFFF].lWallAngle = angle; break;
+        case CMODE_ROOF: collisionMasks[cPlane & 1][tile & 0xFFF].roofAngle = angle; break;
+        case CMODE_RWALL: collisionMasks[cPlane & 1][tile & 0xFFF].rWallAngle = angle; break;
     }
 }
 
-inline uint8 GetTileFlags(uint16 tile, uint8 cLayer) { return collisionMasks[cLayer & 1][tile & 0x3FF].flag; }
-inline void SetTileFlags(uint16 tile, uint8 cLayer, uint8 flags) { collisionMasks[cLayer & 1][tile & 0x3FF].flag = flags; }
+inline uint8 GetTileFlags(uint16 tile, uint8 cPlane) { return collisionMasks[cPlane & 1][tile & 0x3FF].flag; }
+inline void SetTileFlags(uint16 tile, uint8 cPlane, uint8 flag) { collisionMasks[cPlane & 1][tile & 0x3FF].flag = flag; }
 
 void CopyTileLayout(uint16 dstLayerID, int32 dstStartX, int32 dstStartY, uint16 srcLayerID, int32 srcStartX, int32 srcStartY, int32 countX,
                     int32 countY);

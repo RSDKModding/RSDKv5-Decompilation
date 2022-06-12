@@ -309,8 +309,8 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_ATan256, Tan256);
     ADD_RSDK_FUNCTION(FunctionTable_ASin256, ASin256);
     ADD_RSDK_FUNCTION(FunctionTable_ACos256, ACos256);
-    ADD_RSDK_FUNCTION(FunctionTable_Rand, GetRandomValue);
-    ADD_RSDK_FUNCTION(FunctionTable_RandSeeded, GetSeededRandomValue);
+    ADD_RSDK_FUNCTION(FunctionTable_Rand, Rand);
+    ADD_RSDK_FUNCTION(FunctionTable_RandSeeded, RandSeeded);
     ADD_RSDK_FUNCTION(FunctionTable_SetRandSeed, SetRandSeed);
     ADD_RSDK_FUNCTION(FunctionTable_ATan2, ArcTanLookup);
 

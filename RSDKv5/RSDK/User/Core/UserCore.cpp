@@ -273,14 +273,15 @@ void RSDK::LoadSettingsINI()
     platform = gameVerInfo.platform;
 #endif
 
-    // Consoles load the entire file and buffer it, while pc just io's the file when needed
+    // Consoles load the entire file and buffer it, while PC just io's the file when needed
     bool32 useBuffer = !(platform == PLATFORM_PC || platform == PLATFORM_DEV);
+
     char pathBuffer[0x100];
     sprintf_s(pathBuffer, (int32)sizeof(pathBuffer), "%sSettings.ini", SKU::userFileDir);
 
     dictionary *ini = iniparser_load(pathBuffer);
 
-    int32 defKeyMaps[PLAYER_COUNT + 1][12] = {
+    int32 defaultKeyMaps[PLAYER_COUNT + 1][KEY_MAX] = {
         { KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING,
           KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING, KEYMAP_NO_MAPPING },
 
@@ -306,7 +307,6 @@ void RSDK::LoadSettingsINI()
             engine.devMenu = iniparser_getboolean(ini, "Game:devMenu", false);
 
 #if !RETRO_USE_ORIGINAL_CODE
-
         customSettings.region                    = iniparser_getint(ini, "Game:region", -1);
         customSettings.confirmButtonFlip         = iniparser_getboolean(ini, "Game:confirmButtonFlip", false);
         customSettings.xyButtonFlip              = iniparser_getboolean(ini, "Game:xyButtonFlip", false);
@@ -327,7 +327,7 @@ void RSDK::LoadSettingsINI()
         engine.confirmFlip = customSettings.confirmButtonFlip;
         engine.XYFlip      = customSettings.xyButtonFlip;
 #else
-        sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "Game"));
+        sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "Game");
 #endif
 
         videoSettings.windowed       = iniparser_getboolean(ini, "Video:windowed", true);
@@ -354,44 +354,44 @@ void RSDK::LoadSettingsINI()
         engine.streamVolume   = iniparser_getdouble(ini, "Audio:streamVolume", 0.8);
         engine.soundFXVolume  = iniparser_getdouble(ini, "Audio:sfxVolume", 1.0);
 
-        for (int32 i = 1; i <= PLAYER_COUNT; ++i) {
+        for (int32 i = CONT_P1; i <= PLAYER_COUNT; ++i) {
             char buffer[0x30];
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:up", i);
-            controller[i].keyUp.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][0]);
+            controller[i].keyUp.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_UP]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:down", i);
-            controller[i].keyDown.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][1]);
+            controller[i].keyDown.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_DOWN]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:left", i);
-            controller[i].keyLeft.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][2]);
+            controller[i].keyLeft.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_LEFT]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:right", i);
-            controller[i].keyRight.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][3]);
+            controller[i].keyRight.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_RIGHT]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonA", i);
-            controller[i].keyA.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][4]);
+            controller[i].keyA.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_A]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonB", i);
-            controller[i].keyB.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][5]);
+            controller[i].keyB.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_B]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonC", i);
-            controller[i].keyC.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][6]);
+            controller[i].keyC.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_C]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonX", i);
-            controller[i].keyX.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][7]);
+            controller[i].keyX.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_X]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonY", i);
-            controller[i].keyY.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][8]);
+            controller[i].keyY.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_Y]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonZ", i);
-            controller[i].keyZ.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][9]);
+            controller[i].keyZ.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_Z]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:start", i);
-            controller[i].keyStart.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][10]);
+            controller[i].keyStart.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_START]);
 
             sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:select", i);
-            controller[i].keySelect.keyMap = iniparser_getint(ini, buffer, defKeyMaps[i][11]);
+            controller[i].keySelect.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_SELECT]);
         }
 
         gamePadCount = 0;
@@ -408,7 +408,7 @@ void RSDK::LoadSettingsINI()
 
         AllocateStorage((void **)&gamePadMappings, sizeof(GamePadMappings) * gamePadCount, DATASET_STG, true);
 
-        for (int32 i = 1; i <= gamePadCount; ++i) {
+        for (int32 i = CONT_P1; i <= gamePadCount; ++i) {
             char buffer[0x30];
             char mappings[0x100];
 
@@ -475,24 +475,51 @@ void RSDK::LoadSettingsINI()
         videoSettings.fsHeight       = 0;
         videoSettings.refreshRate    = 60;
         videoSettings.shaderID       = SHADER_NONE;
+
         engine.streamsEnabled        = true;
         engine.streamVolume          = 1.0f;
         engine.soundFXVolume         = 1.0f;
         engine.devMenu               = false;
 
-        for (int32 i = 1; i <= PLAYER_COUNT; ++i) {
-            controller[i].keyUp.keyMap     = defKeyMaps[i][0];
-            controller[i].keyDown.keyMap   = defKeyMaps[i][1];
-            controller[i].keyLeft.keyMap   = defKeyMaps[i][2];
-            controller[i].keyRight.keyMap  = defKeyMaps[i][3];
-            controller[i].keyA.keyMap      = defKeyMaps[i][4];
-            controller[i].keyB.keyMap      = defKeyMaps[i][5];
-            controller[i].keyC.keyMap      = defKeyMaps[i][6];
-            controller[i].keyX.keyMap      = defKeyMaps[i][7];
-            controller[i].keyY.keyMap      = defKeyMaps[i][8];
-            controller[i].keyZ.keyMap      = defKeyMaps[i][9];
-            controller[i].keyStart.keyMap  = defKeyMaps[i][10];
-            controller[i].keySelect.keyMap = defKeyMaps[i][11];
+#if !RETRO_USE_ORIGINAL_CODE
+        customSettings.region                    = -1;
+        customSettings.confirmButtonFlip         = false;
+        customSettings.xyButtonFlip              = false;
+        customSettings.enableControllerDebugging = false;
+        customSettings.disableFocusPause         = false;
+
+        sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "Game");
+        customSettings.username[0] = 0;
+
+        customSettings.maxPixWidth = DEFAULT_PIXWIDTH;
+
+        if (customSettings.region >= 0) {
+#if RETRO_REV02
+            SKU::curSKU.region = customSettings.region;
+#else
+            gameVerInfo.region = customSettings.region;
+#endif
+        }
+
+        engine.confirmFlip = customSettings.confirmButtonFlip;
+        engine.XYFlip      = customSettings.xyButtonFlip;
+#else
+        sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "Game");
+#endif
+
+        for (int32 i = CONT_P1; i <= PLAYER_COUNT; ++i) {
+            controller[i].keyUp.keyMap     = defaultKeyMaps[i][KEY_UP];
+            controller[i].keyDown.keyMap   = defaultKeyMaps[i][KEY_DOWN];
+            controller[i].keyLeft.keyMap   = defaultKeyMaps[i][KEY_LEFT];
+            controller[i].keyRight.keyMap  = defaultKeyMaps[i][KEY_RIGHT];
+            controller[i].keyA.keyMap      = defaultKeyMaps[i][KEY_A];
+            controller[i].keyB.keyMap      = defaultKeyMaps[i][KEY_B];
+            controller[i].keyC.keyMap      = defaultKeyMaps[i][KEY_C];
+            controller[i].keyX.keyMap      = defaultKeyMaps[i][KEY_X];
+            controller[i].keyY.keyMap      = defaultKeyMaps[i][KEY_Y];
+            controller[i].keyZ.keyMap      = defaultKeyMaps[i][KEY_Z];
+            controller[i].keyStart.keyMap  = defaultKeyMaps[i][KEY_START];
+            controller[i].keySelect.keyMap = defaultKeyMaps[i][KEY_SELECT];
         }
 
         SaveSettingsINI(true);

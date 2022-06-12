@@ -22,7 +22,7 @@ extern bool32 engineDebugMode;
 extern bool32 useEndLine;
 extern char outputString[0x400];
 
-void PrintLog(int32 severity, const char *message, ...);
+void PrintLog(int32 mode, const char *message, ...);
 
 #if !RETRO_REV02
 enum PrintMessageTypes {
@@ -36,26 +36,26 @@ void PrintMessage(void *msg, int32 type);
 #endif
 
 #if RETRO_REV02
-inline void PrintText(int32 severity, const char *message) { PrintLog(severity, "%s", message); }
-inline void PrintString(int32 severity, String *message)
+inline void PrintText(int32 mode, const char *message) { PrintLog(mode, "%s", message); }
+inline void PrintString(int32 mode, String *message)
 {
     useEndLine = false;
 
-    for (int32 c = 0; c < message->length; ++c) PrintLog(severity, "%c", message->chars[c]);
-    PrintLog(severity, "\n");
+    for (int32 c = 0; c < message->length; ++c) PrintLog(mode, "%c", message->chars[c]);
+    PrintLog(mode, "\n");
 
     useEndLine = true;
 }
-inline void PrintUInt32(int32 severity, const char *message, uint32 integer) { PrintLog(severity, "%s: %d", message, integer); }
-inline void PrintInt32(int32 severity, const char *message, int32 integer) { PrintLog(severity, "%s: %d", message, integer); }
-inline void PrintFloat(int32 severity, const char *message, float f) { PrintLog(severity, "%s: %f", message, f); }
-inline void PrintVector2(int32 severity, const char *message, int32 x, int32 y)
+inline void PrintUInt32(int32 mode, const char *message, uint32 integer) { PrintLog(mode, "%s: %u", message, integer); }
+inline void PrintInt32(int32 mode, const char *message, int32 integer) { PrintLog(mode, "%s: %d", message, integer); }
+inline void PrintFloat(int32 mode, const char *message, float f) { PrintLog(mode, "%s: %f", message, f); }
+inline void PrintVector2(int32 mode, const char *message, Vector2 vec)
 {
-    PrintLog(severity, "%s: <%c%08X, %c%08X>", message, x < 0 ? 45 : 32, abs(x), y < 0 ? 45 : 32, abs(y));
+    PrintLog(mode, "%s: <%c%08X, %c%08X>", message, vec.x < 0 ? '-' : ' ', abs(vec.x), vec.y < 0 ? '-' : ' ', abs(vec.y));
 }
-inline void PrintHitbox(int32 severity, const char *message, Hitbox *hitbox)
+inline void PrintHitbox(int32 mode, const char *message, Hitbox hitbox)
 {
-    PrintLog(severity, "%s: <l: %d, r: %d, t: %d, b: %d>", message, hitbox->left, hitbox->right, hitbox->top, hitbox->bottom);
+    PrintLog(mode, "%s: <l: %d, r: %d, t: %d, b: %d>", message, hitbox.left, hitbox.right, hitbox.top, hitbox.bottom);
 }
 
 struct ViewableVariable {

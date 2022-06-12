@@ -24,7 +24,7 @@ DevMenu RSDK::devMenu = DevMenu();
 
 inline void PrintConsole(const char *message) { printf("%s", message); }
 
-void RSDK::PrintLog(int32 severity, const char *message, ...)
+void RSDK::PrintLog(int32 mode, const char *message, ...)
 {
 #ifndef RETRO_DISABLE_LOG
     if (engineDebugMode) {
@@ -40,7 +40,7 @@ void RSDK::PrintLog(int32 severity, const char *message, ...)
         va_end(args);
 
 #if RETRO_REV02
-        switch (severity) {
+        switch (mode) {
             default:
             case PRINT_NORMAL: break;
 
@@ -73,7 +73,7 @@ void RSDK::PrintLog(int32 severity, const char *message, ...)
             OutputDebugStringA(outputString);
 #elif RETRO_PLATFORM == RETRO_ANDROID
             int32 as = ANDROID_LOG_INFO;
-            switch (severity) {
+            switch (mode) {
                 case PRINT_ERROR: as = ANDROID_LOG_ERROR; break;
                 case PRINT_FATAL: as = ANDROID_LOG_FATAL; break;
                 default: break;

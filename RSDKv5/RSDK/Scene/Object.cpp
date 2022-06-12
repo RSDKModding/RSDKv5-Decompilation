@@ -288,7 +288,7 @@ void RSDK::InitObjects()
     sceneInfo.state = ENGINESTATE_REGULAR;
 
     if (!cameraCount)
-        AddCamera(&screens[0].position, screens[0].center.x << 0x10, screens[0].center.x << 0x10, false);
+        AddCamera(&screens[0].position, screens[0].center.x << 16, screens[0].center.x << 16, false);
 }
 void RSDK::ProcessObjects()
 {
