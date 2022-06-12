@@ -87,15 +87,21 @@ typedef void *modLogicHandle;
 typedef void *modLogicHandle;
 #endif
 
+typedef bool (*modLink)(GameInfo *, const char *);
+typedef std::function<bool(GameInfo *, const char *)> modLinkSTD;
+typedef const char *(*langSetup)(GameInfo *, const char *);
+typedef modLink (*newLangLink)(const char *, const char *, int32 *);
+
 struct ModPublicFunctionInfo {
     std::string name;
     void *ptr;
 };
 
-typedef bool (*modLink)(GameInfo *, const char *);
-typedef std::function<bool(GameInfo *, const char *)> modLinkSTD;
-typedef const char *(*langSetup)(GameInfo *, const char *);
-typedef modLink (*newLangLink)(const char *, const char *, int32 *);
+struct ModVersionInfo {
+    uint8 engineVer;
+    uint8 gameVer;
+    uint8 modLoaderVer;
+};
 
 struct ModInfo {
     std::string name;
@@ -108,7 +114,7 @@ struct ModInfo {
     bool active;
     std::vector<modLogicHandle> modLogicHandles;
     std::vector<modLinkSTD> linkModLogic;
-    void (*unloadMod)() = NULL;
+    void (*unloadMod)();
     std::map<std::string, std::map<std::string, std::string>> settings;
     std::map<std::string, std::map<std::string, std::string>> config;
 };
@@ -123,6 +129,7 @@ extern std::vector<ModInfo> modList;
 extern int32 activeMod;
 extern std::vector<ModCallbackSTD> modCallbackList[MODCB_MAX];
 extern std::vector<StateHook> stateHookList;
+extern ModVersionInfo targetModVersion;
 
 extern void *modFunctionTable[ModTable_Max];
 extern int32 currentObjectID;

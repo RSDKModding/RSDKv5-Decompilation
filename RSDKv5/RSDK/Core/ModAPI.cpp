@@ -42,6 +42,8 @@ int32 RSDK::activeMod = -1;
 std::vector<RSDK::ModCallbackSTD> RSDK::modCallbackList[RSDK::MODCB_MAX];
 std::vector<StateHook> RSDK::stateHookList;
 
+ModVersionInfo RSDK::targetModVersion = { RETRO_REVISION, 0, RETRO_MOD_LOADER_VER };
+
 RSDK::ModInfo *RSDK::currentMod;
 
 std::vector<RSDK::ModPublicFunctionInfo> gamePublicFuncs;
@@ -202,7 +204,7 @@ void RSDK::LoadMods()
             iniparser_getseckeys(ini, "Mods", keys);
 
             for (int32 m = 0; m < c; ++m) {
-                ModInfo info;
+                ModInfo info  = {};
                 bool32 active = iniparser_getboolean(ini, keys[m], false);
                 bool32 loaded = LoadMod(&info, modPath.string(), string(keys[m] + 5), active);
                 if (!loaded)
@@ -217,7 +219,7 @@ void RSDK::LoadMods()
                 if (de.is_directory()) {
                     fs::path modDirPath = de.path();
 
-                    ModInfo info;
+                    ModInfo info = {};
 
                     std::string modDir            = modDirPath.string().c_str();
                     const std::string mod_inifile = modDir + "/mod.ini";
@@ -284,6 +286,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
     PrintLog(PRINT_NORMAL, "[MOD] Trying to load mod %s...", folder.c_str());
 
     info->fileMap.clear();
+    info->modLogicHandles.clear();
     info->name    = "";
     info->desc    = "";
     info->author  = "";
@@ -397,9 +400,9 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
 
                 bool linked = false;
 
-                modLogicHandle link_handle;
+                modLogicHandle linkHandle;
 #if RETRO_PLATFORM == RETRO_WIN
-                link_handle = LoadLibraryA(file.string().c_str());
+                linkHandle = LoadLibraryA(file.string().c_str());
 #define GET_FUNC_ADDR GetProcAddress
 #elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
                 std::string fl = file.string().c_str();
@@ -407,31 +410,61 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                 // only load ones that are compiled. this is to still allow lang mods to work
                 fl          = "lib" + buf;
 #endif
-                link_handle = (void *)dlopen(fl.c_str(), RTLD_LOCAL | RTLD_LAZY);
+                linkHandle = (void *)dlopen(fl.c_str(), RTLD_LOCAL | RTLD_LAZY);
 #define GET_FUNC_ADDR dlsym
 #elif RETRO_PLATFORM == RETRO_SWITCH
                 // TODO
-                link_handle = NULL;
+                linkHandle = NULL;
 #define GET_FUNC_ADDR(x, y) NULL
 #endif
 
-                if (link_handle) {
-                    modLink linkGameLogic = (modLink)GET_FUNC_ADDR(link_handle, "LinkModLogic");
-                    if (linkGameLogic) {
-                        info->linkModLogic.push_back(linkGameLogic);
+                if (linkHandle) {
+                    const ModVersionInfo *modInfo = (const ModVersionInfo *)GET_FUNC_ADDR(linkHandle, "modInfo");
+                    if (!modInfo) {
+                        PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
+                        PrintLog(PRINT_NORMAL, "[MOD] ERROR: Failed to find modInfo", file.string().c_str());
+
+                        iniparser_freedict(ini);
+                        currentMod = cur;
+                        return false;
+                    }
+
+                    if (modInfo->engineVer != targetModVersion.engineVer) {
+                        PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
+                        PrintLog(PRINT_NORMAL, "[MOD] ERROR: Logic file '%s' engineVer %d does not match expected engineVer of %d",
+                                 file.string().c_str(), modInfo->engineVer, targetModVersion.engineVer);
+
+                        iniparser_freedict(ini);
+                        currentMod = cur;
+                        return false;
+                    }
+
+                    if (modInfo->modLoaderVer != targetModVersion.modLoaderVer) {
+                        PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
+                        PrintLog(PRINT_NORMAL, "[MOD] ERROR: Logic file '%s' modLoaderVer  %d does not match expected modLoaderVer of %d",
+                                 file.string().c_str(), modInfo->modLoaderVer, targetModVersion.modLoaderVer);
+                    }
+
+                    modLink linkModLogic = (modLink)GET_FUNC_ADDR(linkHandle, "LinkModLogic");
+                    if (linkModLogic) {
+                        info->linkModLogic.push_back(linkModLogic);
                         linked = true;
                     }
-                    info->unloadMod = (void (*)())GET_FUNC_ADDR(link_handle, "UnloadMod");
-                    info->modLogicHandles.push_back(link_handle);
+                    info->unloadMod = (void (*)())GET_FUNC_ADDR(linkHandle, "UnloadMod");
+                    info->modLogicHandles.push_back(linkHandle);
                 }
 
                 if (!linked) {
+                    PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
+                    PrintLog(PRINT_NORMAL, "[MOD] ERROR: failed to link logic '%s'", file.string().c_str());
+
                     iniparser_freedict(ini);
                     currentMod = cur;
                     return false;
                 }
             }
         }
+
         // SETTINGS
         FileIO *set = fOpen((modDir + "/modSettings.ini").c_str(), "r");
         if (set) {

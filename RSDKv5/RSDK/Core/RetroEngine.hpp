@@ -175,7 +175,9 @@ enum GameRegions {
 // ============================
 
 // Determines if the engine is RSDKv5 rev01 (all versions pre-plus) or rev02 (all versions post-plus)
-#define RETRO_REV02 (1)
+#define RETRO_REVISION (2)
+
+#define RETRO_REV02 (RETRO_REVISION >= 2)
 // Determines if the engine should use EGS features like achievements or not (must be rev02)
 #define RETRO_VER_EGS (RETRO_REV02 && 0)
 
@@ -184,6 +186,9 @@ enum GameRegions {
 
 // enables the use of the mod loader
 #define RETRO_USE_MOD_LOADER (!RETRO_USE_ORIGINAL_CODE && 1)
+
+// defines the version of the mod loader, this should be changed ONLY if the ModFunctionTable is updated in any way
+#define RETRO_MOD_LOADER_VER (1)
 
 // ============================
 // PLATFORM INIT

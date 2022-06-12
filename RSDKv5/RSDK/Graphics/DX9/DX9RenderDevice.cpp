@@ -1294,7 +1294,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
 
 bool RenderDevice::ProcessEvents()
 {
-    MSG Msg;
+    MSG Msg = {};
     while (PeekMessage(&Msg, NULL, 0, 0, true)) {
         ProcessEvent(Msg);
 
