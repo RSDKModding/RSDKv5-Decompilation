@@ -40,6 +40,8 @@ int32 RSDK::currentObjectID = 0;
 std::vector<RSDK::ModInfo> RSDK::modList;
 int32 RSDK::activeMod = -1;
 std::vector<RSDK::ModCallbackSTD> RSDK::modCallbackList[RSDK::MODCB_MAX];
+std::vector<StateHook> RSDK::stateHookList;
+
 RSDK::ModInfo *RSDK::currentMod;
 
 std::vector<RSDK::ModPublicFunctionInfo> gamePublicFuncs;
@@ -119,6 +121,10 @@ void RSDK::InitModAPI()
     // Shaders
     ADD_MOD_FUNCTION(ModTable_LoadShader, RenderDevice::LoadShader);
 
+    // StateMachine
+    ADD_MOD_FUNCTION(ModTable_StateMachineRun, StateMachineRun);
+    ADD_MOD_FUNCTION(ModTable_RegisterStateHook, RegisterStateHook);
+
     LoadMods();
 }
 
@@ -160,6 +166,7 @@ void RSDK::UnloadMods()
     }
     modList.clear();
     for (int32 c = 0; c < MODCB_MAX; ++c) modCallbackList[c].clear();
+    stateHookList.clear();
 
     // Clear stage storage
     ClearUnusedStorage(DATASET_STG);
@@ -393,7 +400,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                 modLogicHandle link_handle;
 #if RETRO_PLATFORM == RETRO_WIN
                 link_handle = LoadLibraryA(file.string().c_str());
-#define getAddress GetProcAddress
+#define GET_FUNC_ADDR GetProcAddress
 #elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
                 std::string fl = file.string().c_str();
 #if RETRO_PLATFORM == RETRO_ANDROID
@@ -401,20 +408,20 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                 fl          = "lib" + buf;
 #endif
                 link_handle = (void *)dlopen(fl.c_str(), RTLD_LOCAL | RTLD_LAZY);
-#define getAddress dlsym
+#define GET_FUNC_ADDR dlsym
 #elif RETRO_PLATFORM == RETRO_SWITCH
                 // TODO
                 link_handle = NULL;
-#define getAddress(x, y) NULL
+#define GET_FUNC_ADDR(x, y) NULL
 #endif
 
                 if (link_handle) {
-                    modLink linkGameLogic = (modLink)getAddress(link_handle, "LinkModLogic");
+                    modLink linkGameLogic = (modLink)GET_FUNC_ADDR(link_handle, "LinkModLogic");
                     if (linkGameLogic) {
                         info->linkModLogic.push_back(linkGameLogic);
                         linked = true;
                     }
-                    info->unloadMod = (void (*)())getAddress(link_handle, "UnloadMod");
+                    info->unloadMod = (void (*)())GET_FUNC_ADDR(link_handle, "UnloadMod");
                     info->modLogicHandles.push_back(link_handle);
                 }
 
@@ -677,8 +684,10 @@ void *RSDK::GetPublicFunction(const char *id, const char *functionName)
                 return f.ptr;
         return NULL;
     }
+
     if (!strlen(id))
         id = currentMod->id.c_str();
+
     for (ModInfo &m : modList) {
         if (m.active && m.id == id) {
             for (auto &f : m.functionList)
@@ -1225,6 +1234,36 @@ int32 RSDK::GetAchievementIndexByID(const char *id)
     return -1;
 }
 int32 RSDK::GetAchievementCount() { return (int32)achievementList.size(); }
+
+void RSDK::StateMachineRun(void (*state)()) {
+
+    for (int32 h = 0; h < (int32)stateHookList.size(); ++h) {
+        if (!stateHookList[h].priority && stateHookList[h].state == state && stateHookList[h].hook)
+            stateHookList[h].hook();
+    }
+
+    if (state)
+        state();
+
+    for (int32 h = 0; h < (int32)stateHookList.size(); ++h) {
+        if (stateHookList[h].priority && stateHookList[h].state == state && stateHookList[h].hook)
+            stateHookList[h].hook();
+    }
+}
+
+
+void RSDK::RegisterStateHook(void (*state)(), void (*hook)(), bool32 priority)
+{
+    if (!state)
+        return;
+
+    StateHook stateHook;
+    stateHook.state    = state;
+    stateHook.hook     = hook;
+    stateHook.priority = priority;
+
+    stateHookList.push_back(stateHook);
+}
 #endif
 
 // Start custom achievement code

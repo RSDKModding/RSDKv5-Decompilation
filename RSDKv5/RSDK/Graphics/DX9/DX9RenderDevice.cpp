@@ -43,7 +43,7 @@ INT RenderDevice::nShowCmd;
 bool RenderDevice::Init()
 {
 #if _UNICODE
-    // shit workaround since windows is BEGGING me to use wide strs
+    // shoddy workaround to get the title into wide chars in UNICODE mode
     std::string str   = gameVerInfo.gameName;
     std::wstring temp = std::wstring(str.begin(), str.end());
     LPCWSTR gameTitle = temp.c_str();

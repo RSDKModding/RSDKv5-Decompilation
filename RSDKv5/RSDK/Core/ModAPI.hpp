@@ -71,6 +71,8 @@ typedef enum {
     ModTable_GetAchievementIndexByID,
     ModTable_GetAchievementCount,
     ModTable_LoadShader,
+    ModTable_StateMachineRun,
+    ModTable_RegisterStateHook,
     ModTable_Max
 } ModFunctionTable;
 
@@ -111,9 +113,16 @@ struct ModInfo {
     std::map<std::string, std::map<std::string, std::string>> config;
 };
 
+struct StateHook {
+    void (*state)();
+    void (*hook)();
+    bool32 priority;
+};
+
 extern std::vector<ModInfo> modList;
 extern int32 activeMod;
 extern std::vector<ModCallbackSTD> modCallbackList[MODCB_MAX];
+extern std::vector<StateHook> stateHookList;
 
 extern void *modFunctionTable[ModTable_Max];
 extern int32 currentObjectID;
@@ -179,6 +188,9 @@ Object *GetObject(const char *name);
 void GetAchievementInfo(uint32 id, String *name, String *description, String *identifer, bool32 *achieved);
 int32 GetAchievementIndexByID(const char *id);
 int32 GetAchievementCount();
+
+void StateMachineRun(void (*state)());
+void RegisterStateHook(void (*state)(), void (*hook)(), bool32 priority);
 #endif
 
 void RegisterAchievement(const char *identifier, const char *name, const char *desc);

@@ -23,7 +23,6 @@ RetroEngine RSDK::engine   = RetroEngine();
 
 int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 {
-    sleep(20);
     ParseArguments(argc, argv);
 
     if (engine.consoleEnabled) {
