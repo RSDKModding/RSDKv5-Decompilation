@@ -175,7 +175,7 @@ void RSDK::SKU::InitHIDDevices()
         }
 
         tagRAWINPUTDEVICELIST *pRawInputDeviceList;
-        AllocateStorage(sizeof(tagRAWINPUTDEVICELIST) * puiNumDevices, (void **)&pRawInputDeviceList, DATASET_TMP, false);
+        AllocateStorage((void **)&pRawInputDeviceList, sizeof(tagRAWINPUTDEVICELIST) * puiNumDevices, DATASET_TMP, false);
         if (!pRawInputDeviceList) {
             PrintLog(PRINT_NORMAL, "Could not allocate memory for Input Device List.");
             return;

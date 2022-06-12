@@ -56,7 +56,7 @@ struct GifDecoder {
 };
 
 struct ImageGIF : public Image {
-    ImageGIF() { AllocateStorage(sizeof(GifDecoder), (void **)&decoder, DATASET_TMP, true); }
+    ImageGIF() { AllocateStorage((void **)&decoder, sizeof(GifDecoder), DATASET_TMP, true); }
 
     bool32 Load(const char *fileName, bool32 loadHeader);
 

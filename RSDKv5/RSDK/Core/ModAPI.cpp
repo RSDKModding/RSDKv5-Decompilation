@@ -1119,7 +1119,7 @@ void *RSDK::GetGlobals() { return (void *)globalVarsPtr; }
 
 void RSDK::ModRegisterGlobalVariables(const char *globalsPath, void **globals, uint32 size)
 {
-    AllocateStorage(size, globals, DATASET_STG, true);
+    AllocateStorage(globals, size, DATASET_STG, true);
     FileInfo info;
     InitFileInfo(&info);
 

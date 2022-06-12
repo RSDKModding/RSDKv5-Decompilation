@@ -842,7 +842,7 @@ void RSDK::LoadGameConfig()
             totalSceneCount = 1;
 
         if (strlen(currentSceneFolder) && strlen(currentSceneID)) {
-            AllocateStorage(sizeof(SceneListEntry) * (totalSceneCount + 1), (void **)&sceneInfo.listData, DATASET_STG, false);
+            AllocateStorage((void **)&sceneInfo.listData, sizeof(SceneListEntry) * (totalSceneCount + 1), DATASET_STG, false);
             SceneListEntry *scene = &sceneInfo.listData[totalSceneCount];
             strcpy(scene->name, "_RSDK_SCENE");
             strcpy(scene->folder, currentSceneFolder);
@@ -859,7 +859,7 @@ void RSDK::LoadGameConfig()
             currentSceneID[0]        = 0;
         }
         else {
-            AllocateStorage(sizeof(SceneListEntry) * totalSceneCount, (void **)&sceneInfo.listData, DATASET_STG, false);
+            AllocateStorage((void **)&sceneInfo.listData, sizeof(SceneListEntry) * totalSceneCount, DATASET_STG, false);
         }
 
         sceneInfo.categoryCount = ReadInt8(&info);
@@ -873,7 +873,7 @@ void RSDK::LoadGameConfig()
         if (!categoryCount)
             categoryCount = 1;
 
-        AllocateStorage(sizeof(SceneListInfo) * categoryCount, (void **)&sceneInfo.listCategory, DATASET_STG, false);
+        AllocateStorage((void **)&sceneInfo.listCategory, sizeof(SceneListInfo) * categoryCount, DATASET_STG, false);
         sceneInfo.listPos = 0;
 
         int32 sceneID = 0;

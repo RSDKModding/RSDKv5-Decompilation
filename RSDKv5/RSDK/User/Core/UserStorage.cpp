@@ -759,7 +759,7 @@ uint16 RSDK::SKU::UserDBStorage::LoadUserDB(const char *filename, void (*callbac
         return -1;
     }
 
-    AllocateStorage(sizeof(UserDB), (void **)&userDBStorage->readBuffer[tableID], DATASET_TMP, true);
+    AllocateStorage((void **)&userDBStorage->readBuffer[tableID], sizeof(UserDB), DATASET_TMP, true);
     userDBStorage->dbLoadCB[tableID]  = UserDBStorage::LoadCB;
     userDBStorage->callbacks[tableID] = callback;
     TryLoadUserFile(filename, userDBStorage->readBuffer[tableID], sizeof(UserDB), userDBStorage->loadCallback[tableID]);
@@ -778,7 +778,7 @@ bool32 RSDK::SKU::UserDBStorage::SaveUserDB(uint16 tableID, void (*callback)(int
     bool32 success = false;
     if (userDB->active) {
         int32 totalSize = (int32)userDB->GetSize();
-        AllocateStorage(totalSize, (void **)&userDBStorage->writeBuffer[tableID], DATASET_TMP, true);
+        AllocateStorage((void **)&userDBStorage->writeBuffer[tableID], totalSize, DATASET_TMP, true);
         userDB->Save(totalSize, (uint8 *)userDBStorage->writeBuffer[tableID]);
         userDBStorage->dbSaveCB[tableID]  = UserDBStorage::SaveCB;
         userDBStorage->callbacks[tableID] = callback;

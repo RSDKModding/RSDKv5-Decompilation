@@ -68,7 +68,7 @@ void RSDK::RegisterStaticVariables(void **staticVars, const char *name, uint32 c
 {
     RETRO_HASH_MD5(hash);
     GEN_HASH_MD5(name, hash);
-    AllocateStorage(classSize, (void **)staticVars, DATASET_STG, true);
+    AllocateStorage((void **)staticVars, classSize, DATASET_STG, true);
     LoadStaticVariables((uint8 *)*staticVars, hash, 0);
 }
 #endif

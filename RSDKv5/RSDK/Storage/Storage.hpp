@@ -113,7 +113,7 @@ extern DataStorage dataStorage[DATASET_MAX];
 bool32 InitStorage();
 void ReleaseStorage();
 
-void AllocateStorage(uint32 size, void **dataPtr, StorageDataSets dataSet, bool32 clear);
+void AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet, bool32 clear);
 void ClearUnusedStorage(StorageDataSets set);
 void RemoveStorageEntry(void **dataPtr);
 void CopyStorage(int32 **src, int32 **dst);

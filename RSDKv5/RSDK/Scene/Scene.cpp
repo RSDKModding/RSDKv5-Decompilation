@@ -181,7 +181,7 @@ void RSDK::LoadScene()
         for (int32 o = 0; o < sceneInfo.classCount; ++o) {
             ObjectClass *objClass = &objectClassList[stageObjectIDs[o]];
             if (objClass->staticVars && !*objClass->staticVars) {
-                AllocateStorage(objClass->staticClassSize, (void **)objClass->staticVars, DATASET_STG, true);
+                AllocateStorage((void **)objClass->staticVars, objClass->staticClassSize, DATASET_STG, true);
                 LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
 
                 (*objClass->staticVars)->classID = o;
@@ -342,14 +342,14 @@ void RSDK::LoadSceneFile()
 
             layer->layout = NULL;
             if (layer->xsize || layer->ysize) {
-                AllocateStorage(sizeof(uint16) * (1 << layer->widthShift) * (1 << layer->heightShift), (void **)&layer->layout, DATASET_STG, true);
+                AllocateStorage((void **)&layer->layout, sizeof(uint16) * (1 << layer->widthShift) * (1 << layer->heightShift), DATASET_STG, true);
                 memset(layer->layout, 0xFF, sizeof(uint16) * (1 << layer->widthShift) * (1 << layer->heightShift));
             }
 
             int32 size = layer->xsize;
             if (size <= layer->ysize)
                 size = layer->ysize;
-            AllocateStorage(TILE_SIZE * size, (void **)&layer->lineScroll, DATASET_STG, true);
+            AllocateStorage((void **)&layer->lineScroll, TILE_SIZE * size, DATASET_STG, true);
 
             layer->scrollInfoCount = ReadInt16(&info);
             for (int32 s = 0; s < layer->scrollInfoCount; ++s) {
@@ -385,11 +385,11 @@ void RSDK::LoadSceneFile()
         // Objects
         uint8 objectCount = ReadInt8(&info);
         editableVarList   = NULL;
-        AllocateStorage(sizeof(EditableVarInfo) * EDITABLEVAR_COUNT, (void **)&editableVarList, DATASET_TMP, false);
+        AllocateStorage((void **)&editableVarList, sizeof(EditableVarInfo) * EDITABLEVAR_COUNT, DATASET_TMP, false);
 
 #if RETRO_REV02
         EntityBase *tempEntityList = NULL;
-        AllocateStorage(SCENEENTITY_COUNT * sizeof(EntityBase), (void **)&tempEntityList, DATASET_TMP, true);
+        AllocateStorage((void **)&tempEntityList, SCENEENTITY_COUNT * sizeof(EntityBase), DATASET_TMP, true);
 #endif
 
         for (int32 i = 0; i < objectCount; ++i) {
@@ -416,7 +416,7 @@ void RSDK::LoadSceneFile()
 
             uint8 varCount           = ReadInt8(&info);
             EditableVarInfo *varList = NULL;
-            AllocateStorage(sizeof(EditableVarInfo) * varCount, (void **)&varList, DATASET_TMP, false);
+            AllocateStorage((void **)&varList, sizeof(EditableVarInfo) * varCount, DATASET_TMP, false);
             editableVarCount = 0;
             if (classID) {
 #if RETRO_REV02

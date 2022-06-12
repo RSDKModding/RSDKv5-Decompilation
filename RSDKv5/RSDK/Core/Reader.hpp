@@ -407,10 +407,10 @@ inline int32 ReadCompressed(FileInfo *info, uint8 **buffer)
     uint32 sizeBE = ReadInt32(info, false);
 
     uint32 sizeLE = (uint32)((sizeBE << 24) | ((sizeBE << 8) & 0x00FF0000) | ((sizeBE >> 8) & 0x0000FF00) | (sizeBE >> 24));
-    AllocateStorage(sizeLE, (void **)buffer, DATASET_TMP, false);
+    AllocateStorage((void **)buffer, sizeLE, DATASET_TMP, false);
 
     uint8 *cBuffer = NULL;
-    AllocateStorage(cSize, (void **)&cBuffer, DATASET_TMP, false);
+    AllocateStorage((void **)&cBuffer, cSize, DATASET_TMP, false);
     ReadBytes(info, cBuffer, cSize);
 
     uint32 newSize = Uncompress(&cBuffer, cSize, buffer, sizeLE);

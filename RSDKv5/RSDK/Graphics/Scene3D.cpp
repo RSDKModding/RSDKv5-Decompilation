@@ -414,11 +414,11 @@ uint16 RSDK::LoadMesh(const char *filename, Scopes scope)
         model->vertCount  = ReadInt16(&info);
         model->frameCount = ReadInt16(&info);
 
-        AllocateStorage(sizeof(ModelVertex) * model->vertCount * model->frameCount, (void **)&model->vertices, DATASET_STG, true);
+        AllocateStorage((void **)&model->vertices, sizeof(ModelVertex) * model->vertCount * model->frameCount, DATASET_STG, true);
         if (model->flags & MODEL_USETEXTURES)
-            AllocateStorage(sizeof(TexCoord) * model->vertCount, (void **)&model->texCoords, DATASET_STG, true);
+            AllocateStorage((void **)&model->texCoords, sizeof(TexCoord) * model->vertCount, DATASET_STG, true);
         if (model->flags & MODEL_USECOLOURS)
-            AllocateStorage(sizeof(Color) * model->vertCount, (void **)&model->colors, DATASET_STG, true);
+            AllocateStorage((void **)&model->colors, sizeof(Color) * model->vertCount, DATASET_STG, true);
 
         if (model->flags & MODEL_USETEXTURES) {
             for (int32 v = 0; v < model->vertCount; ++v) {
@@ -434,7 +434,7 @@ uint16 RSDK::LoadMesh(const char *filename, Scopes scope)
         }
 
         model->indexCount = ReadInt16(&info);
-        AllocateStorage(sizeof(uint16) * model->indexCount, (void **)&model->indices, DATASET_STG, true);
+        AllocateStorage((void **)&model->indices, sizeof(uint16) * model->indexCount, DATASET_STG, true);
         for (int32 i = 0; i < model->indexCount; ++i) model->indices[i] = ReadInt16(&info);
 
         for (int32 f = 0; f < model->frameCount; ++f) {
@@ -491,10 +491,10 @@ uint16 RSDK::Create3DScene(const char *name, uint16 vertexLimit, Scopes scope)
 
     scene->projectionX = 8;
     scene->projectionY = 8;
-    AllocateStorage(sizeof(Scene3DVertex) * vertexLimit, (void **)&scene->vertices, DATASET_STG, true);
-    AllocateStorage(sizeof(Scene3DVertex) * vertexLimit, (void **)&scene->normals, DATASET_STG, true);
-    AllocateStorage(sizeof(uint8) * vertexLimit, (void **)&scene->faceVertCounts, DATASET_STG, true);
-    AllocateStorage(sizeof(Scene3DFace) * vertexLimit, (void **)&scene->faceBuffer, DATASET_STG, true);
+    AllocateStorage((void **)&scene->vertices, sizeof(Scene3DVertex) * vertexLimit, DATASET_STG, true);
+    AllocateStorage((void **)&scene->normals, sizeof(Scene3DVertex) * vertexLimit, DATASET_STG, true);
+    AllocateStorage((void **)&scene->faceVertCounts, sizeof(uint8) * vertexLimit, DATASET_STG, true);
+    AllocateStorage((void **)&scene->faceBuffer, sizeof(Scene3DFace) * vertexLimit, DATASET_STG, true);
 
     return id;
 }

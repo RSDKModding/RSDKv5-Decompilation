@@ -37,7 +37,7 @@ SKU::UserLeaderboards *RSDK::SKU::leaderboards = NULL;
 RSDK::SKU::LeaderboardLoadInfo *RSDK::SKU::LeaderboardLoadList::InitLoadInfo()
 {
     LeaderboardLoadInfo *info = NULL;
-    AllocateStorage(sizeof(LeaderboardLoadInfo), (void **)&info, DATASET_TMP, true);
+    AllocateStorage((void **)&info, sizeof(LeaderboardLoadInfo), DATASET_TMP, true);
     memset(info, 0, sizeof(LeaderboardLoadInfo));
     info->parent = this;
     return info;

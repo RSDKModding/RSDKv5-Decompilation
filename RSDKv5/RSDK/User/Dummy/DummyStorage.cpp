@@ -68,7 +68,7 @@ void DummyUserStorage::ProcessFileLoadTime()
                         // quick and dirty zlib check
                         if (bufTest[0] == 0x78 && (bufTest[1] == 0x01 || bufTest[1] == 0x9C)) {
                             uint8 *cBuffer = NULL;
-                            AllocateStorage(file->fileSize, (void **)&cBuffer, DATASET_TMP, false);
+                            AllocateStorage((void **)&cBuffer, file->fileSize, DATASET_TMP, false);
                             memcpy(cBuffer, file->fileBuffer, file->fileSize);
 
                             Uncompress(&cBuffer, file->fileSize, (uint8 **)&file->fileBuffer, file->fileSize);
@@ -148,7 +148,7 @@ bool32 DummyUserStorage::TrySaveUserFile(const char *filename, void *buffer, uin
         file->storageTime = GetAPIValue(GetAPIValueID("SYSTEM_USERSTORAGE_STORAGE_SAVE_TIME", 0));
 
         if (compressed) {
-            AllocateStorage(size, (void **)&file->fileBuffer, DATASET_TMP, false);
+            AllocateStorage((void **)&file->fileBuffer, size, DATASET_TMP, false);
 
             uLongf clen = size;
             compress((Bytef *)file->fileBuffer, &clen, (Bytef *)buffer, (uLong)size);

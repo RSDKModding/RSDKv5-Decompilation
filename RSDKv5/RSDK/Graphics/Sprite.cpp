@@ -222,10 +222,10 @@ bool32 ImageGIF::Load(const char *fileName, bool32 loadHeader)
     Seek_Cur(&info, 2);
 
     if (!palette)
-        AllocateStorage(0x100 * sizeof(int32), (void **)&palette, DATASET_TMP, true);
+        AllocateStorage((void **)&palette, 0x100 * sizeof(int32), DATASET_TMP, true);
 
     if (!pixels)
-        AllocateStorage(width * height, (void **)&pixels, DATASET_TMP, false);
+        AllocateStorage((void **)&pixels, width * height, DATASET_TMP, false);
 
     if (palette && pixels) {
         uint8 clr[3];
@@ -502,7 +502,7 @@ bool32 RSDK::ImagePNG::AllocatePixels()
 {
     dataSize = sizeof(color) * height * (width + 1);
     if (!pixels) {
-        AllocateStorage(dataSize, (void **)&pixels, DATASET_TMP, false);
+        AllocateStorage((void **)&pixels, dataSize, DATASET_TMP, false);
 
         if (!pixels) {
             Close();
@@ -586,7 +586,7 @@ bool32 RSDK::ImagePNG::Load(const char *fileName, bool32 loadHeader)
 
 #if !RETRO_USE_ORIGINAL_CODE
                         // image size should be enough space to hold all the IDAT chunks
-                        AllocateStorage(sizeof(color) * height * (width + 1), (void **)&chunkBuffer, DATASET_TMP, true);
+                        AllocateStorage((void **)&chunkBuffer, sizeof(color) * height * (width + 1), DATASET_TMP, true);
                         dataSize = 0;
 #endif
 
@@ -602,7 +602,7 @@ bool32 RSDK::ImagePNG::Load(const char *fileName, bool32 loadHeader)
                             chunkSize = colorCnt;
                             if (colorCnt <= 0x100) {
                                 if (!palette)
-                                    AllocateStorage(sizeof(uint32) * colorCnt, (void **)&palette, DATASET_TMP, true);
+                                    AllocateStorage((void **)&palette, sizeof(uint32) * colorCnt, DATASET_TMP, true);
 
                                 uint8 channels[3];
                                 for (int32 c = 0; c < colorCnt; ++c) {
@@ -933,7 +933,7 @@ uint16 RSDK::LoadSpriteSheet(const char *filename, int32 scope)
         }
 
         surface->pixels = NULL;
-        AllocateStorage(surface->width * surface->height, (void **)&surface->pixels, DATASET_STG, false);
+        AllocateStorage((void **)&surface->pixels, surface->width * surface->height, DATASET_STG, false);
         image.pixels = surface->pixels;
         image.Load(NULL, false);
 

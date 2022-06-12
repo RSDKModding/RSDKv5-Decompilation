@@ -44,7 +44,7 @@ void RSDK::ReleaseStorage()
     }
 }
 
-void RSDK::AllocateStorage(uint32 size, void **dataPtr, StorageDataSets dataSet, bool32 clear)
+void RSDK::AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet, bool32 clear)
 {
     int32 **data = (int32 **)dataPtr;
     *data        = NULL;

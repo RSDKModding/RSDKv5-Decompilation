@@ -553,7 +553,7 @@ extern int32 *globalVarsPtr;
 
 inline void RegisterGlobalVariables(void **globals, int32 size)
 {
-    AllocateStorage(size, globals, DATASET_STG, true);
+    AllocateStorage(globals, size, DATASET_STG, true);
     globalVarsPtr = (int32 *)*globals;
 }
 

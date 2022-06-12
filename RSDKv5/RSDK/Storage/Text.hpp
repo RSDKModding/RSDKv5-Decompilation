@@ -87,7 +87,7 @@ inline void InitString(String *string, char *text, uint32 textLength)
         if (!string->size)
             string->size = 1;
 
-        AllocateStorage(sizeof(uint16) * string->size, (void **)&string->chars, DATASET_STR, false);
+        AllocateStorage((void **)&string->chars, sizeof(uint16) * string->size, DATASET_STR, false);
 
         pos = 0;
         while (text[pos]) {
@@ -107,12 +107,12 @@ inline void CopyString(String *dst, String *src)
     dst->chars      = NULL;
     if (dst->size >= srcLength) {
         if (!dst->chars) {
-            AllocateStorage(sizeof(uint16) * dst->size, (void **)&dst->chars, DATASET_STR, false);
+            AllocateStorage((void **)&dst->chars, sizeof(uint16) * dst->size, DATASET_STR, false);
         }
     }
     else {
         dst->size = srcLength;
-        AllocateStorage(sizeof(uint16) * dst->size, (void **)&dst->chars, DATASET_STR, false);
+        AllocateStorage((void **)&dst->chars, sizeof(uint16) * dst->size, DATASET_STR, false);
     }
 
     dst->length = src->length;

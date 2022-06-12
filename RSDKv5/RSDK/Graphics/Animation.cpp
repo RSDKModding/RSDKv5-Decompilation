@@ -45,7 +45,7 @@ uint16 RSDK::LoadSpriteAnimation(const char *filePath, int32 scope)
         memcpy(spr->hash, hash, 4 * sizeof(uint32));
 
         uint32 frameCount = ReadInt32(&info, false);
-        AllocateStorage(frameCount * sizeof(SpriteFrame), (void **)&spr->frames, DATASET_STG, false);
+        AllocateStorage((void **)&spr->frames, frameCount * sizeof(SpriteFrame), DATASET_STG, false);
 
         uint8 sheetCount = ReadInt8(&info);
         for (int32 s = 0; s < sheetCount; ++s) {
@@ -59,7 +59,7 @@ uint16 RSDK::LoadSpriteAnimation(const char *filePath, int32 scope)
         }
 
         spr->animCount = ReadInt16(&info);
-        AllocateStorage(spr->animCount * sizeof(SpriteAnimationEntry), (void **)&spr->animations, DATASET_STG, false);
+        AllocateStorage((void **)&spr->animations, spr->animCount * sizeof(SpriteAnimationEntry), DATASET_STG, false);
 
         int32 frameID = 0;
         for (int32 a = 0; a < spr->animCount; ++a) {
@@ -131,8 +131,8 @@ uint16 RSDK::CreateSpriteAnimation(const char *filename, uint32 frameCount, uint
     spr->scope           = scope;
     memcpy(spr->hash, hash, 4 * sizeof(uint32));
 
-    AllocateStorage(sizeof(SpriteFrame) * minVal(frameCount, SPRITEFRAME_COUNT), (void **)&spr->frames, DATASET_STG, true);
-    AllocateStorage(sizeof(SpriteAnimationEntry) * minVal(animCount, SPRITEANIM_COUNT), (void **)&spr->animations, DATASET_STG, true);
+    AllocateStorage((void **)&spr->frames, sizeof(SpriteFrame) * minVal(frameCount, SPRITEFRAME_COUNT), DATASET_STG, true);
+    AllocateStorage((void **)&spr->animations, sizeof(SpriteAnimationEntry) * minVal(animCount, SPRITEANIM_COUNT), DATASET_STG, true);
 
     return id;
 }

@@ -206,7 +206,7 @@ void RSDK::SetString(String *string, char *text)
 
     if (string->size < newLength || !string->chars) {
         string->size = newLength;
-        AllocateStorage(sizeof(uint16) * string->size, (void **)&string->chars, DATASET_STR, false);
+        AllocateStorage((void **)&string->chars, sizeof(uint16) * string->size, DATASET_STR, false);
     }
 
     string->length = newLength;
@@ -259,13 +259,13 @@ void RSDK::AppendText(String *string, char *appendString)
     if (string->size < newSize || !string->chars) {
         if (string->chars) {
             uint16 *charsStore = string->chars;
-            AllocateStorage(sizeof(uint16) * newSize, (void **)&string->chars, DATASET_STR, false);
+            AllocateStorage((void **)&string->chars, sizeof(uint16) * newSize, DATASET_STR, false);
 
             for (int32 c = 0; c < string->length; ++c) string->chars[c] = charsStore[c];
             charsStore = NULL;
         }
         else {
-            AllocateStorage(sizeof(uint16) * newSize, (void **)&string->chars, DATASET_STR, false);
+            AllocateStorage((void **)&string->chars, sizeof(uint16) * newSize, DATASET_STR, false);
         }
 
         string->size = newSize;
@@ -314,13 +314,13 @@ void RSDK::AppendString(String *string, String *appendString)
     if (string->size < newSize || !string->chars) {
         if (string->chars) {
             uint16 *charsStore = string->chars;
-            AllocateStorage(sizeof(uint16) * newSize, (void **)&string->chars, DATASET_STR, false);
+            AllocateStorage((void **)&string->chars, sizeof(uint16) * newSize, DATASET_STR, false);
 
             for (int32 c = 0; c < string->length; ++c) string->chars[c] = charsStore[c];
             charsStore = NULL;
         }
         else {
-            AllocateStorage(sizeof(uint16) * newSize, (void **)&string->chars, DATASET_STR, false);
+            AllocateStorage((void **)&string->chars, sizeof(uint16) * newSize, DATASET_STR, false);
         }
 
         string->size = newSize;
@@ -361,7 +361,7 @@ void RSDK::InitStringList(String *stringList, int32 size)
 {
     uint16 *text = NULL;
 
-    AllocateStorage(sizeof(uint16) * size, (void **)&text, DATASET_STR, false);
+    AllocateStorage((void **)&text, sizeof(uint16) * size, DATASET_STR, false);
 
     for (int32 c = 0; c < size && c < stringList->length; ++c) text[c] = stringList->chars[c];
 
@@ -476,7 +476,7 @@ bool32 RSDK::SplitStringList(String *splitStrings, String *stringList, int32 sta
                 uint16 length = curCharPos - lastCharPos;
                 if (splitStrings->size < length) {
                     splitStrings->size = length;
-                    AllocateStorage(sizeof(uint16) * length, (void **)&splitStrings->chars, DATASET_STR, true);
+                    AllocateStorage((void **)&splitStrings->chars, sizeof(uint16) * length, DATASET_STR, true);
                 }
                 splitStrings->length = length;
 

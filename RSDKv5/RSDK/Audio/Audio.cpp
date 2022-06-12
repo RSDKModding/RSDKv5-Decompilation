@@ -88,13 +88,13 @@ void RSDK::LoadStream(ChannelInfo *channel)
     if (LoadFile(&info, streamFilePath, FMODE_RB)) {
         streamBufferSize = info.fileSize;
         streamBuffer     = NULL;
-        AllocateStorage(info.fileSize, (void **)&streamBuffer, DATASET_MUS, false);
+        AllocateStorage((void **)&streamBuffer, info.fileSize, DATASET_MUS, false);
         ReadBytes(&info, streamBuffer, streamBufferSize);
         CloseFile(&info);
 
         if (streamBufferSize > 0) {
             vorbisAlloc.alloc_buffer_length_in_bytes = 0x80000;
-            AllocateStorage(0x80000, (void **)&vorbisAlloc, DATASET_MUS, false);
+            AllocateStorage((void **)&vorbisAlloc, 0x80000, DATASET_MUS, false);
 
             vorbisInfo = stb_vorbis_open_memory(streamBuffer, streamBufferSize, NULL, &vorbisAlloc);
             if (vorbisInfo) {
@@ -214,7 +214,7 @@ void RSDK::ReadSfx(char *filename, uint8 id, uint8 plays, uint8 scope, uint32 *s
             if (sampleBits == 16)
                 length >>= 1;
 
-            AllocateStorage(sizeof(float) * length, (void **)&sfxList[id].buffer, DATASET_SFX, false);
+            AllocateStorage((void **)&sfxList[id].buffer, sizeof(float) * length, DATASET_SFX, false);
             sfxList[id].length = length;
 
             float *buffer = (float *)sfxList[id].buffer;

@@ -879,7 +879,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint8 *fileData = NULL;
-        AllocateStorage(info.fileSize, (void **)&fileData, DATASET_TMP, false);
+        AllocateStorage((void **)&fileData, info.fileSize, DATASET_TMP, false);
         ReadBytes(&info, fileData, info.fileSize);
         CloseFile(&info);
 
@@ -937,7 +937,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         InitFileInfo(&info);
         if (LoadFile(&info, fullFilePath, FMODE_RB)) {
             uint8 *fileData = NULL;
-            AllocateStorage(info.fileSize, (void **)&fileData, DATASET_TMP, false);
+            AllocateStorage((void **)&fileData, info.fileSize, DATASET_TMP, false);
             ReadBytes(&info, fileData, info.fileSize);
             CloseFile(&info);
 
@@ -999,7 +999,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint8 *fileData = NULL;
-        AllocateStorage(info.fileSize, (void **)&fileData, DATASET_TMP, false);
+        AllocateStorage((void **)&fileData, info.fileSize, DATASET_TMP, false);
         ReadBytes(&info, fileData, info.fileSize);
         CloseFile(&info);
 
@@ -1052,7 +1052,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         InitFileInfo(&info);
         if (LoadFile(&info, fullFilePath, FMODE_RB)) {
             uint8 *fileData = NULL;
-            AllocateStorage(info.fileSize, (void **)&fileData, DATASET_TMP, false);
+            AllocateStorage((void **)&fileData, info.fileSize, DATASET_TMP, false);
             ReadBytes(&info, fileData, info.fileSize);
             CloseFile(&info);
 

@@ -406,7 +406,7 @@ void RSDK::LoadSettingsINI()
             }
         }
 
-        AllocateStorage(sizeof(GamePadMappings) * gamePadCount, (void **)&gamePadMappings, DATASET_STG, true);
+        AllocateStorage((void **)&gamePadMappings, sizeof(GamePadMappings) * gamePadCount, DATASET_STG, true);
 
         for (int32 i = 1; i <= gamePadCount; ++i) {
             char buffer[0x30];

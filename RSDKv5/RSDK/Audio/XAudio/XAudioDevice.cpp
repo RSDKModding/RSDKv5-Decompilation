@@ -283,7 +283,7 @@ void AudioDevice::InitAudioChannels()
     sfxList[SFX_COUNT - 1].scope              = SCOPE_GLOBAL;
     sfxList[SFX_COUNT - 1].maxConcurrentPlays = 1;
     sfxList[SFX_COUNT - 1].length             = MIX_BUFFER_SIZE;
-    AllocateStorage(MIX_BUFFER_SIZE * sizeof(SAMPLE_FORMAT), (void **)&sfxList[SFX_COUNT - 1].buffer, DATASET_MUS, false);
+    AllocateStorage((void **)&sfxList[SFX_COUNT - 1].buffer, MIX_BUFFER_SIZE * sizeof(SAMPLE_FORMAT), DATASET_MUS, false);
 
     InitializeCriticalSection(&AudioDevice::criticalSection);
     initializedAudioChannels = true;
