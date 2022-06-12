@@ -1188,146 +1188,151 @@ void RSDK::DrawLayerHScroll(TileLayer *layer)
     if (!layer->xsize || !layer->ysize)
         return;
 
-    int32 lineTileCount       = (currentScreen->pitch >> 4) - 1;
-    uint8 *lineBuffer         = &gfxLineBuffer[currentScreen->clipBound_Y1];
-    ScanlineInfo *scanlinePtr = &scanlines[currentScreen->clipBound_Y1];
-    uint16 *frameBuffer       = &currentScreen->frameBuffer[currentScreen->pitch * currentScreen->clipBound_Y1];
+    int32 lineTileCount    = (currentScreen->pitch >> 4) - 1;
+    uint8 *lineBuffer      = &gfxLineBuffer[currentScreen->clipBound_Y1];
+    ScanlineInfo *scanline = &scanlines[currentScreen->clipBound_Y1];
+    uint16 *frameBuffer    = &currentScreen->frameBuffer[currentScreen->pitch * currentScreen->clipBound_Y1];
 
     for (int32 cy = currentScreen->clipBound_Y1; cy < currentScreen->clipBound_Y2; ++cy) {
-        int32 x         = scanlinePtr->position.x;
-        int32 y         = scanlinePtr->position.y;
-        int32 tileX     = x >> 0x10;
-        uint16 *palette = fullPalette[*lineBuffer++];
+        int32 x               = scanline->position.x;
+        int32 y               = scanline->position.y;
+        int32 tileX           = x >> 0x10;
+        uint16 *activePalette = fullPalette[*lineBuffer++];
 
         if (tileX >= TILE_SIZE * layer->xsize)
             x = (tileX - TILE_SIZE * layer->xsize) << 0x10;
         else if (tileX < 0)
             x = (tileX + TILE_SIZE * layer->xsize) << 0x10;
 
-        int32 cnt        = TILE_SIZE - ((x >> 0x10) & 0xF);
-        int32 cntX       = (x >> 16) & 0xF;
-        int32 cntY       = TILE_SIZE * ((y >> 0x10) & 0xF);
+        int32 tileRemain = TILE_SIZE - ((x >> 0x10) & 0xF);
+        int32 sheetX     = (x >> 16) & 0xF;
+        int32 sheetY     = TILE_SIZE * ((y >> 0x10) & 0xF);
         int32 lineRemain = currentScreen->pitch;
 
-        int32 tx       = (x >> 20);
+        int32 tx       = x >> 20;
         uint16 *layout = &layer->layout[tx + ((y >> 20) << layer->widthShift)];
+        lineRemain -= tileRemain;
 
-        lineRemain -= cnt;
         if (*layout >= 0xFFFF) {
-            frameBuffer += cnt;
+            frameBuffer += tileRemain;
         }
         else {
-            for (uint8 *i = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + cntX + cntY]; cnt; ++frameBuffer) {
-                --cnt;
-                if (*i)
-                    *frameBuffer = palette[*i];
-                ++i;
+            uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + sheetY + sheetX];
+            for (int32 x = 0; x < tileRemain; ++x) {
+                if (*pixels)
+                    *frameBuffer = activePalette[*pixels];
+                ++pixels;
+                ++frameBuffer;
             }
         }
 
-        for (int32 i = lineTileCount; i; frameBuffer += TILE_SIZE, lineRemain -= TILE_SIZE, --i) {
+        for (int32 l = 0; l < lineTileCount; ++l) {
             ++layout;
-            ++tx;
 
-            if (tx == layer->xsize) {
+            if (++tx == layer->xsize) {
                 tx = 0;
                 layout -= layer->xsize;
             }
 
             if (*layout < 0xFFFF) {
-                uint8 *tilesetData = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + cntY];
-                uint8 index        = *tilesetData;
-                if (index)
-                    *frameBuffer = palette[index];
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + sheetY];
 
-                index = tilesetData[1];
+                uint8 index = *pixels;
                 if (index)
-                    frameBuffer[1] = palette[index];
+                    *frameBuffer = activePalette[index];
 
-                index = tilesetData[2];
+                index = pixels[1];
                 if (index)
-                    frameBuffer[2] = palette[index];
+                    frameBuffer[1] = activePalette[index];
 
-                index = tilesetData[3];
+                index = pixels[2];
                 if (index)
-                    frameBuffer[3] = palette[index];
+                    frameBuffer[2] = activePalette[index];
 
-                index = tilesetData[4];
+                index = pixels[3];
                 if (index)
-                    frameBuffer[4] = palette[index];
+                    frameBuffer[3] = activePalette[index];
 
-                index = tilesetData[5];
+                index = pixels[4];
                 if (index)
-                    frameBuffer[5] = palette[index];
+                    frameBuffer[4] = activePalette[index];
 
-                index = tilesetData[6];
+                index = pixels[5];
                 if (index)
-                    frameBuffer[6] = palette[index];
+                    frameBuffer[5] = activePalette[index];
 
-                index = tilesetData[7];
+                index = pixels[6];
                 if (index)
-                    frameBuffer[7] = palette[index];
+                    frameBuffer[6] = activePalette[index];
 
-                index = tilesetData[8];
+                index = pixels[7];
                 if (index)
-                    frameBuffer[8] = palette[index];
+                    frameBuffer[7] = activePalette[index];
 
-                index = tilesetData[9];
+                index = pixels[8];
                 if (index)
-                    frameBuffer[9] = palette[index];
+                    frameBuffer[8] = activePalette[index];
 
-                index = tilesetData[10];
+                index = pixels[9];
                 if (index)
-                    frameBuffer[10] = palette[index];
+                    frameBuffer[9] = activePalette[index];
 
-                index = tilesetData[11];
+                index = pixels[10];
                 if (index)
-                    frameBuffer[11] = palette[index];
+                    frameBuffer[10] = activePalette[index];
 
-                index = tilesetData[12];
+                index = pixels[11];
                 if (index)
-                    frameBuffer[12] = palette[index];
+                    frameBuffer[11] = activePalette[index];
 
-                index = tilesetData[13];
+                index = pixels[12];
                 if (index)
-                    frameBuffer[13] = palette[index];
+                    frameBuffer[12] = activePalette[index];
 
-                index = tilesetData[14];
+                index = pixels[13];
                 if (index)
-                    frameBuffer[14] = palette[index];
+                    frameBuffer[13] = activePalette[index];
 
-                index = tilesetData[15];
+                index = pixels[14];
                 if (index)
-                    frameBuffer[15] = palette[index];
+                    frameBuffer[14] = activePalette[index];
+
+                index = pixels[15];
+                if (index)
+                    frameBuffer[15] = activePalette[index];
             }
+
+            frameBuffer += TILE_SIZE;
+            lineRemain -= TILE_SIZE;
         }
 
         while (lineRemain > 0) {
             ++layout;
-            ++tx;
 
-            if (tx == layer->xsize) {
+            if (++tx == layer->xsize) {
                 tx = 0;
                 layout -= layer->xsize;
             }
 
-            int32 r = lineRemain >= TILE_SIZE ? TILE_SIZE : lineRemain;
+            tileRemain = lineRemain >= TILE_SIZE ? TILE_SIZE : lineRemain;
 
             if (*layout >= 0xFFFF) {
-                frameBuffer += r;
+                frameBuffer += tileRemain;
             }
             else {
-                for (uint8 *i = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + cntY]; r; ++frameBuffer) {
-                    --r;
-                    if (*i)
-                        *frameBuffer = palette[*i];
-                    ++i;
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + sheetY];
+                for (int32 x = 0; x < tileRemain; ++x) {
+                    if (*pixels)
+                        *frameBuffer = activePalette[*pixels];
+                    ++pixels;
+                    ++frameBuffer;
                 }
             }
+
             lineRemain -= TILE_SIZE;
         }
 
-        ++scanlinePtr;
+        ++scanline;
     }
 }
 void RSDK::DrawLayerVScroll(TileLayer *layer)
@@ -1335,134 +1340,141 @@ void RSDK::DrawLayerVScroll(TileLayer *layer)
     if (!layer->xsize || !layer->ysize)
         return;
 
-    int32 lineTileCount     = (currentScreen->size.y >> 4) - 1;
-    uint16 *frameBuffer     = &currentScreen->frameBuffer[currentScreen->clipBound_X1];
-    ScanlineInfo *scanLines = &scanlines[currentScreen->clipBound_X1];
-    uint16 *palettePtr      = fullPalette[gfxLineBuffer[0]];
-    for (int32 cx = currentScreen->clipBound_X1; cx < currentScreen->clipBound_X2; ++cx) {
-        int32 x     = scanLines->position.x;
-        int32 y     = scanLines->position.y;
-        int32 tileY = y >> 0x10;
+    int32 lineTileCount    = (currentScreen->size.y >> 4) - 1;
+    uint16 *frameBuffer    = &currentScreen->frameBuffer[currentScreen->clipBound_X1];
+    ScanlineInfo *scanline = &scanlines[currentScreen->clipBound_X1];
+    uint16 *activePalette  = fullPalette[gfxLineBuffer[0]];
 
-        if (tileY >= TILE_SIZE * layer->ysize)
+    for (int32 cx = currentScreen->clipBound_X1; cx < currentScreen->clipBound_X2; ++cx) {
+        int32 x  = scanline->position.x;
+        int32 y  = scanline->position.y;
+        int32 ty = y >> 0x10;
+
+        if (ty >= TILE_SIZE * layer->ysize)
             y -= (TILE_SIZE * layer->ysize) << 0x10;
-        else if (tileY < 0)
+        else if (ty < 0)
             y += (TILE_SIZE * layer->ysize) << 0x10;
 
-        int32 cnt        = TILE_SIZE - ((y >> 16) & 0xF);
-        int32 cntY       = (y >> 16) & 0xF;
-        int32 cntX       = (x >> 16) & 0xF;
+        int32 tileRemain = TILE_SIZE - ((y >> 16) & 0xF);
+        int32 sheetX     = (x >> 16) & 0xF;
+        int32 sheetY     = (y >> 16) & 0xF;
         int32 lineRemain = currentScreen->size.y;
 
         uint16 *layout = &layer->layout[(x >> 20) + ((y >> 20) << layer->widthShift)];
-        lineRemain -= cnt;
+        lineRemain -= tileRemain;
+
         if (*layout >= 0xFFFF) {
-            frameBuffer += currentScreen->pitch * cnt;
+            frameBuffer += currentScreen->pitch * tileRemain;
         }
         else {
-            for (uint8 *i = &tilesetPixels[TILE_SIZE * (cntY + TILE_SIZE * (*layout & 0xFFF)) + cntX]; cnt; frameBuffer += currentScreen->pitch) {
-                --cnt;
-                if (*i)
-                    *frameBuffer = palettePtr[*i];
-                i += TILE_SIZE;
+            uint8 *pixels = &tilesetPixels[TILE_SIZE * (sheetY + TILE_SIZE * (*layout & 0xFFF)) + sheetX];
+            for (int32 y = 0; y < tileRemain; ++y) {
+                if (*pixels)
+                    *frameBuffer = activePalette[*pixels];
+                pixels += TILE_SIZE;
+                frameBuffer += currentScreen->pitch;
             }
         }
 
-        tileY = y >> 20;
-        for (int32 i = 0; i < lineTileCount; ++i) {
+        ty = y >> 20;
+        for (int32 l = 0; l < lineTileCount; ++l) {
             layout += layer->xsize;
-            ++tileY;
 
-            if (tileY == layer->ysize) {
-                tileY = 0;
+            if (++ty == layer->ysize) {
+                ty = 0;
                 layout -= layer->ysize << layer->widthShift;
             }
+
             if (*layout >= 0xFFFF) {
                 frameBuffer += TILE_SIZE * currentScreen->pitch;
             }
             else {
-                uint8 *gfxPtr = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + cntX];
-                if (*gfxPtr)
-                    *frameBuffer = palettePtr[*gfxPtr];
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + sheetX];
 
-                if (gfxPtr[0x10])
-                    frameBuffer[currentScreen->pitch * 1] = palettePtr[gfxPtr[0x10]];
+                if (*pixels)
+                    *frameBuffer = activePalette[*pixels];
 
-                if (gfxPtr[0x20])
-                    frameBuffer[currentScreen->pitch * 2] = palettePtr[gfxPtr[0x20]];
+                if (pixels[0x10])
+                    frameBuffer[currentScreen->pitch * 1] = activePalette[pixels[0x10]];
 
-                if (gfxPtr[0x30])
-                    frameBuffer[currentScreen->pitch * 3] = palettePtr[gfxPtr[0x30]];
+                if (pixels[0x20])
+                    frameBuffer[currentScreen->pitch * 2] = activePalette[pixels[0x20]];
 
-                if (gfxPtr[0x40])
-                    frameBuffer[currentScreen->pitch * 4] = palettePtr[gfxPtr[0x40]];
+                if (pixels[0x30])
+                    frameBuffer[currentScreen->pitch * 3] = activePalette[pixels[0x30]];
 
-                if (gfxPtr[0x50])
-                    frameBuffer[currentScreen->pitch * 5] = palettePtr[gfxPtr[0x50]];
+                if (pixels[0x40])
+                    frameBuffer[currentScreen->pitch * 4] = activePalette[pixels[0x40]];
 
-                if (gfxPtr[0x60])
-                    frameBuffer[currentScreen->pitch * 6] = palettePtr[gfxPtr[0x60]];
+                if (pixels[0x50])
+                    frameBuffer[currentScreen->pitch * 5] = activePalette[pixels[0x50]];
 
-                if (gfxPtr[0x70])
-                    frameBuffer[currentScreen->pitch * 7] = palettePtr[gfxPtr[0x70]];
+                if (pixels[0x60])
+                    frameBuffer[currentScreen->pitch * 6] = activePalette[pixels[0x60]];
 
-                if (gfxPtr[0x80])
-                    frameBuffer[currentScreen->pitch * 8] = palettePtr[gfxPtr[0x80]];
+                if (pixels[0x70])
+                    frameBuffer[currentScreen->pitch * 7] = activePalette[pixels[0x70]];
 
-                if (gfxPtr[0x90])
-                    frameBuffer[currentScreen->pitch * 9] = palettePtr[gfxPtr[0x90]];
+                if (pixels[0x80])
+                    frameBuffer[currentScreen->pitch * 8] = activePalette[pixels[0x80]];
 
-                if (gfxPtr[0xA0])
-                    frameBuffer[currentScreen->pitch * 10] = palettePtr[gfxPtr[0xA0]];
+                if (pixels[0x90])
+                    frameBuffer[currentScreen->pitch * 9] = activePalette[pixels[0x90]];
 
-                if (gfxPtr[0xB0])
-                    frameBuffer[currentScreen->pitch * 11] = palettePtr[gfxPtr[0xB0]];
+                if (pixels[0xA0])
+                    frameBuffer[currentScreen->pitch * 10] = activePalette[pixels[0xA0]];
 
-                if (gfxPtr[0xC0])
-                    frameBuffer[currentScreen->pitch * 12] = palettePtr[gfxPtr[0xC0]];
+                if (pixels[0xB0])
+                    frameBuffer[currentScreen->pitch * 11] = activePalette[pixels[0xB0]];
 
-                if (gfxPtr[0xD0])
-                    frameBuffer[currentScreen->pitch * 13] = palettePtr[gfxPtr[0xD0]];
+                if (pixels[0xC0])
+                    frameBuffer[currentScreen->pitch * 12] = activePalette[pixels[0xC0]];
 
-                if (gfxPtr[0xE0])
-                    frameBuffer[currentScreen->pitch * 14] = palettePtr[gfxPtr[0xE0]];
+                if (pixels[0xD0])
+                    frameBuffer[currentScreen->pitch * 13] = activePalette[pixels[0xD0]];
 
-                if (gfxPtr[0xF0])
-                    frameBuffer[currentScreen->pitch * 15] = palettePtr[gfxPtr[0xF0]];
+                if (pixels[0xE0])
+                    frameBuffer[currentScreen->pitch * 14] = activePalette[pixels[0xE0]];
+
+                if (pixels[0xF0])
+                    frameBuffer[currentScreen->pitch * 15] = activePalette[pixels[0xF0]];
 
                 frameBuffer += currentScreen->pitch * TILE_SIZE;
             }
+
             lineRemain -= TILE_SIZE;
         }
 
         while (lineRemain > 0) {
             layout += layer->xsize;
-            ++tileY;
 
-            if (tileY == layer->ysize) {
-                tileY = 0;
+            if (++ty == layer->ysize) {
+                ty = 0;
                 layout -= layer->ysize << layer->widthShift;
             }
 
-            int32 r = lineRemain >= TILE_SIZE ? TILE_SIZE : lineRemain;
+            tileRemain = lineRemain >= TILE_SIZE ? TILE_SIZE : lineRemain;
             if (*layout >= 0xFFFF) {
-                frameBuffer += currentScreen->pitch * cntY;
+                frameBuffer += currentScreen->pitch * sheetY;
             }
             else {
-                for (uint8 *i = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + cntX]; r; frameBuffer += currentScreen->pitch) {
-                    --r;
-                    if (*i)
-                        *frameBuffer = palettePtr[*i];
-                    i += 0x10;
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + sheetX];
+                for (int32 y = 0; y < tileRemain; ++y) {
+                    if (*pixels)
+                        *frameBuffer = activePalette[*pixels];
+
+                    pixels += TILE_SIZE;
+                    frameBuffer += currentScreen->pitch;
                 }
             }
 
             lineRemain -= TILE_SIZE;
         }
 
-        ++scanLines;
         frameBuffer -= currentScreen->pitch * currentScreen->size.y;
-        frameBuffer++;
+
+        ++scanline;
+        ++frameBuffer;
     }
 }
 void RSDK::DrawLayerRotozoom(TileLayer *layer)
@@ -1470,38 +1482,42 @@ void RSDK::DrawLayerRotozoom(TileLayer *layer)
     if (!layer->xsize || !layer->ysize)
         return;
 
-    uint16 *layout            = layer->layout;
-    uint8 *lineBuffer         = &gfxLineBuffer[currentScreen->clipBound_Y1];
-    ScanlineInfo *scanlinePtr = &scanlines[currentScreen->clipBound_Y1];
-    uint16 *frameBuffer       = &currentScreen->frameBuffer[currentScreen->clipBound_X1 + currentScreen->clipBound_Y1 * currentScreen->pitch];
-    int32 width               = (TILE_SIZE << layer->widthShift) - 1;
-    int32 height              = (TILE_SIZE << layer->heightShift) - 1;
-    int32 lineSize            = currentScreen->clipBound_X2 - currentScreen->clipBound_X1;
+    uint16 *layout         = layer->layout;
+    uint8 *lineBuffer      = &gfxLineBuffer[currentScreen->clipBound_Y1];
+    ScanlineInfo *scanline = &scanlines[currentScreen->clipBound_Y1];
+    uint16 *frameBuffer    = &currentScreen->frameBuffer[currentScreen->clipBound_X1 + currentScreen->clipBound_Y1 * currentScreen->pitch];
+
+    int32 width    = (TILE_SIZE << layer->widthShift) - 1;
+    int32 height   = (TILE_SIZE << layer->heightShift) - 1;
+    int32 lineSize = currentScreen->clipBound_X2 - currentScreen->clipBound_X1;
 
     for (int32 cy = currentScreen->clipBound_Y1; cy < currentScreen->clipBound_Y2; ++cy) {
-        int32 posX = scanlinePtr->position.x;
-        int32 posY = scanlinePtr->position.y;
+        int32 posX = scanline->position.x;
+        int32 posY = scanline->position.y;
 
-        uint16 *palettePtr = fullPalette[*lineBuffer];
+        uint16 *activePalette = fullPalette[*lineBuffer];
         ++lineBuffer;
         int32 fbOffset = currentScreen->pitch - lineSize;
 
-        for (int32 cx = lineSize; cx; --cx) {
-            int32 tx    = posX >> 20;
-            int32 ty    = posY >> 20;
-            int32 x     = (posX >> 16) & 0xF;
-            int32 y     = (posY >> 16) & 0xF;
+        for (int32 cx = 0; cx < lineSize; ++cx) {
+            int32 tx = posX >> 20;
+            int32 ty = posY >> 20;
+            int32 x  = (posX >> 16) & 0xF;
+            int32 y  = (posY >> 16) & 0xF;
+
             uint16 tile = layout[((width >> 4) & tx) + (((height >> 4) & ty) << layer->widthShift)] & 0xFFF;
             uint8 idx   = tilesetPixels[TILE_SIZE * (y + TILE_SIZE * tile) + x];
+
             if (idx)
-                *frameBuffer = palettePtr[idx];
-            posX += scanlinePtr->deform.x;
-            posY += scanlinePtr->deform.y;
+                *frameBuffer = activePalette[idx];
+
+            posX += scanline->deform.x;
+            posY += scanline->deform.y;
             ++frameBuffer;
         }
 
         frameBuffer += fbOffset;
-        ++scanlinePtr;
+        ++scanline;
     }
 }
 void RSDK::DrawLayerBasic(TileLayer *layer)
@@ -1512,145 +1528,451 @@ void RSDK::DrawLayerBasic(TileLayer *layer)
     if (currentScreen->clipBound_X1 >= currentScreen->clipBound_X2 || currentScreen->clipBound_Y1 >= currentScreen->clipBound_Y2)
         return;
 
-    int32 lineTileCount       = (currentScreen->pitch >> 4) - 1;
-    uint8 *lineBuffer         = &gfxLineBuffer[currentScreen->clipBound_Y1];
-    ScanlineInfo *scanlinePtr = &scanlines[currentScreen->clipBound_Y1];
-    uint16 *frameBuffer       = &currentScreen->frameBuffer[currentScreen->pitch * currentScreen->clipBound_Y1];
+    uint16 *activePalette = fullPalette[0];
+    if (currentScreen->clipBound_X1 < currentScreen->clipBound_X2 && currentScreen->clipBound_Y1 < currentScreen->clipBound_Y2) {
+        int32 lineSize = (currentScreen->clipBound_X2 - currentScreen->clipBound_X1) >> 4;
 
-    for (int32 cy = currentScreen->clipBound_Y1; cy < currentScreen->clipBound_Y2; ++cy) {
-        int32 x         = scanlinePtr->position.x;
-        int32 y         = scanlinePtr->position.y;
-        int32 tileX     = x >> 0x10;
-        uint16 *palette = fullPalette[*lineBuffer++];
+        ScanlineInfo *scanline = &scanlines[currentScreen->clipBound_Y1];
 
-        if (tileX >= TILE_SIZE * layer->xsize)
-            x = (tileX - TILE_SIZE * layer->xsize) << 0x10;
-        else if (tileX < 0)
-            x = (tileX + TILE_SIZE * layer->xsize) << 0x10;
+        int32 tx          = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) >> 4;
+        int32 ty          = (scanline->position.y >> 16) >> 4;
+        int32 sheetY      = (scanline->position.y >> 16) & 0xF;
+        int32 sheetX      = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) & 0xF;
+        int32 tileRemainX = TILE_SIZE - sheetX;
+        int32 tileRemainY = TILE_SIZE - sheetY;
 
-        int32 cnt        = TILE_SIZE - ((x >> 0x10) & 0xF);
-        int32 cntX       = (x >> 16) & 0xF;
-        int32 cntY       = TILE_SIZE * ((y >> 0x10) & 0xF);
-        int32 lineRemain = currentScreen->pitch;
+        uint16 *frameBuffer = &currentScreen->frameBuffer[currentScreen->clipBound_X1 + currentScreen->clipBound_Y1 * currentScreen->pitch];
+        uint16 *layout      = &layer->layout[tx + (ty << layer->widthShift)];
 
-        int32 tx       = (x >> 20);
-        uint16 *layout = &layer->layout[tx + ((y >> 20) << layer->widthShift)];
-
-        lineRemain -= cnt;
-        if (*layout >= 0xFFFF) {
-            frameBuffer += cnt;
-        }
-        else {
-            for (uint8 *i = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + cntX + cntY]; cnt; ++frameBuffer) {
-                --cnt;
-                if (*i)
-                    *frameBuffer = palette[*i];
-                ++i;
-            }
-        }
-
-        for (int32 i = lineTileCount; i; frameBuffer += TILE_SIZE, lineRemain -= TILE_SIZE, --i) {
-            ++layout;
-            ++tx;
-
-            if (tx == layer->xsize) {
-                tx = 0;
-                layout -= layer->xsize;
-            }
-
-            if (*layout < 0xFFFF) {
-                uint8 *tilesetData = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + cntY];
-                uint8 index        = *tilesetData;
-                if (index)
-                    *frameBuffer = palette[index];
-
-                index = tilesetData[1];
-                if (index)
-                    frameBuffer[1] = palette[index];
-
-                index = tilesetData[2];
-                if (index)
-                    frameBuffer[2] = palette[index];
-
-                index = tilesetData[3];
-                if (index)
-                    frameBuffer[3] = palette[index];
-
-                index = tilesetData[4];
-                if (index)
-                    frameBuffer[4] = palette[index];
-
-                index = tilesetData[5];
-                if (index)
-                    frameBuffer[5] = palette[index];
-
-                index = tilesetData[6];
-                if (index)
-                    frameBuffer[6] = palette[index];
-
-                index = tilesetData[7];
-                if (index)
-                    frameBuffer[7] = palette[index];
-
-                index = tilesetData[8];
-                if (index)
-                    frameBuffer[8] = palette[index];
-
-                index = tilesetData[9];
-                if (index)
-                    frameBuffer[9] = palette[index];
-
-                index = tilesetData[10];
-                if (index)
-                    frameBuffer[10] = palette[index];
-
-                index = tilesetData[11];
-                if (index)
-                    frameBuffer[11] = palette[index];
-
-                index = tilesetData[12];
-                if (index)
-                    frameBuffer[12] = palette[index];
-
-                index = tilesetData[13];
-                if (index)
-                    frameBuffer[13] = palette[index];
-
-                index = tilesetData[14];
-                if (index)
-                    frameBuffer[14] = palette[index];
-
-                index = tilesetData[15];
-                if (index)
-                    frameBuffer[15] = palette[index];
-            }
-        }
-
-        while (lineRemain > 0) {
-            ++layout;
-            ++tx;
-
-            if (tx == layer->xsize) {
-                tx = 0;
-                layout -= layer->xsize;
-            }
-
-            int32 r = lineRemain >= TILE_SIZE ? TILE_SIZE : lineRemain;
-
-            if (*layout >= 0xFFFF) {
-                frameBuffer += r;
+        // Remaining pixels on top
+        {
+            if (*layout == 0xFFFF) {
+                frameBuffer += TILE_SIZE - sheetX;
             }
             else {
-                for (uint8 *i = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + cntY]; r; ++frameBuffer) {
-                    --r;
-                    if (*i)
-                        *frameBuffer = palette[*i];
-                    ++i;
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + TILE_SIZE * sheetY + sheetX];
+
+                for (int32 y = 0; y < tileRemainY; ++y) {
+                    for (int32 x = 0; x < tileRemainX; ++x) {
+                        if (*pixels)
+                            *frameBuffer = activePalette[*pixels];
+                        ++pixels;
+                        ++frameBuffer;
+                    }
+
+                    pixels += sheetX;
+                    frameBuffer += currentScreen->pitch - tileRemainX;
+                }
+
+                frameBuffer += tileRemainX - currentScreen->pitch * tileRemainY;
+            }
+
+            ++layout;
+            if (++tx == layer->xsize) {
+                tx = 0;
+                layout -= layer->xsize;
+            }
+
+            for (int32 x = 0; x < lineSize; ++x) {
+                if (*layout == 0xFFFF) {
+                    frameBuffer += TILE_SIZE;
+                }
+                else {
+                    uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + TILE_SIZE * sheetY];
+                    for (int32 y = 0; y < tileRemainY; ++y) {
+                        uint8 index = *pixels;
+                        if (index)
+                            *frameBuffer = activePalette[index];
+
+                        index = pixels[1];
+                        if (index)
+                            frameBuffer[1] = activePalette[index];
+
+                        index = pixels[2];
+                        if (index)
+                            frameBuffer[2] = activePalette[index];
+
+                        index = pixels[3];
+                        if (index)
+                            frameBuffer[3] = activePalette[index];
+
+                        index = pixels[4];
+                        if (index)
+                            frameBuffer[4] = activePalette[index];
+
+                        index = pixels[5];
+                        if (index)
+                            frameBuffer[5] = activePalette[index];
+
+                        index = pixels[6];
+                        if (index)
+                            frameBuffer[6] = activePalette[index];
+
+                        index = pixels[7];
+                        if (index)
+                            frameBuffer[7] = activePalette[index];
+
+                        index = pixels[8];
+                        if (index)
+                            frameBuffer[8] = activePalette[index];
+
+                        index = pixels[9];
+                        if (index)
+                            frameBuffer[9] = activePalette[index];
+
+                        index = pixels[10];
+                        if (index)
+                            frameBuffer[10] = activePalette[index];
+
+                        index = pixels[11];
+                        if (index)
+                            frameBuffer[11] = activePalette[index];
+
+                        index = pixels[12];
+                        if (index)
+                            frameBuffer[12] = activePalette[index];
+
+                        index = pixels[13];
+                        if (index)
+                            frameBuffer[13] = activePalette[index];
+
+                        index = pixels[14];
+                        if (index)
+                            frameBuffer[14] = activePalette[index];
+
+                        index = pixels[15];
+                        if (index)
+                            frameBuffer[15] = activePalette[index];
+
+                        frameBuffer += currentScreen->pitch;
+                        pixels += TILE_SIZE;
+                    }
+
+                    frameBuffer += TILE_SIZE - currentScreen->pitch * tileRemainY;
+                }
+
+                ++layout;
+                if (++tx == layer->xsize) {
+                    tx = 0;
+                    layout -= layer->xsize;
                 }
             }
-            lineRemain -= TILE_SIZE;
+
+            if (*layout == 0xFFFF) {
+                frameBuffer += currentScreen->pitch * tileRemainY;
+            }
+            else {
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + TILE_SIZE * sheetY];
+
+                for (int32 y = 0; y < tileRemainY; ++y) {
+                    for (int32 x = 0; x < sheetX; ++x) {
+                        if (*pixels)
+                            *frameBuffer = activePalette[*pixels];
+                        ++pixels;
+                        ++frameBuffer;
+                    }
+
+                    pixels += tileRemainX;
+                    frameBuffer += currentScreen->pitch - sheetX;
+                }
+            }
         }
 
-        ++scanlinePtr;
+        // We've drawn a single line of pixels, increase our variables
+        frameBuffer += sheetX + -TILE_SIZE * lineSize - TILE_SIZE;
+        scanline += tileRemainY;
+        if (++ty == layer->ysize)
+            ty = 0;
+
+        // Draw the bulk of the tiles
+        int32 lineTileCount = ((currentScreen->clipBound_Y2 - currentScreen->clipBound_Y1) >> 4) - 1;
+        for (int32 l = 0; l < lineTileCount; ++l) {
+            sheetX      = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) & 0xF;
+            tx          = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) >> 4;
+            tileRemainX = TILE_SIZE - sheetX;
+            layout      = &layer->layout[tx + (ty << layer->widthShift)];
+
+            // Draw any stray pixels on the left
+            if (*layout == 0xFFFF) {
+                frameBuffer += tileRemainX;
+            }
+            else {
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + sheetX];
+
+                for (int32 y = 0; y < TILE_SIZE; ++y) {
+                    for (int32 x = 0; x < tileRemainX; ++x) {
+                        if (*pixels)
+                            *frameBuffer = activePalette[*pixels];
+                        ++pixels;
+                        ++frameBuffer;
+                    }
+
+                    pixels += sheetX;
+                    frameBuffer += currentScreen->pitch - tileRemainX;
+                }
+
+                frameBuffer += tileRemainX - TILE_SIZE * currentScreen->pitch;
+            }
+            ++layout;
+            if (++tx == layer->xsize) {
+                tx = 0;
+                layout -= layer->xsize;
+            }
+
+            // Draw the bulk of the tiles on this line
+            for (int32 x = 0; x < lineSize; ++x) {
+                if (*layout == 0xFFFF) {
+                    frameBuffer += TILE_SIZE;
+                }
+                else {
+                    uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF)];
+
+                    for (int32 y = 0; y < TILE_SIZE; ++y) {
+                        uint8 index = *pixels;
+                        if (index)
+                            *frameBuffer = activePalette[index];
+
+                        index = pixels[1];
+                        if (index)
+                            frameBuffer[1] = activePalette[index];
+
+                        index = pixels[2];
+                        if (index)
+                            frameBuffer[2] = activePalette[index];
+
+                        index = pixels[3];
+                        if (index)
+                            frameBuffer[3] = activePalette[index];
+
+                        index = pixels[4];
+                        if (index)
+                            frameBuffer[4] = activePalette[index];
+
+                        index = pixels[5];
+                        if (index)
+                            frameBuffer[5] = activePalette[index];
+
+                        index = pixels[6];
+                        if (index)
+                            frameBuffer[6] = activePalette[index];
+
+                        index = pixels[7];
+                        if (index)
+                            frameBuffer[7] = activePalette[index];
+
+                        index = pixels[8];
+                        if (index)
+                            frameBuffer[8] = activePalette[index];
+
+                        index = pixels[9];
+                        if (index)
+                            frameBuffer[9] = activePalette[index];
+
+                        index = pixels[10];
+                        if (index)
+                            frameBuffer[10] = activePalette[index];
+
+                        index = pixels[11];
+                        if (index)
+                            frameBuffer[11] = activePalette[index];
+
+                        index = pixels[12];
+                        if (index)
+                            frameBuffer[12] = activePalette[index];
+
+                        index = pixels[13];
+                        if (index)
+                            frameBuffer[13] = activePalette[index];
+
+                        index = pixels[14];
+                        if (index)
+                            frameBuffer[14] = activePalette[index];
+
+                        index = pixels[15];
+                        if (index)
+                            frameBuffer[15] = activePalette[index];
+
+                        pixels += TILE_SIZE;
+                        frameBuffer += currentScreen->pitch;
+                    }
+
+                    frameBuffer -= TILE_SIZE * currentScreen->pitch;
+                    frameBuffer += TILE_SIZE;
+                }
+
+                ++layout;
+                if (++tx == layer->xsize) {
+                    tx = 0;
+                    layout -= layer->xsize;
+                }
+            }
+
+            // Draw any stray pixels on the right
+            if (*layout == 0xFFFF) {
+                frameBuffer += TILE_SIZE * currentScreen->pitch;
+            }
+            else {
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF)];
+
+                for (int32 y = 0; y < TILE_SIZE; ++y) {
+                    for (int32 x = 0; x < sheetX; ++x) {
+                        if (*pixels)
+                            *frameBuffer = activePalette[*pixels];
+                        ++pixels;
+                        ++frameBuffer;
+                    }
+
+                    pixels += tileRemainX;
+                    frameBuffer += currentScreen->pitch - sheetX;
+                }
+            }
+            ++layout;
+            if (++tx == layer->xsize) {
+                tx = 0;
+                layout -= layer->xsize;
+            }
+
+            // We've drawn a single line, increase our variables
+            scanline += TILE_SIZE;
+            frameBuffer += sheetX + -TILE_SIZE * lineSize - TILE_SIZE;
+            if (++ty == layer->ysize)
+                ty = 0;
+        }
+
+        // Remaining pixels on bottom
+        {
+            tx          = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) >> 4;
+            sheetX      = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) & 0xF;
+            tileRemainX = TILE_SIZE - sheetX;
+            layout      = &layer->layout[tx + (ty << layer->widthShift)];
+
+            if (*layout != 0xFFFF) {
+                frameBuffer += tileRemainX;
+            }
+            else {
+                uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF) + sheetX];
+
+                for (int32 y = 0; y < sheetY; ++y) {
+                    for (int32 x = 0; x < tileRemainX; ++x) {
+                        if (*pixels)
+                            *frameBuffer = activePalette[*pixels];
+                        ++pixels;
+                        ++frameBuffer;
+                    }
+
+                    pixels += sheetX;
+                    frameBuffer += currentScreen->pitch - tileRemainX;
+                }
+
+                frameBuffer += tileRemainX - currentScreen->pitch * sheetY;
+            }
+            ++layout;
+            if (++tx == layer->xsize) {
+                tx = 0;
+                layout -= layer->xsize;
+            }
+
+            for (int32 x = 0; x < lineSize; ++x) {
+                if (*layout == 0xFFFF) {
+                    frameBuffer += TILE_SIZE;
+                }
+                else {
+                    uint8 *pixels = &tilesetPixels[TILE_DATASIZE * (*layout & 0xFFF)];
+                    for (int32 y = 0; y < sheetY; ++y) {
+                        uint8 index = *pixels;
+                        if (index)
+                            *frameBuffer = activePalette[index];
+
+                        index = pixels[1];
+                        if (index)
+                            frameBuffer[1] = activePalette[index];
+
+                        index = pixels[2];
+                        if (index)
+                            frameBuffer[2] = activePalette[index];
+
+                        index = pixels[3];
+                        if (index)
+                            frameBuffer[3] = activePalette[index];
+
+                        index = pixels[4];
+                        if (index)
+                            frameBuffer[4] = activePalette[index];
+
+                        index = pixels[5];
+                        if (index)
+                            frameBuffer[5] = activePalette[index];
+
+                        index = pixels[6];
+                        if (index)
+                            frameBuffer[6] = activePalette[index];
+
+                        index = pixels[7];
+                        if (index)
+                            frameBuffer[7] = activePalette[index];
+
+                        index = pixels[8];
+                        if (index)
+                            frameBuffer[8] = activePalette[index];
+
+                        index = pixels[9];
+                        if (index)
+                            frameBuffer[9] = activePalette[index];
+
+                        index = pixels[10];
+                        if (index)
+                            frameBuffer[10] = activePalette[index];
+
+                        index = pixels[11];
+                        if (index)
+                            frameBuffer[11] = activePalette[index];
+
+                        index = pixels[12];
+                        if (index)
+                            frameBuffer[12] = activePalette[index];
+
+                        index = pixels[13];
+                        if (index)
+                            frameBuffer[13] = activePalette[index];
+
+                        index = pixels[14];
+                        if (index)
+                            frameBuffer[14] = activePalette[index];
+
+                        index = pixels[15];
+                        if (index)
+                            frameBuffer[15] = activePalette[index];
+
+                        pixels += TILE_SIZE;
+                        frameBuffer += currentScreen->pitch;
+                    }
+
+                    frameBuffer += TILE_SIZE - currentScreen->pitch * sheetY;
+                }
+
+                ++layout;
+                if (++tx == layer->xsize) {
+                    tx = 0;
+                    layout -= layer->xsize;
+                }
+            }
+
+            if (*layout != 0xFFFF) {
+                uint8 *pixels = &tilesetPixels[256 * (*layout & 0xFFF)];
+
+                for (int32 y = 0; y < sheetY; ++y) {
+                    for (int32 x = 0; x < sheetX; ++x) {
+                        if (*pixels)
+                            *frameBuffer = activePalette[*pixels];
+                        ++pixels;
+                        ++frameBuffer;
+                    }
+
+                    pixels += tileRemainX;
+                }
+
+                frameBuffer += currentScreen->pitch - sheetX;
+            }
+        }
     }
 }

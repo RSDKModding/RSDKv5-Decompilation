@@ -272,34 +272,37 @@ inline void CopyTile(uint16 dest, uint16 src, uint16 count)
     if (count > TILE_COUNT)
         count = TILE_COUNT - 1;
 
-    uint8 *destPtr = &tilesetPixels[TILE_DATASIZE * dest];
-    uint8 *srcPtr  = &tilesetPixels[TILE_DATASIZE * src];
+    uint8 *destPixels = &tilesetPixels[TILE_DATASIZE * dest];
+    uint8 *srcPixels  = &tilesetPixels[TILE_DATASIZE * src];
 
-    uint8 *destPtrX = &tilesetPixels[(TILE_DATASIZE * dest) + (0x40000 * FLIP_X)];
-    uint8 *srcPtrX  = &tilesetPixels[(TILE_DATASIZE * src) + (0x40000 * FLIP_X)];
+    uint8 *destPixelsX = &tilesetPixels[(TILE_DATASIZE * dest) + ((TILE_COUNT * TILE_DATASIZE) * FLIP_X)];
+    uint8 *srcPixelsX  = &tilesetPixels[(TILE_DATASIZE * src) + ((TILE_COUNT * TILE_DATASIZE) * FLIP_X)];
 
-    uint8 *destPtrY = &tilesetPixels[(TILE_DATASIZE * dest) + (0x40000 * FLIP_Y)];
-    uint8 *srcPtrY  = &tilesetPixels[(TILE_DATASIZE * src) + (0x40000 * FLIP_Y)];
+    uint8 *destPixelsY = &tilesetPixels[(TILE_DATASIZE * dest) + ((TILE_COUNT * TILE_DATASIZE) * FLIP_Y)];
+    uint8 *srcPixelsY  = &tilesetPixels[(TILE_DATASIZE * src) + ((TILE_COUNT * TILE_DATASIZE) * FLIP_Y)];
 
-    uint8 *destPtrXY = &tilesetPixels[(TILE_DATASIZE * dest) + (0x40000 * FLIP_XY)];
-    uint8 *srcPtrXY  = &tilesetPixels[(TILE_DATASIZE * src) + (0x40000 * FLIP_XY)];
+    uint8 *destPixelsXY = &tilesetPixels[(TILE_DATASIZE * dest) + ((TILE_COUNT * TILE_DATASIZE) * FLIP_XY)];
+    uint8 *srcPixelsXY  = &tilesetPixels[(TILE_DATASIZE * src) + ((TILE_COUNT * TILE_DATASIZE) * FLIP_XY)];
 
-    while (count--) {
-        int32 pxCnt = TILE_DATASIZE;
-        while (pxCnt--) {
-            *destPtr++   = *srcPtr++;
-            *destPtrX++  = *srcPtrX++;
-            *destPtrY++  = *srcPtrY++;
-            *destPtrXY++ = *srcPtrXY++;
+    for (int32 t = 0; t < count; ++t) {
+        for (int32 p = 0; p < TILE_DATASIZE; ++p) {
+            *destPixels++   = *srcPixels++;
+            *destPixelsX++  = *srcPixelsX++;
+            *destPixelsY++  = *srcPixelsY++;
+            *destPixelsXY++ = *srcPixelsXY++;
         }
     }
 }
 
 inline ScanlineInfo *GetScanlines() { return scanlines; }
 
+// Draw a layer with horizonal scrolling capabilities
 void DrawLayerHScroll(TileLayer *layer);
+// Draw a layer with vertical scrolling capabilities
 void DrawLayerVScroll(TileLayer *layer);
+// Draw a layer with rotozoom (via scanline callback) capabilities
 void DrawLayerRotozoom(TileLayer *layer);
+// Draw a "basic" layer, no special capabilities, but it's the fastest to draw
 void DrawLayerBasic(TileLayer *layer);
 
 } // namespace RSDK
