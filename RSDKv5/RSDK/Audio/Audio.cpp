@@ -424,7 +424,8 @@ void RSDK::ClearGlobalSfx()
 
     // Unload global SFX
     for (int32 s = 0; s < SFX_COUNT; ++s) {
-        if (sfxList[s].scope == SCOPE_GLOBAL) {
+        // clear global sfx (do NOT clear the stream channel 0 slot)
+        if (sfxList[s].scope == SCOPE_GLOBAL && s != SFX_COUNT - 1) {
             MEM_ZERO(sfxList[s]);
             sfxList[s].scope = SCOPE_NONE;
         }

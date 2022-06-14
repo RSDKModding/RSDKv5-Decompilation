@@ -41,15 +41,8 @@ extern int32 collisionTolerance;
 extern int32 collisionOffset;
 extern int32 collisionMaskAir;
 
-extern int32 collisionOuter_Left;
-extern int32 collisionOuter_Top;
-extern int32 collisionOuter_Right;
-extern int32 collisionOuter_Bottom;
-
-extern int32 collisionInner_Left;
-extern int32 collisionInner_Top;
-extern int32 collisionInner_Right;
-extern int32 collisionInner_Bottom;
+extern Hitbox collisionOuter;
+extern Hitbox collisionInner;
 
 extern Entity *collisionEntity;
 

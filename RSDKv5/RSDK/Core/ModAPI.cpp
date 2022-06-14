@@ -182,6 +182,9 @@ void RSDK::LoadMods()
 
 #if RETRO_USE_MOD_LOADER
     if (AudioDevice::initializedAudioChannels) {
+        // Stop all sounds
+        for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
+
         // we're about to reload these, so clear anything we already have
         ClearGlobalSfx();
     }
