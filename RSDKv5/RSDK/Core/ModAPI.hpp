@@ -55,13 +55,16 @@ typedef enum {
     ModTable_GetPublicFunction,
     ModTable_GetSettingsBool,
     ModTable_GetSettingsInt,
+    ModTable_GetSettingsFloat,
     ModTable_GetSettingsString,
     ModTable_SetSettingsBool,
     ModTable_SetSettingsInt,
+    ModTable_SetSettingsFloat,
     ModTable_SetSettingsString,
     ModTable_SaveSettings,
     ModTable_GetConfigBool,
     ModTable_GetConfigInt,
+    ModTable_GetConfigFloat,
     ModTable_GetConfigString,
     ModTable_ForeachConfig,
     ModTable_ForeachConfigCategory,
@@ -121,7 +124,7 @@ struct ModInfo {
 
 struct StateHook {
     void (*state)();
-    void (*hook)();
+    bool32 (*hook)(bool32 skippedState);
     bool32 priority;
 };
 
@@ -172,16 +175,19 @@ void *GetPublicFunction(const char *folder, const char *functionName);
 
 bool32 GetSettingsBool(const char *id, const char *key, bool32 fallback);
 int32 GetSettingsInteger(const char *id, const char *key, int32 fallback);
+float GetSettingsFloat(const char *id, const char *key, float fallback);
 void GetSettingsString(const char *id, const char *key, String *result, const char *fallback);
 
 void SetSettingsBool(const char *key, bool32 val);
 void SetSettingsInteger(const char *key, int32 val);
+void SetSettingsFloat(const char *key, float val);
 void SetSettingsString(const char *key, String *val);
 
 void SaveSettings();
 
 bool32 GetConfigBool(const char *key, bool32 fallback);
 int32 GetConfigInteger(const char *key, int32 fallback);
+float GetConfigFloat(const char *key, float fallback);
 void GetConfigString(const char *key, String *result, const char *fallback);
 bool32 ForeachConfig(String *config);
 bool32 ForeachConfigCategory(String *category);
@@ -197,7 +203,7 @@ int32 GetAchievementIndexByID(const char *id);
 int32 GetAchievementCount();
 
 void StateMachineRun(void (*state)());
-void RegisterStateHook(void (*state)(), void (*hook)(), bool32 priority);
+void RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority);
 #endif
 
 void RegisterAchievement(const char *identifier, const char *name, const char *desc);

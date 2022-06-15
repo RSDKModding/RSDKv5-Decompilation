@@ -225,6 +225,7 @@ void LoadStaticVariables(uint8 *classPtr, uint32 *hash, int32 readOffset);
 
 #define RSDK_EDITABLE_VAR(object, type, var) RSDK.SetEditableVar(type, #var, (uint8)object->classID, offsetof(Entity##object, var))
 
+// Bug Details(?):
 // classID isn't used AND is a uint8, how strange
 // assuming classID would be used in-editor (it is in RetroED2, but not sure about official RSDK SDK)
 // not sure why it's a uint8, given the original value is a uint16, so there's some small warnings about that

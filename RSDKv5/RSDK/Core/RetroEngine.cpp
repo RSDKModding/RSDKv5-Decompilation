@@ -1070,8 +1070,8 @@ void RSDK::InitGameLink()
             continue;
 
         currentMod = &modList[m];
-        for (modLinkSTD ptr : modList[m].linkModLogic) {
-            if (!ptr(&info, modList[m].id.c_str())) {
+        for (modLinkSTD linkModLogic : modList[m].linkModLogic) {
+            if (!linkModLogic(&info, modList[m].id.c_str())) {
                 modList[m].active = false;
                 PrintLog(PRINT_ERROR, "[MOD] Failed to link logic for mod %s!", modList[m].id.c_str());
             }
