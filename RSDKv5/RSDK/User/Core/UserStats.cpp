@@ -5,8 +5,11 @@
 // API Cores
 // ====================
 
-namespace RSDK::SKU
+namespace RSDK
 {
+namespace SKU
+{
+    
 // Dummy API
 #if RETRO_USERCORE_DUMMY
 #include "RSDK/User/Dummy/DummyStats.cpp"
@@ -27,7 +30,8 @@ namespace RSDK::SKU
 #include "RSDK/User/NX/NXStats.cpp"
 #endif
 
-} // namespace RSDK::SKU
+} // namespace SKU
+} // namespace RSDK
 #endif
 
 using namespace RSDK;

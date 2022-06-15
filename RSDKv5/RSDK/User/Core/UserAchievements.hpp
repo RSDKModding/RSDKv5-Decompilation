@@ -4,7 +4,9 @@
 #include <vector>
 #include <string>
 
-namespace RSDK::SKU
+namespace RSDK
+{
+namespace SKU
 {
 
 struct AchievementID {
@@ -113,6 +115,6 @@ void ProcessAchievements();
 void DrawAchievements();
 #endif
 
-} // namespace RSDK::SKU
-
+} // namespace SKU
+} // namespace RSDK
 #endif // USER_ACHIEVEMENTS_H

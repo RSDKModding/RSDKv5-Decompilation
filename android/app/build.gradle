@@ -6,12 +6,14 @@ android {
     defaultConfig {
         applicationId "com.decomp.rsdkv5"
         minSdkVersion 23
+        //minSdkVersion 30 // if you're getting framerate issues, uncomment this
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
             ndkBuild {
                 arguments "APP_PLATFORM=android-23"
+                //arguments "APP_PLATFORM=android-30", "POST30=1" // if you're getting framerate issues, uncomment this
                 abiFilters = []
                 abiFilters.addAll(ABIFILTERS.split(';').collect{it as String})
             }

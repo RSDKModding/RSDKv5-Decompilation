@@ -3,6 +3,7 @@
 #include <jni.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
+#include <pthread.h>
 
 #define jnifunc(name, class, ...) JNICALL Java_com_decomp_rsdkv5_##class##_##name(JNIEnv *env, jclass cls, __VA_ARGS__)
 #define jnifuncN(name, class) JNICALL Java_com_decomp_rsdkv5_##class##_##name(JNIEnv *env, jclass cls)

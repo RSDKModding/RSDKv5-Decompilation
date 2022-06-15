@@ -5,7 +5,9 @@
 // API Cores
 // ====================
 
-namespace RSDK::SKU
+namespace RSDK
+{
+namespace SKU
 {
 // Dummy API
 #if RETRO_USERCORE_DUMMY
@@ -27,7 +29,8 @@ namespace RSDK::SKU
 #include "RSDK/User/NX/NXLeaderboards.cpp"
 #endif
 
-} // namespace RSDK::SKU
+} // namespace SKU
+} // namespace RSDK
 
 using namespace RSDK;
 

@@ -22,11 +22,6 @@ public class RSDKv5 extends Activity {
         layout.addView(surface);
 
         setContentView(layout);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         nativeOnStart(getBasePath());
     }
 
@@ -42,9 +37,9 @@ public class RSDKv5 extends Activity {
         nativeOnResume();
     }
 
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
         nativeOnStop();
+        super.onDestroy();
     }
 
     public String getBasePath() {

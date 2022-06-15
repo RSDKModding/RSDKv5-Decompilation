@@ -15,7 +15,7 @@
 #elif RETRO_PLATFORM == RETRO_ANDROID
 #define _GLVERSION "#version 310 es\n"
 
-#define GL_BGRA GL_RGB
+#define GL_BGRA                     GL_RGB
 #define GL_UNSIGNED_INT_8_8_8_8_REV GL_UNSIGNED_INT
 #endif
 
@@ -34,6 +34,7 @@ EGLConfig RenderDevice::config;
 NWindow *RenderDevice::window;
 #elif RETRO_PLATFORM == RETRO_ANDROID
 ANativeWindow *RenderDevice::window;
+pthread_mutex_t RenderDevice::mutex; //multithreaded fuckhead
 #endif
 
 GLuint RenderDevice::VAO;
@@ -49,8 +50,14 @@ int32 RenderDevice::monitorIndex;
 
 uint32 *RenderDevice::videoBuffer;
 
+bool32 RenderDevice::isInitialized = false;
+
 bool RenderDevice::Init()
 {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    pthread_mutex_lock(&mutex);
+#endif
+
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (!display) {
         PrintLog(PRINT_NORMAL, "[EGL] Could not connect to display: %d", eglGetError());
@@ -61,8 +68,7 @@ bool RenderDevice::Init()
     PrintLog(PRINT_NORMAL, "EGL init");
 
 #if RETRO_PLATFORM == RETRO_SWITCH
-    if (eglBindAPI(EGL_OPENGL_API) == EGL_FALSE)
-    {
+    if (eglBindAPI(EGL_OPENGL_API) == EGL_FALSE) {
         PrintLog(PRINT_NORMAL, "[EGL] eglBindApi failure: %d", eglGetError());
         return false;
     }
@@ -89,13 +95,17 @@ bool RenderDevice::Init()
         return false;
     }
 
-    // TODO: icon, best way i can see we do it is stb_image
     if (!SetupRendering() || !AudioDevice::Init())
         return false;
-        PrintLog(PRINT_NORMAL, "postaudio");
+    PrintLog(PRINT_NORMAL, "postaudio");
 
     InitInputDevices();
-            PrintLog(PRINT_NORMAL, "postinput");
+    PrintLog(PRINT_NORMAL, "postinput");
+
+    isInitialized = true;
+#if RETRO_PLATFORM == RETRO_ANDROID
+    pthread_mutex_unlock(&mutex);
+#endif
 
     return true;
 }
@@ -114,6 +124,9 @@ bool RenderDevice::SetupRendering()
     PrintLog(PRINT_NORMAL, "before window %d", window);
     // get window somehow
     ANativeWindow_setBuffersGeometry(window, 0, 0, format);
+#ifdef ANDROID30
+    ANativeWindow_setFrameRate(window, videoSettings.refreshRate, ANATIVEWINDOW_FRAME_RATE_COMPATIBILITY_DEFAULT);
+#endif
 #endif
     PrintLog(PRINT_NORMAL, "EGL presurf");
 
@@ -122,7 +135,7 @@ bool RenderDevice::SetupRendering()
         PrintLog(PRINT_NORMAL, "[EGL] Surface creation failed: %d", eglGetError());
         return false;
     }
-        PrintLog(PRINT_NORMAL, "postsurf");
+    PrintLog(PRINT_NORMAL, "postsurf");
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     // clang-format off
@@ -134,11 +147,7 @@ bool RenderDevice::SetupRendering()
     };
     // clang-format on
 #elif RETRO_PLATFORM == RETRO_ANDROID
-    static const EGLint contextAttributeList[] = { 
-        EGL_CONTEXT_MAJOR_VERSION,       3, 
-        EGL_CONTEXT_MINOR_VERSION,       1,
-        EGL_NONE 
-    };
+    static const EGLint contextAttributeList[] = { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 1, EGL_NONE };
 #endif
 
     context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttributeList);
@@ -146,21 +155,23 @@ bool RenderDevice::SetupRendering()
         PrintLog(PRINT_NORMAL, "[EGL] Context creation failed: %d", eglGetError());
         return false;
     }
-    
+
     PrintLog(PRINT_NORMAL, "ctx");
 
     eglMakeCurrent(display, surface, surface, context);
-        PrintLog(PRINT_NORMAL, "make current");
+    PrintLog(PRINT_NORMAL, "make current");
 
     GetDisplays();
-        PrintLog(PRINT_NORMAL, "postdisp");
+    PrintLog(PRINT_NORMAL, "postdisp");
 
     if (!InitGraphicsAPI() || !InitShaders())
         return false;
-        PrintLog(PRINT_NORMAL, "postshader");
+    PrintLog(PRINT_NORMAL, "postshader");
 
     int32 size = videoSettings.pixWidth >= SCREEN_YSIZE ? videoSettings.pixWidth : SCREEN_YSIZE;
-    scanlines  = (ScanlineInfo *)malloc(size * sizeof(ScanlineInfo));
+    if (scanlines)
+        free(scanlines);
+    scanlines = (ScanlineInfo *)malloc(size * sizeof(ScanlineInfo));
     memset(scanlines, 0, size * sizeof(ScanlineInfo));
 
     videoSettings.windowState = WINDOWSTATE_ACTIVE;
@@ -173,12 +184,12 @@ bool RenderDevice::SetupRendering()
 void RenderDevice::GetDisplays()
 {
 
-    displayCount         = 1;
+    displayCount = 1;
     GetWindowSize(&displayWidth[0], &displayHeight[0]);
     // reacting to me lying
-    displayInfo.displays = (decltype(displayInfo.displays))malloc(sizeof(displayInfo.displays->internal));
-    displayInfo.displays[0].width = displayWidth[0];
-    displayInfo.displays[0].height = displayHeight[0];
+    displayInfo.displays                 = (decltype(displayInfo.displays))malloc(sizeof(displayInfo.displays->internal));
+    displayInfo.displays[0].width        = displayWidth[0];
+    displayInfo.displays[0].height       = displayHeight[0];
     displayInfo.displays[0].refresh_rate = videoSettings.refreshRate;
 }
 
@@ -190,7 +201,7 @@ bool RenderDevice::InitGraphicsAPI()
         return false;
     }
 #endif
-PrintLog(PRINT_NORMAL, "pregl");
+    PrintLog(PRINT_NORMAL, "pregl");
     glClearColor(0.0, 0.0, 0.0, 1.0);
     PrintLog(PRINT_NORMAL, "postgl 1");
     glDisable(GL_DEPTH_TEST);
@@ -203,7 +214,7 @@ PrintLog(PRINT_NORMAL, "pregl");
     PrintLog(PRINT_NORMAL, "postgl 1.5");
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-        PrintLog(PRINT_NORMAL, "postgl 1.5 1");
+    PrintLog(PRINT_NORMAL, "postgl 1.5 1");
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(RenderVertex) * (!RETRO_REV02 ? 24 : 60), NULL, GL_DYNAMIC_DRAW);
@@ -222,8 +233,8 @@ PrintLog(PRINT_NORMAL, "pregl");
     videoSettings.fsHeight = 1080;
 #elif RETRO_PLATFORM == RETRO_ANDROID
     customSettings.maxPixWidth = 510;
-    videoSettings.fsWidth = 0;
-    videoSettings.fsHeight = 0;
+    videoSettings.fsWidth      = 0;
+    videoSettings.fsHeight     = 0;
 #endif
 
     // EGL should only be fullscreen only apps
@@ -327,6 +338,8 @@ PrintLog(PRINT_NORMAL, "pregl");
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    if (videoBuffer)
+        delete[] videoBuffer;
     videoBuffer = new uint32[RETRO_VIDEO_TEXTURE_W * RETRO_VIDEO_TEXTURE_H];
 
     lastShaderID = -1;
@@ -338,7 +351,6 @@ PrintLog(PRINT_NORMAL, "pregl");
     videoSettings.viewportH = 1.0 / viewSize.y;
 
     PrintLog(PRINT_NORMAL, "posttex");
-
 
     return true;
 }
@@ -396,10 +408,21 @@ void RenderDevice::UpdateFPSCap() {}
 
 void RenderDevice::CopyFrameBuffer()
 {
+    if (RSDK::videoSettings.windowState != WINDOWSTATE_ACTIVE)
+        return;
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+    pthread_mutex_lock(&mutex);
+#endif
+
     for (int32 s = 0; s < videoSettings.screenCount; ++s) {
         glBindTexture(GL_TEXTURE_2D, screenTextures[s]);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, screens[s].pitch, SCREEN_YSIZE, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, screens[s].frameBuffer);
     }
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+    pthread_mutex_unlock(&mutex);
+#endif
 }
 
 bool RenderDevice::ProcessEvents()
@@ -410,6 +433,13 @@ bool RenderDevice::ProcessEvents()
 
 void RenderDevice::FlipScreen()
 {
+    if (RSDK::videoSettings.windowState != WINDOWSTATE_ACTIVE)
+        return;
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+    pthread_mutex_lock(&mutex);
+#endif
+
     if (lastShaderID != videoSettings.shaderID) {
         lastShaderID = videoSettings.shaderID;
 
@@ -438,7 +468,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = 54;
 #else
-            startVert   = 18;
+            startVert = 18;
 #endif
             glBindTexture(GL_TEXTURE_2D, imageTexture);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -454,7 +484,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[0];
 #else
-            startVert   = 6;
+            startVert = 6;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[0]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -462,7 +492,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[1];
 #else
-            startVert   = 12;
+            startVert = 12;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[1]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -496,67 +526,89 @@ void RenderDevice::FlipScreen()
 #endif
     }
 
-    glFlush();
-    eglSwapBuffers(display, surface);
+    if (!eglSwapBuffers(display, surface)) {
+        PrintLog(PRINT_NORMAL, "[EGL] Failed to swap buffers: %d", eglGetError());
+    }
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+    pthread_mutex_unlock(&mutex);
+#endif
 }
 
 void RenderDevice::Release(bool32 isRefresh)
 {
-    glDeleteTextures(SCREEN_COUNT, screenTextures);
-    glDeleteTextures(1, &imageTexture);
-    if (videoBuffer)
-        delete[] videoBuffer;
-    for (int32 i = 0; i < shaderCount; ++i) {
-        glDeleteProgram(shaderList[i].programID);
+#if RETRO_PLATFORM == RETRO_ANDROID
+    pthread_mutex_lock(&mutex);
+#endif
+
+    if (display) {
+        glDeleteTextures(SCREEN_COUNT, screenTextures);
+        glDeleteTextures(1, &imageTexture);
+
+        if (videoBuffer)
+            delete[] videoBuffer;
+        videoBuffer = NULL;
+
+        for (int32 i = 0; i < shaderCount; ++i) {
+            glDeleteProgram(shaderList[i].programID);
+        }
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &VBO);
+
+        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        eglDestroyContext(display, context);
+        eglDestroySurface(display, surface);
+        eglTerminate(display);
+
+        display = EGL_NO_DISPLAY;
+        surface = EGL_NO_SURFACE;
+        context = EGL_NO_CONTEXT;
+        
+        isInitialized = false;
     }
-    shaderCount     = 0;
-    userShaderCount = 0;
 
-    if (displayInfo.displays)
-        free(displayInfo.displays);
-    displayInfo.displays = NULL;
+    if (!isRefresh) {
+        shaderCount     = 0;
+        userShaderCount = 0;
 
-    if (scanlines)
-        free(scanlines);
-    scanlines = NULL;
+        if (displayInfo.displays)
+            free(displayInfo.displays);
+        displayInfo.displays = NULL;
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+        if (scanlines)
+            free(scanlines);
+        scanlines = NULL;
+    }
 
-    eglDestroyContext(display, context);
-    eglDestroySurface(display, surface);
-    eglTerminate(display);
+#if RETRO_PLATFORM == RETRO_ANDROID
+    pthread_mutex_unlock(&mutex);
+#endif
+
 }
 
 bool RenderDevice::InitShaders()
 {
     videoSettings.shaderSupport = true;
     int32 maxShaders            = 0;
-    if (videoSettings.shaderSupport) {
-        LoadShader("None", false);
-        LoadShader("Clean", true);
-        LoadShader("CRT-Yeetron", true);
-        LoadShader("CRT-Yee64", true);
+    shaderCount                 = 0;
+    userShaderCount             = 0;
+
+    LoadShader("None", false);
+    LoadShader("Clean", true);
+    LoadShader("CRT-Yeetron", true);
+    LoadShader("CRT-Yee64", true);
 
 #if RETRO_USE_MOD_LOADER
-        // a place for mods to load custom shaders
-        RunModCallbacks(MODCB_ONSHADERLOAD, NULL);
-        userShaderCount = shaderCount;
+    // a place for mods to load custom shaders
+    RunModCallbacks(MODCB_ONSHADERLOAD, NULL);
+    userShaderCount = shaderCount;
 #endif
 
-        LoadShader("YUV-420", true);
-        LoadShader("YUV-422", true);
-        LoadShader("YUV-444", true);
-        LoadShader("RGB-Image", true);
-        maxShaders = shaderCount;
-    }
-    else {
-        for (int32 s = 0; s < SHADER_COUNT; ++s) shaderList[s].linear = true;
-
-        shaderList[0].linear = videoSettings.windowed ? false : shaderList[0].linear;
-        maxShaders           = 1;
-        shaderCount          = 1;
-    }
+    LoadShader("YUV-420", true);
+    LoadShader("YUV-422", true);
+    LoadShader("YUV-444", true);
+    LoadShader("RGB-Image", true);
+    maxShaders = shaderCount;
 
     videoSettings.shaderID = videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID;
 

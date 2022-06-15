@@ -1,9 +1,10 @@
 #ifndef USER_PRESENCE_H
 #define USER_PRESENCE_H
 
-namespace RSDK::SKU
+namespace RSDK
 {
-
+namespace SKU
+{
 #if RETRO_REV02
 
 // This is the base struct, it serves as the base for any API-specific stats
@@ -46,6 +47,7 @@ extern UserRichPresence *richPresence;
 inline void SetPresence(int32 id, String *message) { richPresence->SetPresence(id, message); }
 #endif
 
-} // namespace RSDK::SKU
+} // namespace SKU
+} // namespace RSDK
 
 #endif // USER_PRESENCE_H
