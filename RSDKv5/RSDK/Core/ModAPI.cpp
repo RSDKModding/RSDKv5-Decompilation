@@ -180,10 +180,13 @@ void RSDK::UnloadMods()
         if (inherit)
             delete inherit;
     }
+    allocatedInherits.clear();
 
-    // Clear stage storage
-    ClearUnusedStorage(DATASET_STG);
-    ClearUnusedStorage(DATASET_SFX);
+    // Clear storage
+    dataStorage[DATASET_STG].usedStorage = 0;
+    ClearUnusedStorage(DATASET_MUS);
+    dataStorage[DATASET_SFX].usedStorage = 0;
+    dataStorage[DATASET_STR].usedStorage = 0;
     dataStorage[DATASET_TMP].usedStorage = 0;
 }
 
@@ -422,7 +425,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                 std::string fl = file.string().c_str();
 #if RETRO_PLATFORM == RETRO_ANDROID
                 // only load ones that are compiled. this is to still allow lang mods to work
-                fl          = "lib" + buf;
+                fl         = "lib" + buf;
 #endif
                 linkHandle = (void *)dlopen(fl.c_str(), RTLD_LOCAL | RTLD_LAZY);
 #define GET_FUNC_ADDR dlsym
@@ -1239,15 +1242,15 @@ void RSDK::ModRegisterGlobalVariables(const char *globalsPath, void **globals, u
     }
 }
 
-void RSDK::ModRegisterObject(Object **structPtr, const char *name, uint32 entitySize, uint32 objectSize, void (*update)(), void (*lateUpdate)(),
-                             void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(),
-                             void (*editorLoad)(), void (*serialize)(), const char *inherited)
+void RSDK::ModRegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(),
+                             void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(),
+                             void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), const char *inherited)
 {
-    return ModRegisterObject_STD(structPtr, name, entitySize, objectSize, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorDraw,
-                                 editorLoad, serialize, inherited);
+    return ModRegisterObject_STD(staticVars, name, entityClassSize, staticClassSize, update, lateUpdate, staticUpdate, draw, create, stageLoad,
+                                 editorDraw, editorLoad, serialize, inherited);
 }
 
-void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 entitySize, uint32 objectSize, std::function<void()> update,
+void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, std::function<void()> update,
                                  std::function<void()> lateUpdate, std::function<void()> staticUpdate, std::function<void()> draw,
                                  std::function<void(void *)> create, std::function<void()> stageLoad, std::function<void()> editorDraw,
                                  std::function<void()> editorLoad, std::function<void()> serialize, const char *inherited)
@@ -1278,7 +1281,7 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 e
         if (!inherit) {
             for (int32 i = 0; i < preCount; ++i) {
                 if (HASH_MATCH_MD5(objectClassList[i].hash, hash)) {
-                    inherit    = new ObjectClass(objectClassList[i]);
+                    inherit = new ObjectClass(objectClassList[i]);
                     allocatedInherits.push_back(inherit);
                     break;
                 }
@@ -1289,7 +1292,8 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 e
             inherited = NULL;
     }
 
-    RegisterObject_STD(staticVars, name, entitySize, objectSize, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+    RegisterObject_STD(staticVars, name, entityClassSize, staticClassSize, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                       nullptr);
 
     ObjectClass *info = &objectClassList[objectClassCount - 1];
     if (inherited) {
@@ -1303,19 +1307,16 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 e
             }
         }
 
-        ObjectClass *copy = new ObjectClass(*info);
-        allocatedInherits.push_back(copy); // has to be a ptr, dont remember why, just does!
-
         // clang-format off
-        if (!update)       info->update       = [curMod, copy]()           { currentMod = curMod; SuperInternal(copy, SUPER_UPDATE, NULL);       currentMod = NULL; };
-        if (!lateUpdate)   info->lateUpdate   = [curMod, copy]()           { currentMod = curMod; SuperInternal(copy, SUPER_LATEUPDATE, NULL);   currentMod = NULL; };
-        if (!staticUpdate) info->staticUpdate = [curMod, copy]()           { currentMod = curMod; SuperInternal(copy, SUPER_STATICUPDATE, NULL); currentMod = NULL; };
-        if (!draw)         info->draw         = [curMod, copy]()           { currentMod = curMod; SuperInternal(copy, SUPER_DRAW, NULL);         currentMod = NULL; };
-        if (!stageLoad)    info->stageLoad    = [curMod, copy]()           { currentMod = curMod; SuperInternal(copy, SUPER_STAGELOAD, NULL);    currentMod = NULL; };
-        if (!serialize)    info->serialize    = [curMod, copy]()           { currentMod = curMod; SuperInternal(copy, SUPER_SERIALIZE, NULL);    currentMod = NULL; };
-        if (!editorDraw)   info->editorDraw   = [curMod, copy]()           { currentMod = curMod; SuperInternal(copy, SUPER_EDITORDRAW, NULL);   currentMod = NULL; };
-        if (!editorLoad)   info->editorLoad   = [curMod, copy]()           { currentMod = curMod; SuperInternal(copy, SUPER_EDITORLOAD, NULL);   currentMod = NULL; };
-        if (!create)       info->create       = [curMod, copy](void* data) { currentMod = curMod; SuperInternal(copy, SUPER_CREATE, data);       currentMod = NULL; };
+        if (!update)       info->update       = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_UPDATE, NULL);       currentMod = NULL; };
+        if (!lateUpdate)   info->lateUpdate   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_LATEUPDATE, NULL);   currentMod = NULL; };
+        if (!staticUpdate) info->staticUpdate = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STATICUPDATE, NULL); currentMod = NULL; };
+        if (!draw)         info->draw         = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_DRAW, NULL);         currentMod = NULL; };
+        if (!create)       info->create       = [curMod, info](void* data) { currentMod = curMod; SuperInternal(info, SUPER_CREATE, data);       currentMod = NULL; };
+        if (!stageLoad)    info->stageLoad    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STAGELOAD, NULL);    currentMod = NULL; };
+        if (!serialize)    info->serialize    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_SERIALIZE, NULL);    currentMod = NULL; };
+        if (!editorDraw)   info->editorDraw   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORDRAW, NULL);   currentMod = NULL; };
+        if (!editorLoad)   info->editorLoad   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORLOAD, NULL);   currentMod = NULL; };
         // clang-format on
     }
 
@@ -1324,11 +1325,11 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 e
     if (lateUpdate)   info->lateUpdate   = [curMod, lateUpdate]()       { currentMod = curMod; lateUpdate();   currentMod = NULL; };
     if (staticUpdate) info->staticUpdate = [curMod, staticUpdate]()     { currentMod = curMod; staticUpdate(); currentMod = NULL; };
     if (draw)         info->draw         = [curMod, draw]()             { currentMod = curMod; draw();         currentMod = NULL; };
+    if (create)       info->create       = [curMod, create](void* data) { currentMod = curMod; create(data);   currentMod = NULL; };
     if (stageLoad)    info->stageLoad    = [curMod, stageLoad]()        { currentMod = curMod; stageLoad();    currentMod = NULL; };
     if (serialize)    info->serialize    = [curMod, serialize]()        { currentMod = curMod; serialize();    currentMod = NULL; };
     if (editorDraw)   info->editorDraw   = [curMod, editorDraw]()       { currentMod = curMod; editorDraw();   currentMod = NULL; };
     if (editorLoad)   info->editorLoad   = [curMod, editorLoad]()       { currentMod = curMod; editorLoad();   currentMod = NULL; };
-    if (create)       info->create       = [curMod, create](void* data) { currentMod = curMod; create(data);   currentMod = NULL; };
     // clang-format on
 
     objectClassCount = preCount;
@@ -1371,7 +1372,8 @@ int32 RSDK::GetAchievementIndexByID(const char *id)
 }
 int32 RSDK::GetAchievementCount() { return (int32)achievementList.size(); }
 
-void RSDK::StateMachineRun(void (*state)()) {
+void RSDK::StateMachineRun(void (*state)())
+{
     bool32 skipState = false;
 
     for (int32 h = 0; h < (int32)stateHookList.size(); ++h) {
@@ -1387,7 +1389,6 @@ void RSDK::StateMachineRun(void (*state)()) {
             stateHookList[h].hook(skipState);
     }
 }
-
 
 void RSDK::RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority)
 {

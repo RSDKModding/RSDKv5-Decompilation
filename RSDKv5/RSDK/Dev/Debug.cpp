@@ -224,6 +224,26 @@ void DevMenu_HandleTouchControls()
 } // namespace RSDK
 #endif
 
+void RSDK::CloseDevMenu()
+{
+#if RETRO_USE_MOD_LOADER
+    if (devMenu.state == DevMenu_ModsMenu) {
+        SaveMods();
+        InitGameLink();
+        LoadGameConfig();
+
+        devMenu.sceneState       = ENGINESTATE_LOAD;
+        sceneInfo.activeCategory = 0;
+        sceneInfo.listPos        = 0;
+    }
+#endif
+
+    sceneInfo.state = devMenu.sceneState;
+
+    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
+    ResumeSound();
+}
+
 void RSDK::DevMenu_MainMenu()
 {
 #if !RETRO_USE_MOD_LOADER
@@ -1705,6 +1725,7 @@ void RSDK::DevMenu_ModsMenu()
         devMenu.scrollPos = 0;
         devMenu.selection = 4;
         SaveMods();
+        InitGameLink();
         LoadGameConfig();
     }
 }

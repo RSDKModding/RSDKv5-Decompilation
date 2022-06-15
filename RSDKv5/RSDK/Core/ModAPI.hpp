@@ -153,10 +153,10 @@ void RunModCallbacks(int32 callbackID, void *data);
 
 // Mod API
 void ModRegisterGlobalVariables(const char *globalsPath, void **globals, uint32 size);
-void ModRegisterObject(Object **structPtr, const char *name, uint32 entitySize, uint32 objectSize, void (*update)(), void (*lateUpdate)(),
+void ModRegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(), void (*lateUpdate)(),
                        void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(),
                        void (*editorLoad)(), void (*serialize)(), const char *inherited);
-void ModRegisterObject_STD(Object **structPtr, const char *name, uint32 entitySize, uint32 objectSize, std::function<void()> update,
+void ModRegisterObject_STD(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, std::function<void()> update,
                            std::function<void()> lateUpdate, std::function<void()> staticUpdate, std::function<void()> draw,
                            std::function<void(void *)> create, std::function<void()> stageLoad, std::function<void()> editorDraw,
                            std::function<void()> editorLoad, std::function<void()> serialize, const char *inherited);

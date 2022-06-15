@@ -136,13 +136,7 @@ inline void OpenDevMenu()
     PauseSound();
 }
 
-inline void CloseDevMenu()
-{
-    sceneInfo.state = devMenu.sceneState;
-
-    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
-    ResumeSound();
-}
+void CloseDevMenu();
 
 #endif
 
