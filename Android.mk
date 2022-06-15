@@ -126,7 +126,7 @@ LOCAL_SRC_FILES := \
 
 
 LOCAL_SHARED_LIBRARIES := libogg libtheora
-LOCAL_LDLIBS := -lGLESv3 -lEGL -llog -lz -landroid -ljnigraphics
+LOCAL_LDLIBS := -lGLESv3 -lEGL -llog -lz -landroid -ljnigraphics -laaudio
 
 include $(BUILD_SHARED_LIBRARY)
 

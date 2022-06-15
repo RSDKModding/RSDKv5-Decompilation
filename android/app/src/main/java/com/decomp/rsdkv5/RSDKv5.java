@@ -5,7 +5,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
+
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import java.io.File;
 
@@ -21,9 +26,27 @@ public class RSDKv5 extends Activity {
         layout = new RelativeLayout(this);
         layout.addView(surface);
 
+        hideSystemBars();
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
         setContentView(layout);
         nativeOnStart(getBasePath());
     }
+
+    private void hideSystemBars() {
+        WindowInsetsControllerCompat windowInsetsController =
+                ViewCompat.getWindowInsetsController(getWindow().getDecorView());
+        if (windowInsetsController == null) {
+            return;
+        }
+
+        windowInsetsController.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        );
+
+        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+    }
+
 
     @Override
     protected void onPause() {
@@ -35,6 +58,7 @@ public class RSDKv5 extends Activity {
     protected void onResume() {
         super.onResume();
         surface.handleResume();
+        hideSystemBars();
         nativeOnResume();
     }
 

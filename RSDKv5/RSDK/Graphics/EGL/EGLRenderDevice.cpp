@@ -95,11 +95,14 @@ bool RenderDevice::Init()
         return false;
     }
 
-    if (!SetupRendering() || !AudioDevice::Init())
+    if (!SetupRendering())
         return false;
-    PrintLog(PRINT_NORMAL, "postaudio");
-
-    InitInputDevices();
+    if (!isRunning) {
+        if (!AudioDevice::Init())
+            return false;
+        InitInputDevices();
+    }
+    
     PrintLog(PRINT_NORMAL, "postinput");
 
     isInitialized = true;
