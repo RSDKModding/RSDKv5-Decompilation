@@ -711,40 +711,28 @@ RSDK::SKU::InputDeviceKeyboard *RSDK::SKU::InitKeyboardDevice(uint32 id)
 void RSDK::SKU::InputDeviceKeyboard::UpdateInput()
 {
     if (!this->controllerID) {
-#if RETRO_RENDERDEVICE_DIRECTX9 || RETRO_RENDERDEVICE_DIRECTX11
-        tagPOINT cursorPos;
-        GetCursorPos(&cursorPos);
-        ScreenToClient(RenderDevice::windowHandle, &cursorPos);
-#elif RETRO_RENDERDEVICE_SDL2
         Vector2 cursorPos;
-        SDL_GetMouseState(&cursorPos.x, &cursorPos.y);
-#elif RETRO_RENDERDEVICE_GLFW
-        float2 cursorPos;
-        double cursorX, cursorY;
-        glfwGetCursorPos(RenderDevice::window, &cursorX, &cursorY);
-        cursorPos.x = cursorX;
-        cursorPos.y = cursorY;
-#else
-        Vector2 cursorPos = {};
-#endif
 
-        float prevX = touchInfo.x[0];
-        float prevY = touchInfo.y[0];
+        // ORIGINAL CODE: CANNOT BE UNDEFINED
+        if (RenderDevice::GetCursorPos(&cursorPos)) {
+            float prevX = touchInfo.x[0];
+            float prevY = touchInfo.y[0];
 
-        touchInfo.x[0] = (cursorPos.x - videoSettings.viewportX) * videoSettings.viewportW;
-        touchInfo.y[0] = (cursorPos.y - videoSettings.viewportY) * videoSettings.viewportH;
+            touchInfo.x[0] = (cursorPos.x - videoSettings.viewportX) * videoSettings.viewportW;
+            touchInfo.y[0] = (cursorPos.y - videoSettings.viewportY) * videoSettings.viewportH;
 
-        if (touchInfo.x[0] == prevX && touchInfo.y[0] == prevY) {
-            if (this->mouseHideTimer < 120 + 1) {
-                if (++this->mouseHideTimer == 120) {
-                    RenderDevice::ShowCursor(false);
+            if (touchInfo.x[0] == prevX && touchInfo.y[0] == prevY) {
+                if (this->mouseHideTimer < 120 + 1) {
+                    if (++this->mouseHideTimer == 120) {
+                        RenderDevice::ShowCursor(false);
+                    }
                 }
             }
-        }
-        else if (this->mouseHideTimer >= 120) {
-            this->mouseHideTimer = 0;
+            else if (this->mouseHideTimer >= 120) {
+                this->mouseHideTimer = 0;
 
-            RenderDevice::ShowCursor(true);
+                RenderDevice::ShowCursor(true);
+            }
         }
     }
 

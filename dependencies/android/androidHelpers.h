@@ -13,7 +13,9 @@ extern "C" JNIEXPORT void jnifuncN(nativeOnPause, RSDKv5);
 extern "C" JNIEXPORT void jnifuncN(nativeOnResume, RSDKv5);
 extern "C" JNIEXPORT void jnifunc(nativeOnStart, RSDKv5, jstring basepath);
 extern "C" JNIEXPORT void jnifuncN(nativeOnStop, RSDKv5);
+
 extern "C" JNIEXPORT void jnifunc(nativeSetSurface, RSDKSurface, jobject surface);
+extern "C" JNIEXPORT void jnifunc(nativeOnTouch, RSDKSurface, jint finger, jint action, jfloat x, jfloat y);
 
 
 #endif // ANDROID_ANDROIDHELPERS_H

@@ -34,6 +34,7 @@ public class RSDKv5 extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        surface.handleResume();
         nativeOnResume();
     }
 

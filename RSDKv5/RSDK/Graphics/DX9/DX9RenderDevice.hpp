@@ -1,4 +1,5 @@
 const auto _wapiShowCursor = ShowCursor;
+const auto _wapiGetCursorPos = GetCursorPos;
 
 class RenderDevice : public RenderDeviceBase
 {
@@ -51,6 +52,14 @@ public:
                 ;
         }
     }
+    static inline bool GetCursorPos(Vector2* pos) {
+        tagPOINT cursorPos;
+        _wapiGetCursorPos(&cursorPos);
+        ScreenToClient(windowHandle, &cursorPos);
+        pos->x = cursorPos.x;
+        pos->y = cursorPos.y;
+        return true;
+    };
 
     static HWND windowHandle;
     static IDirect3DTexture9 *imageTexture;

@@ -45,6 +45,7 @@ public:
     static void LoadShader(const char *fileName, bool32 linear);
 
     static inline void ShowCursor(bool32 shown){};
+    static inline bool GetCursorPos(Vector2 *pos) { return false; };
 
     static EGLDisplay display;
     static EGLContext context;
