@@ -76,7 +76,6 @@ bool RenderDevice::Init()
     }
 
     eglInitialize(display, nullptr, nullptr);
-    PrintLog(PRINT_NORMAL, "EGL init");
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     if (eglBindAPI(EGL_OPENGL_API) == EGL_FALSE) {
@@ -114,8 +113,6 @@ bool RenderDevice::Init()
         InitInputDevices();
     }
 
-    PrintLog(PRINT_NORMAL, "postinput");
-
     isInitialized = true;
 #if RETRO_PLATFORM == RETRO_ANDROID
     pthread_mutex_unlock(&mutex);
@@ -135,21 +132,18 @@ bool RenderDevice::SetupRendering()
         PrintLog(PRINT_NORMAL, "[EGL] EGL_NATIVE_VISUAL_ID fetch failed: %d", eglGetError());
         return false;
     }
-    PrintLog(PRINT_NORMAL, "before window %d", window);
     // get window somehow
     ANativeWindow_setBuffersGeometry(window, 0, 0, format);
-#ifdef ANDROID30
+#if __ANDROID_API__ >= 30
     ANativeWindow_setFrameRate(window, videoSettings.refreshRate, ANATIVEWINDOW_FRAME_RATE_COMPATIBILITY_DEFAULT);
 #endif
 #endif
-    PrintLog(PRINT_NORMAL, "EGL presurf");
 
     surface = eglCreateWindowSurface(display, config, window, nullptr);
     if (!surface) {
         PrintLog(PRINT_NORMAL, "[EGL] Surface creation failed: %d", eglGetError());
         return false;
     }
-    PrintLog(PRINT_NORMAL, "postsurf");
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     // clang-format off
@@ -170,17 +164,13 @@ bool RenderDevice::SetupRendering()
         return false;
     }
 
-    PrintLog(PRINT_NORMAL, "ctx");
 
     eglMakeCurrent(display, surface, surface, context);
-    PrintLog(PRINT_NORMAL, "make current");
 
     GetDisplays();
-    PrintLog(PRINT_NORMAL, "postdisp");
 
     if (!InitGraphicsAPI() || !InitShaders())
         return false;
-    PrintLog(PRINT_NORMAL, "postshader");
 
     int32 size = videoSettings.pixWidth >= SCREEN_YSIZE ? videoSettings.pixWidth : SCREEN_YSIZE;
     if (scanlines)
@@ -222,9 +212,7 @@ bool RenderDevice::InitGraphicsAPI()
     else
         strcpy(_glPrecision, "precision highp float;\n");
 #endif
-    PrintLog(PRINT_NORMAL, "pregl");
     glClearColor(0.0, 0.0, 0.0, 1.0);
-    PrintLog(PRINT_NORMAL, "postgl 1");
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_DITHER);
     glDisable(GL_BLEND);
@@ -232,14 +220,11 @@ bool RenderDevice::InitGraphicsAPI()
     glDisable(GL_CULL_FACE);
 
     // setup buffers
-    PrintLog(PRINT_NORMAL, "postgl 1.5");
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-    PrintLog(PRINT_NORMAL, "postgl 1.5 1");
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(RenderVertex) * (!RETRO_REV02 ? 24 : 60), NULL, GL_DYNAMIC_DRAW);
-    PrintLog(PRINT_NORMAL, "postgl 2");
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), 0);
     glEnableVertexAttribArray(0);
@@ -247,7 +232,6 @@ bool RenderDevice::InitGraphicsAPI()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, tex));
     glEnableVertexAttribArray(2);
-    PrintLog(PRINT_NORMAL, "postgl 3");
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     videoSettings.fsWidth  = 1920;
@@ -375,7 +359,6 @@ bool RenderDevice::InitGraphicsAPI()
     videoSettings.viewportW = 1.0 / viewSize.x;
     videoSettings.viewportH = 1.0 / viewSize.y;
 
-    PrintLog(PRINT_NORMAL, "posttex");
 
     return true;
 }
@@ -433,7 +416,7 @@ void RenderDevice::UpdateFPSCap() {}
 
 void RenderDevice::CopyFrameBuffer()
 {
-    if (RSDK::videoSettings.windowState != WINDOWSTATE_ACTIVE)
+    if (!isInitialized)
         return;
 
 #if RETRO_PLATFORM == RETRO_ANDROID
@@ -458,7 +441,7 @@ bool RenderDevice::ProcessEvents()
 
 void RenderDevice::FlipScreen()
 {
-    if (RSDK::videoSettings.windowState != WINDOWSTATE_ACTIVE)
+    if (!isInitialized)
         return;
 
 #if RETRO_PLATFORM == RETRO_ANDROID
@@ -566,7 +549,7 @@ void RenderDevice::Release(bool32 isRefresh)
     pthread_mutex_lock(&mutex);
 #endif
 
-    if (display) {
+    if (display != EGL_NO_DISPLAY) {
         glDeleteTextures(SCREEN_COUNT, screenTextures);
         glDeleteTextures(1, &imageTexture);
 
@@ -728,7 +711,7 @@ void RenderDevice::GetWindowSize(int32 *width, int32 *height)
 
 void RenderDevice::SetupImageTexture(int32 width, int32 height, uint8 *imagePixels)
 {
-    if (imagePixels) {
+    if (imagePixels && isInitialized) {
         glBindTexture(GL_TEXTURE_2D, imageTexture);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, imagePixels);
     }
@@ -737,6 +720,8 @@ void RenderDevice::SetupImageTexture(int32 width, int32 height, uint8 *imagePixe
 void RenderDevice::SetupVideoTexture_YUV420(int32 width, int32 height, uint8 *yPlane, uint8 *uPlane, uint8 *vPlane, int32 strideY, int32 strideU,
                                             int32 strideV)
 {
+    if (!isInitialized)
+        return;
     uint32 *pixels = videoBuffer;
     uint32 *preY   = pixels;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
@@ -769,6 +754,8 @@ void RenderDevice::SetupVideoTexture_YUV420(int32 width, int32 height, uint8 *yP
 void RenderDevice::SetupVideoTexture_YUV422(int32 width, int32 height, uint8 *yPlane, uint8 *uPlane, uint8 *vPlane, int32 strideY, int32 strideU,
                                             int32 strideV)
 {
+    if (!isInitialized)
+        return;
     uint32 *pixels = videoBuffer;
     uint32 *preY   = pixels;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
@@ -800,6 +787,8 @@ void RenderDevice::SetupVideoTexture_YUV422(int32 width, int32 height, uint8 *yP
 void RenderDevice::SetupVideoTexture_YUV444(int32 width, int32 height, uint8 *yPlane, uint8 *uPlane, uint8 *vPlane, int32 strideY, int32 strideU,
                                             int32 strideV)
 {
+    if (!isInitialized)
+        return;
     uint32 *pixels = videoBuffer;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
 
@@ -824,6 +813,8 @@ void RenderDevice::SetupVideoTexture_YUV444(int32 width, int32 height, uint8 *yP
 
 void RenderDevice::SetLinear(bool32 linear)
 {
+    if (!isInitialized)
+        return;
     for (int32 i = 0; i < SCREEN_COUNT; ++i) {
         glBindTexture(GL_TEXTURE_2D, screenTextures[i]);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, linear ? GL_LINEAR : GL_NEAREST);

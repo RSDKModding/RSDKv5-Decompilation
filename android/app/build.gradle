@@ -13,7 +13,7 @@ android {
         externalNativeBuild {
             ndkBuild {
                 arguments "APP_PLATFORM=android-27", "-j8"
-                //arguments "APP_PLATFORM=android-30", "-j8", "POST30=1" // if you're getting framerate issues, uncomment this
+                //arguments "APP_PLATFORM=android-30", "-j8" // if you're getting framerate issues, uncomment this
                 abiFilters = []
                 abiFilters.addAll(ABIFILTERS.split(';').collect{it as String})
             }

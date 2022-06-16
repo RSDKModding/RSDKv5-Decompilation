@@ -1,6 +1,7 @@
 package com.decomp.rsdkv5;
 
 import android.content.Context;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -51,7 +52,49 @@ public class RSDKSurface extends SurfaceView implements SurfaceHolder.Callback,
     }
 
     @Override
-    public boolean onKey(View view, int i, KeyEvent keyEvent) {
+    public boolean onKey(View view, int keyCode, KeyEvent event) {
+        int deviceId = event.getDeviceId();
+        int source = event.getSource();
+
+        if (source == InputDevice.SOURCE_UNKNOWN) {
+            InputDevice device = InputDevice.getDevice(deviceId);
+            if (device != null) {
+                source = device.getSources();
+            }
+        }
+        /*
+        if (RSDKControllerManager.isDeviceJoystick(deviceId)) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (RSDKControllerManager.onNativePadDown(deviceId, keyCode) == 0) {
+                    return true;
+                }
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                if (RSDKControllerManager.onNativePadUp(deviceId, keyCode) == 0) {
+                    return true;
+                }
+            }
+        }//*/
+
+        if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                nativeKeyDown(keyCode);
+                return true;
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                nativeKeyUp(keyCode);
+                return true;
+            }
+        }
+
+        if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
+            if ((keyCode == KeyEvent.KEYCODE_BACK) || (keyCode == KeyEvent.KEYCODE_FORWARD)) {
+                switch (event.getAction()) {
+                    case KeyEvent.ACTION_DOWN:
+                    case KeyEvent.ACTION_UP:
+                        return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -117,4 +160,6 @@ public class RSDKSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     public static native void nativeSetSurface(Surface surface);
     public static native void nativeOnTouch(int fingerID, int action, float x, float y);
+    public static native void nativeKeyDown(int keycode);
+    public static native void nativeKeyUp(int keycode);
 }

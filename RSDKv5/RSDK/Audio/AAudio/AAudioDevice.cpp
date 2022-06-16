@@ -204,6 +204,16 @@ void AudioDevice::FrameInit()
         AAudioStream_close(stream);
         Init();
     }
+
+    // help out a friend
+    if (videoSettings.windowState == WINDOWSTATE_INACTIVE) {
+        RenderDevice::Release(true);
+    }
+    // state *can* change between these 2 due to threading!
+    if (videoSettings.windowState == WINDOWSTATE_ACTIVE && !RenderDevice::isInitialized && RenderDevice::window) {
+        RenderDevice::Release(true); //for good measure
+        RenderDevice::Init();
+    }
 };
 
 void AudioDevice::HandleStreamLoad(ChannelInfo *channel, bool32 async)

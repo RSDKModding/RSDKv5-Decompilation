@@ -76,10 +76,6 @@ LOCAL_MODULE := RetroEngine
 
 LOCAL_CFLAGS := -fexceptions -frtti -DRSDK_USE_GL3
 
-ifeq ($(POST30),1)
-    LOCAL_CFLAGS := -DANDROID30
-endif
-
 LOCAL_C_INCLUDES := \
 	$(RSDK_PATH)/RSDKv5/ 					                \
 	$(RSDK_PATH)/dependencies/android/libogg/include/ 	    \
