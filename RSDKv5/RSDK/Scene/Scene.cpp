@@ -164,19 +164,6 @@ void RSDK::LoadScene()
                 }
             }
         }
-        {
-
-            RETRO_HASH_MD5(hash);
-            GEN_HASH_MD5("TestObject", hash);
-
-            stageObjectIDs[sceneInfo.classCount] = 0;
-            for (int32 id = 0; id < objectClassCount; ++id) {
-                if (HASH_MATCH_MD5(hash, objectClassList[id].hash)) {
-                    stageObjectIDs[sceneInfo.classCount] = id;
-                    sceneInfo.classCount++;
-                }
-            }
-        }
 
         for (int32 o = 0; o < sceneInfo.classCount; ++o) {
             ObjectClass *objClass = &objectClassList[stageObjectIDs[o]];
@@ -221,6 +208,18 @@ void RSDK::LoadScene()
 
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Stages/%s/16x16Tiles.gif", currentSceneFolder);
     LoadStageGIF(fullFilePath);
+
+#if RETRO_USE_MOD_LOADER
+    for (int32 h = 0; h < (int32)objectHookList.size(); ++h) {
+        for (int32 i = 0; i < objectClassCount; ++i) {
+            if (HASH_MATCH_MD5(objectClassList[i].hash, objectHookList[h].hash)) {
+                if (objectHookList[h].staticVars && objectClassList[i].staticVars)
+                    *objectHookList[h].staticVars = *objectClassList[i].staticVars;
+                break;
+            }
+        }
+    }
+#endif
 }
 void RSDK::LoadSceneFile()
 {

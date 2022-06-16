@@ -42,6 +42,7 @@ std::vector<RSDK::ModInfo> RSDK::modList;
 int32 RSDK::activeMod = -1;
 std::vector<RSDK::ModCallbackSTD> RSDK::modCallbackList[RSDK::MODCB_MAX];
 std::vector<StateHook> RSDK::stateHookList;
+std::vector<ObjectHook> RSDK::objectHookList;
 
 ModVersionInfo RSDK::targetModVersion = { RETRO_REVISION, 0, RETRO_MOD_LOADER_VER };
 
@@ -78,11 +79,13 @@ void RSDK::InitModAPI()
     // ============================
 
     // Registration & Core
-    ADD_MOD_FUNCTION(ModTable_GetGlobals, GetGlobals);
     ADD_MOD_FUNCTION(ModTable_RegisterGlobals, ModRegisterGlobalVariables);
     ADD_MOD_FUNCTION(ModTable_RegisterObject, ModRegisterObject);
     ADD_MOD_FUNCTION(ModTable_RegisterObjectSTD, ModRegisterObject_STD);
+    ADD_MOD_FUNCTION(ModTable_RegisterObjectHook, ModRegisterObjectHook);
+    ADD_MOD_FUNCTION(ModTable_FindObject, ModFindObject);
     ADD_MOD_FUNCTION(ModTable_Super, Super);
+    ADD_MOD_FUNCTION(ModTable_GetGlobals, GetGlobals);
 
     // Mod Info
     ADD_MOD_FUNCTION(ModTable_LoadModInfo, LoadModInfo);
@@ -115,8 +118,6 @@ void RSDK::InitModAPI()
     ADD_MOD_FUNCTION(ModTable_GetConfigString, GetConfigString);
     ADD_MOD_FUNCTION(ModTable_ForeachConfig, ForeachConfig);
     ADD_MOD_FUNCTION(ModTable_ForeachConfigCategory, ForeachConfigCategory);
-
-    ADD_MOD_FUNCTION(ModTable_GetObject, GetObject);
 
     // Achievements
     ADD_MOD_FUNCTION(ModTable_RegisterAchievement, RegisterAchievement);
@@ -174,6 +175,7 @@ void RSDK::UnloadMods()
     modList.clear();
     for (int32 c = 0; c < MODCB_MAX; ++c) modCallbackList[c].clear();
     stateHookList.clear();
+    objectHookList.clear();
 
     for (int32 i = 0; i < (int32)allocatedInherits.size(); ++i) {
         ObjectClass *inherit = allocatedInherits[i];
@@ -1314,9 +1316,9 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 e
         if (!draw)         info->draw         = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_DRAW, NULL);         currentMod = NULL; };
         if (!create)       info->create       = [curMod, info](void* data) { currentMod = curMod; SuperInternal(info, SUPER_CREATE, data);       currentMod = NULL; };
         if (!stageLoad)    info->stageLoad    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STAGELOAD, NULL);    currentMod = NULL; };
-        if (!serialize)    info->serialize    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_SERIALIZE, NULL);    currentMod = NULL; };
         if (!editorDraw)   info->editorDraw   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORDRAW, NULL);   currentMod = NULL; };
         if (!editorLoad)   info->editorLoad   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORLOAD, NULL);   currentMod = NULL; };
+        if (!serialize)    info->serialize    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_SERIALIZE, NULL);    currentMod = NULL; };
         // clang-format on
     }
 
@@ -1327,15 +1329,27 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 e
     if (draw)         info->draw         = [curMod, draw]()             { currentMod = curMod; draw();         currentMod = NULL; };
     if (create)       info->create       = [curMod, create](void* data) { currentMod = curMod; create(data);   currentMod = NULL; };
     if (stageLoad)    info->stageLoad    = [curMod, stageLoad]()        { currentMod = curMod; stageLoad();    currentMod = NULL; };
-    if (serialize)    info->serialize    = [curMod, serialize]()        { currentMod = curMod; serialize();    currentMod = NULL; };
     if (editorDraw)   info->editorDraw   = [curMod, editorDraw]()       { currentMod = curMod; editorDraw();   currentMod = NULL; };
     if (editorLoad)   info->editorLoad   = [curMod, editorLoad]()       { currentMod = curMod; editorLoad();   currentMod = NULL; };
+    if (serialize)    info->serialize    = [curMod, serialize]()        { currentMod = curMod; serialize();    currentMod = NULL; };
     // clang-format on
 
     objectClassCount = preCount;
 }
 
-Object *RSDK::GetObject(const char *name)
+void RSDK::ModRegisterObjectHook(Object **staticVars, const char *staticName)
+{
+    if (!staticVars || !staticName)
+        return;
+
+    ObjectHook hook;
+    GEN_HASH_MD5(staticName, hook.hash);
+    hook.staticVars = staticVars;
+
+    objectHookList.push_back(hook);
+}
+
+Object *RSDK::ModFindObject(const char *name)
 {
     if (int32 o = FindObject(name))
         return *objectClassList[stageObjectIDs[o]].staticVars;

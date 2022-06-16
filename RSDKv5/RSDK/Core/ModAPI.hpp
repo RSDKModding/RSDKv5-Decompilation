@@ -42,6 +42,8 @@ typedef enum {
     ModTable_RegisterGlobals,
     ModTable_RegisterObject,
     ModTable_RegisterObjectSTD,
+    ModTable_RegisterObjectHook,
+    ModTable_FindObject,
     ModTable_GetGlobals,
     ModTable_Super,
     ModTable_LoadModInfo,
@@ -68,7 +70,6 @@ typedef enum {
     ModTable_GetConfigString,
     ModTable_ForeachConfig,
     ModTable_ForeachConfigCategory,
-    ModTable_GetObject,
     ModTable_RegisterAchievement,
     ModTable_GetAchievementInfo,
     ModTable_GetAchievementIndexByID,
@@ -98,6 +99,11 @@ typedef modLink (*newLangLink)(const char *, const char *, int32 *);
 struct ModPublicFunctionInfo {
     std::string name;
     void *ptr;
+};
+
+struct ObjectHook {
+    RETRO_HASH_MD5(hash);
+    Object **staticVars;
 };
 
 struct ModVersionInfo {
@@ -132,6 +138,7 @@ extern std::vector<ModInfo> modList;
 extern int32 activeMod;
 extern std::vector<ModCallbackSTD> modCallbackList[MODCB_MAX];
 extern std::vector<StateHook> stateHookList;
+extern std::vector<ObjectHook> objectHookList;
 extern ModVersionInfo targetModVersion;
 
 extern void *modFunctionTable[ModTable_Max];
@@ -160,6 +167,9 @@ void ModRegisterObject_STD(Object **staticVars, const char *name, uint32 entityC
                            std::function<void()> lateUpdate, std::function<void()> staticUpdate, std::function<void()> draw,
                            std::function<void(void *)> create, std::function<void()> stageLoad, std::function<void()> editorDraw,
                            std::function<void()> editorLoad, std::function<void()> serialize, const char *inherited);
+void ModRegisterObjectHook(Object **staticVars, const char *staticName);
+Object *ModFindObject(const char *name);
+
 void *GetGlobals();
 
 bool32 LoadModInfo(const char *folder, String *name, String *description, String *version, bool32 *active);
@@ -194,10 +204,6 @@ bool32 ForeachConfigCategory(String *category);
 
 void Super(int32 objectID, ModSuper callback, void *data);
 
-#ifdef GetObject
-#undef GetObject // winAPI so annoying
-#endif
-Object *GetObject(const char *name);
 void GetAchievementInfo(uint32 id, String *name, String *description, String *identifer, bool32 *achieved);
 int32 GetAchievementIndexByID(const char *id);
 int32 GetAchievementCount();
