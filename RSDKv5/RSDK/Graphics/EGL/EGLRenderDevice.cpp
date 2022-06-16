@@ -12,11 +12,22 @@
 
 #if RETRO_PLATFORM == RETRO_SWITCH
 #define _GLVERSION "#version 330 core\n"
+const char *_glPrecision = "";
+
+#define _YOFF    16
+#define _UOFF    8
+#define _VOFF    0
 #elif RETRO_PLATFORM == RETRO_ANDROID
 #define _GLVERSION "#version 310 es\n"
 
-#define GL_BGRA                     GL_RGB
-#define GL_UNSIGNED_INT_8_8_8_8_REV GL_UNSIGNED_INT
+#define GL_BGRA                     GL_RGBA
+#define GL_UNSIGNED_INT_8_8_8_8_REV GL_UNSIGNED_BYTE
+
+char _glPrecision[30]; // len("precision mediump float;\n") -> 25
+
+#define _YOFF    0
+#define _UOFF    8
+#define _VOFF    16
 #endif
 
 #if RETRO_REV02
@@ -34,7 +45,7 @@ EGLConfig RenderDevice::config;
 NWindow *RenderDevice::window;
 #elif RETRO_PLATFORM == RETRO_ANDROID
 ANativeWindow *RenderDevice::window;
-pthread_mutex_t RenderDevice::mutex; //multithreaded fuckhead
+pthread_mutex_t RenderDevice::mutex; // multithreaded fuckhead
 #endif
 
 GLuint RenderDevice::VAO;
@@ -102,7 +113,7 @@ bool RenderDevice::Init()
             return false;
         InitInputDevices();
     }
-    
+
     PrintLog(PRINT_NORMAL, "postinput");
 
     isInitialized = true;
@@ -203,6 +214,13 @@ bool RenderDevice::InitGraphicsAPI()
         PrintLog(PRINT_NORMAL, "[EGL] gladLoadGL failure");
         return false;
     }
+#else
+    GLint range[2], precision;
+    glGetShaderPrecisionFormat(GL_FRAGMENT_SHADER, GL_HIGH_FLOAT, range, &precision);
+    if (!precision)
+        strcpy(_glPrecision, "precision mediump float;\n");
+    else
+        strcpy(_glPrecision, "precision highp float;\n");
 #endif
     PrintLog(PRINT_NORMAL, "pregl");
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -334,7 +352,11 @@ bool RenderDevice::InitGraphicsAPI()
     }
     glGenTextures(1, &imageTexture);
     glBindTexture(GL_TEXTURE_2D, imageTexture);
+#if RETRO_PLATFORM == RETRO_SWITCH
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, RETRO_VIDEO_TEXTURE_W, RETRO_VIDEO_TEXTURE_H, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, NULL);
+#else
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, RETRO_VIDEO_TEXTURE_W, RETRO_VIDEO_TEXTURE_H, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, NULL);
+#endif
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -566,7 +588,7 @@ void RenderDevice::Release(bool32 isRefresh)
         display = EGL_NO_DISPLAY;
         surface = EGL_NO_SURFACE;
         context = EGL_NO_CONTEXT;
-        
+
         isInitialized = false;
     }
 
@@ -586,7 +608,6 @@ void RenderDevice::Release(bool32 isRefresh)
 #if RETRO_PLATFORM == RETRO_ANDROID
     pthread_mutex_unlock(&mutex);
 #endif
-
 }
 
 bool RenderDevice::InitShaders()
@@ -648,9 +669,9 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         fileData[info.fileSize] = 0;
         CloseFile(&info);
 
-        const GLchar *glchar[] = { _GLVERSION, _GLDEFINE, (const GLchar *)fileData };
+        const GLchar *glchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, (const GLchar *)fileData };
         vert                   = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vert, 3, glchar, NULL);
+        glShaderSource(vert, 4, glchar, NULL);
         glCompileShader(vert);
     }
     else
@@ -665,9 +686,9 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         fileData[info.fileSize] = 0;
         CloseFile(&info);
 
-        const GLchar *glchar[] = { _GLVERSION, _GLDEFINE, (const GLchar *)fileData };
+        const GLchar *glchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, (const GLchar *)fileData };
         frag                   = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(frag, 3, glchar, NULL);
+        glShaderSource(frag, 4, glchar, NULL);
         glCompileShader(frag);
     }
     else
@@ -722,7 +743,7 @@ void RenderDevice::SetupVideoTexture_YUV420(int32 width, int32 height, uint8 *yP
 
     for (int32 y = 0; y < height; ++y) {
         for (int32 x = 0; x < width; ++x) {
-            *pixels++ = (yPlane[x] << 16) | 0xFF000000;
+            *pixels++ = (yPlane[x] << _YOFF) | 0xFF000000;
         }
 
         pixels += pitch;
@@ -733,7 +754,7 @@ void RenderDevice::SetupVideoTexture_YUV420(int32 width, int32 height, uint8 *yP
     pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
     for (int32 y = 0; y < (height >> 1); ++y) {
         for (int32 x = 0; x < (width >> 1); ++x) {
-            *pixels++ |= (vPlane[x] << 0) | (uPlane[x] << 8) | 0xFF000000;
+            *pixels++ |= (vPlane[x] << _VOFF) | (uPlane[x] << _UOFF) | 0xFF000000;
         }
 
         pixels += pitch;
@@ -754,7 +775,7 @@ void RenderDevice::SetupVideoTexture_YUV422(int32 width, int32 height, uint8 *yP
 
     for (int32 y = 0; y < height; ++y) {
         for (int32 x = 0; x < width; ++x) {
-            *pixels++ = (yPlane[x] << 16) | 0xFF000000;
+            *pixels++ = (yPlane[x] << _YOFF) | 0xFF000000;
         }
 
         pixels += pitch;
@@ -765,7 +786,7 @@ void RenderDevice::SetupVideoTexture_YUV422(int32 width, int32 height, uint8 *yP
     pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
     for (int32 y = 0; y < height; ++y) {
         for (int32 x = 0; x < (width >> 1); ++x) {
-            *pixels++ |= (vPlane[x] << 0) | (uPlane[x] << 8) | 0xFF000000;
+            *pixels++ |= (vPlane[x] << _VOFF) | (uPlane[x] << _UOFF) | 0xFF000000;
         }
 
         pixels += pitch;
@@ -787,7 +808,7 @@ void RenderDevice::SetupVideoTexture_YUV444(int32 width, int32 height, uint8 *yP
         int32 pos2  = uPlane - vPlane;
         uint8 *pixV = vPlane;
         for (int32 x = 0; x < width; ++x) {
-            *pixels++ = pixV[0] | (pixV[pos2] << 8) | (pixV[pos1] << 16) | 0xFF000000;
+            *pixels++ = (pixV[0] << _VOFF) | (pixV[pos2] << _UOFF) | (pixV[pos1] << _YOFF) | 0xFF000000;
             pixV++;
         }
 

@@ -1,5 +1,5 @@
-#define LockAudioDevice()   
-#define UnlockAudioDevice() 
+#define LockAudioDevice()   pthread_mutex_lock(&AudioDevice::mutex);
+#define UnlockAudioDevice() pthread_mutex_unlock(&AudioDevice::mutex);
 
 #include <aaudio/AAudio.h>
 
@@ -13,10 +13,12 @@ struct AudioDevice : public AudioDeviceBase {
 
     static void HandleStreamLoad(ChannelInfo *channel, bool32 async);
 
+    static pthread_mutex_t mutex;
 private:
     static uint8 contextInitialized;
     static aaudio_result_t status;
     static AAudioStream *stream;
+
 
     static void InitAudioChannels();
     static void InitMixBuffer() {}

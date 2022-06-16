@@ -2,6 +2,7 @@
 uint8 AudioDevice::contextInitialized;
 aaudio_result_t AudioDevice::status = AAUDIO_OK;
 AAudioStream *AudioDevice::stream;
+pthread_mutex_t AudioDevice::mutex;
 
 bool32 AudioDevice::Init()
 {
@@ -19,6 +20,7 @@ bool32 AudioDevice::Init()
     AAudioStreamBuilder_setFormat(builder, AAUDIO_FORMAT_PCM_FLOAT);
     AAudioStreamBuilder_setChannelCount(builder, AUDIO_CHANNELS);
     AAudioStreamBuilder_setBufferCapacityInFrames(builder, MIX_BUFFER_SIZE);
+    AAudioStreamBuilder_setPerformanceMode(builder, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
     AAudioStreamBuilder_setDataCallback(builder, AudioCallback, NULL);
     AAudioStreamBuilder_setErrorCallback(builder, ErrorCallback, NULL);
 
@@ -50,6 +52,7 @@ void AudioDevice::InitAudioChannels()
     sfxList[SFX_COUNT - 1].length             = MIX_BUFFER_SIZE;
     AllocateStorage((void **)&sfxList[SFX_COUNT - 1].buffer, MIX_BUFFER_SIZE * sizeof(SAMPLE_FORMAT), DATASET_MUS, false);
 
+    pthread_mutex_init(&mutex, NULL);
     initializedAudioChannels = true;
 }
 
@@ -165,12 +168,13 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
     UnlockAudioDevice();
 }
 
-aaudio_data_callback_result_t AudioDevice::AudioCallback(AAudioStream *s, void *d, void *stream, int32 len)
+aaudio_data_callback_result_t AudioDevice::AudioCallback(AAudioStream *s, void *d, void *data, int32 len)
 {
-    (void)s;
     (void)d; // Unused
 
-    AudioDevice::ProcessAudioMixing(stream, len / sizeof(SAMPLE_FORMAT) * AUDIO_CHANNELS);
+    if (s != stream)
+        return AAUDIO_CALLBACK_RESULT_STOP;
+    AudioDevice::ProcessAudioMixing(data, len * AUDIO_CHANNELS);
     return AAUDIO_CALLBACK_RESULT_CONTINUE;
 }
 
@@ -190,11 +194,13 @@ void AudioDevice::Release()
             free(vorbisInfo);
     }
     vorbisInfo = NULL;
+    pthread_mutex_destroy(&mutex);
 };
 
 void AudioDevice::FrameInit()
 {
     if (status != AAUDIO_OK) {
+        AAudioStream_requestStop(stream);
         AAudioStream_close(stream);
         Init();
     }

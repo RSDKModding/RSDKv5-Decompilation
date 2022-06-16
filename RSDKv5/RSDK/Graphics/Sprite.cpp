@@ -262,6 +262,16 @@ bool32 ImageGIF::Load(const char *fileName, bool32 loadHeader)
     return false;
 }
 
+#if RETRO_PLATFORM == RETRO_ANDROID
+#define _REDOFF   0
+#define _GREENOFF 8
+#define _BLUEOFF  16
+#else
+#define _REDOFF   16
+#define _GREENOFF 8
+#define _BLUEOFF  0
+#endif
+
 #if RETRO_REV02
 void RSDK::ImagePNG::UnpackPixels_Greyscale(uint8 *pixelData)
 {
@@ -273,13 +283,13 @@ void RSDK::ImagePNG::UnpackPixels_Greyscale(uint8 *pixelData)
         uint32 color = 0;
 
         // red channel
-        color = brightness << 16;
+        color = brightness << _REDOFF;
 
         // green channel
-        color |= brightness << 8;
+        color |= brightness << _GREENOFF;
 
         // blue channel
-        color |= brightness << 0;
+        color |= brightness << _BLUEOFF;
 
         // alpha channel
         color |= brightness << 24;
@@ -300,13 +310,13 @@ void RSDK::ImagePNG::UnpackPixels_GreyscaleA(uint8 *pixelData)
         uint32 color = 0;
 
         // red channel
-        color = brightness << 16;
+        color = brightness << _REDOFF;
 
         // green channel
-        color |= brightness << 8;
+        color |= brightness << _GREENOFF;
 
         // blue channel
-        color |= brightness << 0;
+        color |= brightness << _BLUEOFF;
 
         // alpha channel
         color |= 0xFF << 24;
@@ -332,15 +342,15 @@ void RSDK::ImagePNG::UnpackPixels_RGB(uint8 *pixelData)
         uint32 color = 0;
 
         // R
-        color = *pixelData << 16;
+        color = *pixelData << _REDOFF;
         pixelData++;
 
         // G
-        color |= *pixelData << 8;
+        color |= *pixelData << _GREENOFF;
         pixelData++;
 
         // B
-        color |= *pixelData << 0;
+        color |= *pixelData << _BLUEOFF;
         pixelData++;
 
         // A
@@ -357,15 +367,15 @@ void RSDK::ImagePNG::UnpackPixels_RGBA(uint8 *pixelData)
         uint32 color = 0;
 
         // R
-        color |= *pixelData << 16;
+        color |= *pixelData << _REDOFF;
         pixelData++;
 
         // G
-        color |= *pixelData << 8;
+        color |= *pixelData << _GREENOFF;
         pixelData++;
 
         // B
-        color |= *pixelData << 0;
+        color |= *pixelData << _BLUEOFF;
         pixelData++;
 
         // A

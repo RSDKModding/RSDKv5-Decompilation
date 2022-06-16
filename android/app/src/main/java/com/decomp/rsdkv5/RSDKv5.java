@@ -28,6 +28,7 @@ public class RSDKv5 extends Activity {
 
         hideSystemBars();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(layout);
         nativeOnStart(getBasePath());
@@ -40,9 +41,7 @@ public class RSDKv5 extends Activity {
             return;
         }
 
-        windowInsetsController.setSystemBarsBehavior(
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        );
+        windowInsetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
 
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
     }
