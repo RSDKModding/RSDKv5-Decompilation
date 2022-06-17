@@ -4,18 +4,11 @@ using namespace RSDK;
 
 LogicLinkHandle RSDK::linkGameLogic = NULL;
 
-#if RETRO_PLATFORM == RETRO_WIN
-HMODULE gameLogicHandle = NULL;
-#endif
+Link::Handle gameLogicHandle = NULL;
 
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
-#include <dlfcn.h>
-
-void *gameLogicHandle = NULL;
 #if RETRO_PLATFORM == RETRO_ANDROID
 #include <jni.h>
 #include <unistd.h>
-#endif
 #endif
 
 int32 *RSDK::globalVarsPtr = NULL;
@@ -173,17 +166,8 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
     UnloadMods();
 #endif
 
-#if RETRO_PLATFORM == RETRO_WIN
-    if (gameLogicHandle)
-        FreeLibrary(gameLogicHandle);
+    Link::Close(gameLogicHandle);
     gameLogicHandle = NULL;
-#endif
-
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX
-    if (gameLogicHandle)
-        dlclose(gameLogicHandle);
-    gameLogicHandle = NULL;
-#endif
 
     if (engine.consoleEnabled) {
 #if RETRO_PLATFORM == RETRO_WIN
@@ -993,12 +977,17 @@ void RSDK::InitGameLink()
     bool32 linked = false;
 
     if (engine.useExternalCode) {
+        char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_WIN
+        strcpy_s(buffer, 0x100, gameLogicName);
+#else
+        sprintf(buffer, "%s%s", SKU::userFileDir, gameLogicName);
+#endif
         if (!gameLogicHandle)
-            gameLogicHandle = LoadLibraryA(gameLogicName);
+            gameLogicHandle = Link::Open(gameLogicName);
 
         if (gameLogicHandle) {
-            LogicLinkHandle linkGameLogic = (LogicLinkHandle)GetProcAddress(gameLogicHandle, "LinkGameLogicDLL");
+            LogicLinkHandle linkGameLogic = (LogicLinkHandle)Link::GetSymbol(gameLogicHandle, "LinkGameLogicDLL");
             if (linkGameLogic) {
 #if RETRO_REV02
                 linkGameLogic(&info);
@@ -1008,50 +997,7 @@ void RSDK::InitGameLink()
                 linked = true;
             }
         }
-#endif
 
-#if RETRO_PLATFORM == RETRO_OSX
-        char buffer[0x100];
-        sprintf(buffer, "%s%s.dylib", SKU::userFileDir, gameLogicName);
-        if (!gameLogicHandle)
-            gameLogicHandle = dlopen(buffer, RTLD_LOCAL | RTLD_LAZY);
-
-        if (gameLogicHandle) {
-            LogicLinkHandle linkGameLogic = (LogicLinkHandle)dlsym(gameLogicHandle, "LinkGameLogicDLL");
-            if (linkGameLogic) {
-#if RETRO_REV02
-                linkGameLogic(&info);
-#else
-                linkGameLogic(info);
-#endif
-                linked = true;
-            }
-        }
-#endif
-
-#if RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
-        char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_ANDROID
-        sprintf(buffer, "lib%s.so", gameLogicName);
-#else
-        sprintf(buffer, "%s%s.so", SKU::userFileDir, gameLogicName);
-#endif
-
-        if (!gameLogicHandle)
-            gameLogicHandle = dlopen(buffer, RTLD_LOCAL | RTLD_LAZY);
-
-        if (gameLogicHandle) {
-            LogicLinkHandle linkGameLogic = (LogicLinkHandle)dlsym(gameLogicHandle, "LinkGameLogicDLL");
-            if (linkGameLogic) {
-#if RETRO_REV02
-                linkGameLogic(&info);
-#else
-                linkGameLogic(info);
-#endif
-                linked = true;
-            }
-        }
-#endif
 
         if (!linked)
             PrintLog(PRINT_POPUP, "Failed to link game logic!");

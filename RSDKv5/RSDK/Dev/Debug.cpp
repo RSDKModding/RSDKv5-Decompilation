@@ -247,11 +247,11 @@ void RSDK::CloseDevMenu()
 void RSDK::DevMenu_MainMenu()
 {
 #if !RETRO_USE_MOD_LOADER
-    int32 selectionCount         = 5;
+    const int32 selectionCount         = 5;
     uint32 selectionColors[]     = { 0x808090, 0x808090, 0x808090, 0x808090, 0x808090 };
     const char *selectionNames[] = { "Resume", "Restart", "Stage Select", "Options", "Exit" };
 #else
-    int32 selectionCount         = 6;
+    const int32 selectionCount         = 6;
     uint32 selectionColors[]     = { 0x808090, 0x808090, 0x808090, 0x808090, 0x808090, 0x808090 };
     const char *selectionNames[] = { "Resume", "Restart", "Stage Select", "Options", "Mods", "Exit" };
 #endif
@@ -265,7 +265,12 @@ void RSDK::DevMenu_MainMenu()
     y += 8;
     DrawDevString("Dev Menu", currentScreen->center.x, y, ALIGN_CENTER, 0xF0F0F0);
 
-    y += 16;
+    y += 8;
+#if RETRO_USE_MOD_LOADER
+    if (devMenu.modsChanged)
+        DrawDevString("Game will restart on resume!", currentScreen->center.x, y, ALIGN_CENTER, 0xF08080);
+#endif
+    y += 8;
     DrawDevString(gameVerInfo.gameName, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
 
     y += 8;
@@ -275,14 +280,18 @@ void RSDK::DevMenu_MainMenu()
     y += 24;
     DrawRectangle(currentScreen->center.x - 128, y - 8, 0x100, 0x48, 0x80, 0xFF, INK_NONE, true);
 
-#if RETRO_USE_MOD_LOADER
-    y -= 6;
-#endif
     for (int32 i = 0; i < selectionCount; ++i) {
         DrawDevString(selectionNames[i], currentScreen->center.x, y, ALIGN_CENTER, selectionColors[i]);
+#if RETRO_USE_MOD_LOADER
+        y += 10;
+#else
         y += 12;
+#endif
     }
     y += 20;
+#if RETRO_USE_MOD_LOADER
+    y += 2 * selectionCount;
+#endif
 
     // Storage box
 
@@ -394,7 +403,7 @@ void RSDK::DevMenu_MainMenu()
             case 4: engine.running = false; break;
 #else
             case 4:
-                LoadMods(); // reload our mod list real quick
+                LoadMods(true); // reload our mod list real quick
                 devMenu.state     = DevMenu_ModsMenu;
                 devMenu.selection = 0;
                 devMenu.timer     = 1;
@@ -519,10 +528,11 @@ void RSDK::DevMenu_CategorySelectMenu()
 
     bool32 confirm = controller[CONT_ANY].keyA.press;
 #if RETRO_REV02
-    if (SKU::userCore->GetConfirmButtonFlip())
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    if (SKU::GetConfirmButtonFlip())
+    bool32 swap = SKU::GetConfirmButtonFlip()
 #endif
+    if (swap)
         confirm = controller[CONT_ANY].keyB.press;
 
     if (controller[CONT_ANY].keyStart.press || confirm) {
@@ -534,7 +544,7 @@ void RSDK::DevMenu_CategorySelectMenu()
         }
     }
 #if !RETRO_USE_ORIGINAL_CODE
-    else if (controller[CONT_ANY].keyB.press) {
+    else if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_MainMenu;
         devMenu.listPos   = 0;
         devMenu.scrollPos = 0;
@@ -632,10 +642,11 @@ void RSDK::DevMenu_SceneSelectMenu()
 
     bool32 confirm = controller[CONT_ANY].keyA.press;
 #if RETRO_REV02
-    if (SKU::userCore->GetConfirmButtonFlip())
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    if (SKU::GetConfirmButtonFlip())
+    bool32 swap = SKU::GetConfirmButtonFlip()
 #endif
+    if (swap)
         confirm = controller[CONT_ANY].keyB.press;
 
     if (controller[CONT_ANY].keyStart.press || confirm) {
@@ -661,7 +672,7 @@ void RSDK::DevMenu_SceneSelectMenu()
         }
     }
 #if !RETRO_USE_ORIGINAL_CODE
-    else if (controller[CONT_ANY].keyB.press) {
+    else if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_CategorySelectMenu;
         devMenu.scrollPos = 0;
         devMenu.selection = 0;
@@ -735,10 +746,11 @@ void RSDK::DevMenu_OptionsMenu()
 
     bool32 confirm = controller[CONT_ANY].keyA.press;
 #if RETRO_REV02
-    if (SKU::userCore->GetConfirmButtonFlip())
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    if (SKU::GetConfirmButtonFlip())
+    bool32 swap = SKU::GetConfirmButtonFlip()
 #endif
+    if (swap)
         confirm = controller[CONT_ANY].keyB.press;
 
     if (controller[CONT_ANY].keyStart.press || confirm) {
@@ -791,7 +803,7 @@ void RSDK::DevMenu_OptionsMenu()
         }
     }
 #if !RETRO_USE_ORIGINAL_CODE
-    else if (controller[CONT_ANY].keyB.press) {
+    else if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_MainMenu;
         devMenu.listPos   = 0;
         devMenu.scrollPos = 0;
@@ -997,7 +1009,12 @@ void RSDK::DevMenu_VideoOptionsMenu()
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (controller[CONT_ANY].keyB.press) {
+#if RETRO_REV02
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
+#else
+    bool32 swap = SKU::GetConfirmButtonFlip()
+#endif
+    if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
         devMenu.selection = 0;
     }
@@ -1125,7 +1142,12 @@ void RSDK::DevMenu_AudioOptionsMenu()
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (controller[CONT_ANY].keyB.press) {
+#if RETRO_REV02
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
+#else
+    bool32 swap = SKU::GetConfirmButtonFlip()
+#endif
+    if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
         devMenu.selection = 1;
     }
@@ -1209,7 +1231,12 @@ void RSDK::DevMenu_InputOptionsMenu()
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (controller[CONT_ANY].keyB.press) {
+#if RETRO_REV02
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
+#else
+    bool32 swap = SKU::GetConfirmButtonFlip()
+#endif
+    if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
         devMenu.selection = 2;
     }
@@ -1330,7 +1357,12 @@ void RSDK::DevMenu_KeyMappingsMenu()
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (controller[CONT_ANY].keyB.press) {
+#if RETRO_REV02
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
+#else
+    bool32 swap = SKU::GetConfirmButtonFlip()
+#endif
+    if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
         devMenu.selection = 3;
     }
@@ -1607,7 +1639,12 @@ void RSDK::DevMenu_DebugOptionsMenu()
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (controller[CONT_ANY].keyB.press) {
+#if RETRO_REV02
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
+#else
+    bool32 swap = SKU::GetConfirmButtonFlip()
+#endif
+    if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
         devMenu.selection = 4;
     }
@@ -1704,10 +1741,11 @@ void RSDK::DevMenu_ModsMenu()
 
     bool32 confirm = controller[CONT_ANY].keyA.press;
 #if RETRO_REV02
-    if (SKU::userCore->GetConfirmButtonFlip())
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    if (SKU::GetConfirmButtonFlip())
+    bool32 swap = SKU::GetConfirmButtonFlip()
 #endif
+    if (swap)
         confirm = controller[CONT_ANY].keyB.press;
 
     if (controller[CONT_ANY].keyStart.press || confirm || controller[CONT_ANY].keyLeft.press || controller[CONT_ANY].keyRight.press) {
@@ -1720,13 +1758,11 @@ void RSDK::DevMenu_ModsMenu()
         modList[devMenu.selection] = swap;
         devMenu.modsChanged        = true;
     }
-    else if (controller[CONT_ANY].keyB.press) {
+    else if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_MainMenu;
         devMenu.scrollPos = 0;
         devMenu.selection = 4;
-        SaveMods();
-        InitGameLink();
-        LoadGameConfig();
+        SaveMods(); // let RSDK reload
     }
 }
 #endif

@@ -83,14 +83,6 @@ typedef enum {
 typedef void (*ModCallback)(void *);
 typedef std::function<void(void *)> ModCallbackSTD;
 
-#if RETRO_PLATFORM == RETRO_WIN
-typedef HMODULE modLogicHandle;
-#elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
-typedef void *modLogicHandle;
-#elif RETRO_PLATFORM == RETRO_SWITCH
-typedef void *modLogicHandle;
-#endif
-
 typedef bool (*modLink)(GameInfo *, const char *);
 typedef std::function<bool(GameInfo *, const char *)> modLinkSTD;
 typedef const char *(*langSetup)(GameInfo *, const char *);
@@ -121,7 +113,7 @@ struct ModInfo {
     std::vector<ModPublicFunctionInfo> functionList;
     std::string id;
     bool active;
-    std::vector<modLogicHandle> modLogicHandles;
+    std::vector<Link::Handle> modLogicHandles;
     std::vector<modLinkSTD> linkModLogic;
     void (*unloadMod)();
     std::map<std::string, std::map<std::string, std::string>> settings;
@@ -150,7 +142,7 @@ inline void SetActiveMod(int32 id) { activeMod = id; }
 
 void InitModAPI();
 void UnloadMods();
-void LoadMods();
+void LoadMods(bool newOnly = false);
 bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 active);
 void SaveMods();
 

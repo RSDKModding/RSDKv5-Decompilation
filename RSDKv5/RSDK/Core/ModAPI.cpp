@@ -19,15 +19,6 @@ namespace fs = std::__fs::filesystem;
 namespace fs = std::filesystem;
 #endif
 
-#if RETRO_PLATFORM == RETRO_WIN
-#include "Windows.h"
-#undef GetObject // fuck you
-#endif
-
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
-#include <dlfcn.h>
-#endif
-
 #include "iniparser/iniparser.h"
 
 using namespace RSDK;
@@ -151,24 +142,10 @@ void RSDK::UnloadMods()
         if (mod.unloadMod)
             mod.unloadMod();
 
-        for (modLogicHandle &handle : mod.modLogicHandles) {
-#if RETRO_PLATFORM == RETRO_WIN
-            if (handle) {
-                FreeLibrary(handle);
-                handle = NULL;
-            }
-#endif
-
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX
-            if (handle)
-                dlclose(handle);
-#endif
-
-#if RETRO_PLATFORM == RETRO_SWITCH
-                // if (handle)
-                //    dlclose(handle);
-#endif
+        for (Link::Handle &handle : mod.modLogicHandles) {
+            Link::Close(handle);
         }
+
         mod.modLogicHandles.clear();
     }
 
@@ -192,19 +169,19 @@ void RSDK::UnloadMods()
     dataStorage[DATASET_TMP].usedStorage = 0;
 }
 
-void RSDK::LoadMods()
+void RSDK::LoadMods(bool newOnly)
 {
-    UnloadMods();
+    if (!newOnly) {
+        UnloadMods();
 
-#if RETRO_USE_MOD_LOADER
-    if (AudioDevice::initializedAudioChannels) {
-        // Stop all sounds
-        for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
+        if (AudioDevice::initializedAudioChannels) {
+            // Stop all sounds
+            for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
 
-        // we're about to reload these, so clear anything we already have
-        ClearGlobalSfx();
+            // we're about to reload these, so clear anything we already have
+            ClearGlobalSfx();
+        }
     }
-#endif
 
     using namespace std;
     char modBuf[0x100];
@@ -223,6 +200,8 @@ void RSDK::LoadMods()
             iniparser_getseckeys(ini, "Mods", keys);
 
             for (int32 m = 0; m < c; ++m) {
+                if (newOnly && std::find_if(modList.begin(), modList.end(), [&keys, &m](ModInfo mod) { return mod.id == string(keys[m] + 5); }) != modList.end())
+                    continue;
                 ModInfo info  = {};
                 bool32 active = iniparser_getboolean(ini, keys[m], false);
                 bool32 loaded = LoadMod(&info, modPath.string(), string(keys[m] + 5), active);
@@ -328,10 +307,13 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         info->author  = iniparser_getstring(ini, ":Author", "Unknown Author");
         info->version = iniparser_getstring(ini, ":Version", "1.0.0");
 
+        if (!active)
+            return true;
+
         // DATA
         fs::path dataPath(modDir + "/Data");
 
-        if (active && fs::exists(dataPath) && fs::is_directory(dataPath)) {
+        if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
             try {
                 auto data_rdi = fs::recursive_directory_iterator(dataPath, fs::directory_options::follow_directory_symlink);
                 for (auto data_de : data_rdi) {
@@ -376,69 +358,18 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         }
         // LOGIC
         std::string logic(iniparser_getstring(ini, ":LogicFile", ""));
-        if (logic.length() && info->active) {
+        if (logic.length()) {
             std::istringstream stream(logic);
             std::string buf;
             while (std::getline(stream, buf, ',')) {
-                bool32 exists = false;
-                buf           = trim(buf);
-#if RETRO_PLATFORM == RETRO_WIN
-                if (MODAPI_ENDS_WITH(".dll"))
-#elif RETRO_PLATFORM == RETRO_OSX
-                if (MODAPI_ENDS_WITH(".dylib"))
-#elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
-                if (MODAPI_ENDS_WITH(".so"))
-#endif
-                    exists = true;
-                fs::path file(modDir + "/" + buf);
-
-                if (!exists) {
-                    // autodec
-                    std::string autodec = "";
-#if RETRO_PLATFORM == RETRO_WIN
-                    autodec = ".dll";
-#elif RETRO_PLATFORM == RETRO_OSX
-                    autodec = ".dylib";
-#elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
-                    autodec = ".so";
-#elif RETRO_PLATFORM == RETRO_SWITCH
-                    autodec = ".nro";
-#endif
-                    file += autodec;
-                    if (fs::exists(file)) {
-                        buf += autodec;
-                        exists = true;
-                    }
-                }
-
-                if (!exists) {
-                    // can be a lang not seen yet, set the language flag
-                    iniparser_freedict(ini);
-                    return false;
-                }
-
+                buf         = trim(buf);
                 bool linked = false;
 
-                modLogicHandle linkHandle;
-#if RETRO_PLATFORM == RETRO_WIN
-                linkHandle = LoadLibraryA(file.string().c_str());
-#define GET_FUNC_ADDR GetProcAddress
-#elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_ANDROID
-                std::string fl = file.string().c_str();
-#if RETRO_PLATFORM == RETRO_ANDROID
-                // only load ones that are compiled. this is to still allow lang mods to work
-                fl         = "lib" + buf;
-#endif
-                linkHandle = (void *)dlopen(fl.c_str(), RTLD_LOCAL | RTLD_LAZY);
-#define GET_FUNC_ADDR dlsym
-#elif RETRO_PLATFORM == RETRO_SWITCH
-                // TODO
-                linkHandle = NULL;
-#define GET_FUNC_ADDR(x, y) NULL
-#endif
+                fs::path file(modDir + "/" + buf);
+                Link::Handle linkHandle = Link::Open(file.string().c_str());
 
                 if (linkHandle) {
-                    const ModVersionInfo *modInfo = (const ModVersionInfo *)GET_FUNC_ADDR(linkHandle, "modInfo");
+                    const ModVersionInfo *modInfo = (const ModVersionInfo *)Link::GetSymbol(linkHandle, "modInfo");
                     if (!modInfo) {
                         PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
                         PrintLog(PRINT_NORMAL, "[MOD] ERROR: Failed to find modInfo", file.string().c_str());
@@ -464,12 +395,12 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                                  file.string().c_str(), modInfo->modLoaderVer, targetModVersion.modLoaderVer);
                     }
 
-                    modLink linkModLogic = (modLink)GET_FUNC_ADDR(linkHandle, "LinkModLogic");
+                    modLink linkModLogic = (modLink)Link::GetSymbol(linkHandle, "LinkModLogic");
                     if (linkModLogic) {
                         info->linkModLogic.push_back(linkModLogic);
                         linked = true;
                     }
-                    info->unloadMod = (void (*)())GET_FUNC_ADDR(linkHandle, "UnloadMod");
+                    info->unloadMod = (void (*)())Link::GetSymbol(linkHandle, "UnloadMod");
                     info->modLogicHandles.push_back(linkHandle);
                 }
 
