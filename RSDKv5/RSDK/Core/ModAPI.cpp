@@ -190,6 +190,10 @@ void RSDK::UnloadMods()
     dataStorage[DATASET_SFX].usedStorage = 0;
     dataStorage[DATASET_STR].usedStorage = 0;
     dataStorage[DATASET_TMP].usedStorage = 0;
+
+    // Clear out any userDBs
+    if (SKU::userDBStorage)
+        SKU::userDBStorage->ClearAllUserDBs();
 }
 
 void RSDK::LoadMods()
