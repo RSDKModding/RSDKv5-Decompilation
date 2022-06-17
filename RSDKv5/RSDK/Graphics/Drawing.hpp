@@ -371,7 +371,7 @@ inline uint16 GetDrawListRef(uint8 drawGroup, uint16 entityID)
 inline Entity *GetDrawListRefPtr(uint8 drawGroup, uint16 entityID)
 {
     DrawList *listPtr = &drawGroups[drawGroup];
-    if (drawGroup < DRAWGROUP_COUNT || entityID < listPtr->entityCount)
+    if (drawGroup < DRAWGROUP_COUNT && entityID < listPtr->entityCount)
         return &objectEntityList[listPtr->entries[entityID]];
 
     return NULL;

@@ -566,7 +566,7 @@ bool RenderDevice::InitGraphicsAPI()
         videoSettings.shaderSupport = true;
     }
     else {
-        PrintLog(PRINT_NORMAL, "ERROR: HLSL model 5 shader support not detected. shader support is required for the DX11 backend!\nIf this issue "
+        PrintLog(PRINT_NORMAL, "ERROR: HLSL shader model 5 support not detected. shader support is required for the DX11 backend!\nIf this issue "
                                "persists, try using the DX9 backend instead?");
         return false; // unlike DX9, DX11 doesn't support shaderless rendering, so just kill it here
     }
