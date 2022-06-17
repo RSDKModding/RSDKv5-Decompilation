@@ -16,7 +16,7 @@ th_setup_info *VideoManager::ts = NULL;
 
 th_pixel_fmt VideoManager::pixelFormat;
 ogg_int64_t VideoManager::granulePos = 0;
-bool32 VideoManager::shouldInit      = false;
+bool32 VideoManager::initializing    = false;
 
 bool32 RSDK::LoadVideo(const char *filename, double startDelay, bool32 (*skipCallback)())
 {
@@ -55,7 +55,7 @@ bool32 RSDK::LoadVideo(const char *filename, double startDelay, bool32 (*skipCal
                 if (!ogg_page_bos(&VideoManager::og)) {
                     /* don't leak the page; get it into the appropriate stream */
                     ogg_stream_pagein(&VideoManager::to, &VideoManager::og);
-                    finishedHeader = 1;
+                    finishedHeader = true;
                     break;
                 }
 
@@ -143,12 +143,12 @@ bool32 RSDK::LoadVideo(const char *filename, double startDelay, bool32 (*skipCal
 
                 th_setup_free(VideoManager::ts);
 
-                engine.storedShaderID     = videoSettings.shaderID;
-                videoSettings.screenCount = 0;
-                engine.storedState        = sceneInfo.state;
-                engine.displayTime        = 0.0;
-                VideoManager::shouldInit  = true;
-                VideoManager::granulePos  = 0;
+                engine.storedShaderID      = videoSettings.shaderID;
+                videoSettings.screenCount  = 0;
+                engine.storedState         = sceneInfo.state;
+                engine.displayTime         = 0.0;
+                VideoManager::initializing = true;
+                VideoManager::granulePos   = 0;
 
                 engine.displayTime     = 0.0;
                 engine.videoStartDelay = 0.0;
@@ -183,7 +183,7 @@ void RSDK::ProcessVideo()
 {
     bool32 finished = false;
     double curTime  = 0;
-    if (!VideoManager::shouldInit) {
+    if (!VideoManager::initializing) {
         double streamPos = GetVideoStreamPos();
 
         if (streamPos <= -1.0)
@@ -198,10 +198,11 @@ void RSDK::ProcessVideo()
         }
     }
 
-    if (!finished && (VideoManager::shouldInit || engine.displayTime >= engine.videoStartDelay + curTime)) {
+    if (!finished && (VideoManager::initializing || engine.displayTime >= engine.videoStartDelay + curTime)) {
         while (ogg_stream_packetout(&VideoManager::to, &VideoManager::op) <= 0) {
             char *buffer = ogg_sync_buffer(&VideoManager::oy, 0x1000);
-            if (!(VideoManager::shouldInit | ReadBytes(&VideoManager::file, buffer, 0x1000))) {
+            // if we're playing and reached the end of file
+            if (!ReadBytes(&VideoManager::file, buffer, 0x1000) && !VideoManager::initializing) {
                 finished = true;
                 break;
             }
@@ -241,7 +242,7 @@ void RSDK::ProcessVideo()
             }
         }
 
-        VideoManager::shouldInit = false;
+        VideoManager::initializing = false;
     }
 
     if (finished) {

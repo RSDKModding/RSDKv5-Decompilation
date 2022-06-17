@@ -904,6 +904,17 @@ bool RenderDevice::InitShaders()
         shaderCount          = 1;
     }
 
+    // no shaders == no support
+    if (!maxShaders) {
+        videoSettings.shaderSupport = false;
+
+        for (int32 s = 0; s < SHADER_COUNT; ++s) shaderList[s].linear = true;
+
+        shaderList[0].linear = videoSettings.windowed ? false : shaderList[0].linear;
+        maxShaders           = 1;
+        shaderCount          = 1;
+    }
+
     videoSettings.shaderID = videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID;
 
     if (shaderList[videoSettings.shaderID].linear || videoSettings.screenCount > 1) {

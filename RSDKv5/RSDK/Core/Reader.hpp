@@ -161,9 +161,9 @@ inline size_t ReadBytes(FileInfo *info, void *data, int32 count)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = count;
-        memcpy(data, info->fileBuffer, count);
-        info->fileBuffer += count;
+        bytesRead = minVal(count, info->fileSize - info->readPos);
+        memcpy(data, info->fileBuffer, bytesRead);
+        info->fileBuffer += bytesRead;
     }
     else {
         bytesRead = fRead(data, 1, count, info->file);
@@ -182,9 +182,11 @@ inline uint8 ReadInt8(FileInfo *info)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = sizeof(int8);
-        result    = info->fileBuffer[0];
-        info->fileBuffer += sizeof(int8);
+        bytesRead = minVal(sizeof(int8), info->fileSize - info->readPos);
+        if (bytesRead) {
+            result = info->fileBuffer[0];
+            info->fileBuffer += sizeof(int8);
+        }
     }
     else {
         bytesRead = fRead(&result, 1, sizeof(int8), info->file);
@@ -208,10 +210,12 @@ inline int16 ReadInt16(FileInfo *info)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
+        bytesRead = minVal(sizeof(buffer), info->fileSize - info->readPos);
+        if (bytesRead >= sizeof(buffer)) {
+            memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
 
-        info->fileBuffer += sizeof(int16);
-        bytesRead = sizeof(int16);
+            info->fileBuffer += sizeof(buffer);
+        }
     }
     else {
         bytesRead = fRead(buffer.b, 1, sizeof(int16), info->file);
@@ -250,10 +254,12 @@ inline int32 ReadInt32(FileInfo *info, bool32 swapEndian)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
+        bytesRead = minVal(sizeof(buffer), info->fileSize - info->readPos);
+        if (bytesRead >= sizeof(buffer)) {
+            memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
 
-        info->fileBuffer += sizeof(int32);
-        bytesRead = sizeof(int32);
+            info->fileBuffer += sizeof(buffer);
+        }
     }
     else {
         bytesRead = fRead(buffer.b, 1, sizeof(int32), info->file);
@@ -304,10 +310,12 @@ inline int64 ReadInt64(FileInfo *info)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
+        bytesRead = minVal(sizeof(buffer), info->fileSize - info->readPos);
+        if (bytesRead >= sizeof(buffer)) {
+            memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
 
-        info->fileBuffer += sizeof(int64);
-        bytesRead = sizeof(int64);
+            info->fileBuffer += sizeof(buffer);
+        }
     }
     else {
         bytesRead = fRead(buffer.b, 1, sizeof(int64), info->file);
@@ -346,10 +354,12 @@ inline float ReadSingle(FileInfo *info)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
+        bytesRead = minVal(sizeof(buffer), info->fileSize - info->readPos);
+        if (bytesRead >= sizeof(buffer)) {
+            memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
 
-        info->fileBuffer += sizeof(float);
-        bytesRead = sizeof(float);
+            info->fileBuffer += sizeof(buffer);
+        }
     }
     else {
         bytesRead = fRead(buffer.b, 1, sizeof(float), info->file);
