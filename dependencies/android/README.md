@@ -23,7 +23,7 @@ The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL 
 
 ## Common build issues (Windows)
 ### `make: *** INTERNAL: readdir: No such file or directory`
-Delete `android/app/build` and try again. This occurs when the path is short enough to build, but too long for a rebuild.
+Delete `android/app/build` and try again. This occurs when the path is short enough to build, but too long for a rebuild. 
 ### `make: Interrupt/exception caught (code = 0xc0000005)`
 Your paths are too long. Try renaming the symbolic links to something shorter, or make a symbolic link to RSDKv5 closer to the root of the drive and open the project through there (e.x. C:/RSDKv5/android).
 

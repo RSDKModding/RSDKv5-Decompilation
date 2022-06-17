@@ -1233,6 +1233,29 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 e
                        nullptr);
 
     ObjectClass *info = &objectClassList[objectClassCount - 1];
+
+    // clang-format off
+    if (update)
+        info->update       = [curMod, update]()           { currentMod = curMod; update();       currentMod = NULL; };
+    if (lateUpdate)
+        info->lateUpdate   = [curMod, lateUpdate]()       { currentMod = curMod; lateUpdate();   currentMod = NULL; };
+    if (staticUpdate)
+        info->staticUpdate = [curMod, staticUpdate]()     { currentMod = curMod; staticUpdate(); currentMod = NULL; };
+    if (draw)
+        info->draw         = [curMod, draw]()             { currentMod = curMod; draw();         currentMod = NULL; };
+    if (create)
+        info->create       = [curMod, create](void* data) { currentMod = curMod; create(data);   currentMod = NULL; };
+    if (stageLoad)
+        info->stageLoad    = [curMod, stageLoad]()        { currentMod = curMod; stageLoad();    currentMod = NULL; };
+    if (editorDraw)
+        info->editorDraw   = [curMod, editorDraw]()       { currentMod = curMod; editorDraw();   currentMod = NULL; };
+    if (editorLoad)
+        info->editorLoad   = [curMod, editorLoad]()       { currentMod = curMod; editorLoad();   currentMod = NULL; };
+    if (serialize)
+        info->serialize    = [curMod, serialize]()        { currentMod = curMod; serialize();    currentMod = NULL; };
+    // clang-format on
+
+
     if (inherited) {
         info->inherited = inherit;
 
@@ -1245,29 +1268,26 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, const char *name, uint32 e
         }
 
         // clang-format off
-        if (!update)       info->update       = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_UPDATE, NULL);       currentMod = NULL; };
-        if (!lateUpdate)   info->lateUpdate   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_LATEUPDATE, NULL);   currentMod = NULL; };
-        if (!staticUpdate) info->staticUpdate = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STATICUPDATE, NULL); currentMod = NULL; };
-        if (!draw)         info->draw         = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_DRAW, NULL);         currentMod = NULL; };
-        if (!create)       info->create       = [curMod, info](void* data) { currentMod = curMod; SuperInternal(info, SUPER_CREATE, data);       currentMod = NULL; };
-        if (!stageLoad)    info->stageLoad    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STAGELOAD, NULL);    currentMod = NULL; };
-        if (!editorDraw)   info->editorDraw   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORDRAW, NULL);   currentMod = NULL; };
-        if (!editorLoad)   info->editorLoad   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORLOAD, NULL);   currentMod = NULL; };
-        if (!serialize)    info->serialize    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_SERIALIZE, NULL);    currentMod = NULL; };
+        if (!update)
+            info->update       = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_UPDATE, NULL);       currentMod = NULL; };
+        if (!lateUpdate)
+            info->lateUpdate   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_LATEUPDATE, NULL);   currentMod = NULL; };
+        if (!staticUpdate)
+            info->staticUpdate = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STATICUPDATE, NULL); currentMod = NULL; };
+        if (!draw)
+            info->draw         = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_DRAW, NULL);         currentMod = NULL; };
+        if (!create)
+            info->create       = [curMod, info](void* data) { currentMod = curMod; SuperInternal(info, SUPER_CREATE, data);            currentMod = NULL; };
+        if (!stageLoad)
+            info->stageLoad    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STAGELOAD, NULL);    currentMod = NULL; };
+        if (!editorDraw)
+            info->editorDraw   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORDRAW, NULL);   currentMod = NULL; };
+        if (!editorLoad)
+            info->editorLoad   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORLOAD, NULL);   currentMod = NULL; };
+        if (!serialize)
+            info->serialize    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_SERIALIZE, NULL);    currentMod = NULL; };
         // clang-format on
     }
-
-    // clang-format off
-    if (update)       info->update       = [curMod, update]()           { currentMod = curMod; update();       currentMod = NULL; };
-    if (lateUpdate)   info->lateUpdate   = [curMod, lateUpdate]()       { currentMod = curMod; lateUpdate();   currentMod = NULL; };
-    if (staticUpdate) info->staticUpdate = [curMod, staticUpdate]()     { currentMod = curMod; staticUpdate(); currentMod = NULL; };
-    if (draw)         info->draw         = [curMod, draw]()             { currentMod = curMod; draw();         currentMod = NULL; };
-    if (create)       info->create       = [curMod, create](void* data) { currentMod = curMod; create(data);   currentMod = NULL; };
-    if (stageLoad)    info->stageLoad    = [curMod, stageLoad]()        { currentMod = curMod; stageLoad();    currentMod = NULL; };
-    if (editorDraw)   info->editorDraw   = [curMod, editorDraw]()       { currentMod = curMod; editorDraw();   currentMod = NULL; };
-    if (editorLoad)   info->editorLoad   = [curMod, editorLoad]()       { currentMod = curMod; editorLoad();   currentMod = NULL; };
-    if (serialize)    info->serialize    = [curMod, serialize]()        { currentMod = curMod; serialize();    currentMod = NULL; };
-    // clang-format on
 
     objectClassCount = preCount;
 }
