@@ -49,7 +49,7 @@ public:
         return true;
     };
 
-    static inline void SetWindowTitle(const char *title) { SDL_SetWindowTitle(window, title); };
+    static inline void SetWindowTitle() { SDL_SetWindowTitle(window, gameVerInfo.gameName); };
 
     static SDL_Window *window;
     static SDL_Renderer *renderer;

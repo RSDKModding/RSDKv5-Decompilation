@@ -214,22 +214,6 @@ void StateMachineRun(void (*state)());
 void RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority);
 #endif
 
-void RegisterAchievement(const char *identifier, const char *name, const char *desc);
-
-// Start Dummy Achievment code
-struct AchievementInfo {
-    std::string identifier;
-    std::string name;
-    std::string description;
-    bool32 achieved;
-};
-
-extern std::string achievementText;
-extern std::vector<AchievementInfo> achievementList;
-extern std::vector<int32> achievementStack;
-
-// End Dummy Achievement code
-
 } // namespace RSDK
 
 #endif // !MOD_API_H

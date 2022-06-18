@@ -1757,8 +1757,8 @@ void RSDK::DevMenu_ModsMenu()
             dataStorage[DATASET_SFX].usedStorage = 0;
             LoadGameConfig();
             sceneInfo.activeCategory = category;
-            sceneInfo.listPos = scene;            
-            RenderDevice::SetWindowTitle(gameVerInfo.gameName);
+            sceneInfo.listPos        = scene;
+            RenderDevice::SetWindowTitle();
         }
     }
 }

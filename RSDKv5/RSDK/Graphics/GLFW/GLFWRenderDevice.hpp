@@ -47,7 +47,7 @@ public:
         pos->y = (int32)cursorY;
         return true;
     };
-    static inline void SetWindowTitle(const char *title) { glfwSetWindowTitle(window, title); };
+    inline static void SetWindowTitle() { glfwSetWindowTitle(window, gameVerInfo.gameName); };
 
     static GLFWwindow *window;
 

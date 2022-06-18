@@ -1,11 +1,5 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
-// Start Dummy Achievements
-std::string RSDK::achievementText = "Achievement!";
-std::vector<RSDK::AchievementInfo> RSDK::achievementList;
-std::vector<int32> RSDK::achievementStack;
-// End Dummy Achievements
-
 #if RETRO_USE_MOD_LOADER
 
 #include <filesystem>
@@ -1354,17 +1348,3 @@ void RSDK::RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState
     stateHookList.push_back(stateHook);
 }
 #endif
-
-// Start custom achievement code
-// this is added because we don't have access to any store APIs that would otherwise use this featur
-void RSDK::RegisterAchievement(const char *identifier, const char *name, const char *desc)
-{
-    AchievementInfo info;
-    info.identifier  = identifier;
-    info.name        = name;
-    info.description = desc;
-    info.achieved    = false;
-    achievementList.push_back(info);
-}
-
-// End custom achievement code

@@ -52,14 +52,31 @@ public:
                 ;
         }
     }
-    static inline bool GetCursorPos(Vector2* pos) {
+
+    inline static bool GetCursorPos(Vector2 *pos)
+    {
         tagPOINT cursorPos;
         _wapiGetCursorPos(&cursorPos);
         ScreenToClient(windowHandle, &cursorPos);
         pos->x = cursorPos.x;
         pos->y = cursorPos.y;
         return true;
-    };
+    }
+
+    static inline void SetWindowTitle()
+    {
+#if _UNICODE
+        // shoddy workaround to get the title into wide chars in UNICODE mode
+        std::string str   = RSDK::gameVerInfo.gameName;
+        std::wstring temp = std::wstring(str.begin(), str.end());
+        LPCWSTR gameTitle = temp.c_str();
+#else
+        std::string str  = RSDK::gameVerInfo.gameName;
+        LPCSTR gameTitle = str.c_str();
+#endif
+
+        SetWindowText(windowHandle, gameTitle);
+    }
 
     static HWND windowHandle;
     static IDirect3DTexture9 *imageTexture;
