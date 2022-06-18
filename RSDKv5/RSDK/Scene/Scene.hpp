@@ -172,7 +172,7 @@ inline void LoadScene()
 inline void ForceHardReset(bool32 shouldHardReset) { forceHardReset = shouldHardReset; }
 #endif
 
-inline bool32 CheckValidStage()
+inline bool32 CheckValidScene()
 {
     if (sceneInfo.activeCategory >= sceneInfo.categoryCount)
         return false;
