@@ -119,7 +119,7 @@ enum FunctionTableIDs {
 #endif
     FunctionTable_CheckValidScene,
     FunctionTable_CheckSceneFolder,
-    FunctionTable_InitSceneLoad,
+    FunctionTable_LoadScene,
     FunctionTable_FindObject,
     FunctionTable_ClearCameras,
     FunctionTable_AddCamera,

@@ -1154,7 +1154,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                             sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd - 1;
                         }
 
-                        InitSceneLoad();
+                        LoadScene();
 
                         handledMsg = true;
                     }
@@ -1171,7 +1171,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                             sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
                         }
 
-                        InitSceneLoad();
+                        LoadScene();
 
                         handledMsg = true;
                     }
@@ -1190,7 +1190,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F5:
                     if (engine.devMenu) {
                         // Quick-Reload
-                        InitSceneLoad();
+                        LoadScene();
 
                         handledMsg = true;
                     }

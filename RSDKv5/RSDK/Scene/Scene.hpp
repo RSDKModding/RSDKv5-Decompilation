@@ -150,8 +150,8 @@ extern SceneInfo sceneInfo;
 
 extern uint8 tilesetPixels[TILESET_SIZE * 4];
 
-void LoadScene();
-void LoadSceneFile();
+void LoadSceneFolder();
+void LoadSceneAssets();
 void LoadTileConfig(char *filepath);
 void LoadStageGIF(char *filepath);
 
@@ -160,12 +160,12 @@ void ProcessParallax(TileLayer *layer);
 void ProcessSceneTimer();
 
 void SetScene(const char *categoryName, const char *sceneName);
-inline void InitSceneLoad()
+inline void LoadScene()
 {
-    sceneInfo.state = ENGINESTATE_LOAD;
-
     if ((sceneInfo.state & ENGINESTATE_STEPOVER) == ENGINESTATE_STEPOVER)
-        sceneInfo.state |= ENGINESTATE_STEPOVER;
+        sceneInfo.state = ENGINESTATE_LOAD | ENGINESTATE_STEPOVER;
+    else
+        sceneInfo.state = ENGINESTATE_LOAD;
 }
 
 #if RETRO_REV02

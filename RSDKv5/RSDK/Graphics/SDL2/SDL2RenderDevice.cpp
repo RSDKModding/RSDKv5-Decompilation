@@ -843,7 +843,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                         sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd - 1;
                     }
 
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 
                 case SDL_SCANCODE_F2:
@@ -856,7 +856,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                         sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
                     }
 
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 #endif
 
@@ -868,7 +868,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
 #if !RETRO_USE_ORIGINAL_CODE
                 case SDL_SCANCODE_F5:
                     // Quick-Reload
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 
                 case SDL_SCANCODE_F6:

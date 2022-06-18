@@ -274,9 +274,9 @@ void RSDK::SetupFunctionTables()
 #if RETRO_REV02
     ADD_RSDK_FUNCTION(FunctionTable_ForceHardReset, ForceHardReset);
 #endif
-    ADD_RSDK_FUNCTION(FunctionTable_CheckValidScene, CheckValidStage);
+    ADD_RSDK_FUNCTION(FunctionTable_CheckValidScene, CheckValidScene);
     ADD_RSDK_FUNCTION(FunctionTable_CheckSceneFolder, CheckSceneFolder);
-    ADD_RSDK_FUNCTION(FunctionTable_InitSceneLoad, InitSceneLoad);
+    ADD_RSDK_FUNCTION(FunctionTable_LoadScene, LoadScene);
     ADD_RSDK_FUNCTION(FunctionTable_FindObject, FindObject);
 
     // Cameras

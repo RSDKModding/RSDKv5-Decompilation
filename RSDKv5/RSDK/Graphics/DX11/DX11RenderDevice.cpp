@@ -1465,7 +1465,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                         sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd - 1;
                     }
 
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 
                 case VK_F2:
@@ -1478,7 +1478,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                         sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
                     }
 
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 #endif
 
@@ -1492,7 +1492,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
 #if !RETRO_USE_ORIGINAL_CODE
                 case VK_F5:
                     // Quick-Reload
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 
                 case VK_F6:

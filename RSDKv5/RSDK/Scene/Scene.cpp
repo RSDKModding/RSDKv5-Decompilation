@@ -16,7 +16,7 @@ char RSDK::currentSceneID[0x10];
 
 SceneInfo RSDK::sceneInfo;
 
-void RSDK::LoadScene()
+void RSDK::LoadSceneFolder()
 {
 #if RETRO_USE_MOD_LOADER
     // run this before the game actually unloads all the objects & scene assets
@@ -221,7 +221,7 @@ void RSDK::LoadScene()
     }
 #endif
 }
-void RSDK::LoadSceneFile()
+void RSDK::LoadSceneAssets()
 {
     memset(objectEntityList, 0, ENTITY_COUNT * sizeof(EntityBase));
 

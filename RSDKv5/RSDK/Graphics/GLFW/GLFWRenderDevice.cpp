@@ -795,7 +795,7 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                         sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd - 1;
                     }
 
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 
                 case GLFW_KEY_F2:
@@ -808,7 +808,7 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                         sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
                     }
 
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 #endif
 
@@ -820,7 +820,7 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
 #if !RETRO_USE_ORIGINAL_CODE
                 case GLFW_KEY_F5:
                     // Quick-Reload
-                    InitSceneLoad();
+                    LoadScene();
                     break;
 
                 case GLFW_KEY_F6:

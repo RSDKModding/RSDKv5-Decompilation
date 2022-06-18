@@ -222,8 +222,8 @@ void RSDK::ProcessEngine()
                 sceneInfo.state = ENGINESTATE_NONE;
             }
             else {
-                LoadScene();
-                LoadSceneFile();
+                LoadSceneFolder();
+                LoadSceneAssets();
                 InitObjects();
 
 #if RETRO_REV02
@@ -298,8 +298,8 @@ void RSDK::ProcessEngine()
             break;
 
         case ENGINESTATE_LOAD | ENGINESTATE_STEPOVER:
-            LoadScene();
-            LoadSceneFile();
+            LoadSceneFolder();
+            LoadSceneAssets();
             InitObjects();
 
 #if RETRO_REV02
