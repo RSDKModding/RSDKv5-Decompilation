@@ -217,7 +217,7 @@ void RegisterObject_STD(Object **staticVars, const char *name, uint32 entityClas
                         std::function<void()> editorLoad, std::function<void()> serialize);
 #endif
 
-#if RETRO_REV02
+#if RETRO_REV02 || RETRO_USE_MOD_LOADER
 void RegisterStaticVariables(void **varClass, const char *name, uint32 classSize);
 #endif
 

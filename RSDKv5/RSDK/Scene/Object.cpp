@@ -63,7 +63,7 @@ void RSDK::RegisterObject(Object **staticVars, const char *name, uint32 entityCl
     }
 }
 
-#if RETRO_REV02
+#if RETRO_REV02 || RETRO_USE_MOD_LOADER
 void RSDK::RegisterStaticVariables(void **staticVars, const char *name, uint32 classSize)
 {
     RETRO_HASH_MD5(hash);

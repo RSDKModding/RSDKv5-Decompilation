@@ -171,6 +171,16 @@ void RSDK::LoadSceneFolder()
                 AllocateStorage((void **)objClass->staticVars, objClass->staticClassSize, DATASET_STG, true);
                 LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
 
+#if RETRO_USE_MOD_LOADER
+                for (ModInfo &mod : modList) {
+                    try {
+                        auto sVars = mod.staticVars.at(objClass->hash);
+                        RegisterStaticVariables((void **)sVars.staticVars, sVars.name.c_str(), sVars.size);
+                    } catch (...) {
+                    };
+                }
+#endif
+
                 (*objClass->staticVars)->classID = o;
                 if (o >= TYPE_DEFAULT_COUNT)
                     (*objClass->staticVars)->active = ACTIVE_NORMAL;

@@ -104,20 +104,29 @@ struct ModVersionInfo {
     uint8 modLoaderVer;
 };
 
+struct ModSVInfo {
+    std::string name;
+    Object** staticVars;
+    uint32 size;
+};
+
 struct ModInfo {
+    std::string id;
     std::string name;
     std::string desc;
     std::string author;
     std::string version;
+    bool active;
     std::map<std::string, std::string> fileMap;
     std::vector<ModPublicFunctionInfo> functionList;
-    std::string id;
-    bool active;
     std::vector<Link::Handle> modLogicHandles;
     std::vector<modLinkSTD> linkModLogic;
     void (*unloadMod)();
     std::map<std::string, std::map<std::string, std::string>> settings;
     std::map<std::string, std::map<std::string, std::string>> config;
+
+    // mapped to base hash
+    std::map<uint32 *, ModSVInfo> staticVars;
 };
 
 struct StateHook {
@@ -152,13 +161,14 @@ void RunModCallbacks(int32 callbackID, void *data);
 
 // Mod API
 void ModRegisterGlobalVariables(const char *globalsPath, void **globals, uint32 size);
-void ModRegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(), void (*lateUpdate)(),
-                       void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(),
-                       void (*editorLoad)(), void (*serialize)(), const char *inherited);
-void ModRegisterObject_STD(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, std::function<void()> update,
-                           std::function<void()> lateUpdate, std::function<void()> staticUpdate, std::function<void()> draw,
-                           std::function<void(void *)> create, std::function<void()> stageLoad, std::function<void()> editorDraw,
-                           std::function<void()> editorLoad, std::function<void()> serialize, const char *inherited);
+void ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
+                       uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *),
+                       void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), const char *inherited);
+void ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
+                           uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate, std::function<void()> staticUpdate,
+                           std::function<void()> draw, std::function<void(void *)> create, std::function<void()> stageLoad,
+                           std::function<void()> editorDraw, std::function<void()> editorLoad, std::function<void()> serialize,
+                           const char *inherited);
 void ModRegisterObjectHook(Object **staticVars, const char *staticName);
 Object *ModFindObject(const char *name);
 

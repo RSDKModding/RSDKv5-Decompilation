@@ -46,6 +46,7 @@ public:
 
     static inline void ShowCursor(bool32 shown){};
     static inline bool GetCursorPos(Vector2 *pos) { return false; };
+    static inline void SetWindowTitle(const char *title){};
 
     static EGLDisplay display;
     static EGLContext context;

@@ -268,7 +268,7 @@ JNIEXPORT void jnifunc(nativeKeyDown, RSDKSurface, jint keycode)
                 sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd - 1;
             }
 
-            InitSceneLoad();
+            LoadScene();
             break;
 
         case AKEYCODE_F2:
@@ -281,7 +281,7 @@ JNIEXPORT void jnifunc(nativeKeyDown, RSDKSurface, jint keycode)
                 sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
             }
 
-            InitSceneLoad();
+            LoadScene();
             break;
 #endif
 
@@ -293,7 +293,7 @@ JNIEXPORT void jnifunc(nativeKeyDown, RSDKSurface, jint keycode)
 #if !RETRO_USE_ORIGINAL_CODE
         case AKEYCODE_F5:
             // Quick-Reload
-            InitSceneLoad();
+            LoadScene();
             break;
 
         case AKEYCODE_F6:

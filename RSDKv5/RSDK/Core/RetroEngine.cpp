@@ -200,9 +200,6 @@ void RSDK::ProcessEngine()
             sceneInfo.activeCategory = pre.activeCategory;
             sceneInfo.listPos        = pre.listPos;
         }
-#if RETRO_RENDERDEVICE_SDL2
-        SDL_SetWindowTitle(RenderDevice::window, gameVerInfo.gameName);
-#endif
 
         sceneInfo.state = ENGINESTATE_LOAD;
     }

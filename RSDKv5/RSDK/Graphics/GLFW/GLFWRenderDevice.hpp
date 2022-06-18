@@ -39,13 +39,15 @@ public:
     static void LoadShader(const char *fileName, bool32 linear);
 
     static inline void ShowCursor(bool32 shown) { glfwSetInputMode(window, GLFW_CURSOR, shown ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN); }
-    static inline bool GetCursorPos(Vector2* pos) {
+    static inline bool GetCursorPos(Vector2 *pos)
+    {
         double cursorX, cursorY;
         glfwGetCursorPos(window, &cursorX, &cursorY);
         pos->x = (int32)cursorX;
         pos->y = (int32)cursorY;
         return true;
     };
+    static inline void SetWindowTitle(const char *title) { glfwSetWindowTitle(window, title); };
 
     static GLFWwindow *window;
 

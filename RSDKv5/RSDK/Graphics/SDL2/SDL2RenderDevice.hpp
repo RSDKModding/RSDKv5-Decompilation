@@ -43,7 +43,13 @@ public:
     static void LoadShader(const char *fileName, bool32 linear);
 
     static inline void ShowCursor(bool32 shown) { SDL_ShowCursor(shown); }
-    static inline bool GetCursorPos(Vector2 *pos) { SDL_GetMouseState(&pos->x, &pos->y); return true; };
+    static inline bool GetCursorPos(Vector2 *pos)
+    {
+        SDL_GetMouseState(&pos->x, &pos->y);
+        return true;
+    };
+
+    static inline void SetWindowTitle(const char *title) { SDL_SetWindowTitle(window, title); };
 
     static SDL_Window *window;
     static SDL_Renderer *renderer;

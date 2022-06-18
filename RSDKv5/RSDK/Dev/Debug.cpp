@@ -226,18 +226,6 @@ void DevMenu_HandleTouchControls()
 
 void RSDK::CloseDevMenu()
 {
-#if RETRO_USE_MOD_LOADER
-    if (devMenu.state == DevMenu_ModsMenu) {
-        SaveMods();
-        InitGameLink();
-        LoadGameConfig();
-
-        devMenu.sceneState       = ENGINESTATE_LOAD;
-        sceneInfo.activeCategory = 0;
-        sceneInfo.listPos        = 0;
-    }
-#endif
-
     sceneInfo.state = devMenu.sceneState;
 
     videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
@@ -1762,7 +1750,13 @@ void RSDK::DevMenu_ModsMenu()
         devMenu.state     = DevMenu_MainMenu;
         devMenu.scrollPos = 0;
         devMenu.selection = 4;
-        SaveMods(); // let RSDK reload
+        SaveMods();
+        if (devMenu.modsChanged) {
+            dataStorage[DATASET_SFX].usedStorage = 0;
+            LoadGameConfig();
+            RenderDevice::SetWindowTitle(gameVerInfo.gameName);
+        }
+            
     }
 }
 #endif
