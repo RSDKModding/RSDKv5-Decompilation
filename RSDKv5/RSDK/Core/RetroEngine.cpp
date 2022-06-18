@@ -200,7 +200,7 @@ void RSDK::ProcessEngine()
             sceneInfo.activeCategory = pre.activeCategory;
             sceneInfo.listPos        = pre.listPos;
         }
-
+        RenderDevice::SetWindowTitle(gameVerInfo.gameName);
         sceneInfo.state = ENGINESTATE_LOAD;
     }
 #endif
