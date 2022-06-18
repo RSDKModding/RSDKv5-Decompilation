@@ -235,11 +235,11 @@ void RSDK::CloseDevMenu()
 void RSDK::DevMenu_MainMenu()
 {
 #if !RETRO_USE_MOD_LOADER
-    const int32 selectionCount         = 5;
+    const int32 selectionCount   = 5;
     uint32 selectionColors[]     = { 0x808090, 0x808090, 0x808090, 0x808090, 0x808090 };
     const char *selectionNames[] = { "Resume", "Restart", "Stage Select", "Options", "Exit" };
 #else
-    const int32 selectionCount         = 6;
+    const int32 selectionCount   = 6;
     uint32 selectionColors[]     = { 0x808090, 0x808090, 0x808090, 0x808090, 0x808090, 0x808090 };
     const char *selectionNames[] = { "Resume", "Restart", "Stage Select", "Options", "Mods", "Exit" };
 #endif
@@ -388,7 +388,7 @@ void RSDK::DevMenu_MainMenu()
                 break;
 
 #if !RETRO_USE_MOD_LOADER
-            case 4: engine.running = false; break;
+            case 4: RenderDevice::isRunning = false; break;
 #else
             case 4:
                 LoadMods(true); // reload our mod list real quick
@@ -1752,11 +1752,14 @@ void RSDK::DevMenu_ModsMenu()
         devMenu.selection = 4;
         SaveMods();
         if (devMenu.modsChanged) {
+            uint32 category = sceneInfo.activeCategory;
+            uint32 scene = sceneInfo.listPos;
             dataStorage[DATASET_SFX].usedStorage = 0;
             LoadGameConfig();
+            sceneInfo.activeCategory = category;
+            sceneInfo.listPos = scene;            
             RenderDevice::SetWindowTitle(gameVerInfo.gameName);
         }
-            
     }
 }
 #endif
