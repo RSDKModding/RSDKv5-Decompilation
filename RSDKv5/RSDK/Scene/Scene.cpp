@@ -173,11 +173,10 @@ void RSDK::LoadSceneFolder()
 
 #if RETRO_USE_MOD_LOADER
                 for (ModInfo &mod : modList) {
-                    try {
+                    if (mod.staticVars.find(objClass->hash) != mod.staticVars.end()) {
                         auto sVars = mod.staticVars.at(objClass->hash);
                         RegisterStaticVariables((void **)sVars.staticVars, sVars.name.c_str(), sVars.size);
-                    } catch (...) {
-                    };
+                    }
                 }
 #endif
 

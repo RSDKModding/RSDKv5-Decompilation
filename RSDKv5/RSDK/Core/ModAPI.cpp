@@ -1070,21 +1070,21 @@ void RSDK::SaveSettings()
 
 // i'm going to hell for this
 // nvm im actually so proud of this func yall have no idea i'm insane
-int32 superLevels = 1;
+int32 superLevels[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data)
 {
     using namespace RSDK;
 
     ModInfo *curMod = currentMod;
     if (HASH_MATCH_MD5(super->hash, super->inherited->hash)) {
-        for (int32 i = 0; i < superLevels; i++) {
+        for (int32 i = 0; i < superLevels[callback]; i++) {
             super = super->inherited;
         }
-        ++superLevels;
+        ++superLevels[callback];
     }
     else if (super->inherited) {
         super       = super->inherited;
-        superLevels = 1;
+        superLevels[callback] = 1;
     }
 
     switch (callback) {
@@ -1134,7 +1134,7 @@ void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data
             break;
     }
 
-    superLevels = 1;
+    superLevels[callback] = 1;
     currentMod  = curMod;
 }
 
@@ -1323,7 +1323,7 @@ void RSDK::StateMachineRun(void (*state)())
 
     for (int32 h = 0; h < (int32)stateHookList.size(); ++h) {
         if (!stateHookList[h].priority && stateHookList[h].state == state && stateHookList[h].hook)
-            skipState |= stateHookList[h].hook(false);
+            skipState |= stateHookList[h].hook(skipState);
     }
 
     if (!skipState && state)

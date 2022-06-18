@@ -382,6 +382,9 @@ void RSDK::ProcessEngine()
                 }
                 else {
                     engine.displayTime -= (1.0 / 60.0); // deltaTime frame-step;
+#if RETRO_USE_MOD_LOADER
+                    RunModCallbacks(MODCB_ONVIDEOSKIPCB, engine.skipCallback);
+#endif
                     if (engine.skipCallback && engine.skipCallback()) {
                         engine.displayTime = 0.0;
                     }

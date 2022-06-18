@@ -752,6 +752,9 @@ void RSDK::ProcessObjectDrawLists()
                     for (int32 i = 0; i < list->layerCount; ++i) {
                         TileLayer *layer = &tileLayers[list->layerDrawList[i]];
 
+#if RETRO_USE_MOD_LOADER
+                        RunModCallbacks(MODCB_ONSCANLINECB, layer->scanlineCallback);
+#endif
                         if (layer->scanlineCallback)
                             layer->scanlineCallback(scanlines);
                         else

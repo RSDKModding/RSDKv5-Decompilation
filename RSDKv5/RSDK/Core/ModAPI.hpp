@@ -23,6 +23,8 @@ typedef enum {
     MODCB_ONDRAW,
     MODCB_STAGEUNLOAD,
     MODCB_ONSHADERLOAD,
+    MODCB_ONVIDEOSKIPCB,
+    MODCB_ONSCANLINECB,
     MODCB_MAX,
 } ModCallbackEvents;
 
@@ -80,8 +82,8 @@ typedef enum {
     ModTable_Max
 } ModFunctionTable;
 
-typedef void (*ModCallback)(void *);
-typedef std::function<void(void *)> ModCallbackSTD;
+typedef void (*ModCallback)(void *data);
+typedef std::function<void(void *data)> ModCallbackSTD;
 
 typedef bool (*modLink)(GameInfo *, const char *);
 typedef std::function<bool(GameInfo *, const char *)> modLinkSTD;
