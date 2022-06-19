@@ -49,7 +49,7 @@ void RSDK::AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet,
     int32 **data = (int32 **)dataPtr;
     *data        = NULL;
 
-    if ((uint32)dataSet < DATASET_MAX) {
+    if ((uint32)dataSet < DATASET_MAX && size > 0) {
         DataStorage *storage = &dataStorage[dataSet];
 
         if ((size & -4) < size)

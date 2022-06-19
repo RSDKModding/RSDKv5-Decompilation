@@ -976,41 +976,53 @@ void RSDK::InitGameLink()
 
     bool32 linked = false;
 
-    if (engine.useExternalCode) {
-        char buffer[0x100];
+#if RETRO_USE_MOD_LOADER
+    bool32 gameLogicDisabled = false;
+
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        gameLogicDisabled |= modList[m].disableGameLogic ? 1 : 0;
+    }
+
+    if (!gameLogicDisabled) {
+#endif
+        if (engine.useExternalCode) {
+            char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_WIN
-        strcpy_s(buffer, 0x100, gameLogicName);
+            strcpy_s(buffer, 0x100, gameLogicName);
 #else
         sprintf(buffer, "%s%s", SKU::userFileDir, gameLogicName);
 #endif
-        if (!gameLogicHandle)
-            gameLogicHandle = Link::Open(gameLogicName);
+            if (!gameLogicHandle)
+                gameLogicHandle = Link::Open(gameLogicName);
 
-        if (gameLogicHandle) {
-            LogicLinkHandle linkGameLogic = (LogicLinkHandle)Link::GetSymbol(gameLogicHandle, "LinkGameLogicDLL");
-            if (linkGameLogic) {
+            if (gameLogicHandle) {
+                LogicLinkHandle linkGameLogic = (LogicLinkHandle)Link::GetSymbol(gameLogicHandle, "LinkGameLogicDLL");
+                if (linkGameLogic) {
 #if RETRO_REV02
-                linkGameLogic(&info);
+                    linkGameLogic(&info);
 #else
                 linkGameLogic(info);
 #endif
-                linked = true;
+                    linked = true;
+                }
             }
+
+            if (!linked)
+                PrintLog(PRINT_POPUP, "Failed to link game logic!");
         }
-
-
-        if (!linked)
-            PrintLog(PRINT_POPUP, "Failed to link game logic!");
-    }
-    else {
+        else {
 #if RETRO_REV02
-        linkGameLogic(&info);
+            linkGameLogic(&info);
 #else
         linkGameLogic(info);
 #endif
+        }
+#if RETRO_USE_MOD_LOADER
     }
 
-#if RETRO_USE_MOD_LOADER
     for (int32 m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
             continue;

@@ -122,6 +122,8 @@ struct ModInfo {
     std::string author;
     std::string version;
     bool active;
+    bool redirectSaveRAM;
+    bool disableGameLogic;
     std::map<std::string, std::string> fileMap;
     std::vector<ModPublicFunctionInfo> functionList;
     std::vector<Link::Handle> modLogicHandles;
@@ -146,6 +148,8 @@ extern std::vector<ModCallbackSTD> modCallbackList[MODCB_MAX];
 extern std::vector<StateHook> stateHookList;
 extern std::vector<ObjectHook> objectHookList;
 extern ModVersionInfo targetModVersion;
+
+extern char customUserFileDir[0x100];
 
 extern void *modFunctionTable[ModTable_Max];
 extern int32 currentObjectID;

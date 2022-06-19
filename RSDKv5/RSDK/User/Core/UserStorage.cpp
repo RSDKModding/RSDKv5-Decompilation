@@ -1030,7 +1030,14 @@ bool32 RSDK::SKU::LoadUserFile(const char *filename, void *buffer, uint32 bufSiz
         preLoadSaveFileCB();
 
     char fullFilePath[0x400];
+#if RETRO_USE_MOD_LOADER
+    if (strlen(customUserFileDir))
+        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
+    else
+        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+#else
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+#endif
     PrintLog(PRINT_NORMAL, "Attempting to load user file: %s", fullFilePath);
 
     FileIO *file = fOpen(fullFilePath, "rb");
@@ -1064,7 +1071,14 @@ bool32 RSDK::SKU::SaveUserFile(const char *filename, void *buffer, uint32 bufSiz
         preLoadSaveFileCB();
 
     char fullFilePath[0x400];
+#if RETRO_USE_MOD_LOADER
+    if (strlen(customUserFileDir))
+        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
+    else
+        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+#else
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+#endif
     PrintLog(PRINT_NORMAL, "Attempting to save user file: %s", fullFilePath);
 
     FileIO *file = fOpen(fullFilePath, "wb");
@@ -1091,7 +1105,14 @@ bool32 RSDK::SKU::DeleteUserFile(const char *filename)
         preLoadSaveFileCB();
 
     char fullFilePath[0x400];
+#if RETRO_USE_MOD_LOADER
+    if (strlen(customUserFileDir))
+        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
+    else
+        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+#else
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+#endif
     PrintLog(PRINT_NORMAL, "Attempting to delete user file: %s", fullFilePath);
     int32 status = remove(fullFilePath);
 

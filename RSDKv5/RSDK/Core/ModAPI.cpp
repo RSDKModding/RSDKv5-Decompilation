@@ -31,6 +31,8 @@ std::vector<ObjectHook> RSDK::objectHookList;
 
 ModVersionInfo RSDK::targetModVersion = { RETRO_REVISION, 0, RETRO_MOD_LOADER_VER };
 
+char RSDK::customUserFileDir[0x100];
+
 RSDK::ModInfo *RSDK::currentMod;
 
 std::vector<RSDK::ModPublicFunctionInfo> gamePublicFuncs;
@@ -159,6 +161,8 @@ void RSDK::UnloadMods()
             delete inherit;
     }
     allocatedInherits.clear();
+
+    sprintf(customUserFileDir, "");
 
     // Clear storage
     dataStorage[DATASET_STG].usedStorage = 0;
@@ -290,12 +294,14 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
 
     info->fileMap.clear();
     info->modLogicHandles.clear();
-    info->name    = "";
-    info->desc    = "";
-    info->author  = "";
-    info->version = "";
-    info->id      = "";
-    info->active  = false;
+    info->name             = "";
+    info->desc             = "";
+    info->author           = "";
+    info->version          = "";
+    info->id               = "";
+    info->active           = false;
+    info->redirectSaveRAM  = false;
+    info->disableGameLogic = false;
 
     const std::string modDir = modsPath + "/" + folder;
 
@@ -311,6 +317,9 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         info->desc    = iniparser_getstring(ini, ":Description", "");
         info->author  = iniparser_getstring(ini, ":Author", "Unknown Author");
         info->version = iniparser_getstring(ini, ":Version", "1.0.0");
+
+        info->redirectSaveRAM  = iniparser_getboolean(ini, ":RedirectSaveRAM", false);
+        info->disableGameLogic = iniparser_getboolean(ini, ":DisableGameLogic", false);
 
         if (!active)
             return true;
@@ -536,6 +545,10 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                 }
             }
             fClose(cfg);
+        }
+
+        if (info->redirectSaveRAM) {
+            sprintf(customUserFileDir, "mods/%s/", info->id.c_str());
         }
 
         PrintLog(PRINT_NORMAL, "[MOD] Loaded mod %s! Active: %s", folder.c_str(), active ? "Y" : "N");
