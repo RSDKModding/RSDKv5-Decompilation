@@ -37,6 +37,9 @@ std::vector<RSDK::ModPublicFunctionInfo> gamePublicFuncs;
 
 void *RSDK::modFunctionTable[RSDK::ModTable_Max];
 
+std::map<uint32, uint32> RSDK::superLevels;
+int32 RSDK::inheritLevel = 0;
+
 #define ADD_MOD_FUNCTION(id, func) modFunctionTable[id] = (void *)func;
 
 // https://www.techiedelight.com/trim-string-cpp-remove-leading-trailing-spaces/
@@ -117,6 +120,8 @@ void RSDK::InitModAPI()
     ADD_MOD_FUNCTION(ModTable_StateMachineRun, StateMachineRun);
     ADD_MOD_FUNCTION(ModTable_RegisterStateHook, RegisterStateHook);
 
+    superLevels.clear();
+    inheritLevel = 0;
     LoadMods();
 }
 
@@ -1070,21 +1075,28 @@ void RSDK::SaveSettings()
 
 // i'm going to hell for this
 // nvm im actually so proud of this func yall have no idea i'm insane
-int32 superLevels[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data)
 {
     using namespace RSDK;
 
     ModInfo *curMod = currentMod;
+    bool32 override = false;
+    if (!super->inherited)
+        return; // Mod.Super on an object that's literally an original object why did you do this
+    ++superLevels[inheritLevel];
     if (HASH_MATCH_MD5(super->hash, super->inherited->hash)) {
-        for (int32 i = 0; i < superLevels[callback]; i++) {
+        // entity override
+        override = true;
+        for (int32 i = 0; i < superLevels[inheritLevel]; i++) {
+            if (!super->inherited) 
+                break; // *do not* cap superLevel because if we do we'll break things even more than what we had to do to get here 
             super = super->inherited;
         }
-        ++superLevels[callback];
     }
-    else if (super->inherited) {
-        super       = super->inherited;
-        superLevels[callback] = 1;
+    else {
+        // basic entity inherit
+        inheritLevel++;
+        super = super->inherited;
     }
 
     switch (callback) {
@@ -1134,8 +1146,10 @@ void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data
             break;
     }
 
-    superLevels[callback] = 1;
-    currentMod  = curMod;
+    if (!override)
+        inheritLevel--;
+    superLevels[inheritLevel]--;
+    currentMod = curMod;
 }
 
 void RSDK::Super(int32 objectID, ModSuper callback, void *data) { return SuperInternal(&objectClassList[stageObjectIDs[objectID]], callback, data); }
@@ -1168,8 +1182,8 @@ void RSDK::ModRegisterObject(Object **staticVars, Object **modStaticVars, const 
                              void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(),
                              const char *inherited)
 {
-    return ModRegisterObject_STD(staticVars, modStaticVars, name, entityClassSize, staticClassSize, modClassSize, update, lateUpdate, staticUpdate, draw, create, stageLoad,
-                                 editorDraw, editorLoad, serialize, inherited);
+    return ModRegisterObject_STD(staticVars, modStaticVars, name, entityClassSize, staticClassSize, modClassSize, update, lateUpdate, staticUpdate,
+                                 draw, create, stageLoad, editorDraw, editorLoad, serialize, inherited);
 }
 
 void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
@@ -1248,7 +1262,7 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, co
             }
             // lets also setup mod static vars
             if (modStaticVars && modClassSize) {
-                curMod->staticVars[info->hash] = { curMod->id + "_" + name, modStaticVars, modClassSize }; 
+                curMod->staticVars[info->hash] = { curMod->id + "_" + name, modStaticVars, modClassSize };
             }
         }
 

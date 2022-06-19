@@ -13,6 +13,9 @@
 namespace RSDK
 {
 
+extern std::map<uint32, uint32> superLevels;
+extern int32 inheritLevel; 
+
 #if RETRO_USE_MOD_LOADER
 typedef enum {
     MODCB_GAME_STARTUP,

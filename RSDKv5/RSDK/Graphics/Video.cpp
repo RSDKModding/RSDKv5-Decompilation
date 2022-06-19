@@ -194,7 +194,7 @@ void RSDK::ProcessVideo()
         curTime = th_granule_time(VideoManager::td, VideoManager::granulePos);
 
 #if RETRO_USE_MOD_LOADER
-        RunModCallbacks(MODCB_ONVIDEOSKIPCB, engine.skipCallback);
+        RunModCallbacks(MODCB_ONVIDEOSKIPCB, (void*)engine.skipCallback);
 #endif
         if (engine.skipCallback && engine.skipCallback()) {
             finished = true;

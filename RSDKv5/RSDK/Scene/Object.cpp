@@ -753,7 +753,7 @@ void RSDK::ProcessObjectDrawLists()
                         TileLayer *layer = &tileLayers[list->layerDrawList[i]];
 
 #if RETRO_USE_MOD_LOADER
-                        RunModCallbacks(MODCB_ONSCANLINECB, layer->scanlineCallback);
+                        RunModCallbacks(MODCB_ONSCANLINECB, (void *)layer->scanlineCallback);
 #endif
                         if (layer->scanlineCallback)
                             layer->scanlineCallback(scanlines);
@@ -930,7 +930,14 @@ void RSDK::ResetEntityPtr(Entity *entity, uint16 classID, void *data)
 
             sceneInfo.entity              = entity;
             sceneInfo.entity->interaction = true;
+#if RETRO_USE_MOD_LOADER
+            int32 superStore          = superLevels[inheritLevel];
+            superLevels[inheritLevel] = 0;
+#endif
             info->create(data);
+#if RETRO_USE_MOD_LOADER
+            superLevels[inheritLevel] = superStore;
+#endif
             sceneInfo.entity->classID = classID;
 
             sceneInfo.entity = curEnt;
@@ -953,7 +960,14 @@ void RSDK::ResetEntitySlot(uint16 slot, uint16 classID, void *data)
 
         sceneInfo.entity    = entity;
         entity->interaction = true;
+#if RETRO_USE_MOD_LOADER
+        int32 superStore          = superLevels[inheritLevel];
+        superLevels[inheritLevel] = 0;
+#endif
         object->create(data);
+#if RETRO_USE_MOD_LOADER
+        superLevels[inheritLevel] = superStore;
+#endif
         entity->classID = classID;
 
         sceneInfo.entity = curEnt;
@@ -1001,7 +1015,14 @@ Entity *RSDK::CreateEntity(uint16 classID, void *data, int32 x, int32 y)
         Entity *curEnt = sceneInfo.entity;
 
         sceneInfo.entity = entity;
+#if RETRO_USE_MOD_LOADER
+        int32 superStore          = superLevels[inheritLevel];
+        superLevels[inheritLevel] = 0;
+#endif
         object->create(data);
+#if RETRO_USE_MOD_LOADER
+        superLevels[inheritLevel] = superStore;
+#endif
         entity->classID = classID;
 
         sceneInfo.entity = curEnt;
