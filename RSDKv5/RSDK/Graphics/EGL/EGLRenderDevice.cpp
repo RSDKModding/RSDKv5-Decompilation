@@ -14,20 +14,20 @@
 #define _GLVERSION "#version 330 core\n"
 const char *_glPrecision = "";
 
-#define _YOFF    16
-#define _UOFF    8
-#define _VOFF    0
+#define _YOFF 16
+#define _UOFF 8
+#define _VOFF 0
 #elif RETRO_PLATFORM == RETRO_ANDROID
-#define _GLVERSION "#version 310 es\n"
+#define _GLVERSION "#version 300 es\n"
 
 #define GL_BGRA                     GL_RGBA
 #define GL_UNSIGNED_INT_8_8_8_8_REV GL_UNSIGNED_BYTE
 
 char _glPrecision[30]; // len("precision mediump float;\n") -> 25
 
-#define _YOFF    0
-#define _UOFF    8
-#define _VOFF    16
+#define _YOFF 0
+#define _UOFF 8
+#define _VOFF 16
 #endif
 
 #if RETRO_REV02
@@ -155,7 +155,7 @@ bool RenderDevice::SetupRendering()
     };
     // clang-format on
 #elif RETRO_PLATFORM == RETRO_ANDROID
-    static const EGLint contextAttributeList[] = { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 1, EGL_NONE };
+    static const EGLint contextAttributeList[] = { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE };
 #endif
 
     context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttributeList);
@@ -163,7 +163,6 @@ bool RenderDevice::SetupRendering()
         PrintLog(PRINT_NORMAL, "[EGL] Context creation failed: %d", eglGetError());
         return false;
     }
-
 
     eglMakeCurrent(display, surface, surface, context);
 
@@ -210,7 +209,7 @@ bool RenderDevice::InitGraphicsAPI()
     if (!precision)
         strcpy(_glPrecision, "precision mediump float;\n");
     else
-        strcpy(_glPrecision, "precision highp float;\n");
+        strcpy(_glPrecision, "precision mediump float;\n");
 #endif
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
@@ -359,6 +358,8 @@ bool RenderDevice::InitGraphicsAPI()
     videoSettings.viewportW = 1.0 / viewSize.x;
     videoSettings.viewportH = 1.0 / viewSize.y;
 
+    PrintLog(PRINT_NORMAL, "%d %d %f %f %d %d %d %d %f %f", displayWidth[0], displayHeight[0], pixelSize.x, pixelSize.y, viewportPos.x, viewportPos.y,
+             viewportSize.x, viewportSize.y, viewSize.x, viewSize.y);
 
     return true;
 }

@@ -1349,7 +1349,7 @@ void RSDK::StateMachineRun(void (*state)())
     bool32 skipState = false;
 
     for (int32 h = 0; h < (int32)stateHookList.size(); ++h) {
-        if (!stateHookList[h].priority && stateHookList[h].state == state && stateHookList[h].hook)
+        if (stateHookList[h].priority && stateHookList[h].state == state && stateHookList[h].hook)
             skipState |= stateHookList[h].hook(skipState);
     }
 
@@ -1357,7 +1357,7 @@ void RSDK::StateMachineRun(void (*state)())
         state();
 
     for (int32 h = 0; h < (int32)stateHookList.size(); ++h) {
-        if (stateHookList[h].priority && stateHookList[h].state == state && stateHookList[h].hook)
+        if (!stateHookList[h].priority && stateHookList[h].state == state && stateHookList[h].hook)
             stateHookList[h].hook(skipState);
     }
 }
