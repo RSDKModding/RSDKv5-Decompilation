@@ -1441,7 +1441,11 @@ void RenderDevice::ProcessEvent(MSG Msg)
 
                 case VK_ESCAPE:
                     if (engine.devMenu) {
+#if RETRO_REV0U
+                        if (sceneInfo.state == ENGINESTATE_DEVMENU || RSDK::Legacy::gameMode == RSDK::Legacy::ENGINE_DEVMENU)
+#else
                         if (sceneInfo.state == ENGINESTATE_DEVMENU)
+#endif
                             CloseDevMenu();
                         else
                             OpenDevMenu();
@@ -1527,8 +1531,23 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_PAUSE:
                 case VK_F12:
                     if (engine.devMenu) {
+#if RETRO_REV0U
+                        switch (engine.version) {
+                            default: break;
+                            case 5:
+                                if (sceneInfo.state != ENGINESTATE_NONE)
+                                    sceneInfo.state ^= ENGINESTATE_STEPOVER;
+                                break;
+                            case 4:
+                            case 3:
+                                if (RSDK::Legacy::stageMode != ENGINESTATE_NONE)
+                                    RSDK::Legacy::stageMode ^= RSDK::Legacy::STAGEMODE_STEPOVER;
+                                break;
+                        }
+#else
                         if (sceneInfo.state != ENGINESTATE_NONE)
                             sceneInfo.state ^= ENGINESTATE_STEPOVER;
+#endif
                     }
                     break;
             }

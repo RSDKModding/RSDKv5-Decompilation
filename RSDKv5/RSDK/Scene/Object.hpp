@@ -97,6 +97,10 @@ struct Object {
 };
 
 struct Entity {
+#if RETRO_REV0U
+    // used for languages such as beeflang that always have vfTables in classes
+    void *vfTable;
+#endif
     Vector2 position;
     Vector2 scale;
     Vector2 velocity;
@@ -130,6 +134,9 @@ struct Entity {
 
 struct EntityBase : Entity {
     void *data[0x100];
+#if RETRO_REV0U
+    void *unknown;
+#endif
 };
 
 struct ObjectClass {
@@ -146,6 +153,9 @@ struct ObjectClass {
     std::function<void()> editorDraw;
     std::function<void()> editorLoad;
     std::function<void()> serialize;
+#if RETRO_REV0U
+    std::function<void(Object *)> staticLoad;
+#endif
 #else
     void (*update)();
     void (*lateUpdate)();
@@ -156,6 +166,9 @@ struct ObjectClass {
     void (*editorDraw)();
     void (*editorLoad)();
     void (*serialize)();
+#if RETRO_REV0U
+    void (*staticLoad)(Object *);
+#endif
 #endif
 
     // Classes
@@ -206,6 +219,18 @@ extern TypeGroupList typeGroups[TYPEGROUP_COUNT];
 
 extern bool32 validDraw;
 
+#if RETRO_REV0U
+void RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(), void (*lateUpdate)(),
+                    void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(),
+                    void (*serialize)(), void (*staticLoad)(Object *));
+
+#if RETRO_USE_MOD_LOADER
+void RegisterObject_STD(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, std::function<void()> update,
+                        std::function<void()> lateUpdate, std::function<void()> staticUpdate, std::function<void()> draw,
+                        std::function<void(void *)> create, std::function<void()> stageLoad, std::function<void()> editorDraw,
+                        std::function<void()> editorLoad, std::function<void()> serialize, std::function<void(Object *)> staticLoad);
+#endif
+#else
 void RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(), void (*lateUpdate)(),
                     void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(),
                     void (*serialize)());
@@ -215,6 +240,7 @@ void RegisterObject_STD(Object **staticVars, const char *name, uint32 entityClas
                         std::function<void()> lateUpdate, std::function<void()> staticUpdate, std::function<void()> draw,
                         std::function<void(void *)> create, std::function<void()> stageLoad, std::function<void()> editorDraw,
                         std::function<void()> editorLoad, std::function<void()> serialize);
+#endif
 #endif
 
 #if RETRO_REV02 || RETRO_USE_MOD_LOADER
@@ -279,7 +305,7 @@ inline void CopyEntity(void *destEntity, void *srcEntity, bool32 clearSrcEntity)
 }
 
 bool32 GetActiveEntities(uint16 group, Entity **entity);
-bool32 GetEntities(uint16 classID, Entity **entity);
+bool32 GetAllEntities(uint16 classID, Entity **entity);
 
 inline void BreakForeachLoop() { --foreachStackPtr; }
 
@@ -289,6 +315,10 @@ bool32 CheckOnScreen(Entity *entity, Vector2 *range);
 bool32 CheckPosOnScreen(Vector2 *position, Vector2 *range);
 
 void ClearStageObjects();
+
+#if RETRO_REV0U
+#include "Legacy/ObjectLegacy.hpp"
+#endif
 
 } // namespace RSDK
 

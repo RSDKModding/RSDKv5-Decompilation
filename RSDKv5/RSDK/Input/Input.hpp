@@ -519,7 +519,7 @@ inline int32 GetControllerInputID()
     return -1;
 }
 
-inline int32 ControllerIDForInputID(uint8 controllerID)
+inline int32 GetInputDeviceID(uint8 controllerID)
 {
     uint8 i = controllerID - 1;
     if (i < PLAYER_COUNT)
@@ -529,7 +529,7 @@ inline int32 ControllerIDForInputID(uint8 controllerID)
 }
 
 #if RETRO_REV02
-inline int32 MostRecentActiveControllerID(bool32 confirmOnly, bool32 unassignedOnly, uint32 maxInactiveTimer)
+inline int32 GetFilteredInputDeviceID(bool32 confirmOnly, bool32 unassignedOnly, uint32 maxInactiveTimer)
 {
     uint32 mostRecentTime   = -1;
     int32 mostRecentValidID = 0;
@@ -565,7 +565,7 @@ inline int32 MostRecentActiveControllerID(bool32 confirmOnly, bool32 unassignedO
     return mostRecentID;
 }
 #else
-inline int32 MostRecentActiveControllerID(uint32 inputID)
+inline int32 GetFilteredInputDeviceID(uint32 inputID)
 {
     bool32 confirmOnly = false;
     bool32 unassignedOnly = false;
@@ -609,9 +609,9 @@ inline int32 MostRecentActiveControllerID(uint32 inputID)
 }
 #endif
 
-int32 GetControllerType(int32 inputID);
+int32 GetInputDeviceType(int32 inputID);
 
-inline int32 GetAssignedControllerID(int32 inputID)
+inline int32 IsInputDeviceAssigned(int32 inputID)
 {
     for (int32 i = 0; i < InputDeviceCount; ++i) {
         if (InputDevices[i] && InputDevices[i]->inputID == inputID) {
@@ -683,7 +683,7 @@ inline int32 ControllerUnknown2(int32 controllerID, int32 unknown1, int32 unknow
     return 0;
 }
 
-inline void AssignControllerID(int8 controllerID, int32 inputID)
+inline void AssignInputSlotToDevice(int8 controllerID, int32 inputID)
 {
     uint8 contID = controllerID - 1;
 
@@ -713,7 +713,7 @@ inline void AssignControllerID(int8 controllerID, int32 inputID)
 }
 
 #if RETRO_REV02
-inline bool32 InputIDIsConnected(uint8 controllerID)
+inline bool32 IsInputSlotAssigned(uint8 controllerID)
 {
     uint8 contID = controllerID - 1;
 
@@ -734,7 +734,7 @@ inline bool32 InputIDIsDisconnected(uint8 controllerID)
 }
 #endif
 
-inline void ResetControllerAssignments()
+inline void ResetInputSlotAssignments()
 {
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         activeControllers[i]  = INPUT_NONE;

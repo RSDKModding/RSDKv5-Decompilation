@@ -3,9 +3,6 @@
 
 using namespace RSDK;
 
-// M_PI is *too* accurate, so use this instead
-#define RSDK_PI (3.1415927)
-
 int32 RSDK::sin1024LookupTable[0x400];
 int32 RSDK::cos1024LookupTable[0x400];
 int32 RSDK::tan1024LookupTable[0x400];
@@ -26,7 +23,34 @@ int32 RSDK::acos256LookupTable[0x100];
 
 uint8 RSDK::arcTan256LookupTable[0x100 * 0x100];
 
+// TODO: move to Legacy/Math
+#if RETRO_REV0U
+int32 RSDK::sinM7LookupTable[0x200];
+int32 RSDK::cosM7LookupTable[0x200];
+#endif
+
 uint32 RSDK::randSeed = 0;
+
+void RSDK::ClearTrigLookupTables()
+{
+    memset(sin256LookupTable, 0, sizeof(sin256LookupTable));
+    memset(cos256LookupTable, 0, sizeof(cos256LookupTable));
+    memset(tan256LookupTable, 0, sizeof(tan256LookupTable));
+    memset(asin256LookupTable, 0, sizeof(asin256LookupTable));
+    memset(acos256LookupTable, 0, sizeof(acos256LookupTable));
+    memset(sin512LookupTable, 0, sizeof(sin512LookupTable));
+    memset(cos512LookupTable, 0, sizeof(cos512LookupTable));
+    memset(tan512LookupTable, 0, sizeof(tan512LookupTable));
+    memset(asin512LookupTable, 0, sizeof(asin512LookupTable));
+    memset(acos512LookupTable, 0, sizeof(acos512LookupTable));
+    memset(sin1024LookupTable, 0, sizeof(sin1024LookupTable));
+    memset(cos1024LookupTable, 0, sizeof(cos1024LookupTable));
+    memset(tan1024LookupTable, 0, sizeof(tan1024LookupTable));
+    memset(asin1024LookupTable, 0, sizeof(asin1024LookupTable));
+    memset(acos1024LookupTable, 0, sizeof(acos1024LookupTable));
+    memset(arcTan256LookupTable, 0, sizeof(arcTan256LookupTable));
+    randSeed = 0;
+}
 
 void RSDK::CalculateTrigAngles()
 {

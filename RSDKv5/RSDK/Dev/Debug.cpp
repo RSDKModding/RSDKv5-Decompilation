@@ -224,11 +224,54 @@ void DevMenu_HandleTouchControls()
 } // namespace RSDK
 #endif
 
+void RSDK::OpenDevMenu()
+{
+    devMenu.state      = DevMenu_MainMenu;
+    devMenu.selection  = 0;
+    devMenu.scrollPos  = 0;
+    devMenu.timer      = 0;
+
+#if RETRO_REV0U
+    switch (engine.version) {
+        default: break;
+        case 5:
+            devMenu.sceneState        = sceneInfo.state;
+            videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
+            sceneInfo.state           = ENGINESTATE_DEVMENU;
+            break;
+        case 4:
+        case 3:
+            devMenu.sceneState     = RSDK::Legacy::gameMode;
+            RSDK::Legacy::gameMode = RSDK::Legacy::ENGINE_DEVMENU;
+            break;
+    }
+#else
+    devMenu.sceneState           = sceneInfo.state;
+    videoSettings.screenCount    = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
+    sceneInfo.state              = ENGINESTATE_DEVMENU;
+#endif
+
+    PauseSound();
+}
+
+
 void RSDK::CloseDevMenu()
 {
-    sceneInfo.state = devMenu.sceneState;
+#if RETRO_REV0U
+    switch (engine.version) {
+        default: break;
+        case 5:
+            videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
+            sceneInfo.state           = devMenu.sceneState;
+            break;
+        case 4:
+        case 3: RSDK::Legacy::gameMode = devMenu.sceneState; break;
+    }
+#else
+    videoSettings.screenCount    = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
+    sceneInfo.state              = devMenu.sceneState;
+#endif
 
-    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
     ResumeSound();
 }
 
@@ -248,7 +291,11 @@ void RSDK::DevMenu_MainMenu()
     // Info Box
     int32 y = currentScreen->center.y - 80;
     DrawRectangle(currentScreen->center.x - 128, currentScreen->center.y - 84, 0x100, 0x30, 0x80, 0xFF, INK_NONE, true);
+#if RETRO_REV0U
+    DrawDevString("RETRO ENGINE v5U", currentScreen->center.x, y, ALIGN_CENTER, 0xF0F0F0);
+#else
     DrawDevString("RETRO ENGINE v5", currentScreen->center.x, y, ALIGN_CENTER, 0xF0F0F0);
+#endif
 
     y += 8;
     DrawDevString("Dev Menu", currentScreen->center.x, y, ALIGN_CENTER, 0xF0F0F0);
@@ -371,9 +418,34 @@ void RSDK::DevMenu_MainMenu()
 
     if (controller[CONT_ANY].keyStart.press || confirm) {
         switch (devMenu.selection) {
-            case 0: sceneInfo.state = devMenu.sceneState; break;
+            case 0:
+#if RETRO_REV0U
+                switch (engine.version) {
+                    default:
+                    case 5: sceneInfo.state = devMenu.sceneState; break;
+                    case 4:
+                    case 3: RSDK::Legacy::gameMode = devMenu.sceneState; break;
+                }
+#else
+                sceneInfo.state = devMenu.sceneState;
+#endif
+                break;
 
-            case 1: sceneInfo.state = ENGINESTATE_LOAD; break;
+            case 1:
+#if RETRO_REV0U
+                switch (engine.version) {
+                    default: break;
+                    case 5: sceneInfo.state = ENGINESTATE_LOAD; break;
+                    case 4:
+                    case 3:
+                        RSDK::Legacy::gameMode  = RSDK::Legacy::ENGINE_MAINGAME;
+                        RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD;
+                        break;
+                }
+#else
+                sceneInfo.state = ENGINESTATE_LOAD;
+#endif
+                break;
 
             case 2:
                 devMenu.state     = DevMenu_CategorySelectMenu;
@@ -649,13 +721,28 @@ void RSDK::DevMenu_SceneSelectMenu()
         if (!disabled) {
             sceneInfo.activeCategory = devMenu.listPos;
             sceneInfo.listPos        = devMenu.selection + list->sceneOffsetStart;
-            sceneInfo.state          = ENGINESTATE_LOAD;
+
+#if RETRO_REV0U
+            switch (engine.version) {
+                default: break;
+                case 5:
+                    sceneInfo.state = ENGINESTATE_LOAD;
+                    break;
+                case 4:
+                case 3:
+                    RSDK::Legacy::gameMode  = RSDK::Legacy::ENGINE_MAINGAME;
+                    RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD;
+                    break;
+            }
+#else
+            sceneInfo.state = ENGINESTATE_LOAD;
+#endif
 
             // Bug Details(?):
             // rev01 had this here, rev02 does not.
             // This can cause an annoying popup when starting a stage, so it's re-added for anyone who doesn't like that popup
 #if !RETRO_REV02 || !RETRO_USE_ORIGINAL_CODE
-            AssignControllerID(CONT_P1, INPUT_AUTOASSIGN);
+            AssignInputSlotToDevice(CONT_P1, INPUT_AUTOASSIGN);
 #endif
         }
     }
@@ -1416,7 +1503,7 @@ void RSDK::DevMenu_DebugOptionsMenu()
                         break;
                     }
 
-                    case sizeof(uint16): {
+                    case sizeof(int16): {
                         uint16 *v = (uint16 *)value->value;
 
                         switch (value->type) {
@@ -1436,7 +1523,7 @@ void RSDK::DevMenu_DebugOptionsMenu()
                         break;
                     }
 
-                    case sizeof(uint32): {
+                    case sizeof(int32): {
                         uint32 *v = (uint32 *)value->value;
 
                         switch (value->type) {
@@ -1472,14 +1559,14 @@ void RSDK::DevMenu_DebugOptionsMenu()
                                 break;
                             }
 
-                            case sizeof(uint16): {
+                            case sizeof(int16): {
                                 uint16 *valuePtr = (uint16 *)value->value;
 
                                 for (int32 v = 0; v < 2 * value->size; ++v) *curChar-- = ((v & 0xF) > 9 ? '7' : '0') + ((*valuePtr >> 4 * v) & 0xF);
                                 break;
                             }
 
-                            case sizeof(uint32): {
+                            case sizeof(int32): {
                                 uint32 *valuePtr = (uint32 *)value->value;
 
                                 for (int32 v = 0; v < 2 * value->size; ++v) *curChar-- = ((v & 0xF) > 9 ? '7' : '0') + ((*valuePtr >> 4 * v) & 0xF);

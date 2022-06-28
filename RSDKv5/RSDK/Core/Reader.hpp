@@ -29,6 +29,11 @@ FileIO *fOpen(const char *path, const char *mode);
 namespace RSDK
 {
 
+#define RSDK_SIGNATURE_RSDK (0x4B445352) // "RSDK"
+#if RETRO_REV0U
+#define RSDK_SIGNATURE_DATA (0x61746144) // "Data"
+#endif
+
 #define DATAFILE_COUNT (0x1000)
 #define DATAPACK_COUNT (4)
 
@@ -78,8 +83,11 @@ extern uint16 dataFileListCount;
 
 extern char gameLogicName[0x200];
 
-extern bool32 useDataFile;
+extern bool32 useDataPack;
 
+#if RETRO_REV0U
+void DetectEngineVersion();
+#endif
 bool32 LoadDataPack(const char *filename, size_t fileOffset, bool32 useBuffer);
 bool32 OpenDataFile(FileInfo *info, const char *filename);
 

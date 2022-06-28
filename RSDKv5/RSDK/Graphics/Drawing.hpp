@@ -291,7 +291,7 @@ void GetDisplayInfo(int32 *displayID, int32 *width, int32 *height, int32 *refres
 void GetWindowSize(int32 *width, int32 *height);
 
 #if RETRO_REV02
-inline void SetScreenRenderVertices(uint8 startVert2P_S1, uint8 startVert2P_S2, uint8 startVert3P_S1, uint8 startVert3P_S2, uint8 startVert3P_S3)
+inline void SetScreenVertices(uint8 startVert2P_S1, uint8 startVert2P_S2, uint8 startVert3P_S1, uint8 startVert3P_S2, uint8 startVert3P_S3)
 {
     RenderDevice::startVertex_2P[0] = startVert2P_S1;
     RenderDevice::startVertex_2P[1] = startVert2P_S2;
@@ -302,25 +302,7 @@ inline void SetScreenRenderVertices(uint8 startVert2P_S1, uint8 startVert2P_S2, 
 }
 #endif
 
-inline void SetScreenSize(uint8 screenID, uint16 width, uint16 height)
-{
-    if (screenID < SCREEN_COUNT) {
-        ScreenInfo *screen = &screens[screenID];
-
-        screen->size.x   = width;
-        screen->size.y   = height & 0xFFF0;
-        screen->pitch    = (screen->size.x + 15) & 0xFFFFFFF0;
-        screen->center.x = screen->size.x >> 1;
-        screen->center.y = screen->size.y >> 1;
-
-        screen->clipBound_X1 = 0;
-        screen->clipBound_X2 = screen->size.x;
-        screen->clipBound_Y1 = 0;
-        screen->clipBound_Y2 = screen->size.y;
-
-        screen->waterDrawPos = screen->size.y;
-    }
-}
+void SetScreenSize(uint8 screenID, uint16 width, uint16 height);
 
 inline void AddCamera(Vector2 *targetPos, int32 offsetX, int32 offsetY, bool32 worldRelative)
 {
@@ -409,6 +391,15 @@ void DrawDeformedSprite(uint16 spriteIndex, int32 inkEffect, int32 alpha);
 void DrawTile(uint16 *tileInfo, int32 countX, int32 countY, Vector2 *position, Vector2 *offset, bool32 screenRelative);
 void DrawAniTile(uint16 sheetID, uint16 tileIndex, uint16 srcX, uint16 srcY, uint16 width, uint16 height);
 
+#if RETRO_REV0U
+inline void DrawDynamicAniTile(Animator* animator, uint16 tileIndex) {
+    if (animator->frames) {
+        SpriteFrame *frame = &animator->frames[animator->frameID];
+        DrawAniTile(frame->sheetID, tileIndex, frame->sprX, frame->sprY, frame->width, frame->height);
+    }
+}
+#endif
+
 void DrawString(Animator *animator, Vector2 *position, String *string, int32 endFrame, int32 textLength, int32 align, int32 spacing, void *unused,
                 Vector2 *charPositions, bool32 screenRelative);
 void DrawDevString(const char *string, int32 x, int32 y, int32 align, uint32 color);
@@ -423,6 +414,10 @@ inline void ClearGfxSurfaces()
         }
     }
 }
+
+#if RETRO_REV0U
+#include "Legacy/DrawingLegacy.hpp"
+#endif
 
 } // namespace RSDK
 

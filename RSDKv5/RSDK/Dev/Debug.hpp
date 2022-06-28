@@ -16,6 +16,9 @@ enum PrintModes {
     PRINT_POPUP,
     PRINT_ERROR,
     PRINT_FATAL,
+#if RETRO_REV0U
+    PRINT_SCRIPTERR,
+#endif
 };
 
 extern bool32 engineDebugMode;
@@ -123,19 +126,7 @@ void DevMenu_DebugOptionsMenu();
 void DevMenu_ModsMenu();
 #endif
 
-inline void OpenDevMenu()
-{
-    devMenu.sceneState = sceneInfo.state;
-    devMenu.state      = DevMenu_MainMenu;
-    devMenu.selection  = 0;
-    devMenu.scrollPos  = 0;
-    devMenu.timer      = 0;
-
-    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
-    sceneInfo.state           = ENGINESTATE_DEVMENU;
-    PauseSound();
-}
-
+void OpenDevMenu();
 void CloseDevMenu();
 
 #endif

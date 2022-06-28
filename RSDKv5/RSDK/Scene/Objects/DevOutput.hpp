@@ -35,6 +35,9 @@ void DevOutput_StaticUpdate();
 void DevOutput_Draw();
 void DevOutput_Create(void *data);
 void DevOutput_StageLoad();
+#if RETRO_REV0U
+void DevOutput_StaticLoad(ObjectDevOutput *staticVars);
+#endif
 void DevOutput_EditorDraw();
 void DevOutput_EditorLoad();
 void DevOutput_Serialize();

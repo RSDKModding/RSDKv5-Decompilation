@@ -40,6 +40,13 @@ struct SceneListEntry {
 #endif
 };
 
+enum CollisionModes {
+    CMODE_FLOOR,
+    CMODE_LWALL,
+    CMODE_ROOF,
+    CMODE_RWALL,
+};
+
 enum EngineStates {
     ENGINESTATE_LOAD,
     ENGINESTATE_REGULAR,
@@ -54,6 +61,10 @@ enum EngineStates {
     ENGINESTATE_ERRORMSG_FATAL,
 #endif
     ENGINESTATE_NONE,
+#if RETRO_REV0U
+    // Prolly origins-only, called by the ending so I assume this handles playing ending movies and returning to menu
+    ENGINESTATE_GAME_FINISHED,
+#endif
 };
 
 struct SceneInfo {
@@ -125,6 +136,9 @@ struct CollisionMask {
     uint8 lWallMasks[TILE_SIZE];
     uint8 roofMasks[TILE_SIZE];
     uint8 rWallMasks[TILE_SIZE];
+};
+
+struct TileInfo {
     uint8 floorAngle;
     uint8 lWallAngle;
     uint8 rWallAngle;
@@ -136,6 +150,7 @@ extern ScanlineInfo *scanlines;
 extern TileLayer tileLayers[LAYER_COUNT];
 
 extern CollisionMask collisionMasks[CPATH_COUNT][TILE_COUNT * 4]; // 1024 * 1 per direction
+extern TileInfo tileInfo[CPATH_COUNT][TILE_COUNT * 4]; // 1024 * 1 per direction
 
 #if RETRO_REV02
 extern bool32 forceHardReset;
@@ -238,25 +253,25 @@ inline int32 GetTileAngle(uint16 tile, uint8 cPlane, uint8 cMode)
 {
     switch (cMode) {
         default: return 0;
-        case CMODE_FLOOR: return collisionMasks[cPlane & 1][tile & 0xFFF].floorAngle;
-        case CMODE_LWALL: return collisionMasks[cPlane & 1][tile & 0xFFF].lWallAngle;
-        case CMODE_ROOF: return collisionMasks[cPlane & 1][tile & 0xFFF].roofAngle;
-        case CMODE_RWALL: return collisionMasks[cPlane & 1][tile & 0xFFF].rWallAngle;
+        case CMODE_FLOOR: return tileInfo[cPlane & 1][tile & 0xFFF].floorAngle;
+        case CMODE_LWALL: return tileInfo[cPlane & 1][tile & 0xFFF].lWallAngle;
+        case CMODE_ROOF: return tileInfo[cPlane & 1][tile & 0xFFF].roofAngle;
+        case CMODE_RWALL: return tileInfo[cPlane & 1][tile & 0xFFF].rWallAngle;
     }
 }
 inline void SetTileAngle(uint16 tile, uint8 cPlane, uint8 cMode, int32 angle)
 {
     switch (cMode) {
         default: break;
-        case CMODE_FLOOR: collisionMasks[cPlane & 1][tile & 0xFFF].floorAngle = angle; break;
-        case CMODE_LWALL: collisionMasks[cPlane & 1][tile & 0xFFF].lWallAngle = angle; break;
-        case CMODE_ROOF: collisionMasks[cPlane & 1][tile & 0xFFF].roofAngle = angle; break;
-        case CMODE_RWALL: collisionMasks[cPlane & 1][tile & 0xFFF].rWallAngle = angle; break;
+        case CMODE_FLOOR: tileInfo[cPlane & 1][tile & 0xFFF].floorAngle = angle; break;
+        case CMODE_LWALL: tileInfo[cPlane & 1][tile & 0xFFF].lWallAngle = angle; break;
+        case CMODE_ROOF: tileInfo[cPlane & 1][tile & 0xFFF].roofAngle = angle; break;
+        case CMODE_RWALL: tileInfo[cPlane & 1][tile & 0xFFF].rWallAngle = angle; break;
     }
 }
 
-inline uint8 GetTileFlags(uint16 tile, uint8 cPlane) { return collisionMasks[cPlane & 1][tile & 0x3FF].flag; }
-inline void SetTileFlags(uint16 tile, uint8 cPlane, uint8 flag) { collisionMasks[cPlane & 1][tile & 0x3FF].flag = flag; }
+inline uint8 GetTileFlags(uint16 tile, uint8 cPlane) { return tileInfo[cPlane & 1][tile & 0x3FF].flag; }
+inline void SetTileFlags(uint16 tile, uint8 cPlane, uint8 flag) { tileInfo[cPlane & 1][tile & 0x3FF].flag = flag; }
 
 void CopyTileLayout(uint16 dstLayerID, int32 dstStartX, int32 dstStartY, uint16 srcLayerID, int32 srcStartX, int32 srcStartY, int32 countX,
                     int32 countY);
@@ -304,6 +319,10 @@ void DrawLayerVScroll(TileLayer *layer);
 void DrawLayerRotozoom(TileLayer *layer);
 // Draw a "basic" layer, no special capabilities, but it's the fastest to draw
 void DrawLayerBasic(TileLayer *layer);
+
+#if RETRO_REV0U
+#include "Legacy/SceneLegacy.hpp"
+#endif
 
 } // namespace RSDK
 

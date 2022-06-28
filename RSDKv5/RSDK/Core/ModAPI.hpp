@@ -38,6 +38,9 @@ typedef enum {
     SUPER_DRAW,
     SUPER_CREATE,
     SUPER_STAGELOAD,
+#if RETRO_REV0U
+    SUPER_STATICLOAD,
+#endif
     SUPER_EDITORDRAW,
     SUPER_EDITORLOAD,
     SUPER_SERIALIZE
@@ -169,15 +172,34 @@ void SortMods();
 void RunModCallbacks(int32 callbackID, void *data);
 
 // Mod API
+#if RETRO_REV0U
 void ModRegisterGlobalVariables(const char *globalsPath, void **globals, uint32 size);
+
 void ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
                        uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *),
-                       void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), const char *inherited);
+                       void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), void (*staticLoad)(Object *),
+                       const char *inherited);
+
 void ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
                            uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate, std::function<void()> staticUpdate,
                            std::function<void()> draw, std::function<void(void *)> create, std::function<void()> stageLoad,
                            std::function<void()> editorDraw, std::function<void()> editorLoad, std::function<void()> serialize,
-                           const char *inherited);
+                           std::function<void(Object *)> staticLoad, const char *inherited);
+#else
+void ModRegisterGlobalVariables(const char *globalsPath, void **globals, uint32 size);
+
+void ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
+                             uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
+                             void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(),
+                             const char *inherited);
+
+void ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
+                                 uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate,
+                                 std::function<void()> staticUpdate, std::function<void()> draw, std::function<void(void *)> create,
+                                 std::function<void()> stageLoad, std::function<void()> editorDraw, std::function<void()> editorLoad,
+                                 std::function<void()> serialize, const char *inherited);
+#endif
+
 void ModRegisterObjectHook(Object **staticVars, const char *staticName);
 Object *ModFindObject(const char *name);
 

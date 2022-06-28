@@ -200,7 +200,7 @@ void RSDK::ProcessInput()
                 int32 id             = GetControllerInputID();
                 activeControllers[i] = id;
                 if (id != -1)
-                    AssignControllerID(CONT_P1 + i, id);
+                    AssignInputSlotToDevice(CONT_P1 + i, id);
             }
             else {
                 InputDevice *device = activeInputDevices[i];
@@ -299,7 +299,7 @@ void RSDK::ProcessInputDevices()
 #endif
 }
 
-int32 RSDK::GetControllerType(int32 inputID)
+int32 RSDK::GetInputDeviceType(int32 inputID)
 {
     for (int32 i = 0; i < InputDeviceCount; ++i) {
         if (InputDevices[i] && InputDevices[i]->inputID == inputID)

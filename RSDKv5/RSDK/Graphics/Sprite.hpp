@@ -114,6 +114,10 @@ struct ImageTGA : public Image {
 uint16 LoadSpriteSheet(const char *filename, int32 scope);
 bool32 LoadImage(const char *filename, double displayTime, double delta, bool32 (*skipCallback)());
 
+#if RETRO_REV0U
+#include "Legacy/SpriteLegacy.hpp"
+#endif
+
 } // namespace RSDK
 
 #endif // SPRITE_H

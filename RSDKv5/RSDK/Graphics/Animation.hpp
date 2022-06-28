@@ -190,6 +190,10 @@ inline void ClearSpriteAnimations()
     }
 }
 
+#if RETRO_REV0U
+#include "Legacy/AnimationLegacy.hpp"
+#endif
+
 } // namespace RSDK
 
 #endif

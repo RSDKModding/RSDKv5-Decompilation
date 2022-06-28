@@ -24,6 +24,9 @@ void DefaultObject_StaticUpdate();
 void DefaultObject_Draw();
 void DefaultObject_Create(void *data);
 void DefaultObject_StageLoad();
+#if RETRO_REV0U
+void DefaultObject_StaticLoad(ObjectDefaultObject *staticVars);
+#endif
 void DefaultObject_EditorDraw();
 void DefaultObject_EditorLoad();
 void DefaultObject_Serialize();

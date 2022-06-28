@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/UserStorageLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 DataStorage RSDK::dataStorage[DATASET_MAX];

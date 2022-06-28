@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/AudioLegacy.cpp"
+#endif
+
 #define STB_VORBIS_NO_STDIO
 #include "stb_vorbis/stb_vorbis.c"
 

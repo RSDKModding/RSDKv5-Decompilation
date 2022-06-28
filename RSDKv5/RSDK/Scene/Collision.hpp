@@ -4,15 +4,8 @@
 namespace RSDK
 {
 
-enum CollisionModes {
-    CMODE_FLOOR,
-    CMODE_LWALL,
-    CMODE_ROOF,
-    CMODE_RWALL,
-};
-
 struct CollisionSensor {
-    Vector2 pos;
+    Vector2 position;
     bool32 collided;
     uint8 angle;
 };
@@ -34,11 +27,15 @@ extern bool32 showHitboxes;
 extern int32 debugHitboxCount;
 extern DebugHitboxInfo debugHitboxList[DEBUG_HITBOX_COUNT];
 
-int32 addDebugHitbox(uint8 type, uint8 dir, Entity *entity, Hitbox *hitbox);
+int32 AddDebugHitbox(uint8 type, uint8 dir, Entity *entity, Hitbox *hitbox);
 #endif
 
 extern int32 collisionTolerance;
+#if RETRO_REV0U
+extern bool32 useCollisionOffset;
+#else
 extern int32 collisionOffset;
+#endif
 extern int32 collisionMaskAir;
 
 extern Hitbox collisionOuter;
@@ -47,6 +44,39 @@ extern Hitbox collisionInner;
 extern Entity *collisionEntity;
 
 extern CollisionSensor sensors[6];
+
+#if RETRO_REV0U
+extern int32 collisionMinimumDistance;
+
+extern uint8 lowCollisionTolerance;
+extern uint8 highCollisionTolerance;
+
+extern uint8 floorAngleTolerance;
+extern uint8 wallAngleTolerance;
+extern uint8 roofAngleTolerance;
+
+inline void SetupCollisionConfig(int32 minDistance, uint8 lowTolerance, uint8 highTolerance, uint8 floorAngleTolerance, uint8 wallAngleTolerance,
+                                 uint8 roofAngleTolerance)
+{
+    collisionMinimumDistance  = minDistance << 16;
+    lowCollisionTolerance     = lowTolerance;
+    highCollisionTolerance    = highTolerance;
+    RSDK::floorAngleTolerance = floorAngleTolerance;
+    RSDK::wallAngleTolerance  = wallAngleTolerance;
+    RSDK::roofAngleTolerance  = roofAngleTolerance;
+}
+
+void CopyCollisionMask(uint16 dst, uint16 src, uint8 cPlane, uint8 cMode);
+
+inline void GetCollisionInfo(CollisionMask **masks, TileInfo **tileInfo)
+{
+    if (masks)
+        *masks = (RSDK::CollisionMask *)collisionMasks;
+
+    if (tileInfo)
+        *tileInfo = (RSDK::TileInfo *)tileInfo;
+}
+#endif
 
 bool32 CheckObjectCollisionTouch(Entity *thisEntity, Hitbox *thisHitbox, Entity *otherEntity, Hitbox *otherHitbox);
 inline bool32 CheckObjectCollisionCircle(Entity *thisEntity, int32 thisRadius, Entity *otherEntity, int32 otherRadius)
@@ -63,8 +93,8 @@ inline bool32 CheckObjectCollisionCircle(Entity *thisEntity, int32 thisRadius, E
         thisHitbox.left  = thisRadius >> 16;
         otherHitbox.left = otherRadius >> 16;
 
-        int32 thisHitboxID  = addDebugHitbox(H_TYPE_CIRCLE, FLIP_NONE, thisEntity, &thisHitbox);
-        int32 otherHitboxID = addDebugHitbox(H_TYPE_CIRCLE, FLIP_NONE, otherEntity, &otherHitbox);
+        int32 thisHitboxID  = AddDebugHitbox(H_TYPE_CIRCLE, FLIP_NONE, thisEntity, &thisHitbox);
+        int32 otherHitboxID = AddDebugHitbox(H_TYPE_CIRCLE, FLIP_NONE, otherEntity, &otherHitbox);
 
         if (thisHitboxID >= 0 && collided)
             debugHitboxList[thisHitboxID].collision |= 1 << (collided - 1);
@@ -85,6 +115,9 @@ void ProcessObjectMovement(Entity *entity, Hitbox *outerBox, Hitbox *innerBox);
 
 void ProcessPathGrip();
 void ProcessAirCollision();
+#if RETRO_REV0U
+void ProcessAirCollisionFlipped();
+#endif
 
 void SetPathGripSensors(CollisionSensor *cSensors);
 
@@ -97,6 +130,10 @@ void FloorCollision(CollisionSensor *sensor);
 void LWallCollision(CollisionSensor *sensor);
 void RoofCollision(CollisionSensor *sensor);
 void RWallCollision(CollisionSensor *sensor);
+
+#if RETRO_REV0U
+#include "Legacy/CollisionLegacy.hpp"
+#endif
 
 } // namespace RSDK
 

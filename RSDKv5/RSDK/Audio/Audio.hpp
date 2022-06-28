@@ -96,6 +96,19 @@ inline void StopSfx(int32 sfx)
     }
 }
 
+#if RETRO_REV0U
+inline void StopAllSfx()
+{
+    for (int32 i = 0; i < CHANNEL_COUNT; ++i) {
+        if (channels[i].state == CHANNEL_SFX) {
+            MEM_ZERO(channels[i]);
+            channels[i].soundID = -1;
+            channels[i].state   = CHANNEL_IDLE;
+        }
+    }
+}
+#endif
+
 void SetChannelAttributes(uint8 channel, float volume, float panning, float speed);
 
 inline void StopChannel(uint32 channel)
@@ -165,6 +178,10 @@ void ClearGlobalSfx();
 #include "SDL2/SDL2AudioDevice.hpp"
 #elif RETRO_AUDIODEVICE_AAUDIO
 #include "AAudio/AAudioDevice.hpp"
+#endif
+
+#if RETRO_REV0U
+#include "Legacy/AudioLegacy.hpp"
 #endif
 
 } // namespace RSDK

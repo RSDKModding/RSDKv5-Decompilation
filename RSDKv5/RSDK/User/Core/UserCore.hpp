@@ -131,7 +131,7 @@ extern UserCore *userCore;
 
 #endif
 
-void InitUserData();
+void InitUserCore();
 void ReleaseUserCore();
 void SaveUserData();
 
@@ -142,6 +142,9 @@ void HandleUserStatuses();
 #if RETRO_REV02
 inline int32 GetUserLanguage() { return userCore->GetUserLanguage(); }
 inline bool32 GetConfirmButtonFlip() { return userCore->GetConfirmButtonFlip(); }
+#if RETRO_REV0U
+inline int32 GetDefaultGamepadType() { return userCore->GetDefaultGamepadType(); }
+#endif
 inline void ExitGame() { userCore->ExitGame(); }
 inline void LaunchManual() { userCore->LaunchManual(); }
 inline bool32 IsOverlayEnabled(uint32 overlay) { return userCore->IsOverlayEnabled(overlay); }

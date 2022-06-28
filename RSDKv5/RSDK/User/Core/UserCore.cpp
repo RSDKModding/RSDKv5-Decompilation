@@ -39,7 +39,7 @@ using namespace RSDK;
 SKU::UserCore *RSDK::SKU::userCore = NULL;
 #endif
 
-void RSDK::SKU::InitUserData()
+void RSDK::SKU::InitUserCore()
 {
     InitUserDirectory();
 
@@ -100,6 +100,7 @@ void RSDK::SKU::InitUserData()
     engine.confirmFlip   = false;
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
     // Add achievements
     achievementList.clear();
     achievementStack.clear();
@@ -130,6 +131,7 @@ void RSDK::SKU::InitUserData()
     for (int32 i = 0; i < (int32)achievementList.size(); ++i) {
         achievementList[i].achieved = achievementsRAM[i];
     }
+#endif
 #endif
 }
 void RSDK::SKU::ReleaseUserCore()

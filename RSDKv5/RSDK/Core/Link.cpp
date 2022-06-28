@@ -18,6 +18,11 @@ RSDK::GameVersionInfo RSDK::gameVerInfo;
 
 void NullFunc() {}
 
+#if RETRO_REV0U
+// Origins-only I assume, handles sending various data to Hedgehog Engine and stuff
+void NotifyStats(int32 id, int32 param1, int32 param2, int32 param3) {}
+#endif
+
 #define ADD_RSDK_FUNCTION(id, func) RSDKFunctionTable[id] = (void *)func;
 #if RETRO_REV02
 #define ADD_API_FUNCTION(id, func) APIFunctionTable[id] = (void *)func;
@@ -93,6 +98,9 @@ void RSDK::SetupFunctionTables()
     ADD_API_FUNCTION(APITable_GetConfirmButtonFlip, GetConfirmButtonFlip);
     ADD_API_FUNCTION(APITable_ExitGame, ExitGame);
     ADD_API_FUNCTION(APITable_LaunchManual, LaunchManual);
+#if RETRO_REV0U
+    ADD_API_FUNCTION(APITable_GetDefaultGamepadType, GetDefaultGamepadType);
+#endif
     ADD_API_FUNCTION(APITable_IsOverlayEnabled, IsOverlayEnabled);
     ADD_API_FUNCTION(APITable_CheckDLC, CheckDLC);
 #if RETRO_VER_EGS
@@ -227,12 +235,12 @@ void RSDK::SetupFunctionTables()
     ADD_API_FUNCTION("SaveSettingsINI", SaveSettingsINI);
 
     // Input
-    ADD_API_FUNCTION("ControllerIDForInputID", ControllerIDForInputID);
-    ADD_API_FUNCTION("MostRecentActiveControllerID", MostRecentActiveControllerID);
-    ADD_API_FUNCTION("AssignControllerID", AssignControllerID);
-    ADD_API_FUNCTION("ResetControllerAssignments", ResetControllerAssignments);
+    ADD_API_FUNCTION("ControllerIDForInputID", GetInputDeviceID);
+    ADD_API_FUNCTION("MostRecentActiveControllerID", GetFilteredInputDeviceID);
+    ADD_API_FUNCTION("AssignControllerID", AssignInputSlotToDevice);
+    ADD_API_FUNCTION("ResetControllerAssignments", ResetInputSlotAssignments);
     ADD_API_FUNCTION("InputIDIsDisconnected", InputIDIsDisconnected);
-    ADD_API_FUNCTION("GetControllerType", GetControllerType);
+    ADD_API_FUNCTION("GetControllerType", GetInputDeviceType);
     ADD_API_FUNCTION("ShowSteamControllerOverlay", ShowExtensionOverlay);
     ADD_API_FUNCTION("SetInputLEDColor", SetInputLEDColor);
 #endif
@@ -250,7 +258,7 @@ void RSDK::SetupFunctionTables()
 
     // Entities & Objects
     ADD_RSDK_FUNCTION(FunctionTable_GetActiveEntities, GetActiveEntities);
-    ADD_RSDK_FUNCTION(FunctionTable_GetEntities, GetEntities);
+    ADD_RSDK_FUNCTION(FunctionTable_GetAllEntities, GetAllEntities);
     ADD_RSDK_FUNCTION(FunctionTable_BreakForeachLoop, BreakForeachLoop);
     ADD_RSDK_FUNCTION(FunctionTable_SetEditableVar, SetEditableVar);
     ADD_RSDK_FUNCTION(FunctionTable_GetEntity, GetEntity);
@@ -343,7 +351,7 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_SetScreenSize, SetScreenSize);
     ADD_RSDK_FUNCTION(FunctionTable_SetClipBounds, SetClipBounds);
 #if RETRO_REV02
-    ADD_RSDK_FUNCTION(FunctionTable_SetScreenRenderVertices, SetScreenRenderVertices);
+    ADD_RSDK_FUNCTION(FunctionTable_SetScreenVertices, SetScreenVertices);
 #endif
 
     // Spritesheets
@@ -383,6 +391,9 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_DrawTile, DrawTile);
     ADD_RSDK_FUNCTION(FunctionTable_CopyTile, CopyTile);
     ADD_RSDK_FUNCTION(FunctionTable_DrawAniTile, DrawAniTile);
+#if RETRO_REV0U
+    ADD_RSDK_FUNCTION(FunctionTable_DrawDynamicAniTile, DrawDynamicAniTile);
+#endif
     ADD_RSDK_FUNCTION(FunctionTable_FillScreen, FillScreen);
 
     // Meshes & 3D Scenes
@@ -428,15 +439,34 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_ObjectTileCollision, ObjectTileCollision);
     ADD_RSDK_FUNCTION(FunctionTable_ObjectTileGrip, ObjectTileGrip);
     ADD_RSDK_FUNCTION(FunctionTable_ProcessObjectMovement, ProcessObjectMovement);
+#if RETRO_REV0U
+    ADD_RSDK_FUNCTION(FunctionTable_SetupCollisionConfig, SetupCollisionConfig);
+    ADD_RSDK_FUNCTION(FunctionTable_SetPathGripSensors, SetPathGripSensors);
+    ADD_RSDK_FUNCTION(FunctionTable_FloorCollision, FloorCollision);
+    ADD_RSDK_FUNCTION(FunctionTable_LWallCollision, LWallCollision);
+    ADD_RSDK_FUNCTION(FunctionTable_RoofCollision, RoofCollision);
+    ADD_RSDK_FUNCTION(FunctionTable_RWallCollision, RWallCollision);
+    ADD_RSDK_FUNCTION(FunctionTable_FindFloorPosition, FindFloorPosition);
+    ADD_RSDK_FUNCTION(FunctionTable_FindLWallPosition, FindLWallPosition);
+    ADD_RSDK_FUNCTION(FunctionTable_FindRoofPosition, FindRoofPosition);
+    ADD_RSDK_FUNCTION(FunctionTable_FindRWallPosition, FindRWallPosition);
+#endif
     ADD_RSDK_FUNCTION(FunctionTable_GetTileAngle, GetTileAngle);
     ADD_RSDK_FUNCTION(FunctionTable_SetTileAngle, SetTileAngle);
     ADD_RSDK_FUNCTION(FunctionTable_GetTileFlags, GetTileFlags);
     ADD_RSDK_FUNCTION(FunctionTable_SetTileFlags, SetTileFlags);
+#if RETRO_REV0U
+    ADD_RSDK_FUNCTION(FunctionTable_CopyCollisionMask, CopyCollisionMask);
+    ADD_RSDK_FUNCTION(FunctionTable_GetCollisionInfo, GetCollisionInfo);
+#endif
 
     // Audio
     ADD_RSDK_FUNCTION(FunctionTable_GetSfx, GetSfx);
     ADD_RSDK_FUNCTION(FunctionTable_PlaySfx, PlaySfx);
     ADD_RSDK_FUNCTION(FunctionTable_StopSfx, StopSfx);
+#if RETRO_REV0U
+    ADD_RSDK_FUNCTION(FunctionTable_StopAllSfx, StopAllSfx);
+#endif
     ADD_RSDK_FUNCTION(FunctionTable_PlayMusic, PlayStream);
     ADD_RSDK_FUNCTION(FunctionTable_SetChannelAttributes, SetChannelAttributes);
     ADD_RSDK_FUNCTION(FunctionTable_StopChannel, StopChannel);
@@ -452,19 +482,19 @@ void RSDK::SetupFunctionTables()
 
     // Input
 #if RETRO_REV02
-    ADD_RSDK_FUNCTION(FunctionTable_ControllerIDForInputID, ControllerIDForInputID);
-    ADD_RSDK_FUNCTION(FunctionTable_MostRecentActiveControllerID, MostRecentActiveControllerID);
-    ADD_RSDK_FUNCTION(FunctionTable_GetControllerType, GetControllerType);
-    ADD_RSDK_FUNCTION(FunctionTable_GetAssignedControllerID, GetAssignedControllerID);
+    ADD_RSDK_FUNCTION(FunctionTable_GetInputDeviceID, GetInputDeviceID);
+    ADD_RSDK_FUNCTION(FunctionTable_GetFilteredInputDeviceID, GetFilteredInputDeviceID);
+    ADD_RSDK_FUNCTION(FunctionTable_GetInputDeviceType, GetInputDeviceType);
+    ADD_RSDK_FUNCTION(FunctionTable_IsInputDeviceAssigned, IsInputDeviceAssigned);
     ADD_RSDK_FUNCTION(FunctionTable_GetInputUnknown, GetInputUnknown);
     ADD_RSDK_FUNCTION(FunctionTable_InputUnknown1, InputUnknown1);
     ADD_RSDK_FUNCTION(FunctionTable_InputUnknown2, InputUnknown2);
     ADD_RSDK_FUNCTION(FunctionTable_GetControllerUnknown, GetControllerUnknown);
     ADD_RSDK_FUNCTION(FunctionTable_ControllerUnknown1, ControllerUnknown1);
     ADD_RSDK_FUNCTION(FunctionTable_ControllerUnknown2, ControllerUnknown2);
-    ADD_RSDK_FUNCTION(FunctionTable_AssignControllerID, AssignControllerID);
-    ADD_RSDK_FUNCTION(FunctionTable_InputIDIsConnected, InputIDIsConnected);
-    ADD_RSDK_FUNCTION(FunctionTable_ResetControllerAssignments, ResetControllerAssignments);
+    ADD_RSDK_FUNCTION(FunctionTable_AssignInputSlotToDevice, AssignInputSlotToDevice);
+    ADD_RSDK_FUNCTION(FunctionTable_IsInputSlotAssigned, IsInputSlotAssigned);
+    ADD_RSDK_FUNCTION(FunctionTable_ResetInputSlotAssignments, ResetInputSlotAssignments);
 #endif
 #if !RETRO_REV02
     ADD_RSDK_FUNCTION(FunctionTable_GetUnknownInputValue, GetUnknownInputValue);
@@ -490,15 +520,21 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_SetActiveVariable, SetActiveVariable);
     ADD_RSDK_FUNCTION(FunctionTable_AddEnumVariable, AddEnumVariable);
 
+    // Printing (Rev01)
+#if !RETRO_REV02
+    ADD_RSDK_FUNCTION(FunctionTable_PrintMessage, PrintMessage);
+#endif
+
     // Debugging
 #if RETRO_REV02
     ADD_RSDK_FUNCTION(FunctionTable_ClearDebugValues, ClearViewableVariables);
     ADD_RSDK_FUNCTION(FunctionTable_SetDebugValue, AddViewableVariable);
 #endif
 
-    // Printing (Rev01)
-#if !RETRO_REV02
-    ADD_RSDK_FUNCTION(FunctionTable_PrintMessage, PrintMessage);
+    // v5U Extras
+#if RETRO_REV0U
+    ADD_RSDK_FUNCTION(FunctionTable_NotifyStats, NotifyStats);
+    ADD_RSDK_FUNCTION(FunctionTable_SetGameFinished, SetGameFinished);
 #endif
 
 #if RETRO_USE_MOD_LOADER

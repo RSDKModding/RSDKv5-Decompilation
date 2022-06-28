@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/SceneLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 uint8 RSDK::tilesetPixels[TILESET_SIZE * 4];
@@ -7,6 +11,7 @@ uint8 RSDK::tilesetPixels[TILESET_SIZE * 4];
 ScanlineInfo *RSDK::scanlines = NULL;
 TileLayer RSDK::tileLayers[LAYER_COUNT];
 CollisionMask RSDK::collisionMasks[CPATH_COUNT][TILE_COUNT * 4];
+TileInfo RSDK::tileInfo[CPATH_COUNT][TILE_COUNT * 4];
 
 #if RETRO_REV02
 bool32 RSDK::forceHardReset = false;
@@ -165,11 +170,33 @@ void RSDK::LoadSceneFolder()
             }
         }
 
+        {
+            RETRO_HASH_MD5(hash);
+            GEN_HASH_MD5("TestObject", hash);
+
+            stageObjectIDs[sceneInfo.classCount] = 0;
+            for (int32 id = 0; id < objectClassCount; ++id) {
+                if (HASH_MATCH_MD5(hash, objectClassList[id].hash)) {
+                    stageObjectIDs[sceneInfo.classCount] = id;
+                    sceneInfo.classCount++;
+                }
+            }
+        }
+
         for (int32 o = 0; o < sceneInfo.classCount; ++o) {
             ObjectClass *objClass = &objectClassList[stageObjectIDs[o]];
             if (objClass->staticVars && !*objClass->staticVars) {
                 AllocateStorage((void **)objClass->staticVars, objClass->staticClassSize, DATASET_STG, true);
+
+#if RETRO_REV0U
+                if (objClass->staticLoad)
+                    objClass->staticLoad(*objClass->staticVars);
+                else
+                    LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
+#else
                 LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
+#endif
+
 
 #if RETRO_USE_MOD_LOADER
                 for (ModInfo &mod : modList) {
@@ -634,11 +661,11 @@ void RSDK::LoadTileConfig(char *filepath)
                 bufPos += TILE_SIZE;
 
                 bool32 yFlip                    = buffer[bufPos++];
-                collisionMasks[p][t].floorAngle = buffer[bufPos++];
-                collisionMasks[p][t].lWallAngle = buffer[bufPos++];
-                collisionMasks[p][t].rWallAngle = buffer[bufPos++];
-                collisionMasks[p][t].roofAngle  = buffer[bufPos++];
-                collisionMasks[p][t].flag       = buffer[bufPos++];
+                tileInfo[p][t].floorAngle = buffer[bufPos++];
+                tileInfo[p][t].lWallAngle = buffer[bufPos++];
+                tileInfo[p][t].rWallAngle = buffer[bufPos++];
+                tileInfo[p][t].roofAngle  = buffer[bufPos++];
+                tileInfo[p][t].flag       = buffer[bufPos++];
 
                 if (yFlip) {
                     for (int32 c = 0; c < TILE_SIZE; c++) {
@@ -759,11 +786,11 @@ void RSDK::LoadTileConfig(char *filepath)
             // FlipX
             for (int32 t = 0; t < TILE_COUNT; ++t) {
                 int32 off                             = (FLIP_X * TILE_COUNT);
-                collisionMasks[p][t + off].flag       = collisionMasks[p][t].flag;
-                collisionMasks[p][t + off].floorAngle = -collisionMasks[p][t].floorAngle;
-                collisionMasks[p][t + off].lWallAngle = -collisionMasks[p][t].rWallAngle;
-                collisionMasks[p][t + off].roofAngle  = -collisionMasks[p][t].roofAngle;
-                collisionMasks[p][t + off].rWallAngle = -collisionMasks[p][t].lWallAngle;
+                tileInfo[p][t + off].flag       = tileInfo[p][t].flag;
+                tileInfo[p][t + off].floorAngle = -tileInfo[p][t].floorAngle;
+                tileInfo[p][t + off].lWallAngle = -tileInfo[p][t].rWallAngle;
+                tileInfo[p][t + off].roofAngle  = -tileInfo[p][t].roofAngle;
+                tileInfo[p][t + off].rWallAngle = -tileInfo[p][t].lWallAngle;
 
                 for (int32 c = 0; c < TILE_SIZE; ++c) {
                     int32 h = collisionMasks[p][t].lWallMasks[c];
@@ -786,11 +813,11 @@ void RSDK::LoadTileConfig(char *filepath)
             // FlipY
             for (int32 t = 0; t < TILE_COUNT; ++t) {
                 int32 off                             = (FLIP_Y * TILE_COUNT);
-                collisionMasks[p][t + off].flag       = collisionMasks[p][t].flag;
-                collisionMasks[p][t + off].floorAngle = -0x80 - collisionMasks[p][t].roofAngle;
-                collisionMasks[p][t + off].lWallAngle = -0x80 - collisionMasks[p][t].lWallAngle;
-                collisionMasks[p][t + off].roofAngle  = -0x80 - collisionMasks[p][t].floorAngle;
-                collisionMasks[p][t + off].rWallAngle = -0x80 - collisionMasks[p][t].rWallAngle;
+                tileInfo[p][t + off].flag       = tileInfo[p][t].flag;
+                tileInfo[p][t + off].floorAngle = -0x80 - tileInfo[p][t].roofAngle;
+                tileInfo[p][t + off].lWallAngle = -0x80 - tileInfo[p][t].lWallAngle;
+                tileInfo[p][t + off].roofAngle  = -0x80 - tileInfo[p][t].floorAngle;
+                tileInfo[p][t + off].rWallAngle = -0x80 - tileInfo[p][t].rWallAngle;
 
                 for (int32 c = 0; c < TILE_SIZE; ++c) {
                     int32 h = collisionMasks[p][t].roofMasks[c];
@@ -814,11 +841,11 @@ void RSDK::LoadTileConfig(char *filepath)
             for (int32 t = 0; t < TILE_COUNT; ++t) {
                 int32 off                             = (FLIP_XY * TILE_COUNT);
                 int32 offY                            = (FLIP_Y * TILE_COUNT);
-                collisionMasks[p][t + off].flag       = collisionMasks[p][t + offY].flag;
-                collisionMasks[p][t + off].floorAngle = -collisionMasks[p][t + offY].floorAngle;
-                collisionMasks[p][t + off].lWallAngle = -collisionMasks[p][t + offY].rWallAngle;
-                collisionMasks[p][t + off].roofAngle  = -collisionMasks[p][t + offY].roofAngle;
-                collisionMasks[p][t + off].rWallAngle = -collisionMasks[p][t + offY].lWallAngle;
+                tileInfo[p][t + off].flag             = tileInfo[p][t + offY].flag;
+                tileInfo[p][t + off].floorAngle = -tileInfo[p][t + offY].floorAngle;
+                tileInfo[p][t + off].lWallAngle = -tileInfo[p][t + offY].rWallAngle;
+                tileInfo[p][t + off].roofAngle  = -tileInfo[p][t + offY].roofAngle;
+                tileInfo[p][t + off].rWallAngle = -tileInfo[p][t + offY].lWallAngle;
 
                 for (int32 c = 0; c < TILE_SIZE; ++c) {
                     int32 h = collisionMasks[p][t + offY].lWallMasks[c];

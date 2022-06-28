@@ -1,9 +1,17 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/CollisionLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 int32 RSDK::collisionTolerance = 0;
-int32 RSDK::collisionOffset    = 0;
+#if RETRO_REV0U
+bool32 RSDK::useCollisionOffset = false;
+#else
+int32 RSDK::collisionOffset = 0;
+#endif
 int32 RSDK::collisionMaskAir   = 0;
 
 Hitbox RSDK::collisionOuter = { 0, 0, 0, 0 };
@@ -13,13 +21,31 @@ Entity *RSDK::collisionEntity = NULL;
 
 CollisionSensor RSDK::sensors[6];
 
+#if RETRO_REV0U
+int32 RSDK::collisionMinimumDistance = 24 << 16;
+
+uint8 RSDK::lowCollisionTolerance  = 8;
+uint8 RSDK::highCollisionTolerance = 14;
+
+uint8 RSDK::floorAngleTolerance = 0x20;
+uint8 RSDK::wallAngleTolerance  = 0x20;
+uint8 RSDK::roofAngleTolerance  = 0x20;
+#else
+#define lowCollisionTolerance  (8)
+#define highCollisionTolerance (14)
+
+#define floorAngleTolerance (0x20)
+#define wallAngleTolerance  (0x20)
+#define roofAngleTolerance  (0x20)
+#endif
+
 #if !RETRO_USE_ORIGINAL_CODE
 bool32 RSDK::showHitboxes = false;
 
 int32 RSDK::debugHitboxCount = 0;
 DebugHitboxInfo RSDK::debugHitboxList[DEBUG_HITBOX_COUNT];
 
-int32 RSDK::addDebugHitbox(uint8 type, uint8 dir, Entity *entity, Hitbox *hitbox)
+int32 RSDK::AddDebugHitbox(uint8 type, uint8 dir, Entity *entity, Hitbox *hitbox)
 {
     int32 i        = 0;
     int32 entityID = GetEntitySlot((EntityBase *)entity);
@@ -60,6 +86,106 @@ int32 RSDK::addDebugHitbox(uint8 type, uint8 dir, Entity *entity, Hitbox *hitbox
     }
 
     return -1;
+}
+#endif
+
+#if RETRO_REV0U
+void RSDK::CopyCollisionMask(uint16 dst, uint16 src, uint8 cPlane, uint8 cMode)
+{
+    CollisionMask *srcMask = NULL;
+    CollisionMask *dstMask = NULL;
+
+    switch (cMode) {
+        default: break;
+
+        case CMODE_FLOOR:
+            srcMask                                  = &collisionMasks[cPlane][src & 0x3FF];
+            dstMask                                  = &collisionMasks[cPlane][dst & 0x3FF];
+            tileInfo[cPlane][dst & 0x3FF].floorAngle = tileInfo[cPlane][src & 0x3FF].floorAngle;
+            memcpy(dstMask->floorMasks, srcMask->floorMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                             = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_X];
+            dstMask                                             = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_X];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_X].floorAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_X].floorAngle;
+            memcpy(dstMask->floorMasks, srcMask->floorMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                             = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_Y];
+            dstMask                                             = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_Y];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_Y].floorAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_Y].floorAngle;
+            memcpy(dstMask->floorMasks, srcMask->floorMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                              = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_XY];
+            dstMask                                              = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_XY];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_XY].floorAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_XY].floorAngle;
+            memcpy(dstMask->floorMasks, srcMask->floorMasks, sizeof(uint8) * TILE_SIZE);
+            break;
+
+        case CMODE_LWALL:
+            srcMask                                  = &collisionMasks[cPlane][src & 0x3FF];
+            dstMask                                  = &collisionMasks[cPlane][dst & 0x3FF];
+            tileInfo[cPlane][dst & 0x3FF].lWallAngle = tileInfo[cPlane][src & 0x3FF].lWallAngle;
+            memcpy(dstMask->lWallMasks, srcMask->lWallMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                             = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_X];
+            dstMask                                             = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_X];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_X].lWallAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_X].lWallAngle;
+            memcpy(dstMask->lWallMasks, srcMask->lWallMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                             = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_Y];
+            dstMask                                             = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_Y];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_Y].lWallAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_Y].lWallAngle;
+            memcpy(dstMask->lWallMasks, srcMask->lWallMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                              = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_XY];
+            dstMask                                              = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_XY];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_XY].lWallAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_XY].lWallAngle;
+            memcpy(dstMask->lWallMasks, srcMask->lWallMasks, sizeof(uint8) * TILE_SIZE);
+            break;
+
+        case CMODE_ROOF:
+            srcMask                                 = &collisionMasks[cPlane][src & 0x3FF];
+            dstMask                                 = &collisionMasks[cPlane][dst & 0x3FF];
+            tileInfo[cPlane][dst & 0x3FF].roofAngle = tileInfo[cPlane][src & 0x3FF].roofAngle;
+            memcpy(dstMask->roofMasks, srcMask->roofMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                            = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_X];
+            dstMask                                            = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_X];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_X].roofAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_X].roofAngle;
+            memcpy(dstMask->roofMasks, srcMask->roofMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                            = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_Y];
+            dstMask                                            = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_Y];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_Y].roofAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_Y].roofAngle;
+            memcpy(dstMask->roofMasks, srcMask->roofMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                             = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_XY];
+            dstMask                                             = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_XY];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_XY].roofAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_XY].roofAngle;
+            memcpy(dstMask->roofMasks, srcMask->roofMasks, sizeof(uint8) * TILE_SIZE);
+            break;
+
+        case CMODE_RWALL:
+            srcMask                                  = &collisionMasks[cPlane][src & 0x3FF];
+            dstMask                                  = &collisionMasks[cPlane][dst & 0x3FF];
+            tileInfo[cPlane][dst & 0x3FF].rWallAngle = tileInfo[cPlane][src & 0x3FF].rWallAngle;
+            memcpy(dstMask->rWallMasks, srcMask->rWallMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                             = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_X];
+            dstMask                                             = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_X];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_X].rWallAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_X].rWallAngle;
+            memcpy(dstMask->rWallMasks, srcMask->rWallMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                             = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_Y];
+            dstMask                                             = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_Y];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_Y].rWallAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_Y].rWallAngle;
+            memcpy(dstMask->rWallMasks, srcMask->rWallMasks, sizeof(uint8) * TILE_SIZE);
+
+            srcMask                                              = &collisionMasks[cPlane][(src & 0x3FF) * FLIP_XY];
+            dstMask                                              = &collisionMasks[cPlane][(dst & 0x3FF) * FLIP_XY];
+            tileInfo[cPlane][(dst & 0x3FF) * FLIP_XY].rWallAngle = tileInfo[cPlane][(src & 0x3FF) * FLIP_XY].rWallAngle;
+            memcpy(dstMask->rWallMasks, srcMask->rWallMasks, sizeof(uint8) * TILE_SIZE);
+            break;
+    }
 }
 #endif
 
@@ -117,8 +243,8 @@ bool32 RSDK::CheckObjectCollisionTouch(Entity *thisEntity, Hitbox *thisHitbox, E
 
 #if !RETRO_USE_ORIGINAL_CODE
     if (showHitboxes) {
-        int32 thisHitboxID  = addDebugHitbox(H_TYPE_TOUCH, thisEntity->direction, thisEntity, thisHitbox);
-        int32 otherHitboxID = addDebugHitbox(H_TYPE_TOUCH, thisEntity->direction, otherEntity, otherHitbox);
+        int32 thisHitboxID  = AddDebugHitbox(H_TYPE_TOUCH, thisEntity->direction, thisEntity, thisHitbox);
+        int32 otherHitboxID = AddDebugHitbox(H_TYPE_TOUCH, thisEntity->direction, otherEntity, otherHitbox);
 
         if (thisHitboxID >= 0 && collided)
             debugHitboxList[thisHitboxID].collision |= 1 << (collided - 1);
@@ -246,8 +372,8 @@ uint8 RSDK::CheckObjectCollisionBox(Entity *thisEntity, Hitbox *thisHitbox, Enti
 
 #if !RETRO_USE_ORIGINAL_CODE
             if (showHitboxes) {
-                int32 thisHitboxID  = addDebugHitbox(H_TYPE_BOX, thisEntity->direction, thisEntity, thisHitbox);
-                int32 otherHitboxID = addDebugHitbox(H_TYPE_BOX, thisEntity->direction, otherEntity, otherHitbox);
+                int32 thisHitboxID  = AddDebugHitbox(H_TYPE_BOX, thisEntity->direction, thisEntity, thisHitbox);
+                int32 otherHitboxID = AddDebugHitbox(H_TYPE_BOX, thisEntity->direction, otherEntity, otherHitbox);
 
                 if (thisHitboxID >= 0 && collisionResultY)
                     debugHitboxList[thisHitboxID].collision |= 1 << (collisionResultY - 1);
@@ -279,8 +405,8 @@ uint8 RSDK::CheckObjectCollisionBox(Entity *thisEntity, Hitbox *thisHitbox, Enti
 
 #if !RETRO_USE_ORIGINAL_CODE
             if (showHitboxes) {
-                int32 thisHitboxID  = addDebugHitbox(H_TYPE_BOX, thisEntity->direction, thisEntity, thisHitbox);
-                int32 otherHitboxID = addDebugHitbox(H_TYPE_BOX, thisEntity->direction, otherEntity, otherHitbox);
+                int32 thisHitboxID  = AddDebugHitbox(H_TYPE_BOX, thisEntity->direction, thisEntity, thisHitbox);
+                int32 otherHitboxID = AddDebugHitbox(H_TYPE_BOX, thisEntity->direction, otherEntity, otherHitbox);
 
                 if (thisHitboxID >= 0 && collisionResultX)
                     debugHitboxList[thisHitboxID].collision |= 1 << (collisionResultX - 1);
@@ -295,8 +421,8 @@ uint8 RSDK::CheckObjectCollisionBox(Entity *thisEntity, Hitbox *thisHitbox, Enti
 
 #if !RETRO_USE_ORIGINAL_CODE
     if (showHitboxes) {
-        addDebugHitbox(H_TYPE_BOX, thisEntity->direction, thisEntity, thisHitbox);
-        addDebugHitbox(H_TYPE_BOX, thisEntity->direction, otherEntity, otherHitbox);
+        AddDebugHitbox(H_TYPE_BOX, thisEntity->direction, thisEntity, thisHitbox);
+        AddDebugHitbox(H_TYPE_BOX, thisEntity->direction, otherEntity, otherHitbox);
     }
 #endif
     return 0;
@@ -371,8 +497,8 @@ bool32 RSDK::CheckObjectCollisionPlatform(Entity *thisEntity, Hitbox *thisHitbox
 
 #if !RETRO_USE_ORIGINAL_CODE
     if (showHitboxes) {
-        int32 thisHitboxID  = addDebugHitbox(H_TYPE_PLAT, thisEntity->direction, thisEntity, thisHitbox);
-        int32 otherHitboxID = addDebugHitbox(H_TYPE_PLAT, thisEntity->direction, otherEntity, otherHitbox);
+        int32 thisHitboxID  = AddDebugHitbox(H_TYPE_PLAT, thisEntity->direction, thisEntity, thisHitbox);
+        int32 otherHitboxID = AddDebugHitbox(H_TYPE_PLAT, thisEntity->direction, otherEntity, otherHitbox);
 
         if (thisHitboxID >= 0 && collided)
             debugHitboxList[thisHitboxID].collision |= 1 << 0;
@@ -721,6 +847,28 @@ void RSDK::ProcessObjectMovement(Entity *entity, Hitbox *outerBox, Hitbox *inner
             collisionInner.bottom = innerBox->bottom;
 
             collisionEntity = entity;
+
+#if RETRO_REV0U
+            collisionMaskAir = collisionOuter.bottom >= 14 ? 19 : 17;
+
+            if (entity->onGround) {
+                // true = normal, false = flipped
+                if (entity->tileCollisions) 
+                    useCollisionOffset = entity->angle == 0x00;
+                else
+                    useCollisionOffset = entity->angle == 0x80;
+
+                ProcessPathGrip();
+            }
+            else {
+                useCollisionOffset = false;
+                // true = normal, false = flipped
+                if (entity->tileCollisions)
+                    ProcessAirCollision();
+                else 
+                    ProcessAirCollisionFlipped();
+            }
+#else
             if (collisionOuter.bottom >= 14) {
                 collisionOffset  = 4 << 16;
                 collisionMaskAir = 19;
@@ -735,6 +883,7 @@ void RSDK::ProcessObjectMovement(Entity *entity, Hitbox *outerBox, Hitbox *inner
                 ProcessPathGrip();
             else
                 ProcessAirCollision();
+#endif
 
             if (entity->onGround) {
                 entity->velocity.x = entity->groundVel * cos256LookupTable[entity->angle & 0xFF] >> 8;
@@ -758,16 +907,23 @@ void RSDK::ProcessAirCollision()
     uint8 movingLeft  = 0;
     uint8 movingRight = 0;
 
+    int32 offset = 0;
+#if RETRO_REV0U
+    offset = useCollisionOffset ? 0x80000 : 0;
+#else
+    offset = collisionOffset;
+#endif
+
     if (collisionEntity->velocity.x >= 0) {
-        movingRight      = 1;
-        sensors[0].pos.x = collisionEntity->position.x + (collisionOuter.right << 16);
-        sensors[0].pos.y = collisionEntity->position.y + collisionOffset;
+        movingRight           = 1;
+        sensors[0].position.x = collisionEntity->position.x + (collisionOuter.right << 16);
+        sensors[0].position.y = collisionEntity->position.y + offset;
     }
 
     if (collisionEntity->velocity.x <= 0) {
-        movingLeft       = 1;
-        sensors[1].pos.x = collisionEntity->position.x + (collisionOuter.left << 16) - (1 << 16);
-        sensors[1].pos.y = collisionEntity->position.y + collisionOffset;
+        movingLeft            = 1;
+        sensors[1].position.x = collisionEntity->position.x + (collisionOuter.left << 16) - (1 << 16);
+        sensors[1].position.y = collisionEntity->position.y + offset;
     }
 
     // Bug Details:
@@ -777,10 +933,10 @@ void RSDK::ProcessAirCollision()
     // uncomment the 2 lines below and remove the two below that to get v4-like behaviour
     // sensors[2].pos.x = collisionEntity->position.x + (collisionInner.left << 16);
     // sensors[3].pos.x = collisionEntity->position.x + (collisionInner.right << 16);
-    sensors[2].pos.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
-    sensors[3].pos.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
-    sensors[4].pos.x = sensors[2].pos.x;
-    sensors[5].pos.x = sensors[3].pos.x;
+    sensors[2].position.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
+    sensors[3].position.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
+    sensors[4].position.x = sensors[2].position.x;
+    sensors[5].position.x = sensors[3].position.x;
 
     sensors[0].collided = false;
     sensors[1].collided = false;
@@ -789,15 +945,15 @@ void RSDK::ProcessAirCollision()
     sensors[4].collided = false;
     sensors[5].collided = false;
     if (collisionEntity->velocity.y >= 0) {
-        movingDown       = 1;
-        sensors[2].pos.y = collisionEntity->position.y + (collisionOuter.bottom << 16);
-        sensors[3].pos.y = collisionEntity->position.y + (collisionOuter.bottom << 16);
+        movingDown            = 1;
+        sensors[2].position.y = collisionEntity->position.y + (collisionOuter.bottom << 16);
+        sensors[3].position.y = collisionEntity->position.y + (collisionOuter.bottom << 16);
     }
 
     if (abs(collisionEntity->velocity.x) > 0x10000 || collisionEntity->velocity.y < 0) {
-        movingUp         = 1;
-        sensors[4].pos.y = collisionEntity->position.y + (collisionOuter.top << 16) - (1 << 16);
-        sensors[5].pos.y = collisionEntity->position.y + (collisionOuter.top << 16) - (1 << 16);
+        movingUp              = 1;
+        sensors[4].position.y = collisionEntity->position.y + (collisionOuter.top << 16) - (1 << 16);
+        sensors[5].position.y = collisionEntity->position.y + (collisionOuter.top << 16) - (1 << 16);
     }
 
     int32 cnt   = (abs(collisionEntity->velocity.x) <= abs(collisionEntity->velocity.y) ? ((abs(collisionEntity->velocity.y) >> collisionMaskAir) + 1)
@@ -814,50 +970,54 @@ void RSDK::ProcessAirCollision()
         cnt--;
 
         if (movingRight == 1) {
-            sensors[0].pos.x += velX;
-            sensors[0].pos.y += velY;
+            sensors[0].position.x += velX;
+            sensors[0].position.y += velY;
             LWallCollision(&sensors[0]);
 
             if (sensors[0].collided) {
                 movingRight = 2;
             }
+#if !RETRO_REV0U
             else if (collisionEntity->velocity.x < 0x20000 && collisionOffset > 0) {
-                sensors[0].pos.y -= collisionOffset << 1;
+                sensors[0].position.y -= collisionOffset << 1;
                 LWallCollision(&sensors[0]);
 
                 if (sensors[0].collided)
                     movingRight = 2;
-                sensors[0].pos.y += collisionOffset << 1;
+                sensors[0].position.y += collisionOffset << 1;
             }
+#endif
         }
 
         if (movingLeft == 1) {
-            sensors[1].pos.x += velX;
-            sensors[1].pos.y += velY;
+            sensors[1].position.x += velX;
+            sensors[1].position.y += velY;
             RWallCollision(&sensors[1]);
 
             if (sensors[1].collided) {
                 movingLeft = 2;
             }
+#if !RETRO_REV0U
             else if (collisionEntity->velocity.x > -0x20000 && collisionOffset > 0) {
-                sensors[1].pos.y -= collisionOffset << 1;
+                sensors[1].position.y -= collisionOffset << 1;
                 RWallCollision(&sensors[1]);
 
                 if (sensors[1].collided)
                     movingLeft = 2;
-                sensors[1].pos.y += collisionOffset << 1;
+                sensors[1].position.y += collisionOffset << 1;
             }
+#endif
         }
 
         if (movingRight == 2) {
             collisionEntity->velocity.x = 0;
             collisionEntity->groundVel  = 0;
-            collisionEntity->position.x = sensors[0].pos.x - (collisionOuter.right << 16);
+            collisionEntity->position.x = sensors[0].position.x - (collisionOuter.right << 16);
 
-            sensors[2].pos.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
-            sensors[3].pos.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
-            sensors[4].pos.x = sensors[2].pos.x;
-            sensors[5].pos.x = sensors[3].pos.x;
+            sensors[2].position.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
+            sensors[3].position.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
+            sensors[4].position.x = sensors[2].position.x;
+            sensors[5].position.x = sensors[3].position.x;
 
             velX        = 0;
             velX2       = 0;
@@ -867,12 +1027,12 @@ void RSDK::ProcessAirCollision()
         if (movingLeft == 2) {
             collisionEntity->velocity.x = 0;
             collisionEntity->groundVel  = 0;
-            collisionEntity->position.x = sensors[1].pos.x - (collisionOuter.left << 16) + (1 << 16);
+            collisionEntity->position.x = sensors[1].position.x - (collisionOuter.left << 16) + (1 << 16);
 
-            sensors[2].pos.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
-            sensors[3].pos.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
-            sensors[4].pos.x = sensors[2].pos.x;
-            sensors[5].pos.x = sensors[3].pos.x;
+            sensors[2].position.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
+            sensors[3].position.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
+            sensors[4].position.x = sensors[2].position.x;
+            sensors[5].position.x = sensors[3].position.x;
 
             velX       = 0;
             velX2      = 0;
@@ -882,8 +1042,8 @@ void RSDK::ProcessAirCollision()
         if (movingDown == 1) {
             for (int32 i = 2; i < 4; i++) {
                 if (!sensors[i].collided) {
-                    sensors[i].pos.x += velX;
-                    sensors[i].pos.y += velY;
+                    sensors[i].position.x += velX;
+                    sensors[i].position.y += velY;
                     FloorCollision(&sensors[i]);
                 }
             }
@@ -897,8 +1057,8 @@ void RSDK::ProcessAirCollision()
         if (movingUp == 1) {
             for (int32 i = 4; i < 6; i++) {
                 if (!sensors[i].collided) {
-                    sensors[i].pos.x += velX;
-                    sensors[i].pos.y += velY;
+                    sensors[i].position.x += velX;
+                    sensors[i].position.y += velY;
                     RoofCollision(&sensors[i]);
                 }
             }
@@ -922,21 +1082,21 @@ void RSDK::ProcessAirCollision()
         collisionEntity->onGround = true;
 
         if (sensors[2].collided && sensors[3].collided) {
-            if (sensors[2].pos.y >= sensors[3].pos.y) {
-                collisionEntity->position.y = sensors[3].pos.y - (collisionOuter.bottom << 16);
+            if (sensors[2].position.y >= sensors[3].position.y) {
+                collisionEntity->position.y = sensors[3].position.y - (collisionOuter.bottom << 16);
                 collisionEntity->angle      = sensors[3].angle;
             }
             else {
-                collisionEntity->position.y = sensors[2].pos.y - (collisionOuter.bottom << 16);
+                collisionEntity->position.y = sensors[2].position.y - (collisionOuter.bottom << 16);
                 collisionEntity->angle      = sensors[2].angle;
             }
         }
         else if (sensors[2].collided) {
-            collisionEntity->position.y = sensors[2].pos.y - (collisionOuter.bottom << 16);
+            collisionEntity->position.y = sensors[2].position.y - (collisionOuter.bottom << 16);
             collisionEntity->angle      = sensors[2].angle;
         }
         else if (sensors[3].collided) {
-            collisionEntity->position.y = sensors[3].pos.y - (collisionOuter.bottom << 16);
+            collisionEntity->position.y = sensors[3].position.y - (collisionOuter.bottom << 16);
             collisionEntity->angle      = sensors[3].angle;
         }
 
@@ -991,21 +1151,21 @@ void RSDK::ProcessAirCollision()
         int32 sensorAngle = 0;
 
         if (sensors[4].collided && sensors[5].collided) {
-            if (sensors[4].pos.y <= sensors[5].pos.y) {
-                collisionEntity->position.y = sensors[5].pos.y - (collisionOuter.top << 16) + (1 << 16);
+            if (sensors[4].position.y <= sensors[5].position.y) {
+                collisionEntity->position.y = sensors[5].position.y - (collisionOuter.top << 16) + (1 << 16);
                 sensorAngle                 = sensors[5].angle;
             }
             else {
-                collisionEntity->position.y = sensors[4].pos.y - (collisionOuter.top << 16) + (1 << 16);
+                collisionEntity->position.y = sensors[4].position.y - (collisionOuter.top << 16) + (1 << 16);
                 sensorAngle                 = sensors[4].angle;
             }
         }
         else if (sensors[4].collided) {
-            collisionEntity->position.y = sensors[4].pos.y - (collisionOuter.top << 16) + (1 << 16);
+            collisionEntity->position.y = sensors[4].position.y - (collisionOuter.top << 16) + (1 << 16);
             sensorAngle                 = sensors[4].angle;
         }
         else if (sensors[5].collided) {
-            collisionEntity->position.y = sensors[5].pos.y - (collisionOuter.top << 16) + (1 << 16);
+            collisionEntity->position.y = sensors[5].position.y - (collisionOuter.top << 16) + (1 << 16);
             sensorAngle                 = sensors[5].angle;
         }
         sensorAngle &= 0xFF;
@@ -1038,13 +1198,308 @@ void RSDK::ProcessAirCollision()
             collisionEntity->velocity.y = 0;
     }
 }
+#if RETRO_REV0U
+void RSDK::ProcessAirCollisionFlipped()
+{
+    uint8 movingDown  = 0;
+    uint8 movingUp    = 0;
+    uint8 movingLeft  = 0;
+    uint8 movingRight = 0;
+
+    int32 offset = useCollisionOffset ? -0x80000 : 0;
+
+    if (collisionEntity->velocity.x >= 0) {
+        movingRight           = 1;
+        sensors[0].position.x = collisionEntity->position.x + (collisionOuter.right << 16);
+        sensors[0].position.y = collisionEntity->position.y + offset;
+    }
+
+    if (collisionEntity->velocity.x <= 0) {
+        movingLeft            = 1;
+        sensors[1].position.x = collisionEntity->position.x + (collisionOuter.left << 16) - (1 << 16);
+        sensors[1].position.y = collisionEntity->position.y + offset;
+    }
+
+    // Bug Details:
+    // using collision outer here results in a few slopes having some wonky collision if you jump at the on the wrong angles
+    // v4 and prior uses inner box here instead, which works fine as far as I can tell...
+    // Fix (I think, it may break something else?):
+    // uncomment the 2 lines below and remove the two below that to get v4-like behaviour
+    // sensors[2].pos.x = collisionEntity->position.x + (collisionInner.left << 16);
+    // sensors[3].pos.x = collisionEntity->position.x + (collisionInner.right << 16);
+    sensors[2].position.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
+    sensors[3].position.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
+    sensors[4].position.x = sensors[2].position.x;
+    sensors[5].position.x = sensors[3].position.x;
+
+    sensors[0].collided = false;
+    sensors[1].collided = false;
+    sensors[2].collided = false;
+    sensors[3].collided = false;
+    sensors[4].collided = false;
+    sensors[5].collided = false;
+    if (collisionEntity->velocity.y <= 0) {
+        movingDown            = 1;
+        sensors[4].position.y = collisionEntity->position.y + (collisionOuter.top << 16) - (1 << 16);
+        sensors[5].position.y = collisionEntity->position.y + (collisionOuter.top << 16) - (1 << 16);
+    }
+
+    if (abs(collisionEntity->velocity.x) > 0x10000 || collisionEntity->velocity.y > 0) {
+        movingUp              = 1;
+        sensors[2].position.y = collisionEntity->position.y + (collisionOuter.bottom << 16);
+        sensors[3].position.y = collisionEntity->position.y + (collisionOuter.bottom << 16);
+    }
+
+    int32 cnt   = (abs(collisionEntity->velocity.x) <= abs(collisionEntity->velocity.y) ? ((abs(collisionEntity->velocity.y) >> collisionMaskAir) + 1)
+                                                                                        : (abs(collisionEntity->velocity.x) >> collisionMaskAir) + 1);
+    int32 velX  = collisionEntity->velocity.x / cnt;
+    int32 velY  = collisionEntity->velocity.y / cnt;
+    int32 velX2 = collisionEntity->velocity.x - velX * (cnt - 1);
+    int32 velY2 = collisionEntity->velocity.y - velY * (cnt - 1);
+    while (cnt > 0) {
+        if (cnt < 2) {
+            velX = velX2;
+            velY = velY2;
+        }
+        cnt--;
+
+        if (movingRight == 1) {
+            sensors[0].position.x += velX;
+            sensors[0].position.y += velY;
+            LWallCollision(&sensors[0]);
+
+            if (sensors[0].collided) {
+                movingRight = 2;
+            }
+#if !RETRO_REV0U
+            else if (collisionEntity->velocity.x < 0x20000 && collisionOffset > 0) {
+                sensors[0].position.y -= collisionOffset << 1;
+                LWallCollision(&sensors[0]);
+
+                if (sensors[0].collided)
+                    movingRight = 2;
+                sensors[0].position.y += collisionOffset << 1;
+            }
+#endif
+        }
+
+        if (movingLeft == 1) {
+            sensors[1].position.x += velX;
+            sensors[1].position.y += velY;
+            RWallCollision(&sensors[1]);
+
+            if (sensors[1].collided) {
+                movingLeft = 2;
+            }
+#if !RETRO_REV0U
+            else if (collisionEntity->velocity.x > -0x20000 && collisionOffset > 0) {
+                sensors[1].position.y -= collisionOffset << 1;
+                RWallCollision(&sensors[1]);
+
+                if (sensors[1].collided)
+                    movingLeft = 2;
+                sensors[1].position.y += collisionOffset << 1;
+            }
+#endif
+        }
+
+        if (movingRight == 2) {
+            collisionEntity->velocity.x = 0;
+            collisionEntity->groundVel  = 0;
+            collisionEntity->position.x = sensors[0].position.x - (collisionOuter.right << 16);
+
+            sensors[2].position.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
+            sensors[3].position.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
+            sensors[4].position.x = sensors[2].position.x;
+            sensors[5].position.x = sensors[3].position.x;
+
+            velX        = 0;
+            velX2       = 0;
+            movingRight = 3;
+        }
+
+        if (movingLeft == 2) {
+            collisionEntity->velocity.x = 0;
+            collisionEntity->groundVel  = 0;
+            collisionEntity->position.x = sensors[1].position.x - (collisionOuter.left << 16) + (1 << 16);
+
+            sensors[2].position.x = collisionEntity->position.x + (collisionOuter.left << 16) + (1 << 16);
+            sensors[3].position.x = collisionEntity->position.x + (collisionOuter.right << 16) - (2 << 16);
+            sensors[4].position.x = sensors[2].position.x;
+            sensors[5].position.x = sensors[3].position.x;
+
+            velX       = 0;
+            velX2      = 0;
+            movingLeft = 3;
+        }
+
+        if (movingDown == 1) {
+            for (int32 i = 2; i < 4; i++) {
+                if (!sensors[i].collided) {
+                    sensors[i].position.x += velX;
+                    sensors[i].position.y += velY;
+                    FloorCollision(&sensors[i]);
+                }
+            }
+
+            if (sensors[2].collided || sensors[3].collided) {
+                movingDown = 2;
+                cnt        = 0;
+            }
+        }
+
+        if (movingUp == 1) {
+            for (int32 i = 4; i < 6; i++) {
+                if (!sensors[i].collided) {
+                    sensors[i].position.x += velX;
+                    sensors[i].position.y += velY;
+                    RoofCollision(&sensors[i]);
+                }
+            }
+
+            if (sensors[4].collided || sensors[5].collided) {
+                movingUp = 2;
+                cnt      = 0;
+            }
+        }
+    }
+
+    if (movingRight < 2 && movingLeft < 2)
+        collisionEntity->position.x += collisionEntity->velocity.x;
+
+    if (movingUp < 2 && movingDown < 2) {
+        collisionEntity->position.y += collisionEntity->velocity.y;
+        return;
+    }
+
+    if (movingDown == 2) {
+        collisionEntity->onGround = true;
+
+        if (sensors[2].collided && sensors[3].collided) {
+            if (sensors[2].position.y >= sensors[3].position.y) {
+                collisionEntity->position.y = sensors[3].position.y - (collisionOuter.top << 16);
+                collisionEntity->angle      = sensors[3].angle;
+            }
+            else {
+                collisionEntity->position.y = sensors[2].position.y - (collisionOuter.top << 16);
+                collisionEntity->angle      = sensors[2].angle;
+            }
+        }
+        else if (sensors[2].collided) {
+            collisionEntity->position.y = sensors[2].position.y - (collisionOuter.top << 16);
+            collisionEntity->angle      = sensors[2].angle;
+        }
+        else if (sensors[3].collided) {
+            collisionEntity->position.y = sensors[3].position.y - (collisionOuter.top << 16);
+            collisionEntity->angle      = sensors[3].angle;
+        }
+
+        if (collisionEntity->angle > 0xA0 && collisionEntity->angle < 0xDE && collisionEntity->collisionMode != CMODE_LWALL) {
+            collisionEntity->collisionMode = CMODE_LWALL;
+            collisionEntity->position.x -= 0x40000;
+        }
+
+        if (collisionEntity->angle > 0x22 && collisionEntity->angle < 0x60 && collisionEntity->collisionMode != CMODE_RWALL) {
+            collisionEntity->collisionMode = CMODE_RWALL;
+            collisionEntity->position.x += 0x40000;
+        }
+
+        int32 speed = 0;
+        if (collisionEntity->angle < 0x80) {
+            if (collisionEntity->angle < 0x10) {
+                speed = collisionEntity->velocity.x;
+            }
+            else if (collisionEntity->angle >= 0x20) {
+                speed = (abs(collisionEntity->velocity.x) <= abs(collisionEntity->velocity.y) ? collisionEntity->velocity.y
+                                                                                              : collisionEntity->velocity.x);
+            }
+            else {
+                speed = (abs(collisionEntity->velocity.x) <= abs(collisionEntity->velocity.y >> 1) ? (collisionEntity->velocity.y >> 1)
+                                                                                                   : collisionEntity->velocity.x);
+            }
+        }
+        else if (collisionEntity->angle > 0xF0) {
+            speed = collisionEntity->velocity.x;
+        }
+        else if (collisionEntity->angle <= 0xE0) {
+            speed =
+                (abs(collisionEntity->velocity.x) <= abs(collisionEntity->velocity.y) ? -collisionEntity->velocity.y : collisionEntity->velocity.x);
+        }
+        else {
+            speed = (abs(collisionEntity->velocity.x) <= abs(collisionEntity->velocity.y >> 1) ? -(collisionEntity->velocity.y >> 1)
+                                                                                               : collisionEntity->velocity.x);
+        }
+
+        if (speed < -0x180000)
+            speed = -0x180000;
+
+        if (speed > 0x180000)
+            speed = 0x180000;
+
+        collisionEntity->groundVel  = speed;
+        collisionEntity->velocity.x = speed;
+        collisionEntity->velocity.y = 0;
+    }
+
+    if (movingUp == 2) {
+        int32 sensorAngle = 0;
+
+        if (sensors[4].collided && sensors[5].collided) {
+            if (sensors[4].position.y <= sensors[5].position.y) {
+                collisionEntity->position.y = sensors[5].position.y - (collisionOuter.bottom << 16) + (1 << 16);
+                sensorAngle                 = sensors[5].angle;
+            }
+            else {
+                collisionEntity->position.y = sensors[4].position.y - (collisionOuter.bottom << 16) + (1 << 16);
+                sensorAngle                 = sensors[4].angle;
+            }
+        }
+        else if (sensors[4].collided) {
+            collisionEntity->position.y = sensors[4].position.y - (collisionOuter.bottom << 16) + (1 << 16);
+            sensorAngle                 = sensors[4].angle;
+        }
+        else if (sensors[5].collided) {
+            collisionEntity->position.y = sensors[5].position.y - (collisionOuter.bottom << 16) + (1 << 16);
+            sensorAngle                 = sensors[5].angle;
+        }
+        sensorAngle &= 0xFF;
+
+        if (sensorAngle < 0x62) {
+            if (collisionEntity->velocity.y < -abs(collisionEntity->velocity.x)) {
+                collisionEntity->onGround      = true;
+                collisionEntity->angle         = sensorAngle;
+                collisionEntity->collisionMode = CMODE_RWALL;
+                collisionEntity->position.x += 0x40000;
+                collisionEntity->position.y -= 0x20000;
+
+                collisionEntity->groundVel = collisionEntity->angle <= 0x60 ? collisionEntity->velocity.y : (collisionEntity->velocity.y >> 1);
+            }
+        }
+
+        if (sensorAngle > 0x9E && sensorAngle < 0xC1) {
+            if (collisionEntity->velocity.y < -abs(collisionEntity->velocity.x)) {
+                collisionEntity->onGround      = true;
+                collisionEntity->angle         = sensorAngle;
+                collisionEntity->collisionMode = CMODE_LWALL;
+                collisionEntity->position.x -= 0x40000;
+                collisionEntity->position.y -= 0x20000;
+
+                collisionEntity->groundVel = collisionEntity->angle >= 0xA0 ? -collisionEntity->velocity.y : -(collisionEntity->velocity.y >> 1);
+            }
+        }
+
+        if (collisionEntity->velocity.y < 0)
+            collisionEntity->velocity.y = 0;
+    }
+}
+#endif
 void RSDK::ProcessPathGrip()
 {
     int32 xVel = 0;
     int32 yVel = 0;
 
-    sensors[4].pos.x = collisionEntity->position.x;
-    sensors[4].pos.y = collisionEntity->position.y;
+    sensors[4].position.x = collisionEntity->position.x;
+    sensors[4].position.y = collisionEntity->position.y;
     for (int32 i = 0; i < 6; ++i) {
         sensors[i].angle    = collisionEntity->angle;
         sensors[i].collided = false;
@@ -1074,25 +1529,25 @@ void RSDK::ProcessPathGrip()
         sensors[0].collided = false;
         sensors[1].collided = false;
         sensors[2].collided = false;
-        sensors[4].pos.x += xVel;
-        sensors[4].pos.y += yVel;
+        sensors[4].position.x += xVel;
+        sensors[4].position.y += yVel;
         int32 tileDistance = -1;
 
         switch (collisionEntity->collisionMode) {
             case CMODE_FLOOR: {
-                sensors[3].pos.x += xVel;
-                sensors[3].pos.y += yVel;
+                sensors[3].position.x += xVel;
+                sensors[3].position.y += yVel;
 
                 if (collisionEntity->groundVel > 0) {
                     LWallCollision(&sensors[3]);
                     if (sensors[3].collided)
-                        sensors[2].pos.x = sensors[3].pos.x - (2 << 16);
+                        sensors[2].position.x = sensors[3].position.x - (2 << 16);
                 }
 
                 if (collisionEntity->groundVel < 0) {
                     RWallCollision(&sensors[3]);
                     if (sensors[3].collided)
-                        sensors[0].pos.x = sensors[3].pos.x + (2 << 16);
+                        sensors[0].position.x = sensors[3].position.x + (2 << 16);
                 }
 
                 if (sensors[3].collided) {
@@ -1101,8 +1556,8 @@ void RSDK::ProcessPathGrip()
                 }
 
                 for (int32 i = 0; i < 3; i++) {
-                    sensors[i].pos.x += xVel;
-                    sensors[i].pos.y += yVel;
+                    sensors[i].position.x += xVel;
+                    sensors[i].position.y += yVel;
                     FindFloorPosition(&sensors[i]);
                 }
 
@@ -1110,10 +1565,10 @@ void RSDK::ProcessPathGrip()
                 for (int32 i = 0; i < 3; i++) {
                     if (tileDistance > -1) {
                         if (sensors[i].collided) {
-                            if (sensors[i].pos.y < sensors[tileDistance].pos.y)
+                            if (sensors[i].position.y < sensors[tileDistance].position.y)
                                 tileDistance = i;
 
-                            if (sensors[i].pos.y == sensors[tileDistance].pos.y && (sensors[i].angle < 0x08 || sensors[i].angle > 0xF8))
+                            if (sensors[i].position.y == sensors[tileDistance].position.y && (sensors[i].angle < 0x08 || sensors[i].angle > 0xF8))
                                 tileDistance = i;
                         }
                     }
@@ -1125,17 +1580,17 @@ void RSDK::ProcessPathGrip()
                     checkDist = -1;
                 }
                 else {
-                    sensors[0].pos.y = sensors[tileDistance].pos.y;
-                    sensors[0].angle = sensors[tileDistance].angle;
+                    sensors[0].position.y = sensors[tileDistance].position.y;
+                    sensors[0].angle      = sensors[tileDistance].angle;
 
-                    sensors[1].pos.y = sensors[0].pos.y;
-                    sensors[1].angle = sensors[0].angle;
+                    sensors[1].position.y = sensors[0].position.y;
+                    sensors[1].angle      = sensors[0].angle;
 
-                    sensors[2].pos.y = sensors[0].pos.y;
-                    sensors[2].angle = sensors[0].angle;
+                    sensors[2].position.y = sensors[0].position.y;
+                    sensors[2].angle      = sensors[0].angle;
 
-                    sensors[4].pos.x = sensors[1].pos.x;
-                    sensors[4].pos.y = sensors[0].pos.y - (collisionOuter.bottom << 16);
+                    sensors[4].position.x = sensors[1].position.x;
+                    sensors[4].position.y = sensors[0].position.y - (collisionOuter.bottom << 16);
                 }
 
                 if (sensors[0].angle < 0xDE && sensors[0].angle > 0x80)
@@ -1146,8 +1601,8 @@ void RSDK::ProcessPathGrip()
             }
 
             case CMODE_LWALL: {
-                sensors[3].pos.x += xVel;
-                sensors[3].pos.y += yVel;
+                sensors[3].position.x += xVel;
+                sensors[3].position.y += yVel;
 
                 if (collisionEntity->groundVel > 0)
                     RoofCollision(&sensors[3]);
@@ -1161,15 +1616,15 @@ void RSDK::ProcessPathGrip()
                 }
 
                 for (int32 i = 0; i < 3; i++) {
-                    sensors[i].pos.x += xVel;
-                    sensors[i].pos.y += yVel;
+                    sensors[i].position.x += xVel;
+                    sensors[i].position.y += yVel;
                     FindLWallPosition(&sensors[i]);
                 }
 
                 tileDistance = -1;
                 for (int32 i = 0; i < 3; i++) {
                     if (tileDistance > -1) {
-                        if (sensors[i].pos.x < sensors[tileDistance].pos.x && sensors[i].collided) {
+                        if (sensors[i].position.x < sensors[tileDistance].position.x && sensors[i].collided) {
                             tileDistance = i;
                         }
                     }
@@ -1182,17 +1637,17 @@ void RSDK::ProcessPathGrip()
                     checkDist = -1;
                 }
                 else {
-                    sensors[0].pos.x = sensors[tileDistance].pos.x;
-                    sensors[0].angle = sensors[tileDistance].angle;
+                    sensors[0].position.x = sensors[tileDistance].position.x;
+                    sensors[0].angle      = sensors[tileDistance].angle;
 
-                    sensors[1].pos.x = sensors[0].pos.x;
-                    sensors[1].angle = sensors[0].angle;
+                    sensors[1].position.x = sensors[0].position.x;
+                    sensors[1].angle      = sensors[0].angle;
 
-                    sensors[2].pos.x = sensors[0].pos.x;
-                    sensors[2].angle = sensors[0].angle;
+                    sensors[2].position.x = sensors[0].position.x;
+                    sensors[2].angle      = sensors[0].angle;
 
-                    sensors[4].pos.x = sensors[1].pos.x - (collisionOuter.bottom << 16);
-                    sensors[4].pos.y = sensors[1].pos.y;
+                    sensors[4].position.x = sensors[1].position.x - (collisionOuter.bottom << 16);
+                    sensors[4].position.y = sensors[1].position.y;
                 }
 
                 if (sensors[0].angle > 0xE2)
@@ -1204,8 +1659,8 @@ void RSDK::ProcessPathGrip()
             }
 
             case CMODE_ROOF: {
-                sensors[3].pos.x += xVel;
-                sensors[3].pos.y += yVel;
+                sensors[3].position.x += xVel;
+                sensors[3].position.y += yVel;
 
                 if (collisionEntity->groundVel > 0)
                     RWallCollision(&sensors[3]);
@@ -1219,15 +1674,15 @@ void RSDK::ProcessPathGrip()
                 }
 
                 for (int32 i = 0; i < 3; i++) {
-                    sensors[i].pos.x += xVel;
-                    sensors[i].pos.y += yVel;
+                    sensors[i].position.x += xVel;
+                    sensors[i].position.y += yVel;
                     FindRoofPosition(&sensors[i]);
                 }
 
                 tileDistance = -1;
                 for (int32 i = 0; i < 3; i++) {
                     if (tileDistance > -1) {
-                        if (sensors[i].pos.y > sensors[tileDistance].pos.y && sensors[i].collided) {
+                        if (sensors[i].position.y > sensors[tileDistance].position.y && sensors[i].collided) {
                             tileDistance = i;
                         }
                     }
@@ -1240,17 +1695,17 @@ void RSDK::ProcessPathGrip()
                     checkDist = -1;
                 }
                 else {
-                    sensors[0].pos.y = sensors[tileDistance].pos.y;
-                    sensors[0].angle = sensors[tileDistance].angle;
+                    sensors[0].position.y = sensors[tileDistance].position.y;
+                    sensors[0].angle      = sensors[tileDistance].angle;
 
-                    sensors[1].pos.y = sensors[0].pos.y;
-                    sensors[1].angle = sensors[0].angle;
+                    sensors[1].position.y = sensors[0].position.y;
+                    sensors[1].angle      = sensors[0].angle;
 
-                    sensors[2].pos.y = sensors[0].pos.y;
-                    sensors[2].angle = sensors[0].angle;
+                    sensors[2].position.y = sensors[0].position.y;
+                    sensors[2].angle      = sensors[0].angle;
 
-                    sensors[4].pos.x = sensors[1].pos.x;
-                    sensors[4].pos.y = sensors[0].pos.y + ((collisionOuter.bottom + 1) << 16);
+                    sensors[4].position.x = sensors[1].position.x;
+                    sensors[4].position.y = sensors[0].position.y + ((collisionOuter.bottom + 1) << 16);
                 }
 
                 if (sensors[0].angle > 0xA2)
@@ -1261,8 +1716,8 @@ void RSDK::ProcessPathGrip()
             }
 
             case CMODE_RWALL: {
-                sensors[3].pos.x += xVel;
-                sensors[3].pos.y += yVel;
+                sensors[3].position.x += xVel;
+                sensors[3].position.y += yVel;
 
                 if (collisionEntity->groundVel > 0)
                     FloorCollision(&sensors[3]);
@@ -1276,15 +1731,15 @@ void RSDK::ProcessPathGrip()
                 }
 
                 for (int32 i = 0; i < 3; i++) {
-                    sensors[i].pos.x += xVel;
-                    sensors[i].pos.y += yVel;
+                    sensors[i].position.x += xVel;
+                    sensors[i].position.y += yVel;
                     FindRWallPosition(&sensors[i]);
                 }
 
                 tileDistance = -1;
                 for (int32 i = 0; i < 3; i++) {
                     if (tileDistance > -1) {
-                        if (sensors[i].pos.x > sensors[tileDistance].pos.x && sensors[i].collided) {
+                        if (sensors[i].position.x > sensors[tileDistance].position.x && sensors[i].collided) {
                             tileDistance = i;
                         }
                     }
@@ -1297,17 +1752,17 @@ void RSDK::ProcessPathGrip()
                     checkDist = -1;
                 }
                 else {
-                    sensors[0].pos.x = sensors[tileDistance].pos.x;
-                    sensors[0].angle = sensors[tileDistance].angle;
+                    sensors[0].position.x = sensors[tileDistance].position.x;
+                    sensors[0].angle      = sensors[tileDistance].angle;
 
-                    sensors[1].pos.x = sensors[0].pos.x;
-                    sensors[1].angle = sensors[0].angle;
+                    sensors[1].position.x = sensors[0].position.x;
+                    sensors[1].angle      = sensors[0].angle;
 
-                    sensors[2].pos.x = sensors[0].pos.x;
-                    sensors[2].angle = sensors[0].angle;
+                    sensors[2].position.x = sensors[0].position.x;
+                    sensors[2].angle      = sensors[0].angle;
 
-                    sensors[4].pos.x = sensors[1].pos.x + ((collisionOuter.bottom + 1) << 16);
-                    sensors[4].pos.y = sensors[1].pos.y;
+                    sensors[4].position.x = sensors[1].position.x + ((collisionOuter.bottom + 1) << 16);
+                    sensors[4].position.y = sensors[1].position.y;
                 }
 
                 if (sensors[0].angle < 0x1E)
@@ -1333,20 +1788,20 @@ void RSDK::ProcessPathGrip()
                 collisionEntity->angle = sensors[0].angle;
 
                 if (!sensors[3].collided) {
-                    collisionEntity->position.x = sensors[4].pos.x;
+                    collisionEntity->position.x = sensors[4].position.x;
                 }
                 else {
                     if (collisionEntity->groundVel > 0)
-                        collisionEntity->position.x = sensors[3].pos.x - (collisionOuter.right << 16);
+                        collisionEntity->position.x = sensors[3].position.x - (collisionOuter.right << 16);
 
                     if (collisionEntity->groundVel < 0)
-                        collisionEntity->position.x = sensors[3].pos.x - (collisionOuter.left << 16) + (1 << 16);
+                        collisionEntity->position.x = sensors[3].position.x - (collisionOuter.left << 16) + (1 << 16);
 
                     collisionEntity->groundVel  = 0;
                     collisionEntity->velocity.x = 0;
                 }
 
-                collisionEntity->position.y = sensors[4].pos.y;
+                collisionEntity->position.y = sensors[4].position.y;
             }
             else {
                 collisionEntity->onGround      = false;
@@ -1366,9 +1821,9 @@ void RSDK::ProcessPathGrip()
                 }
                 else {
                     if (collisionEntity->groundVel > 0)
-                        collisionEntity->position.x = sensors[3].pos.x - (collisionOuter.right << 16);
+                        collisionEntity->position.x = sensors[3].position.x - (collisionOuter.right << 16);
                     if (collisionEntity->groundVel < 0)
-                        collisionEntity->position.x = sensors[3].pos.x - (collisionOuter.left << 16) + (1 << 16);
+                        collisionEntity->position.x = sensors[3].position.x - (collisionOuter.left << 16) + (1 << 16);
 
                     collisionEntity->groundVel  = 0;
                     collisionEntity->velocity.x = 0;
@@ -1400,18 +1855,18 @@ void RSDK::ProcessPathGrip()
             }
 
             if (!sensors[3].collided) {
-                collisionEntity->position.x = sensors[4].pos.x;
-                collisionEntity->position.y = sensors[4].pos.y;
+                collisionEntity->position.x = sensors[4].position.x;
+                collisionEntity->position.y = sensors[4].position.y;
             }
             else {
                 if (collisionEntity->groundVel > 0)
-                    collisionEntity->position.y = sensors[3].pos.y + ((collisionOuter.right << 16) + (1 << 16));
+                    collisionEntity->position.y = sensors[3].position.y + ((collisionOuter.right << 16) + (1 << 16));
 
                 if (collisionEntity->groundVel < 0)
-                    collisionEntity->position.y = sensors[3].pos.y - (collisionOuter.left << 16);
+                    collisionEntity->position.y = sensors[3].position.y - (collisionOuter.left << 16);
 
                 collisionEntity->groundVel  = 0;
-                collisionEntity->position.x = sensors[4].pos.x;
+                collisionEntity->position.x = sensors[4].position.x;
             }
             break;
         }
@@ -1421,14 +1876,14 @@ void RSDK::ProcessPathGrip()
                 collisionEntity->angle = sensors[0].angle;
 
                 if (!sensors[3].collided) {
-                    collisionEntity->position.x = sensors[4].pos.x;
+                    collisionEntity->position.x = sensors[4].position.x;
                 }
                 else {
                     if (collisionEntity->groundVel > 0)
-                        collisionEntity->position.x = sensors[3].pos.x + (collisionOuter.right << 16);
+                        collisionEntity->position.x = sensors[3].position.x + (collisionOuter.right << 16);
 
                     if (collisionEntity->groundVel < 0)
-                        collisionEntity->position.x = sensors[3].pos.x + (collisionOuter.left << 16) - (1 << 16);
+                        collisionEntity->position.x = sensors[3].position.x + (collisionOuter.left << 16) - (1 << 16);
 
                     collisionEntity->groundVel = 0;
                 }
@@ -1453,15 +1908,15 @@ void RSDK::ProcessPathGrip()
                 }
                 else {
                     if (collisionEntity->groundVel > 0)
-                        collisionEntity->position.x = sensors[3].pos.x - (collisionOuter.right << 16);
+                        collisionEntity->position.x = sensors[3].position.x - (collisionOuter.right << 16);
 
                     if (collisionEntity->groundVel < 0)
-                        collisionEntity->position.x = sensors[3].pos.x - (collisionOuter.left << 16) + (1 << 16);
+                        collisionEntity->position.x = sensors[3].position.x - (collisionOuter.left << 16) + (1 << 16);
 
                     collisionEntity->groundVel = 0;
                 }
             }
-            collisionEntity->position.y = sensors[4].pos.y;
+            collisionEntity->position.y = sensors[4].position.y;
             break;
         }
 
@@ -1486,18 +1941,18 @@ void RSDK::ProcessPathGrip()
             }
 
             if (!sensors[3].collided) {
-                collisionEntity->position.x = sensors[4].pos.x;
-                collisionEntity->position.y = sensors[4].pos.y;
+                collisionEntity->position.x = sensors[4].position.x;
+                collisionEntity->position.y = sensors[4].position.y;
             }
             else {
                 if (collisionEntity->groundVel > 0)
-                    collisionEntity->position.y = sensors[3].pos.y - (collisionOuter.right << 16);
+                    collisionEntity->position.y = sensors[3].position.y - (collisionOuter.right << 16);
 
                 if (collisionEntity->groundVel < 0)
-                    collisionEntity->position.y = sensors[3].pos.y - (collisionOuter.left << 16) + (1 << 16);
+                    collisionEntity->position.y = sensors[3].position.y - (collisionOuter.left << 16) + (1 << 16);
 
                 collisionEntity->groundVel  = 0;
-                collisionEntity->position.x = sensors[4].pos.x;
+                collisionEntity->position.x = sensors[4].position.x;
             }
             break;
         }
@@ -1508,65 +1963,72 @@ void RSDK::ProcessPathGrip()
 
 void RSDK::SetPathGripSensors(CollisionSensor *sensors)
 {
+    int32 offset = 0;
+#if RETRO_REV0U
+    offset = useCollisionOffset ? 0x80000 : 0;
+#else
+    offset = collisionOffset;
+#endif
+
     switch (collisionEntity->collisionMode) {
         case CMODE_FLOOR:
-            sensors[0].pos.y = sensors[4].pos.y + (collisionOuter.bottom << 16);
-            sensors[1].pos.y = sensors[4].pos.y + (collisionOuter.bottom << 16);
-            sensors[2].pos.y = sensors[4].pos.y + (collisionOuter.bottom << 16);
-            sensors[3].pos.y = sensors[4].pos.y + collisionOffset;
+            sensors[0].position.y = sensors[4].position.y + (collisionOuter.bottom << 16);
+            sensors[1].position.y = sensors[4].position.y + (collisionOuter.bottom << 16);
+            sensors[2].position.y = sensors[4].position.y + (collisionOuter.bottom << 16);
+            sensors[3].position.y = sensors[4].position.y + offset;
 
-            sensors[0].pos.x = sensors[4].pos.x + (collisionInner.left << 16) - (1 << 16);
-            sensors[1].pos.x = sensors[4].pos.x;
-            sensors[2].pos.x = sensors[4].pos.x + (collisionInner.right << 16);
+            sensors[0].position.x = sensors[4].position.x + (collisionInner.left << 16) - (1 << 16);
+            sensors[1].position.x = sensors[4].position.x;
+            sensors[2].position.x = sensors[4].position.x + (collisionInner.right << 16);
             if (collisionEntity->groundVel <= 0)
-                sensors[3].pos.x = sensors[4].pos.x + ((collisionOuter.left << 16) - (1 << 16));
+                sensors[3].position.x = sensors[4].position.x + ((collisionOuter.left << 16) - (1 << 16));
             else
-                sensors[3].pos.x = sensors[4].pos.x + (collisionOuter.right << 16);
+                sensors[3].position.x = sensors[4].position.x + (collisionOuter.right << 16);
             break;
 
         case CMODE_LWALL:
-            sensors[0].pos.x = sensors[4].pos.x + (collisionOuter.bottom << 16);
-            sensors[1].pos.x = sensors[4].pos.x + (collisionOuter.bottom << 16);
-            sensors[2].pos.x = sensors[4].pos.x + (collisionOuter.bottom << 16);
-            sensors[3].pos.x = sensors[4].pos.x;
+            sensors[0].position.x = sensors[4].position.x + (collisionOuter.bottom << 16);
+            sensors[1].position.x = sensors[4].position.x + (collisionOuter.bottom << 16);
+            sensors[2].position.x = sensors[4].position.x + (collisionOuter.bottom << 16);
+            sensors[3].position.x = sensors[4].position.x;
 
-            sensors[0].pos.y = sensors[4].pos.y + (collisionInner.left << 16) - (1 << 16);
-            sensors[1].pos.y = sensors[4].pos.y;
-            sensors[2].pos.y = sensors[4].pos.y + (collisionInner.right << 16);
+            sensors[0].position.y = sensors[4].position.y + (collisionInner.left << 16) - (1 << 16);
+            sensors[1].position.y = sensors[4].position.y;
+            sensors[2].position.y = sensors[4].position.y + (collisionInner.right << 16);
             if (collisionEntity->groundVel <= 0)
-                sensors[3].pos.y = sensors[4].pos.y - (collisionOuter.left << 16);
+                sensors[3].position.y = sensors[4].position.y - (collisionOuter.left << 16);
             else
-                sensors[3].pos.y = sensors[4].pos.y - (collisionOuter.right << 16) - (1 << 16);
+                sensors[3].position.y = sensors[4].position.y - (collisionOuter.right << 16) - (1 << 16);
             break;
 
         case CMODE_ROOF:
-            sensors[3].pos.y = sensors[4].pos.y - collisionOffset;
-            sensors[0].pos.y = sensors[4].pos.y - (collisionOuter.bottom << 16) - (1 << 16);
-            sensors[1].pos.y = sensors[4].pos.y - (collisionOuter.bottom << 16) - (1 << 16);
-            sensors[2].pos.y = sensors[4].pos.y - (collisionOuter.bottom << 16) - (1 << 16);
+            sensors[0].position.y = sensors[4].position.y - (collisionOuter.bottom << 16) - (1 << 16);
+            sensors[1].position.y = sensors[4].position.y - (collisionOuter.bottom << 16) - (1 << 16);
+            sensors[2].position.y = sensors[4].position.y - (collisionOuter.bottom << 16) - (1 << 16);
+            sensors[3].position.y = sensors[4].position.y - offset;
 
-            sensors[0].pos.x = sensors[4].pos.x + (collisionInner.left << 16) - (1 << 16);
-            sensors[1].pos.x = sensors[4].pos.x;
-            sensors[2].pos.x = sensors[4].pos.x + (collisionInner.right << 16);
+            sensors[0].position.x = sensors[4].position.x + (collisionInner.left << 16) - (1 << 16);
+            sensors[1].position.x = sensors[4].position.x;
+            sensors[2].position.x = sensors[4].position.x + (collisionInner.right << 16);
             if (collisionEntity->groundVel <= 0)
-                sensors[3].pos.x = sensors[4].pos.x - (collisionOuter.left << 16);
+                sensors[3].position.x = sensors[4].position.x - (collisionOuter.left << 16);
             else
-                sensors[3].pos.x = sensors[4].pos.x - (collisionOuter.right << 16) - (1 << 16);
+                sensors[3].position.x = sensors[4].position.x - (collisionOuter.right << 16) - (1 << 16);
             break;
 
         case CMODE_RWALL:
-            sensors[0].pos.x = sensors[4].pos.x - (collisionOuter.bottom << 16) - (1 << 16);
-            sensors[1].pos.x = sensors[4].pos.x - (collisionOuter.bottom << 16) - (1 << 16);
-            sensors[2].pos.x = sensors[4].pos.x - (collisionOuter.bottom << 16) - (1 << 16);
-            sensors[3].pos.x = sensors[4].pos.x;
+            sensors[0].position.x = sensors[4].position.x - (collisionOuter.bottom << 16) - (1 << 16);
+            sensors[1].position.x = sensors[4].position.x - (collisionOuter.bottom << 16) - (1 << 16);
+            sensors[2].position.x = sensors[4].position.x - (collisionOuter.bottom << 16) - (1 << 16);
+            sensors[3].position.x = sensors[4].position.x;
 
-            sensors[0].pos.y = sensors[4].pos.y + (collisionInner.left << 16) - (1 << 16);
-            sensors[1].pos.y = sensors[4].pos.y;
-            sensors[2].pos.y = sensors[4].pos.y + (collisionInner.right << 16);
+            sensors[0].position.y = sensors[4].position.y + (collisionInner.left << 16) - (1 << 16);
+            sensors[1].position.y = sensors[4].position.y;
+            sensors[2].position.y = sensors[4].position.y + (collisionInner.right << 16);
             if (collisionEntity->groundVel <= 0)
-                sensors[3].pos.y = sensors[4].pos.y + (collisionOuter.left << 16) - (1 << 16);
+                sensors[3].position.y = sensors[4].position.y + (collisionOuter.left << 16) - (1 << 16);
             else
-                sensors[3].pos.y = sensors[4].pos.y + (collisionOuter.right << 16);
+                sensors[3].position.y = sensors[4].position.y + (collisionOuter.right << 16);
             break;
 
         default: break;
@@ -1575,12 +2037,17 @@ void RSDK::SetPathGripSensors(CollisionSensor *sensors)
 
 void RSDK::FindFloorPosition(CollisionSensor *sensor)
 {
-    int32 posX = (sensor->pos.x >> 0x10);
-    int32 posY = (sensor->pos.y >> 0x10);
+    int32 posX = sensor->position.x >> 0x10;
+    int32 posY = sensor->position.y >> 0x10;
 
-    int32 solid = 1 << 12;
-    if (collisionEntity->collisionPlane)
-        solid = 1 << 14;
+    int32 solid = 0;
+#if RETRO_REV0U
+    if (!collisionEntity->tileCollisions)
+        solid = collisionEntity->collisionPlane ? (1 << 15) : (1 << 13);
+    else
+#endif
+        solid = collisionEntity->collisionPlane ? (1 << 14) : (1 << 12);
+
     int32 startY = posY;
 
     for (int32 l = 0, layerID = 1; l < LAYER_COUNT; ++l, layerID <<= 1) {
@@ -1597,18 +2064,24 @@ void RSDK::FindFloorPosition(CollisionSensor *sensor)
                         if (tile < 0xFFFF && tile & solid) {
                             int32 mask      = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].floorMasks[colX & 0xF];
                             int32 ty        = cy + mask;
-                            int32 tileAngle = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
+                            int32 tileAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
 
                             if (mask < 0xFF) {
                                 if (!sensor->collided || startY >= ty) {
                                     if (abs(colY - ty) <= collisionTolerance) {
+#if RETRO_REV0U
+                                        if (abs(sensor->angle - tileAngle) <= TILE_SIZE * 3
+                                            || abs(sensor->angle - tileAngle + 0x100) < floorAngleTolerance
+                                            || abs(sensor->angle - tileAngle - 0x100) < floorAngleTolerance) {
+#else
                                         if (abs(sensor->angle - tileAngle) <= 0x20 || abs(sensor->angle - tileAngle + 0x100) <= 0x20
                                             || abs(sensor->angle - tileAngle - 0x100) <= 0x20) {
-                                            sensor->collided = true;
-                                            sensor->angle    = tileAngle;
-                                            sensor->pos.y    = (ty + layer->position.y) << 0x10;
-                                            startY           = ty;
-                                            i                = 3;
+#endif
+                                            sensor->collided   = true;
+                                            sensor->angle      = tileAngle;
+                                            sensor->position.y = (ty + layer->position.y) << 0x10;
+                                            startY             = ty;
+                                            i                  = 3;
                                         }
                                     }
                                 }
@@ -1627,11 +2100,11 @@ void RSDK::FindFloorPosition(CollisionSensor *sensor)
 }
 void RSDK::FindLWallPosition(CollisionSensor *sensor)
 {
-    int32 posX  = (sensor->pos.x >> 0x10);
-    int32 posY  = (sensor->pos.y >> 0x10);
-    int32 solid = (1 << 12) | (1 << 13);
-    if (collisionEntity->collisionPlane)
-        solid = (1 << 14) | (1 << 15);
+    int32 posX = sensor->position.x >> 0x10;
+    int32 posY = sensor->position.y >> 0x10;
+
+    int32 solid = collisionEntity->collisionPlane ? ((1 << 14) | (1 << 15)) : ((1 << 12) | (1 << 13));
+
     int32 startX = posX;
 
     for (int32 l = 0, layerID = 1; l < LAYER_COUNT; ++l, layerID <<= 1) {
@@ -1648,16 +2121,16 @@ void RSDK::FindLWallPosition(CollisionSensor *sensor)
                         if (tile < 0xFFFF && tile & solid) {
                             int32 mask      = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].lWallMasks[colY & 0xF];
                             int32 tx        = cx + mask;
-                            int32 tileAngle = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].lWallAngle;
+                            int32 tileAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].lWallAngle;
 
                             if (mask < 0xFF) {
                                 if (!sensor->collided || startX >= tx) {
-                                    if (abs(colX - tx) <= collisionTolerance && abs(sensor->angle - tileAngle) <= 0x20) {
-                                        sensor->collided = true;
-                                        sensor->angle    = tileAngle;
-                                        sensor->pos.x    = (tx + layer->position.x) << 0x10;
-                                        startX           = tx;
-                                        i                = 3;
+                                    if (abs(colX - tx) <= collisionTolerance && abs(sensor->angle - tileAngle) <= wallAngleTolerance) {
+                                        sensor->collided   = true;
+                                        sensor->angle      = tileAngle;
+                                        sensor->position.x = (tx + layer->position.x) << 0x10;
+                                        startX             = tx;
+                                        i                  = 3;
                                     }
                                 }
                             }
@@ -1675,12 +2148,17 @@ void RSDK::FindLWallPosition(CollisionSensor *sensor)
 }
 void RSDK::FindRoofPosition(CollisionSensor *sensor)
 {
-    int32 posX = (sensor->pos.x >> 0x10);
-    int32 posY = (sensor->pos.y >> 0x10);
+    int32 posX = sensor->position.x >> 0x10;
+    int32 posY = sensor->position.y >> 0x10;
 
-    int32 solid = 1 << 13;
-    if (collisionEntity->collisionPlane)
-        solid = 1 << 15;
+    int32 solid = 0;
+#if RETRO_REV0U
+    if (!collisionEntity->tileCollisions)
+        solid = collisionEntity->collisionPlane ? (1 << 14) : (1 << 12);
+    else
+#endif
+        solid = collisionEntity->collisionPlane ? (1 << 15) : (1 << 13);
+
     int32 startY = posY;
 
     for (int32 l = 0, layerID = 1; l < LAYER_COUNT; ++l, layerID <<= 1) {
@@ -1698,16 +2176,16 @@ void RSDK::FindRoofPosition(CollisionSensor *sensor)
                         if (tile < 0xFFFF && tile & solid) {
                             int32 mask      = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].roofMasks[colX & 0xF];
                             int32 ty        = cy + mask;
-                            int32 tileAngle = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
+                            int32 tileAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
 
                             if (mask < 0xFF) {
                                 if (!sensor->collided || startY <= ty) {
-                                    if (abs(colY - ty) <= collisionTolerance && abs(sensor->angle - tileAngle) <= 0x20) {
-                                        sensor->collided = true;
-                                        sensor->angle    = tileAngle;
-                                        sensor->pos.y    = (ty + layer->position.y) << 0x10;
-                                        startY           = ty;
-                                        i                = 3;
+                                    if (abs(colY - ty) <= collisionTolerance && abs(sensor->angle - tileAngle) <= roofAngleTolerance) {
+                                        sensor->collided   = true;
+                                        sensor->angle      = tileAngle;
+                                        sensor->position.y = (ty + layer->position.y) << 0x10;
+                                        startY             = ty;
+                                        i                  = 3;
                                     }
                                 }
                             }
@@ -1725,12 +2203,11 @@ void RSDK::FindRoofPosition(CollisionSensor *sensor)
 }
 void RSDK::FindRWallPosition(CollisionSensor *sensor)
 {
-    int32 posX = (sensor->pos.x >> 0x10);
-    int32 posY = (sensor->pos.y >> 0x10);
+    int32 posX = sensor->position.x >> 0x10;
+    int32 posY = sensor->position.y >> 0x10;
 
-    int32 solid = (1 << 12) | (1 << 13);
-    if (collisionEntity->collisionPlane)
-        solid = (1 << 14) | (1 << 15);
+    int32 solid = collisionEntity->collisionPlane ? ((1 << 14) | (1 << 15)) : ((1 << 12) | (1 << 13));
+
     int32 startX = posX;
 
     for (int32 l = 0, layerID = 1; l < LAYER_COUNT; ++l, layerID <<= 1) {
@@ -1748,16 +2225,16 @@ void RSDK::FindRWallPosition(CollisionSensor *sensor)
                         if (tile < 0xFFFF && tile & solid) {
                             int32 mask      = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].rWallMasks[colY & 0xF];
                             int32 tx        = cx + mask;
-                            int32 tileAngle = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].rWallAngle;
+                            int32 tileAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].rWallAngle;
 
                             if (mask < 0xFF) {
                                 if (!sensor->collided || startX <= tx) {
-                                    if (abs(colX - tx) <= collisionTolerance && abs(sensor->angle - tileAngle) <= 0x20) {
-                                        sensor->collided = true;
-                                        sensor->angle    = tileAngle;
-                                        sensor->pos.x    = (tx + layer->position.x) << 0x10;
-                                        startX           = tx;
-                                        i                = 3;
+                                    if (abs(colX - tx) <= collisionTolerance && abs(sensor->angle - tileAngle) <= wallAngleTolerance) {
+                                        sensor->collided   = true;
+                                        sensor->angle      = tileAngle;
+                                        sensor->position.x = (tx + layer->position.x) << 0x10;
+                                        startX             = tx;
+                                        i                  = 3;
                                     }
                                 }
                             }
@@ -1776,12 +2253,21 @@ void RSDK::FindRWallPosition(CollisionSensor *sensor)
 
 void RSDK::FloorCollision(CollisionSensor *sensor)
 {
-    int32 posX = (sensor->pos.x >> 0x10);
-    int32 posY = (sensor->pos.y >> 0x10);
+    int32 posX = sensor->position.x >> 0x10;
+    int32 posY = sensor->position.y >> 0x10;
 
-    int32 solid = 1 << 12;
-    if (collisionEntity->collisionPlane)
-        solid = 1 << 14;
+    int32 solid = 0;
+#if RETRO_REV0U
+    if (!collisionEntity->tileCollisions)
+        solid = collisionEntity->collisionPlane ? (1 << 15) : (1 << 13);
+    else
+#endif
+        solid = collisionEntity->collisionPlane ? (1 << 14) : (1 << 12);
+
+#if RETRO_REV0U
+    int32 collideAngle = 0;
+    int32 collidePos   = 0x7FFFFFFF;
+#endif
 
     for (int32 l = 0, layerID = 1; l < LAYER_COUNT; ++l, layerID <<= 1) {
         if (collisionEntity->collisionLayers & layerID) {
@@ -1792,21 +2278,39 @@ void RSDK::FloorCollision(CollisionSensor *sensor)
 
             if (colX >= 0 && colX < TILE_SIZE * layer->xsize) {
                 for (int32 i = 0; i < 3; ++i) {
+                    int32 step = TILE_SIZE;
+
                     if (cy >= 0 && cy < TILE_SIZE * layer->ysize) {
                         uint16 tile = layer->layout[(colX / TILE_SIZE) + ((cy / TILE_SIZE) << layer->widthShift)];
                         if (tile < 0xFFFF && tile & solid) {
                             int32 mask = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].floorMasks[colX & 0xF];
-                            int32 ty   = cy + mask;
-                            if (mask < 0xFF && colY >= ty && abs(colY - ty) <= 14) {
-                                sensor->collided = true;
-                                sensor->angle    = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
-                                sensor->pos.y    = (ty + layer->position.y) << 0x10;
-                                i                = 3;
+#if RETRO_REV0U
+                            int32 ty = layer->position.y + cy + mask;
+#else
+                            int32 ty = cy + mask;
+#endif
+                            if (mask < 0xFF) {
+                                step = -TILE_SIZE;
+
+                                if (colY >= ty) {
+#if RETRO_REV0U
+                                    collideAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
+                                    collidePos   = ty;
+                                    i            = 3;
+#else
+                                    if (abs(colY - ty) <= 14) {
+                                        sensor->collided   = true;
+                                        sensor->angle      = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
+                                        sensor->position.y = (ty + layer->position.y) << 0x10;
+                                        i                  = 3;
+                                    }
+#endif
+                                }
                             }
                         }
                     }
 
-                    cy += TILE_SIZE;
+                    cy += step;
                 }
             }
 
@@ -1814,15 +2318,24 @@ void RSDK::FloorCollision(CollisionSensor *sensor)
             posY = layer->position.y + colY;
         }
     }
+
+#if RETRO_REV0U
+    if (collidePos != 0x7FFFFFFF) {
+        int32 collideDist = sensor->position.y - (collidePos << 16);
+        if (sensor->position.y >= (collidePos << 16) && collideDist <= collisionMinimumDistance) {
+            sensor->angle      = collideAngle;
+            sensor->position.y = collidePos << 16;
+            sensor->collided   = true;
+        }
+    }
+#endif
 }
 void RSDK::LWallCollision(CollisionSensor *sensor)
 {
-    int32 posX = (sensor->pos.x >> 0x10);
-    int32 posY = (sensor->pos.y >> 0x10);
+    int32 posX = sensor->position.x >> 0x10;
+    int32 posY = sensor->position.y >> 0x10;
 
-    int32 solid = 1 << 13;
-    if (collisionEntity->collisionPlane)
-        solid = 1 << 15;
+    int32 solid = collisionEntity->collisionPlane ? (1 << 15) : (1 << 13);
 
     for (int32 l = 0, layerID = 1; l < LAYER_COUNT; ++l, layerID <<= 1) {
         if (collisionEntity->collisionLayers & layerID) {
@@ -1840,10 +2353,10 @@ void RSDK::LWallCollision(CollisionSensor *sensor)
                             int32 mask = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].lWallMasks[colY & 0xF];
                             int32 tx   = cx + mask;
                             if (mask < 0xFF && colX >= tx && abs(colX - tx) <= 14) {
-                                sensor->collided = true;
-                                sensor->angle    = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].lWallAngle;
-                                sensor->pos.x    = (tx + layer->position.x) << 0x10;
-                                i                = 3;
+                                sensor->collided   = true;
+                                sensor->angle      = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].lWallAngle;
+                                sensor->position.x = (tx + layer->position.x) << 0x10;
+                                i                  = 3;
                             }
                         }
                     }
@@ -1859,12 +2372,21 @@ void RSDK::LWallCollision(CollisionSensor *sensor)
 }
 void RSDK::RoofCollision(CollisionSensor *sensor)
 {
-    int32 posX = (sensor->pos.x >> 0x10);
-    int32 posY = (sensor->pos.y >> 0x10);
+    int32 posX = sensor->position.x >> 0x10;
+    int32 posY = sensor->position.y >> 0x10;
 
-    int32 solid = 1 << 13;
-    if (collisionEntity->collisionPlane)
-        solid = 1 << 15;
+    int32 solid = 0;
+#if RETRO_REV0U
+    if (!collisionEntity->tileCollisions)
+        solid = collisionEntity->collisionPlane ? (1 << 14) : (1 << 12);
+    else
+#endif
+        solid = collisionEntity->collisionPlane ? (1 << 15) : (1 << 13);
+
+#if RETRO_REV0U
+    int32 collideAngle = 0;
+    int32 collidePos   = -1;
+#endif
 
     for (int32 l = 0, layerID = 1; l < LAYER_COUNT; ++l, layerID <<= 1) {
         if (collisionEntity->collisionLayers & layerID) {
@@ -1875,6 +2397,8 @@ void RSDK::RoofCollision(CollisionSensor *sensor)
 
             if (colX >= 0 && colX < TILE_SIZE * layer->xsize) {
                 for (int32 i = 0; i < 3; ++i) {
+                    int32 step = -TILE_SIZE;
+
                     if (cy >= 0 && cy < TILE_SIZE * layer->ysize) {
                         int32 tileX = (colX / TILE_SIZE);
                         int32 tileY = (cy / TILE_SIZE);
@@ -1882,17 +2406,33 @@ void RSDK::RoofCollision(CollisionSensor *sensor)
 
                         if (tile < 0xFFFF && tile & solid) {
                             int32 mask = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].roofMasks[colX & 0xF];
-                            int32 ty   = cy + mask;
-                            if (mask < 0xFF && colY < ty && abs(colY - ty) <= 14) {
-                                sensor->collided = true;
-                                sensor->angle    = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
-                                sensor->pos.y    = (ty + layer->position.y) << 0x10;
-                                i                = 3;
+#if RETRO_REV0U
+                            int32 ty = layer->position.y + cy + mask;
+#else
+                            int32 ty = cy + mask;
+#endif
+                            if (mask < 0xFF) {
+                                step = TILE_SIZE;
+
+                                if (colY < ty) {
+#if RETRO_REV0U
+                                    collideAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
+                                    collidePos   = ty;
+                                    i            = 3;
+#else
+                                    if (abs(colY - ty) <= 14) {
+                                        sensor->collided   = true;
+                                        sensor->angle      = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
+                                        sensor->position.y = (ty + layer->position.y) << 0x10;
+                                        i                  = 3;
+                                    }
+#endif
+                                }
                             }
                         }
                     }
 
-                    cy -= TILE_SIZE;
+                    cy += step;
                 }
             }
 
@@ -1900,15 +2440,21 @@ void RSDK::RoofCollision(CollisionSensor *sensor)
             posY = layer->position.y + colY;
         }
     }
+
+#if RETRO_REV0U
+    if (collidePos >= 0 && sensor->position.y <= collidePos << 16 && sensor->position.y - (collidePos << 16) >= -collisionMinimumDistance) {
+        sensor->angle      = collideAngle;
+        sensor->position.y = collidePos << 16;
+        sensor->collided   = true;
+    }
+#endif
 }
 void RSDK::RWallCollision(CollisionSensor *sensor)
 {
-    int32 posX = (sensor->pos.x >> 0x10);
-    int32 posY = (sensor->pos.y >> 0x10);
+    int32 posX = sensor->position.x >> 0x10;
+    int32 posY = sensor->position.y >> 0x10;
 
-    int32 solid = 1 << 13;
-    if (collisionEntity->collisionPlane)
-        solid = 1 << 15;
+    int32 solid = collisionEntity->collisionPlane ? (1 << 15) : (1 << 13);
 
     for (int32 l = 0, layerID = 1; l < LAYER_COUNT; ++l, layerID <<= 1) {
         if (collisionEntity->collisionLayers & layerID) {
@@ -1926,10 +2472,10 @@ void RSDK::RWallCollision(CollisionSensor *sensor)
                             int32 mask = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].rWallMasks[colY & 0xF];
                             int32 tx   = cx + mask;
                             if (mask < 0xFF && colX <= tx && abs(colX - tx) <= 14) {
-                                sensor->collided = true;
-                                sensor->angle    = collisionMasks[collisionEntity->collisionPlane][tile & 0xFFF].rWallAngle;
-                                sensor->pos.x    = (tx + layer->position.x) << 0x10;
-                                i                = 3;
+                                sensor->collided   = true;
+                                sensor->angle      = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].rWallAngle;
+                                sensor->position.x = (tx + layer->position.x) << 0x10;
+                                i                  = 3;
                             }
                         }
                     }

@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/DrawingLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 // all render devices need to access the initial vertex buffer :skull:
@@ -371,6 +375,42 @@ void RSDK::GetDisplayInfo(int32 *displayID, int32 *width, int32 *height, int32 *
 }
 
 void RSDK::GetWindowSize(int32 *width, int32 *height) { RenderDevice::GetWindowSize(width, height); }
+
+void RSDK::SetScreenSize(uint8 screenID, uint16 width, uint16 height)
+{
+    if (screenID < SCREEN_COUNT) {
+        ScreenInfo *screen = &screens[screenID];
+
+        screen->size.x   = width;
+        screen->size.y   = height & 0xFFF0;
+        screen->pitch    = (screen->size.x + 15) & 0xFFFFFFF0;
+        screen->center.x = screen->size.x >> 1;
+        screen->center.y = screen->size.y >> 1;
+
+        screen->clipBound_X1 = 0;
+        screen->clipBound_X2 = screen->size.x;
+        screen->clipBound_Y1 = 0;
+        screen->clipBound_Y2 = screen->size.y;
+
+        screen->waterDrawPos = screen->size.y;
+
+#if RETRO_REV0U
+        RSDK::Legacy::SCREEN_XSIZE        = width;
+        RSDK::Legacy::SCREEN_CENTERX      = width / 2;
+        RSDK::Legacy::SCREEN_SCROLL_LEFT  = RSDK::Legacy::SCREEN_CENTERX - 8;
+        RSDK::Legacy::SCREEN_SCROLL_RIGHT = RSDK::Legacy::SCREEN_CENTERX + 8;
+        RSDK::Legacy::OBJECT_BORDER_X2    = width + 0x80;
+        RSDK::Legacy::OBJECT_BORDER_X4    = width + 0x20;
+
+        RSDK::Legacy::GFX_LINESIZE          = screen->pitch;
+        RSDK::Legacy::GFX_LINESIZE_MINUSONE = screen->pitch - 1;
+        RSDK::Legacy::GFX_LINESIZE_DOUBLE   = 2 * screen->pitch;
+        RSDK::Legacy::GFX_FRAMEBUFFERSIZE   = SCREEN_YSIZE * screen->pitch;
+        RSDK::Legacy::GFX_FBUFFERMINUSONE   = SCREEN_YSIZE * screen->pitch - 1;
+#endif
+    }
+}
+
 int32 RSDK::GetVideoSetting(int32 id)
 {
     switch (id) {

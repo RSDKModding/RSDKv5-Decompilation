@@ -119,6 +119,10 @@ void RemoveStorageEntry(void **dataPtr);
 void CopyStorage(int32 **src, int32 **dst);
 void CleanEmptyStorage(StorageDataSets dataSet);
 
+#if RETRO_REV0U
+#include "Legacy/UserStorageLegacy.hpp"
+#endif
+
 } // namespace RSDK
 
 #endif // STORAGE_H

@@ -236,6 +236,10 @@ inline void Clear3DScenes()
     }
 }
 
+#if RETRO_REV0U
+#include "Legacy/Scene3DLegacy.hpp"
+#endif
+
 } // namespace RSDK
 
 #endif

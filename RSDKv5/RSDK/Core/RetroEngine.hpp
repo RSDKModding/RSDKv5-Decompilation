@@ -120,8 +120,10 @@ enum GameRegions {
 #define RETRO_PLATFORM (RETRO_WIN)
 #endif
 
-#define SCREEN_XMAX  (1280)
-#define SCREEN_YSIZE (240)
+#define SCREEN_XMAX (1280)
+
+#define SCREEN_YSIZE   (240)
+#define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
 #define BASE_PATH ""
 
@@ -174,10 +176,18 @@ enum GameRegions {
 // ENGINE CONFIG
 // ============================
 
-// Determines if the engine is RSDKv5 rev01 (all versions pre-plus) or rev02 (all versions post-plus)
-#define RETRO_REVISION (2)
+// Determines if the engine is RSDKv5 rev01 (all versions of mania pre-plus), rev02 (all versions of mania post-plus) or RSDKv5U (sonic origins)
+#define RETRO_REVISION (3)
 
+// RSDKv5 Rev02 (Used prior to Sonic Mania Plus)
+#define RETRO_REV01 (RETRO_REVISION >= 1)
+
+// RSDKv5 Rev02 (Used in Sonic Mania Plus)
 #define RETRO_REV02 (RETRO_REVISION >= 2)
+
+// RSDKv5U (Used in Sonic Origins)
+#define RETRO_REV0U (RETRO_REVISION >= 3)
+
 // Determines if the engine should use EGS features like achievements or not (must be rev02)
 #define RETRO_VER_EGS (RETRO_REV02 && 0)
 
@@ -444,8 +454,8 @@ enum GameRegions {
 #include "RSDK/Graphics/Palette.hpp"
 #include "RSDK/Graphics/Drawing.hpp"
 #include "RSDK/Graphics/Scene3D.hpp"
-#include "RSDK/Scene/Collision.hpp"
 #include "RSDK/Scene/Scene.hpp"
+#include "RSDK/Scene/Collision.hpp"
 #include "RSDK/Graphics/Sprite.hpp"
 #include "RSDK/Graphics/Video.hpp"
 #include "RSDK/Dev/Debug.hpp"
@@ -490,6 +500,14 @@ struct RetroEngine {
     bool32 initialized = false;
     bool32 hardPause   = false;
 
+#if RETRO_REV0U
+    uint8 version = 5; // determines what RSDK version to use, default to RSDKv5 since thats the "core" version
+
+    const char *gamePlatform;
+    const char *gameRenderType;
+    const char *gameHapticSetting;
+#endif
+
     int32 storedShaderID      = SHADER_NONE;
     int32 storedState         = ENGINESTATE_LOAD;
     int32 gameSpeed           = 1;
@@ -528,6 +546,7 @@ void ProcessEngine();
 
 void ParseArguments(int32 argc, char *argv[]);
 
+void InitEngine();
 void StartGameObjects();
 
 #if RETRO_USE_MOD_LOADER
@@ -549,13 +568,32 @@ inline void SetEngineState(uint8 state)
         sceneInfo.state |= ENGINESTATE_STEPOVER;
 }
 
+#if RETRO_REV0U
+inline void SetGameFinished() { sceneInfo.state = ENGINESTATE_GAME_FINISHED; }
+#endif
+
 extern int32 *globalVarsPtr;
 
+#if RETRO_REV0U
+extern void (*globalVarsInitCB)(void *globals);
+
+inline void RegisterGlobalVariables(void **globals, int32 size, void (*initCB)(void *globals))
+{
+    AllocateStorage(globals, size, DATASET_STG, true);
+    globalVarsPtr    = (int32 *)*globals;
+    globalVarsInitCB = initCB;
+}
+#else
 inline void RegisterGlobalVariables(void **globals, int32 size)
 {
     AllocateStorage(globals, size, DATASET_STG, true);
     globalVarsPtr = (int32 *)*globals;
 }
+#endif
+
+#if RETRO_REV0U
+#include "Legacy/RetroEngineLegacy.hpp"
+#endif
 
 } // namespace RSDK
 

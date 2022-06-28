@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/TextLegacy.cpp"
+#endif
+
 // From here: https://rosettacode.org/wiki/MD5#C
 
 #include <stdlib.h>
@@ -126,6 +130,35 @@ unsigned *md5(const char *msg, int32 mlen)
 
     return h;
 }
+
+#if RETRO_REV0U
+int32 RSDK::FindStringToken(const char *string, const char *token, uint8 stopID)
+{
+    int32 tokenCharID  = 0;
+    bool32 tokenMatch  = true;
+    int32 stringCharID = 0;
+    int32 foundTokenID = 0;
+
+    while (string[stringCharID]) {
+        tokenCharID = 0;
+        tokenMatch  = true;
+        while (token[tokenCharID]) {
+            if (!string[tokenCharID + stringCharID])
+                return -1;
+
+            if (string[tokenCharID + stringCharID] != token[tokenCharID])
+                tokenMatch = false;
+
+            ++tokenCharID;
+        }
+        if (tokenMatch && ++foundTokenID == stopID)
+            return stringCharID;
+
+        ++stringCharID;
+    }
+    return -1;
+}
+#endif
 
 using namespace RSDK;
 

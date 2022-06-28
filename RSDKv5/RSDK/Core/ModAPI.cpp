@@ -74,8 +74,8 @@ void RSDK::InitModAPI()
     ADD_MOD_FUNCTION(ModTable_RegisterObjectSTD, ModRegisterObject_STD);
     ADD_MOD_FUNCTION(ModTable_RegisterObjectHook, ModRegisterObjectHook);
     ADD_MOD_FUNCTION(ModTable_FindObject, ModFindObject);
-    ADD_MOD_FUNCTION(ModTable_Super, Super);
     ADD_MOD_FUNCTION(ModTable_GetGlobals, GetGlobals);
+    ADD_MOD_FUNCTION(ModTable_Super, Super);
 
     // Mod Info
     ADD_MOD_FUNCTION(ModTable_LoadModInfo, LoadModInfo);
@@ -1113,24 +1113,9 @@ void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data
     }
 
     switch (callback) {
-        case SUPER_CREATE:
-            if (super->create)
-                super->create(data);
-            break;
-
-        case SUPER_DRAW:
-            if (super->draw)
-                super->draw();
-            break;
-
         case SUPER_UPDATE:
             if (super->update)
                 super->update();
-            break;
-
-        case SUPER_STAGELOAD:
-            if (super->stageLoad)
-                super->stageLoad();
             break;
 
         case SUPER_LATEUPDATE:
@@ -1143,9 +1128,31 @@ void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data
                 super->staticUpdate();
             break;
 
-        case SUPER_SERIALIZE:
-            if (super->serialize)
-                super->serialize();
+        case SUPER_DRAW:
+            if (super->draw)
+                super->draw();
+            break;
+
+        case SUPER_CREATE:
+            if (super->create)
+                super->create(data);
+            break;
+
+        case SUPER_STAGELOAD:
+            if (super->stageLoad)
+                super->stageLoad();
+            break;
+
+#if RETRO_REV0U
+        case SUPER_STATICLOAD:
+            if (super->staticLoad)
+                super->staticLoad((Object *)data);
+            break;
+#endif
+
+        case SUPER_EDITORDRAW:
+            if (super->editorDraw)
+                super->editorDraw();
             break;
 
         case SUPER_EDITORLOAD:
@@ -1153,9 +1160,9 @@ void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data
                 super->editorLoad();
             break;
 
-        case SUPER_EDITORDRAW:
-            if (super->editorDraw)
-                super->editorDraw();
+        case SUPER_SERIALIZE:
+            if (super->serialize)
+                super->serialize();
             break;
     }
 
@@ -1190,6 +1197,23 @@ void RSDK::ModRegisterGlobalVariables(const char *globalsPath, void **globals, u
     }
 }
 
+#if RETRO_REV0U
+void RSDK::ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
+                             uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
+                             void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(),
+                             void (*staticLoad)(Object *), const char *inherited)
+{
+    return ModRegisterObject_STD(staticVars, modStaticVars, name, entityClassSize, staticClassSize, modClassSize, update, lateUpdate, staticUpdate,
+                                 draw, create, stageLoad, editorDraw, editorLoad, serialize, staticLoad, inherited);
+}
+
+void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
+                                 uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate,
+                                 std::function<void()> staticUpdate, std::function<void()> draw, std::function<void(void *)> create,
+                                 std::function<void()> stageLoad, std::function<void()> editorDraw, std::function<void()> editorLoad,
+                                 std::function<void()> serialize, std::function<void(Object *)> staticLoad, const char *inherited)
+#else
+
 void RSDK::ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
                              uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
                              void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(),
@@ -1204,6 +1228,7 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, co
                                  std::function<void()> staticUpdate, std::function<void()> draw, std::function<void(void *)> create,
                                  std::function<void()> stageLoad, std::function<void()> editorDraw, std::function<void()> editorLoad,
                                  std::function<void()> serialize, const char *inherited)
+#endif
 {
     ModInfo *curMod = currentMod;
     int32 preCount  = objectClassCount + 1;
@@ -1245,21 +1270,29 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, co
             entityClassSize = inherit->entityClassSize;
     }
 
+#if RETRO_REV0U
+    RegisterObject_STD(staticVars, name, entityClassSize, staticClassSize, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                       nullptr, nullptr);
+#else
     RegisterObject_STD(staticVars, name, entityClassSize, staticClassSize, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                        nullptr);
+#endif
 
     ObjectClass *info = &objectClassList[objectClassCount - 1];
 
     // clang-format off
-    if (update)       info->update       = [curMod, update]()           { currentMod = curMod; update();       currentMod = NULL; };
-    if (lateUpdate)   info->lateUpdate   = [curMod, lateUpdate]()       { currentMod = curMod; lateUpdate();   currentMod = NULL; };
-    if (staticUpdate) info->staticUpdate = [curMod, staticUpdate]()     { currentMod = curMod; staticUpdate(); currentMod = NULL; };
-    if (draw)         info->draw         = [curMod, draw]()             { currentMod = curMod; draw();         currentMod = NULL; };
-    if (create)       info->create       = [curMod, create](void* data) { currentMod = curMod; create(data);   currentMod = NULL; };
-    if (stageLoad)    info->stageLoad    = [curMod, stageLoad]()        { currentMod = curMod; stageLoad();    currentMod = NULL; };
-    if (editorDraw)   info->editorDraw   = [curMod, editorDraw]()       { currentMod = curMod; editorDraw();   currentMod = NULL; };
-    if (editorLoad)   info->editorLoad   = [curMod, editorLoad]()       { currentMod = curMod; editorLoad();   currentMod = NULL; };
-    if (serialize)    info->serialize    = [curMod, serialize]()        { currentMod = curMod; serialize();    currentMod = NULL; };
+    if (update)       info->update       = [curMod, update]()                       { currentMod = curMod; update();                currentMod = NULL; };
+    if (lateUpdate)   info->lateUpdate   = [curMod, lateUpdate]()                   { currentMod = curMod; lateUpdate();            currentMod = NULL; };
+    if (staticUpdate) info->staticUpdate = [curMod, staticUpdate]()                 { currentMod = curMod; staticUpdate();          currentMod = NULL; };
+    if (draw)         info->draw         = [curMod, draw]()                         { currentMod = curMod; draw();                  currentMod = NULL; };
+    if (create)       info->create       = [curMod, create](void* data)             { currentMod = curMod; create(data);            currentMod = NULL; };
+    if (stageLoad)    info->stageLoad    = [curMod, stageLoad]()                    { currentMod = curMod; stageLoad();             currentMod = NULL; };
+#if RETRO_REV0U
+    if (staticLoad)   info->staticLoad   = [curMod, staticLoad](Object *staticVars) { currentMod = curMod; staticLoad(staticVars);  currentMod = NULL; };
+#endif
+    if (editorDraw)   info->editorDraw   = [curMod, editorDraw]()                   { currentMod = curMod; editorDraw();            currentMod = NULL; };
+    if (editorLoad)   info->editorLoad   = [curMod, editorLoad]()                   { currentMod = curMod; editorLoad();            currentMod = NULL; };
+    if (serialize)    info->serialize    = [curMod, serialize]()                    { currentMod = curMod; serialize();             currentMod = NULL; };
     // clang-format on
 
     if (inherited) {
@@ -1280,15 +1313,18 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, co
         }
 
         // clang-format off
-        if (!update)       info->update       = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_UPDATE, NULL);       currentMod = NULL; };
-        if (!lateUpdate)   info->lateUpdate   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_LATEUPDATE, NULL);   currentMod = NULL; };
-        if (!staticUpdate) info->staticUpdate = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STATICUPDATE, NULL); currentMod = NULL; };
-        if (!draw)         info->draw         = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_DRAW, NULL);         currentMod = NULL; };
-        if (!create)       info->create       = [curMod, info](void* data) { currentMod = curMod; SuperInternal(info, SUPER_CREATE, data);       currentMod = NULL; };
-        if (!stageLoad)    info->stageLoad    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_STAGELOAD, NULL);    currentMod = NULL; };
-        if (!editorDraw)   info->editorDraw   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORDRAW, NULL);   currentMod = NULL; };
-        if (!editorLoad)   info->editorLoad   = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_EDITORLOAD, NULL);   currentMod = NULL; };
-        if (!serialize)    info->serialize    = [curMod, info]()           { currentMod = curMod; SuperInternal(info, SUPER_SERIALIZE, NULL);    currentMod = NULL; };
+        if (!update)       info->update       = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_UPDATE, NULL);            currentMod = NULL; };
+        if (!lateUpdate)   info->lateUpdate   = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_LATEUPDATE, NULL);        currentMod = NULL; };
+        if (!staticUpdate) info->staticUpdate = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_STATICUPDATE, NULL);      currentMod = NULL; };
+        if (!draw)         info->draw         = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_DRAW, NULL);              currentMod = NULL; };
+        if (!create)       info->create       = [curMod, info](void* data)          { currentMod = curMod; SuperInternal(info, SUPER_CREATE, data);            currentMod = NULL; };
+        if (!stageLoad)    info->stageLoad    = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_STAGELOAD, NULL);         currentMod = NULL; };
+#if RETRO_REV0U
+        if (!staticLoad)   info->staticLoad   = [curMod, info](Object *staticVars)  { currentMod = curMod; SuperInternal(info, SUPER_STATICLOAD, staticVars);  currentMod = NULL; };
+#endif
+        if (!editorDraw)   info->editorDraw   = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_EDITORDRAW, NULL);        currentMod = NULL; };
+        if (!editorLoad)   info->editorLoad   = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_EDITORLOAD, NULL);        currentMod = NULL; };
+        if (!serialize)    info->serialize    = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_SERIALIZE, NULL);         currentMod = NULL; };
         // clang-format on
     }
 

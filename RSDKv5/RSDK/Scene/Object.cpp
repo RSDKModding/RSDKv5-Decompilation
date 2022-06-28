@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/ObjectLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 ObjectClass RSDK::objectClassList[OBJECT_COUNT];
@@ -21,6 +25,26 @@ bool32 RSDK::validDraw = false;
 ForeachStackInfo RSDK::foreachStackList[FOREACH_STACK_COUNT];
 ForeachStackInfo *RSDK::foreachStackPtr = NULL;
 
+#if RETRO_REV0U
+#if RETRO_USE_MOD_LOADER
+void RSDK::RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(),
+                          void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(),
+                          void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), void (*staticLoad)(Object *))
+{
+    return RegisterObject_STD(staticVars, name, entityClassSize, staticClassSize, update, lateUpdate, staticUpdate, draw, create, stageLoad,
+                              editorDraw, editorLoad, serialize, staticLoad);
+}
+
+void RSDK::RegisterObject_STD(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, std::function<void()> update,
+                              std::function<void()> lateUpdate, std::function<void()> staticUpdate, std::function<void()> draw,
+                              std::function<void(void *)> create, std::function<void()> stageLoad, std::function<void()> editorDraw,
+                              std::function<void()> editorLoad, std::function<void()> serialize, std::function<void(Object *)> staticLoad)
+#else
+void RSDK::RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(),
+                          void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(),
+                          void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), void (*staticLoad)())
+#endif
+#else
 #if RETRO_USE_MOD_LOADER
 void RSDK::RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(),
                           void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(),
@@ -38,6 +62,7 @@ void RSDK::RegisterObject_STD(Object **staticVars, const char *name, uint32 enti
 void RSDK::RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(),
                           void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(),
                           void (*editorDraw)(), void (*editorLoad)(), void (*serialize)())
+#endif
 #endif
 {
     if (objectClassCount < OBJECT_COUNT) {
@@ -58,6 +83,9 @@ void RSDK::RegisterObject(Object **staticVars, const char *name, uint32 entityCl
         classInfo->editorDraw      = editorDraw;
         classInfo->editorLoad      = editorLoad;
         classInfo->serialize       = serialize;
+#if RETRO_REV0U
+        classInfo->staticLoad = staticLoad;
+#endif
 
         ++objectClassCount;
     }
@@ -1064,7 +1092,7 @@ bool32 RSDK::GetActiveEntities(uint16 group, Entity **entity)
 
     return false;
 }
-bool32 RSDK::GetEntities(uint16 classID, Entity **entity)
+bool32 RSDK::GetAllEntities(uint16 classID, Entity **entity)
 {
     if (classID >= OBJECT_COUNT)
         return false;

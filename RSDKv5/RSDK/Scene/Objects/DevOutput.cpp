@@ -69,6 +69,10 @@ void RSDK::DevOutput_Create(void *data)
 
 void RSDK::DevOutput_StageLoad() {}
 
+#if RETRO_REV0U
+void RSDK::DevOutput_StaticLoad(ObjectDevOutput *staticVars) { memset(staticVars, 0, sizeof(*staticVars)); }
+#endif
+
 void RSDK::DevOutput_EditorDraw() {}
 
 void RSDK::DevOutput_EditorLoad() {}

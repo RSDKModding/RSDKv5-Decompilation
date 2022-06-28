@@ -12,6 +12,9 @@ namespace RSDK
 #define maxVal(a, b)                      ((a) > (b) ? (a) : (b))
 #define clampVal(value, minimum, maximum) (((value) < (minimum)) ? (minimum) : (((value) > (maximum)) ? (maximum) : (value)))
 
+// M_PI is *too* accurate, so use this instead
+#define RSDK_PI (3.1415927)
+
 struct Vector2 {
     int32 x;
     int32 y;
@@ -39,7 +42,14 @@ extern int32 acos256LookupTable[0x100];
 
 extern uint8 arcTan256LookupTable[0x100 * 0x100];
 
+// TODO: move to Legacy/Math
+#if RETRO_REV0U
+extern int32 sinM7LookupTable[0x200];
+extern int32 cosM7LookupTable[0x200];
+#endif
+
 // Setup angles
+void ClearTrigLookupTables();
 void CalculateTrigAngles();
 
 inline int32 Sin1024(int32 angle) { return sin1024LookupTable[angle & 0x3FF]; }

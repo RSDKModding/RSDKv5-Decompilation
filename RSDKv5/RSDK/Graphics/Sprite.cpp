@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/SpriteLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 const int32 LOADING_IMAGE = 0;

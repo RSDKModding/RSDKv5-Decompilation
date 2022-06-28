@@ -23,6 +23,66 @@ struct String {
     int16 size;    // total alloc length
 };
 
+#if RETRO_REV0U
+inline void StrCopy(char *dest, const char *src)
+{
+#ifdef USE_STDLIB
+    strcpy(dest, src);
+#else
+    int i = 0;
+    for (; src[i]; ++i) dest[i] = src[i];
+    dest[i] = 0;
+#endif
+}
+
+inline void StrAdd(char *dest, const char *src)
+{
+    int32 destStrPos = 0;
+    int32 srcStrPos  = 0;
+    while (dest[destStrPos]) ++destStrPos;
+    while (true) {
+        if (!src[srcStrPos]) {
+            break;
+        }
+        dest[destStrPos++] = src[srcStrPos++];
+    }
+    dest[destStrPos] = 0;
+}
+
+inline bool StrComp(const char *stringA, const char *stringB)
+{
+    bool32 match    = true;
+    bool32 finished = false;
+    while (!finished) {
+        if (*stringA == *stringB || *stringA == *stringB + ' ' || *stringA == *stringB - ' ') {
+            if (*stringA) {
+                ++stringA;
+                ++stringB;
+            }
+            else {
+                finished = true;
+            }
+        }
+        else {
+            match    = false;
+            finished = true;
+        }
+    }
+
+    return match;
+}
+
+inline int StrLength(const char *string)
+{
+    int len = 0;
+    for (len = 0; string[len]; len++)
+        ;
+    return len;
+}
+
+int32 FindStringToken(const char *string, const char *token, uint8 stopID);
+#endif
+
 inline void StringLowerCase(char *dest, const char *src)
 {
     int32 destPos = 0;
@@ -152,6 +212,10 @@ bool32 CompareStrings(String *string1, String *string2, bool32 exactMatch);
 void InitStringList(String *stringList, int32 size);
 void LoadStringList(String *stringList, const char *filePath, uint32 charSize);
 bool32 SplitStringList(String *splitStrings, String *stringList, int32 startStringID, int32 stringCount);
+
+#if RETRO_REV0U
+#include "Legacy/TextLegacy.hpp"
+#endif
 
 } // namespace RSDK
 

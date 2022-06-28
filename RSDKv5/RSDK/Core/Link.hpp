@@ -10,6 +10,9 @@ enum APITableIDs {
     APITable_GetConfirmButtonFlip,
     APITable_ExitGame,
     APITable_LaunchManual,
+#if RETRO_REV0U
+    APITable_GetDefaultGamepadType,
+#endif
     APITable_IsOverlayEnabled,
     APITable_CheckDLC,
 #if RETRO_VER_EGS
@@ -95,7 +98,7 @@ enum FunctionTableIDs {
     FunctionTable_RegisterStaticVariables,
 #endif
     FunctionTable_GetActiveEntities,
-    FunctionTable_GetEntities,
+    FunctionTable_GetAllEntities,
     FunctionTable_BreakForeachLoop,
     FunctionTable_SetEditableVar,
     FunctionTable_GetEntity,
@@ -172,7 +175,7 @@ enum FunctionTableIDs {
     FunctionTable_SetScreenSize,
     FunctionTable_SetClipBounds,
 #if RETRO_REV02
-    FunctionTable_SetScreenRenderVertices,
+    FunctionTable_SetScreenVertices,
 #endif
     FunctionTable_LoadSpriteSheet,
     FunctionTable_SetTintLookupTable,
@@ -201,6 +204,9 @@ enum FunctionTableIDs {
     FunctionTable_DrawTile,
     FunctionTable_CopyTile,
     FunctionTable_DrawAniTile,
+#if RETRO_REV0U
+    FunctionTable_DrawDynamicAniTile,
+#endif
     FunctionTable_FillScreen,
     FunctionTable_LoadMesh,
     FunctionTable_Create3DScene,
@@ -238,13 +244,32 @@ enum FunctionTableIDs {
     FunctionTable_ObjectTileCollision,
     FunctionTable_ObjectTileGrip,
     FunctionTable_ProcessObjectMovement,
+#if RETRO_REV0U
+    FunctionTable_SetupCollisionConfig,
+    FunctionTable_SetPathGripSensors,
+    FunctionTable_FloorCollision,
+    FunctionTable_LWallCollision,
+    FunctionTable_RoofCollision,
+    FunctionTable_RWallCollision,
+    FunctionTable_FindFloorPosition,
+    FunctionTable_FindLWallPosition,
+    FunctionTable_FindRoofPosition,
+    FunctionTable_FindRWallPosition,
+#endif
     FunctionTable_GetTileAngle,
     FunctionTable_SetTileAngle,
     FunctionTable_GetTileFlags,
     FunctionTable_SetTileFlags,
+#if RETRO_REV0U
+    FunctionTable_CopyCollisionMask,
+    FunctionTable_GetCollisionInfo,
+#endif
     FunctionTable_GetSfx,
     FunctionTable_PlaySfx,
     FunctionTable_StopSfx,
+#if RETRO_REV0U
+    FunctionTable_StopAllSfx,
+#endif
     FunctionTable_PlayMusic,
     FunctionTable_SetChannelAttributes,
     FunctionTable_StopChannel,
@@ -256,19 +281,19 @@ enum FunctionTableIDs {
     FunctionTable_LoadVideo,
     FunctionTable_LoadImage,
 #if RETRO_REV02
-    FunctionTable_ControllerIDForInputID,
-    FunctionTable_MostRecentActiveControllerID,
-    FunctionTable_GetControllerType,
-    FunctionTable_GetAssignedControllerID,
+    FunctionTable_GetInputDeviceID,
+    FunctionTable_GetFilteredInputDeviceID,
+    FunctionTable_GetInputDeviceType,
+    FunctionTable_IsInputDeviceAssigned,
     FunctionTable_GetInputUnknown,
     FunctionTable_InputUnknown1,
     FunctionTable_InputUnknown2,
     FunctionTable_GetControllerUnknown,
     FunctionTable_ControllerUnknown1,
     FunctionTable_ControllerUnknown2,
-    FunctionTable_AssignControllerID,
-    FunctionTable_InputIDIsConnected,
-    FunctionTable_ResetControllerAssignments,
+    FunctionTable_AssignInputSlotToDevice,
+    FunctionTable_IsInputSlotAssigned,
+    FunctionTable_ResetInputSlotAssignments,
 #endif
 #if !RETRO_REV02
     FunctionTable_GetUnknownInputValue,
@@ -287,12 +312,16 @@ enum FunctionTableIDs {
 #endif
     FunctionTable_SetActiveVariable,
     FunctionTable_AddEnumVariable,
+#if !RETRO_REV02
+    FunctionTable_PrintMessage,
+#endif
 #if RETRO_REV02
     FunctionTable_ClearDebugValues,
     FunctionTable_SetDebugValue,
 #endif
-#if !RETRO_REV02
-    FunctionTable_PrintMessage,
+#if RETRO_REV0U
+    FunctionTable_NotifyStats,
+    FunctionTable_SetGameFinished,
 #endif
     FunctionTable_Count,
 };

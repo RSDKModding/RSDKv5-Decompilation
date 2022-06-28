@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/PaletteLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 uint16 RSDK::rgb32To16_R[0x100];

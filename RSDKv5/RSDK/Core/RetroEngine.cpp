@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/RetroEngineLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 LogicLinkHandle RSDK::linkGameLogic = NULL;
@@ -12,6 +16,10 @@ Link::Handle gameLogicHandle = NULL;
 #endif
 
 int32 *RSDK::globalVarsPtr = NULL;
+#if RETRO_REV0U
+void (*RSDK::globalVarsInitCB)(void *globals) = NULL;
+#endif
+
 RetroEngine RSDK::engine   = RetroEngine();
 
 int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
@@ -38,8 +46,12 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 
     RenderDevice::isRunning = false;
     if (InitStorage()) {
-        SKU::InitUserData();
+        SKU::InitUserCore();
         LoadSettingsINI();
+
+#if RETRO_REV0U
+        DetectEngineVersion();
+#endif
 
         // By Default we use the dummy system so this'll never be false
         // its used in cases like steam where it gives the "Steam must be running to play this game" message and closes
@@ -53,9 +65,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
             return 0;
         }
 
-        StartGameObjects();
-        engine.initialized = true;
-        engine.hardPause   = false;
+        InitEngine();
 
         if (RenderDevice::Init()) {
             RenderDevice::isRunning = true;
@@ -114,8 +124,50 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                     continue;
             }
             else {
-                if (!engine.hardPause)
+                if (!engine.hardPause) {
+                    // common stuff
+                    foreachStackPtr = foreachStackList;
+#if !RETRO_USE_ORIGINAL_CODE
+                    debugHitboxCount = 0;
+#endif
+
+#if RETRO_USE_MOD_LOADER
+                    if (sceneInfo.state != ENGINESTATE_DEVMENU && devMenu.modsChanged) {
+                        devMenu.modsChanged = false;
+                        SaveMods();
+                        for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
+#if RETRO_REV02
+                        forceHardReset = true;
+#endif
+                        SceneInfo pre = sceneInfo;
+                        InitEngine();
+                        sceneInfo.classCount = pre.classCount;
+                        if (pre.state == ENGINESTATE_LOAD) {
+                            sceneInfo.activeCategory = pre.activeCategory;
+                            sceneInfo.listPos        = pre.listPos;
+                        }
+                        RenderDevice::SetWindowTitle();
+                        sceneInfo.state = ENGINESTATE_LOAD;
+                    }
+#endif
+
+                    // update device states and other stuff
+                    ProcessInputDevices();
+
+                    if (engine.devMenu)
+                        ProcessDebugCommands();
+
+#if RETRO_REV0U
+                    switch (engine.version) {
+                        default:
+                        case 5: ProcessEngine(); break;
+                        case 4: Legacy::v4::ProcessEngine(); break;
+                        case 3: Legacy::v3::ProcessEngine(); break;
+                    }
+#else
                     ProcessEngine();
+#endif
+                }
 
                 if (videoSettings.windowState != WINDOWSTATE_ACTIVE)
                     continue;
@@ -127,8 +179,14 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                         int32 ty = (int32)(touchInfo.y[t] * screens->size.y);
 
                         if (tx <= 32 && ty <= 32) {
-                            if (engine.devMenu && sceneInfo.state != ENGINESTATE_DEVMENU)
-                                OpenDevMenu();
+                            if (engine.devMenu) {
+#if RETRO_REV0U
+                                if (sceneInfo.state != ENGINESTATE_DEVMENU && RSDK::Legacy::gameMode != RSDK::Legacy::ENGINE_DEVMENU)
+#else
+                                if (sceneInfo.state != ENGINESTATE_DEVMENU)
+#endif
+                                    OpenDevMenu();
+                            }
                         }
                     }
                 }
@@ -180,37 +238,6 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 
 void RSDK::ProcessEngine()
 {
-    foreachStackPtr = foreachStackList;
-#if !RETRO_USE_ORIGINAL_CODE
-    debugHitboxCount = 0;
-#endif
-
-#if RETRO_USE_MOD_LOADER
-    if (sceneInfo.state != ENGINESTATE_DEVMENU && devMenu.modsChanged) {
-        devMenu.modsChanged = false;
-        SaveMods();
-        for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
-#if RETRO_REV02
-        forceHardReset = true;
-#endif
-        SceneInfo pre = sceneInfo;
-        StartGameObjects();
-        sceneInfo.classCount = pre.classCount;
-        if (pre.state == ENGINESTATE_LOAD) {
-            sceneInfo.activeCategory = pre.activeCategory;
-            sceneInfo.listPos        = pre.listPos;
-        }
-        RenderDevice::SetWindowTitle();
-        sceneInfo.state = ENGINESTATE_LOAD;
-    }
-#endif
-
-    // update device states and other stuff
-    ProcessInputDevices();
-
-    if (engine.devMenu)
-        ProcessDebugCommands();
-
     switch (sceneInfo.state) {
         default: break;
 
@@ -474,6 +501,66 @@ void RSDK::ParseArguments(int32 argc, char *argv[])
             engine.devMenu        = true;
         }
     }
+}
+
+void RSDK::InitEngine()
+{
+#if RETRO_REV0U
+    switch (engine.version) {
+        case 5:
+            // engine.currentListPos = 0;
+#endif
+            StartGameObjects();
+#if RETRO_REV0U
+            break;
+
+        case 4:
+            // engine.currentListPos = 0;
+            devMenu.state = DevMenu_MainMenu;
+            SetupFunctionTables();
+
+            Legacy::CalculateTrigAnglesM7();
+
+            engine.gamePlatform      = "STANDARD";
+            engine.gameRenderType    = "SW_RENDERING";
+            engine.gameHapticSetting = "NO_F_FEEDBACK";
+
+            Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
+            if (!useDataPack)
+                sprintf_s(gameVerInfo.gameName, (int32)sizeof(gameVerInfo.gameName), "%s (Data Folder)", gameVerInfo.gameName);
+            strcpy(gameVerInfo.gameVersion, "Legacy v4 Mode");
+
+            Legacy::GenerateBlendLookupTable();
+            Legacy::v4::InitFirstStage();
+            Legacy::ResetCurrentStageFolder();
+            Legacy::v4::ClearScriptData();
+            break;
+
+        case 3:
+            // engine.currentListPos = 0;
+            devMenu.state = DevMenu_MainMenu;
+            SetupFunctionTables();
+
+            Legacy::CalculateTrigAnglesM7();
+
+            engine.gamePlatform      = "Standard";
+            engine.gameRenderType    = "SW_Rendering";
+            engine.gameHapticSetting = "No_Haptics";
+
+            Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
+            if (!useDataPack)
+                sprintf_s(gameVerInfo.gameName, (int32)sizeof(gameVerInfo.gameName), "%s (Data Folder)", gameVerInfo.gameName);
+            strcpy(gameVerInfo.gameVersion, "Legacy v3 Mode");
+
+            Legacy::GenerateBlendLookupTable();
+            Legacy::v3::InitFirstStage();
+            Legacy::ResetCurrentStageFolder();
+            // Legacy::v3::ClearScriptData();
+            break;
+    }
+#endif
+    engine.initialized = true;
+    engine.hardPause   = false;
 }
 
 void RSDK::StartGameObjects()
@@ -765,7 +852,7 @@ void RSDK::LoadGameConfig()
         }
 
         ReadString(&info, gameVerInfo.gameName);
-        if (!useDataFile)
+        if (!useDataPack)
             sprintf_s(gameVerInfo.gameName, (int32)sizeof(gameVerInfo.gameName), "%s (Data Folder)", gameVerInfo.gameName);
         ReadString(&info, gameVerInfo.gameSubName);
         ReadString(&info, gameVerInfo.gameVersion);
@@ -887,18 +974,33 @@ void RSDK::LoadGameConfig()
         }
 
         uint8 varCount = ReadInt8(&info);
-        for (int32 i = 0; i < varCount && globalVarsPtr; ++i) {
+        for (int32 i = 0; i < varCount; ++i) {
+#if RETRO_REV0U
+            // v5U Ditches this in favour of the InitVarsCB method
+            ReadInt32(&info, false);
+            int32 count  = ReadInt32(&info, false);
+            for (int32 v = 0; v < count; ++v) ReadInt32(&info, false);
+#else
+            if (!globalVarsPtr)
+                break;
+            // standard v5 loads variables directly into the struct
             int32 offset = ReadInt32(&info, false);
             int32 count  = ReadInt32(&info, false);
             for (int32 v = 0; v < count; ++v) {
                 globalVarsPtr[offset + v] = ReadInt32(&info, false);
             }
+#endif
         }
 
         CloseFile(&info);
 #if RETRO_USE_MOD_LOADER
         LoadXMLObjects();
         LoadXMLStages(0, gcListCount, gcSceneCount);
+#endif
+
+#if RETRO_REV0U
+        if (globalVarsInitCB)
+            globalVarsInitCB(globalVarsPtr);
 #endif
 
         sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart + startScene;
@@ -916,6 +1018,15 @@ void RSDK::InitGameLink()
     currentMod       = NULL;
 #endif
 
+#if RETRO_REV0U
+    RegisterObject((Object **)&DefaultObject, ":DefaultObject:", sizeof(EntityDefaultObject), sizeof(ObjectDefaultObject), DefaultObject_Update,
+                   DefaultObject_LateUpdate, DefaultObject_StaticUpdate, DefaultObject_Draw, DefaultObject_Create, DefaultObject_StageLoad,
+                   DefaultObject_EditorDraw, DefaultObject_EditorLoad, DefaultObject_Serialize, (void (*)(Object *))DefaultObject_StaticLoad);
+
+    RegisterObject((Object **)&DevOutput, ":DevOutput:", sizeof(EntityDevOutput), sizeof(ObjectDevOutput), DevOutput_Update, DevOutput_LateUpdate,
+                   DevOutput_StaticUpdate, DevOutput_Draw, DevOutput_Create, DevOutput_StageLoad, DevOutput_EditorDraw, DevOutput_EditorLoad,
+                   DevOutput_Serialize, (void (*)(Object*))DevOutput_StaticLoad);
+#else
     RegisterObject((Object **)&DefaultObject, ":DefaultObject:", sizeof(EntityDefaultObject), sizeof(ObjectDefaultObject), DefaultObject_Update,
                    DefaultObject_LateUpdate, DefaultObject_StaticUpdate, DefaultObject_Draw, DefaultObject_Create, DefaultObject_StageLoad,
                    DefaultObject_EditorDraw, DefaultObject_EditorLoad, DefaultObject_Serialize);
@@ -924,6 +1035,8 @@ void RSDK::InitGameLink()
                    DevOutput_StaticUpdate, DevOutput_Draw, DevOutput_Create, DevOutput_StageLoad, DevOutput_EditorDraw, DevOutput_EditorLoad,
                    DevOutput_Serialize);
 #endif
+#endif
+
     globalObjectIDs[0] = TYPE_DEFAULTOBJECT;
 #if RETRO_REV02
     globalObjectIDs[1] = TYPE_DEVOUTPUT;

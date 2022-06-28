@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_REV0U
+#include "Legacy/AnimationLegacy.cpp"
+#endif
+
 using namespace RSDK;
 
 SpriteAnimation RSDK::spriteAnimationList[SPRFILE_COUNT];

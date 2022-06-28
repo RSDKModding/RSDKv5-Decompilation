@@ -816,7 +816,11 @@ void RenderDevice::ProcessEvent(SDL_Event event)
 
                 case SDL_SCANCODE_ESCAPE:
                     if (engine.devMenu) {
+#if RETRO_REV0U
+                        if (sceneInfo.state == ENGINESTATE_DEVMENU || RSDK::Legacy::gameMode == RSDK::Legacy::ENGINE_DEVMENU)
+#else
                         if (sceneInfo.state == ENGINESTATE_DEVMENU)
+#endif
                             CloseDevMenu();
                         else
                             OpenDevMenu();
@@ -898,14 +902,30 @@ void RenderDevice::ProcessEvent(SDL_Event event)
 
                 case SDL_SCANCODE_F11:
                 case SDL_SCANCODE_INSERT:
-                    if ((sceneInfo.state & ENGINESTATE_STEPOVER) == ENGINESTATE_STEPOVER)
+                    if (engine.devMenu)
                         engine.frameStep = true;
                     break;
 
                 case SDL_SCANCODE_F12:
                 case SDL_SCANCODE_PAUSE:
                     if (engine.devMenu) {
-                        sceneInfo.state ^= ENGINESTATE_STEPOVER;
+#if RETRO_REV0U
+                        switch (engine.version) {
+                            default: break;
+                            case 5:
+                                if (sceneInfo.state != ENGINESTATE_NONE)
+                                    sceneInfo.state ^= ENGINESTATE_STEPOVER;
+                                break;
+                            case 4:
+                            case 3:
+                                if (RSDK::Legacy::stageMode != ENGINESTATE_NONE)
+                                    RSDK::Legacy::stageMode ^= RSDK::Legacy::STAGEMODE_STEPOVER;
+                                break;
+                        }
+#else
+                        if (sceneInfo.state != ENGINESTATE_NONE)
+                            sceneInfo.state ^= ENGINESTATE_STEPOVER;
+#endif
                     }
                     break;
             }
