@@ -31,6 +31,14 @@ inline void PlaySfx(int32 sfxID, bool32 loop) { RSDK::PlaySfx(sfxID, loop, 0xFF)
 inline void StopSfx(int32 sfxID) { RSDK::StopSfx(sfxID); }
 void SetSfxAttributes(int32 sfxID, int32 loop, int8 pan);
 
+namespace v3
+{
+extern char globalSfxNames[SFX_COUNT][0x40];
+extern char stageSfxNames[SFX_COUNT][0x40];
+
+void SetSfxName(const char *sfxName, int32 sfxID, bool32 global);
+} // namespace v3
+
 namespace v4
 {
 extern float musicRatio;

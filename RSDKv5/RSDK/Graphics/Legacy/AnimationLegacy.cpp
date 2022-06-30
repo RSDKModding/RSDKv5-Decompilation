@@ -114,7 +114,6 @@ RSDK::Legacy::AnimationFile *RSDK::Legacy::AddAnimationFile(char *filePath)
 
 void RSDK::Legacy::v3::ProcessObjectAnimation(void *objScr, void *ent)
 {
-    /*
     Legacy::v3::ObjectScript *objectScript = (Legacy::v3::ObjectScript *)objScr;
     Legacy::v3::Entity *entity             = (Legacy::v3::Entity *)ent;
     Legacy::SpriteAnimation *sprAnim   = &Legacy::animationList[objectScript->animFile->aniListOffset + entity->animation];
@@ -142,7 +141,6 @@ void RSDK::Legacy::v3::ProcessObjectAnimation(void *objScr, void *ent)
 
     if (entity->frame >= sprAnim->frameCount)
         entity->frame = sprAnim->loopPoint;
-    */
 }
 
 void RSDK::Legacy::v4::ProcessObjectAnimation(void *objScr, void *ent)

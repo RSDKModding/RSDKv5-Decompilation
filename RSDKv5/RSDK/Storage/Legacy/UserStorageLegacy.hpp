@@ -38,6 +38,16 @@ int32 GetGlobalVariableID(const char *name);
 bool32 ReadSaveRAM();
 bool32 WriteSaveRAM();
 
+namespace v3
+{
+
+void SetAchievement(int32 achievementID, int32 achievementDone);
+void SetLeaderboard(int32 leaderboardID, int32 score);
+inline void LoadAchievementsMenu() {}
+inline void LoadLeaderboardsMenu() {}
+
+} // namespace v3
+
 namespace v4
 {
 // Native Functions

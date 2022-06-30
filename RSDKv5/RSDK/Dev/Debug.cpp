@@ -63,6 +63,14 @@ void RSDK::PrintLog(int32 mode, const char *message, ...)
                     sceneInfo.state    = ENGINESTATE_ERRORMSG_FATAL;
                 }
                 break;
+
+#if RETRO_REV0U
+            case PRINT_SCRIPTERR:
+                engine.storedState     = RSDK::Legacy::gameMode;
+                RSDK::Legacy::gameMode = RSDK::Legacy::ENGINE_SCRIPTERROR;
+                strcpy(RSDK::Legacy::scriptErrorMessage, outputString);
+                break;
+#endif
         }
 #endif
         if (engine.consoleEnabled) {
@@ -1839,12 +1847,21 @@ void RSDK::DevMenu_ModsMenu()
         devMenu.selection = 4;
         SaveMods();
         if (devMenu.modsChanged) {
+#if RETRO_REV0U
+            uint32 category                      = sceneInfo.activeCategory;
+            uint32 scene                         = sceneInfo.listPos;
+            dataStorage[DATASET_SFX].usedStorage = 0;
+            LoadGameConfig();
+            sceneInfo.activeCategory = category;
+            sceneInfo.listPos        = scene;
+#else
             uint32 category = sceneInfo.activeCategory;
             uint32 scene = sceneInfo.listPos;
             dataStorage[DATASET_SFX].usedStorage = 0;
             LoadGameConfig();
             sceneInfo.activeCategory = category;
-            sceneInfo.listPos        = scene;
+            sceneInfo.listPos = scene;
+#endif
             RenderDevice::SetWindowTitle();
         }
     }

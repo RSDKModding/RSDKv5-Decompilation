@@ -41,6 +41,8 @@ int32 RSDK::Legacy::stageMilliseconds = 0;
 int32 RSDK::Legacy::stageSeconds      = 0;
 int32 RSDK::Legacy::stageMinutes      = 0;
 
+bool32 RSDK::Legacy::anyPress = false;
+
 // Category and Scene IDs
 char RSDK::Legacy::currentStageFolder[0x100];
 int32 RSDK::Legacy::actID = 0;
@@ -323,7 +325,7 @@ void RSDK::Legacy::LoadStageGIFFile()
 void RSDK::Legacy::ProcessInput() {
     RSDK::ProcessInput();
 
-    bool32 anyPress = false;
+    anyPress = false;
     for (int32 i = 0; i < InputDeviceCount; ++i) {
         if (InputDevices[i])
             anyPress |= InputDevices[i]->anyPress;

@@ -105,4 +105,38 @@ inline void SetFade(uint8 R, uint8 G, uint8 B, uint16 A)
 }
 
 void SetPaletteFade(uint8 destPaletteID, uint8 srcPaletteA, uint8 srcPaletteB, uint16 blendAmount, int32 startIndex, int32 endIndex);
+
+namespace v3
+{
+
+inline void CopyPalette(uint8 sourcePalette, uint8 destinationPalette)
+{
+    if (sourcePalette < LEGACY_PALETTE_COUNT && destinationPalette < LEGACY_PALETTE_COUNT) {
+        for (int32 i = 0; i < LEGACY_PALETTE_COLOR_COUNT; ++i) {
+            fullPalette[destinationPalette][i] = fullPalette[sourcePalette][i];
+        }
+    }
+}
+
+inline void RotatePalette(uint8 startIndex, uint8 endIndex, bool right)
+{
+    if (right) {
+        uint16 startClr = activePalette[endIndex];
+        for (int32 i = endIndex; i > startIndex; --i) {
+            activePalette[i] = activePalette[i - 1];
+        }
+        activePalette[startIndex] = startClr;
+    }
+    else {
+        uint16 startClr = activePalette[startIndex];
+        for (int32 i = startIndex; i < endIndex; ++i) {
+            activePalette[i] = activePalette[i + 1];
+        }
+        activePalette[endIndex] = startClr;
+    }
+}
+
+void SetLimitedFade(uint8 paletteID, uint8 R, uint8 G, uint8 B, uint16 blendAmount, int32 startIndex, int32 endIndex);
+}
+
 } // namespace Legacy

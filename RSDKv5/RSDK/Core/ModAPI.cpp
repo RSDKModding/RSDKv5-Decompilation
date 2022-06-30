@@ -23,13 +23,19 @@ std::vector<ObjectClass *> allocatedInherits;
 // this helps later on just trust me
 #define MODAPI_ENDS_WITH(str) buf.length() > strlen(str) && !buf.compare(buf.length() - strlen(str), strlen(str), std::string(str))
 
-std::vector<RSDK::ModInfo> RSDK::modList;
-int32 RSDK::activeMod = -1;
-std::vector<RSDK::ModCallbackSTD> RSDK::modCallbackList[RSDK::MODCB_MAX];
+ModSettings RSDK::modSettings;
+std::vector<ModInfo> RSDK::modList;
+std::vector<ModCallbackSTD> RSDK::modCallbackList[MODCB_MAX];
 std::vector<StateHook> RSDK::stateHookList;
 std::vector<ObjectHook> RSDK::objectHookList;
-
 ModVersionInfo RSDK::targetModVersion = { RETRO_REVISION, 0, RETRO_MOD_LOADER_VER };
+
+#if RETRO_REV0U
+char RSDK::Legacy::modTypeNames[OBJECT_COUNT][0x40];
+char RSDK::Legacy::modScriptPaths[OBJECT_COUNT][0x40];
+uint8 RSDK::Legacy::modScriptFlags[OBJECT_COUNT];
+uint8 RSDK::Legacy::modObjCount;
+#endif
 
 char RSDK::customUserFileDir[0x100];
 
@@ -137,6 +143,62 @@ void RSDK::SortMods()
     });
 }
 
+void RSDK::ScanModFolder(ModInfo *info)
+{
+    if (!info)
+        return;
+
+    const std::string modDir = info->path + "/" + info->id;
+
+    info->fileMap.clear();
+
+    fs::path dataPath(modDir + "/Data");
+
+    if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
+        try {
+            auto data_rdi = fs::recursive_directory_iterator(dataPath, fs::directory_options::follow_directory_symlink);
+            for (auto data_de : data_rdi) {
+                if (data_de.is_regular_file()) {
+                    char modBuf[0x100];
+                    strcpy(modBuf, data_de.path().string().c_str());
+                    char folderTest[4][0x10] = {
+                        "Data/",
+                        "Data\\",
+                        "data/",
+                        "data\\",
+                    };
+                    int32 tokenPos = -1;
+                    for (int32 i = 0; i < 4; ++i) {
+                        tokenPos = (int32)std::string(modBuf).find(folderTest[i], 0);
+                        if (tokenPos >= 0)
+                            break;
+                    }
+
+                    if (tokenPos >= 0) {
+                        char buffer[0x80];
+                        for (int32 i = (int32)strlen(modBuf); i >= tokenPos; --i) {
+                            buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                        }
+
+                        // PrintLog(modBuf);
+                        std::string path(buffer);
+                        std::string modPath(modBuf);
+                        char pathLower[0x100];
+                        memset(pathLower, 0, sizeof(char) * 0x100);
+                        for (int32 c = 0; c < path.size(); ++c) {
+                            pathLower[c] = tolower(path.c_str()[c]);
+                        }
+
+                        info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
+                    }
+                }
+            }
+        } catch (fs::filesystem_error fe) {
+            PrintLog(PRINT_ERROR, "Data Folder Scanning Error: %s", fe.what());
+        }
+    }
+}
+
 void RSDK::UnloadMods()
 {
     for (ModInfo &mod : modList) {
@@ -161,6 +223,19 @@ void RSDK::UnloadMods()
             delete inherit;
     }
     allocatedInherits.clear();
+
+#if RETRO_REV0U
+    memset(Legacy::modTypeNames, 0, sizeof(Legacy::modTypeNames));
+    memset(Legacy::modTypeNames, 0, sizeof(Legacy::modScriptPaths));
+    memset(Legacy::modScriptFlags, 0, sizeof(Legacy::modScriptFlags));
+    Legacy::modObjCount = 0;
+
+    memset(modSettings.playerNames, 0, sizeof(modSettings.playerNames));
+    modSettings.playerCount = 0;
+
+    modSettings.versionOverride = 0;
+    modSettings.activeMod       = -1;
+#endif
 
     sprintf(customUserFileDir, "");
 
@@ -310,6 +385,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         fClose(f);
         auto ini = iniparser_load((modDir + "/mod.ini").c_str());
 
+        info->path   = modsPath;
         info->id     = folder;
         info->active = active;
 
@@ -321,55 +397,17 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         info->redirectSaveRAM  = iniparser_getboolean(ini, ":RedirectSaveRAM", false);
         info->disableGameLogic = iniparser_getboolean(ini, ":DisableGameLogic", false);
 
+#if RETRO_REV0U
+        info->versionOverride = iniparser_getint(ini, ":VersionOverride", 0);
+        info->forceScripts    = iniparser_getboolean(ini, ":TxtScripts", false);
+#endif
+
         if (!active)
             return true;
 
-        // DATA
-        fs::path dataPath(modDir + "/Data");
+        // ASSETS
+        ScanModFolder(info);
 
-        if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
-            try {
-                auto data_rdi = fs::recursive_directory_iterator(dataPath, fs::directory_options::follow_directory_symlink);
-                for (auto data_de : data_rdi) {
-                    if (data_de.is_regular_file()) {
-                        char modBuf[0x100];
-                        strcpy(modBuf, data_de.path().string().c_str());
-                        char folderTest[4][0x10] = {
-                            "Data/",
-                            "Data\\",
-                            "data/",
-                            "data\\",
-                        };
-                        int32 tokenPos = -1;
-                        for (int32 i = 0; i < 4; ++i) {
-                            tokenPos = (int32)std::string(modBuf).find(folderTest[i], 0);
-                            if (tokenPos >= 0)
-                                break;
-                        }
-
-                        if (tokenPos >= 0) {
-                            char buffer[0x80];
-                            for (int32 i = (int32)strlen(modBuf); i >= tokenPos; --i) {
-                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
-                            }
-
-                            // PrintLog(modBuf);
-                            std::string path(buffer);
-                            std::string modPath(modBuf);
-                            char pathLower[0x100];
-                            memset(pathLower, 0, sizeof(char) * 0x100);
-                            for (int32 c = 0; c < path.size(); ++c) {
-                                pathLower[c] = tolower(path.c_str()[c]);
-                            }
-
-                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
-                        }
-                    }
-                }
-            } catch (fs::filesystem_error fe) {
-                PrintLog(PRINT_ERROR, "Data Folder Scanning Error: %s", fe.what());
-            }
-        }
         // LOGIC
         std::string logic(iniparser_getstring(ini, ":LogicFile", ""));
         if (logic.length()) {
@@ -550,6 +588,15 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         if (info->redirectSaveRAM) {
             sprintf(customUserFileDir, "mods/%s/", info->id.c_str());
         }
+
+        modSettings.redirectSaveRAM |= info->redirectSaveRAM ? 1 : 0;
+        modSettings.disableGameLogic |= info->disableGameLogic ? 1 : 0;
+
+#if RETRO_REV0U
+        if (info->versionOverride)
+            modSettings.versionOverride = info->versionOverride;
+        modSettings.forceScripts |= info->forceScripts ? 1 : 0;
+#endif
 
         PrintLog(PRINT_NORMAL, "[MOD] Loaded mod %s! Active: %s", folder.c_str(), active ? "Y" : "N");
 

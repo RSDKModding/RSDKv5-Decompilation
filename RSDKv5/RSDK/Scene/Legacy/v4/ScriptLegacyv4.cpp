@@ -1,4 +1,28 @@
 
+
+RSDK::Legacy::v4::ObjectScript RSDK::Legacy::v4::objectScriptList[LEGACY_v4_OBJECT_COUNT];
+RSDK::Legacy::v4::ScriptFunction RSDK::Legacy::v4::scriptFunctionList[LEGACY_v4_FUNCTION_COUNT];
+#if LEGACY_RETRO_USE_COMPILER
+int32 RSDK::Legacy::v4::scriptFunctionCount = 0;
+#endif
+
+int32 RSDK::Legacy::v4::scriptCode[LEGACY_v4_SCRIPTCODE_COUNT];
+int32 RSDK::Legacy::v4::jumpTable[LEGACY_v4_JUMPTABLE_COUNT];
+int32 RSDK::Legacy::v4::jumpTableStack[LEGACY_v4_JUMPSTACK_COUNT];
+int32 RSDK::Legacy::v4::functionStack[LEGACY_v4_FUNCSTACK_COUNT];
+int32 RSDK::Legacy::v4::foreachStack[LEGACY_v4_FORSTACK_COUNT];
+
+int32 RSDK::Legacy::v4::scriptCodePos     = 0;
+int32 RSDK::Legacy::v4::scriptCodeOffset  = 0;
+int32 RSDK::Legacy::v4::jumpTablePos      = 0;
+int32 RSDK::Legacy::v4::jumpTableOffset   = 0;
+int32 RSDK::Legacy::v4::jumpTableStackPos = 0;
+int32 RSDK::Legacy::v4::functionStackPos  = 0;
+int32 RSDK::Legacy::v4::foreachStackPos   = 0;
+
+RSDK::Legacy::v4::ScriptEngine RSDK::Legacy::v4::scriptEng = ScriptEngine();
+char RSDK::Legacy::v4::scriptText[0x4000];
+
 #if LEGACY_RETRO_USE_COMPILER
 #if RETRO_USE_ORIGINAL_CODE
 
@@ -12,7 +36,14 @@
 
 #define LEGACY_v4_SCRIPT_VAR_COUNT (LEGACY_v4_COMMON_SCRIPT_VAR_COUNT + 0x1DF)
 int32 RSDK::Legacy::v4::lineID = 0;
-const char *scriptName = "";
+
+namespace RSDK
+{
+namespace Legacy
+{
+namespace v4
+{
+const char *scriptFile = "";
 
 enum ScriptVarType { VAR_ALIAS, VAR_STATICVALUE, VAR_TABLE };
 enum ScriptVarAccessModifier { ACCESS_NONE, ACCESS_PUBLIC, ACCESS_PRIVATE };
@@ -20,9 +51,9 @@ enum ScriptVarAccessModifier { ACCESS_NONE, ACCESS_PUBLIC, ACCESS_PRIVATE };
 struct ScriptVariableInfo {
     ScriptVariableInfo()
     {
-        type   = VAR_ALIAS;
-        access = ACCESS_NONE;
-        name[0] = 0;
+        type     = VAR_ALIAS;
+        access   = ACCESS_NONE;
+        name[0]  = 0;
         value[0] = 0;
     }
 
@@ -39,7 +70,19 @@ struct ScriptVariableInfo {
     char name[0x20];
     char value[0x20];
 };
+
+} // namespace v4
+} // namespace Legacy
+} // namespace RSDK
+
 #endif
+
+namespace RSDK
+{
+namespace Legacy
+{
+namespace v4
+{
 
 struct FunctionInfo {
     FunctionInfo()
@@ -1086,28 +1129,10 @@ enum ScrFunc {
     FUNC_MAX_CNT
 };
 
-RSDK::Legacy::v4::ObjectScript RSDK::Legacy::v4::objectScriptList[LEGACY_v4_OBJECT_COUNT];
-RSDK::Legacy::v4::ScriptFunction RSDK::Legacy::v4::scriptFunctionList[LEGACY_v4_FUNCTION_COUNT];
-#if LEGACY_RETRO_USE_COMPILER
-int32 RSDK::Legacy::v4::scriptFunctionCount = 0;
-#endif
+} // namespace v4
 
-int32 RSDK::Legacy::v4::scriptCode[LEGACY_v4_SCRIPTCODE_COUNT];
-int32 RSDK::Legacy::v4::jumpTable[LEGACY_v4_JUMPTABLE_COUNT];
-int32 RSDK::Legacy::v4::jumpTableStack[LEGACY_v4_JUMPSTACK_COUNT];
-int32 RSDK::Legacy::v4::functionStack[LEGACY_v4_FUNCSTACK_COUNT];
-int32 RSDK::Legacy::v4::foreachStack[LEGACY_v4_FORSTACK_COUNT];
-
-int32 RSDK::Legacy::v4::scriptCodePos     = 0;
-int32 RSDK::Legacy::v4::scriptCodeOffset  = 0;
-int32 RSDK::Legacy::v4::jumpTablePos      = 0;
-int32 RSDK::Legacy::v4::jumpTableOffset   = 0;
-int32 RSDK::Legacy::v4::jumpTableStackPos = 0;
-int32 RSDK::Legacy::v4::functionStackPos  = 0;
-int32 RSDK::Legacy::v4::foreachStackPos   = 0;
-
-RSDK::Legacy::v4::ScriptEngine RSDK::Legacy::v4::scriptEng = ScriptEngine();
-char RSDK::Legacy::v4::scriptText[0x4000];
+} // namespace Legacy
+}
 
 #if LEGACY_RETRO_USE_COMPILER
 void RSDK::Legacy::v4::CheckAliasText(char *text)
@@ -1596,7 +1621,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
     }
 
     if (opcode <= 0) {
-        PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Operand not found\nOPERAND: %s\nLINE: %d\nFILE: %s", funcName, lineID, scriptName);
+        PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Operand not found\nOPERAND: %s\nLINE: %d\nFILE: %s", funcName, lineID, scriptFile);
         gameMode = ENGINE_SCRIPTERROR;
     }
     else {
@@ -1778,7 +1803,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown varName \"%s\", on line %d", arrayStr, lineID);
             }
 
-            // Eg: temp0 = AchievementName[[ACH_RING_KING]
+            // Eg: temp0 = AchievementName[ACH_RING_KING]
             if (StrComp(funcName, "AchievementName")) {
                 funcName[0] = '0';
 
@@ -1811,9 +1836,9 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                 funcName[0] = '0';
 
                 int32 p = 0;
-                for (; p < PLAYER_COUNT; ++p) {
+                for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
                     char buf[0x40];
-                    char *str = (char *)"SONIC"; // playerNames[p];
+                    char *str = modSettings.playerNames[p];
                     int32 pos   = 0;
 
                     while (*str) {
@@ -1963,7 +1988,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                 }
 
                 if (constant == -1 && gameMode != ENGINE_SCRIPTERROR) {
-                    PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Operand not found\nOPERAND: %s\nLINE: %d\nFILE: %s", funcName, lineID, scriptName);
+                    PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Operand not found\nOPERAND: %s\nLINE: %d\nFILE: %s", funcName, lineID, scriptFile);
 
                     gameMode = ENGINE_SCRIPTERROR;
                     constant        = 0;
@@ -2109,9 +2134,9 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
             caseValue[0] = '0';
 
             int32 p = 0;
-            for (; p < PLAYER_COUNT; ++p) {
+            for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
                 char buf[0x40];
-                char *str = (char *)"SONIC"; // playerNames[p];
+                char *str = modSettings.playerNames[p];
                 int32 pos   = 0;
 
                 while (*str) {
@@ -2306,9 +2331,9 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                 caseValue[0] = '0';
 
                 int32 p = 0;
-                for (; p < PLAYER_COUNT; ++p) {
+                for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
                     char buf[0x40];
-                    char *str = (char *)"SONIC"; // playerNames[p];
+                    char *str = modSettings.playerNames[p];
                     int32 pos   = 0;
 
                     while (*str) {
@@ -2404,8 +2429,12 @@ void RSDK::Legacy::v4::ReadTableValues(char *text)
         while (text[textStrPos] == ',') {
             valueBuffer[valueBufferPos] = 0;
             ++scriptCode[scriptCodeOffset];
-            if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos]))
+            if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+                PrintLog(PRINT_NORMAL, "WARNING: unable to parse table value \"%s\" as an int, on line %d", valueBuffer, lineID);
+#endif
+            }
             scriptCodePos++;
             valueBufferPos = 0;
             textStrPos++;
@@ -2415,8 +2444,12 @@ void RSDK::Legacy::v4::ReadTableValues(char *text)
     if (StrLength(valueBuffer)) {
         valueBuffer[valueBufferPos] = 0;
         ++scriptCode[scriptCodeOffset];
-        if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos]))
+        if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos])) {
             scriptCode[scriptCodePos] = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+            PrintLog(PRINT_NORMAL, "WARNING: unable to parse table value \"%s\" as an int, on line %d", valueBuffer, lineID);
+#endif
+        }
         scriptCodePos++;
     }
 }
@@ -2504,7 +2537,7 @@ void RSDK::Legacy::v4::ParseScriptFile(char *scriptName, int32 scriptID)
     jumpTableStackPos = 0;
     lineID            = 0;
 
-    ::scriptName = scriptName;
+    scriptFile = scriptName;
 
     for (int32 f = 0; f < scriptFunctionCount; ++f) {
         if (scriptFunctionList[f].access != ACCESS_PUBLIC)
@@ -4971,7 +5004,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
             case FUNC_LOADTEXTFILE: {
                 opcodeSize     = 0;
                 TextMenu *menu = &gameMenu[scriptEng.operands[0]];
-                LoadTextFile(menu, scriptText, false);
+                LoadTextFile(menu, scriptText);
                 break;
             }
             case FUNC_GETTEXTINFO: {
@@ -5612,10 +5645,11 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     }
                     case VAR_STAGESTATE: stageMode = scriptEng.operands[i]; break;
                     case VAR_STAGEACTIVELIST: {
-                        if (scriptEng.operands[i] < RSDK::sceneInfo.categoryCount) {
+                        int32 listID = scriptEng.operands[i];
+                        if (listID < sceneInfo.categoryCount) {
                             int32 prevListPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
 
-                            sceneInfo.activeCategory = scriptEng.operands[i];
+                            sceneInfo.activeCategory = listID;
                             SceneListInfo *list      = &sceneInfo.listCategory[sceneInfo.activeCategory];
 
                             sceneInfo.listPos = list->sceneOffsetStart + RSDK::sceneInfo.listPos - prevListPos;

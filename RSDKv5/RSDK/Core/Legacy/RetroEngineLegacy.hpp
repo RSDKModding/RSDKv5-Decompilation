@@ -11,6 +11,8 @@ enum RetroStates {
     ENGINE_DEVMENU     = 0,
     ENGINE_MAINGAME    = 1,
     ENGINE_INITDEVMENU = 2,
+
+    ENGINE_SCRIPTERROR = 4,
 };
 
 extern int32 gameMode;

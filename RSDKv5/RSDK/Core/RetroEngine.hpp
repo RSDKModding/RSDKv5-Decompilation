@@ -550,6 +550,15 @@ void InitEngine();
 void StartGameObjects();
 
 #if RETRO_USE_MOD_LOADER
+const void *FirstXMLChildElement(void *doc, const void *elementPtr, const char *name);
+const void *NextXMLSiblingElement(void *doc, const void *elementPtr, const char *name);
+
+const void *FindXMLAttribute(const void *elementPtr, const char *name);
+const char *GetXMLAttributeName(const void *attributePtr);
+int32 GetXMLAttributeValueInt(const void *attributePtr);
+bool32 GetXMLAttributeValueBool(const void *attributePtr);
+const char *GetXMLAttributeValueString(const void *attributePtr);
+
 void LoadXMLObjects();
 void LoadXMLSoundFX();
 int32 LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount);

@@ -126,3 +126,28 @@ void RSDK::Legacy::v4::SetSfxName(const char *sfxName, int32 sfxID)
 
     PrintLog(PRINT_NORMAL, "Set SFX (%d) name to: %s", sfxID, sfxName);
 }
+
+#if RETRO_USE_MOD_LOADER
+char RSDK::Legacy::v3::globalSfxNames[SFX_COUNT][0x40];
+char RSDK::Legacy::v3::stageSfxNames[SFX_COUNT][0x40];
+
+void RSDK::Legacy::v3::SetSfxName(const char *sfxName, int32 sfxID, bool32 global)
+{
+    char *sfxNamePtr = global ? globalSfxNames[sfxID] : stageSfxNames[sfxID];
+
+    int32 sfxNamePos = 0;
+    int32 sfxPtrPos  = 0;
+    uint8 mode      = 0;
+    while (sfxName[sfxNamePos]) {
+        if (sfxName[sfxNamePos] == '.' && mode == 1)
+            mode = 2;
+        else if ((sfxName[sfxNamePos] == '/' || sfxName[sfxNamePos] == '\\') && !mode)
+            mode = 1;
+        else if (sfxName[sfxNamePos] != ' ' && mode == 1)
+            sfxNamePtr[sfxPtrPos++] = sfxName[sfxNamePos];
+        ++sfxNamePos;
+    }
+    sfxNamePtr[sfxPtrPos] = 0;
+    PrintLog(PRINT_NORMAL, "Set %s SFX (%d) name to: %s", (global ? "Global" : "Stage"), sfxID, sfxNamePtr);
+}
+#endif

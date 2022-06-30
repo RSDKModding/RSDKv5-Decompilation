@@ -28,10 +28,36 @@ FileIO *fOpen(const char *path, const char *mode)
 #if RETRO_REV0U
 void RSDK::DetectEngineVersion()
 {
+#if RETRO_USE_MOD_LOADER
+    // mods can manually set their target engine versions if needed
+    if (modSettings.versionOverride) {
+        engine.version = modSettings.versionOverride;
+        return;
+    }
+#endif
+
+    bool32 readDataPack = useDataPack;
+#if RETRO_USE_MOD_LOADER
+    // check if we have any mods with gameconfigs
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+
+        FileInfo checkInfo;
+        InitFileInfo(&checkInfo);
+        if (LoadFile(&checkInfo, "Data/Game/GameConfig.bin", FMODE_RB)) {
+            readDataPack = false;
+            CloseFile(&checkInfo);
+        }
+    }
+    SetActiveMod(-1);
+#endif
+
     FileInfo info;
     InitFileInfo(&info);
-
-    if (!useDataPack) {
+    if (!readDataPack) {
         if (LoadFile(&info, "Data/Game/GameConfig.bin", FMODE_RB)) {
             uint32 sig = ReadInt32(&info, false);
 
@@ -218,11 +244,11 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
         pathLower[c] = tolower(filename[c]);
     }
 
-    bool addPath = false;
-    if (activeMod != -1) {
+    bool32 addPath = false;
+    if (modSettings.activeMod != -1) {
         char buf[0x100];
         sprintf_s(buf, (int32)sizeof(buf), "%s", fullFilePath);
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%smods/%s/%s", SKU::userFileDir, modList[activeMod].id.c_str(), buf);
+        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%smods/%s/%s", SKU::userFileDir, modList[modSettings.activeMod].id.c_str(), buf);
         info->externalFile = true;
         addPath            = false;
     }

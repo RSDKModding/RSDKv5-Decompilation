@@ -20,6 +20,8 @@ extern const int32 OBJECT_BORDER_Y2;
 extern const int32 OBJECT_BORDER_Y3;
 extern const int32 OBJECT_BORDER_Y4;
 
+extern char scriptErrorMessage[0x400];
+
 bool32 ConvertStringToInteger(const char *text, int32 *value);
 
 } // namespace Legacy

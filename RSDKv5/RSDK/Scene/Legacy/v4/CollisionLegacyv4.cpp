@@ -2115,28 +2115,28 @@ void RSDK::Legacy::v4::TouchCollision(Entity *thisEntity, int32 thisLeft, int32 
     Hitbox *thisHitbox  = GetHitbox(thisEntity);
     Hitbox *otherHitbox = GetHitbox(otherEntity);
 
-    if (thisLeft == 0x10000)
+    if (thisLeft == C_BOX)
         thisLeft = thisHitbox->left[0];
 
-    if (thisTop == 0x10000)
+    if (thisTop == C_BOX)
         thisTop = thisHitbox->top[0];
 
-    if (thisRight == 0x10000)
+    if (thisRight == C_BOX)
         thisRight = thisHitbox->right[0];
 
-    if (thisBottom == 0x10000)
+    if (thisBottom == C_BOX)
         thisBottom = thisHitbox->bottom[0];
 
-    if (otherLeft == 0x10000)
+    if (otherLeft == C_BOX)
         otherLeft = otherHitbox->left[0];
 
-    if (otherTop == 0x10000)
+    if (otherTop == C_BOX)
         otherTop = otherHitbox->top[0];
 
-    if (otherRight == 0x10000)
+    if (otherRight == C_BOX)
         otherRight = otherHitbox->right[0];
 
-    if (otherBottom == 0x10000)
+    if (otherBottom == C_BOX)
         otherBottom = otherHitbox->bottom[0];
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -2176,28 +2176,28 @@ void RSDK::Legacy::v4::BoxCollision(Entity *thisEntity, int32 thisLeft, int32 th
     Hitbox *thisHitbox  = GetHitbox(thisEntity);
     Hitbox *otherHitbox = GetHitbox(otherEntity);
 
-    if (thisLeft == 0x10000)
+    if (thisLeft == C_BOX)
         thisLeft = thisHitbox->left[0];
 
-    if (thisTop == 0x10000)
+    if (thisTop == C_BOX)
         thisTop = thisHitbox->top[0];
 
-    if (thisRight == 0x10000)
+    if (thisRight == C_BOX)
         thisRight = thisHitbox->right[0];
 
-    if (thisBottom == 0x10000)
+    if (thisBottom == C_BOX)
         thisBottom = thisHitbox->bottom[0];
 
-    if (otherLeft == 0x10000)
+    if (otherLeft == C_BOX)
         otherLeft = otherHitbox->left[0];
 
-    if (otherTop == 0x10000)
+    if (otherTop == C_BOX)
         otherTop = otherHitbox->top[0];
 
-    if (otherRight == 0x10000)
+    if (otherRight == C_BOX)
         otherRight = otherHitbox->right[0];
 
-    if (otherBottom == 0x10000)
+    if (otherBottom == C_BOX)
         otherBottom = otherHitbox->bottom[0];
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -2495,28 +2495,28 @@ void RSDK::Legacy::v4::BoxCollision2(Entity *thisEntity, int32 thisLeft, int32 t
     Hitbox *thisHitbox  = GetHitbox(thisEntity);
     Hitbox *otherHitbox = GetHitbox(otherEntity);
 
-    if (thisLeft == 0x10000)
+    if (thisLeft == C_BOX)
         thisLeft = thisHitbox->left[0];
 
-    if (thisTop == 0x10000)
+    if (thisTop == C_BOX)
         thisTop = thisHitbox->top[0];
 
-    if (thisRight == 0x10000)
+    if (thisRight == C_BOX)
         thisRight = thisHitbox->right[0];
 
-    if (thisBottom == 0x10000)
+    if (thisBottom == C_BOX)
         thisBottom = thisHitbox->bottom[0];
 
-    if (otherLeft == 0x10000)
+    if (otherLeft == C_BOX)
         otherLeft = otherHitbox->left[0];
 
-    if (otherTop == 0x10000)
+    if (otherTop == C_BOX)
         otherTop = otherHitbox->top[0];
 
-    if (otherRight == 0x10000)
+    if (otherRight == C_BOX)
         otherRight = otherHitbox->right[0];
 
-    if (otherBottom == 0x10000)
+    if (otherBottom == C_BOX)
         otherBottom = otherHitbox->bottom[0];
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -2802,28 +2802,28 @@ void RSDK::Legacy::v4::PlatformCollision(Entity *thisEntity, int32 thisLeft, int
     Hitbox *thisHitbox  = GetHitbox(thisEntity);
     Hitbox *otherHitbox = GetHitbox(otherEntity);
 
-    if (thisLeft == 0x10000)
+    if (thisLeft == C_BOX)
         thisLeft = thisHitbox->left[0];
 
-    if (thisTop == 0x10000)
+    if (thisTop == C_BOX)
         thisTop = thisHitbox->top[0];
 
-    if (thisRight == 0x10000)
+    if (thisRight == C_BOX)
         thisRight = thisHitbox->right[0];
 
-    if (thisBottom == 0x10000)
+    if (thisBottom == C_BOX)
         thisBottom = thisHitbox->bottom[0];
 
-    if (otherLeft == 0x10000)
+    if (otherLeft == C_BOX)
         otherLeft = otherHitbox->left[0];
 
-    if (otherTop == 0x10000)
+    if (otherTop == C_BOX)
         otherTop = otherHitbox->top[0];
 
-    if (otherRight == 0x10000)
+    if (otherRight == C_BOX)
         otherRight = otherHitbox->right[0];
 
-    if (otherBottom == 0x10000)
+    if (otherBottom == C_BOX)
         otherBottom = otherHitbox->bottom[0];
 
 #if !RETRO_USE_ORIGINAL_CODE

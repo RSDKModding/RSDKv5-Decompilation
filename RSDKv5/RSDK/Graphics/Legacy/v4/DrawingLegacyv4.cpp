@@ -25,7 +25,7 @@ void RSDK::Legacy::v4::DrawStageGFX()
     if (tLayerMidPoint < 3) {
         DrawObjectList(0);
 
-        if (activeTileLayers[0] < LAYER_COUNT) {
+        if (activeTileLayers[0] < LEGACY_LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[0]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(0); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(0); break;
@@ -38,7 +38,7 @@ void RSDK::Legacy::v4::DrawStageGFX()
 
         DrawObjectList(1);
 
-        if (activeTileLayers[1] < LAYER_COUNT) {
+        if (activeTileLayers[1] < LEGACY_LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[1]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(1); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(1); break;
@@ -52,7 +52,7 @@ void RSDK::Legacy::v4::DrawStageGFX()
         DrawObjectList(3);
         DrawObjectList(4);
 
-        if (activeTileLayers[2] < LAYER_COUNT) {
+        if (activeTileLayers[2] < LEGACY_LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[2]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(2); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(2); break;
@@ -65,7 +65,7 @@ void RSDK::Legacy::v4::DrawStageGFX()
     else if (tLayerMidPoint < 6) {
         DrawObjectList(0);
 
-        if (activeTileLayers[0] < LAYER_COUNT) {
+        if (activeTileLayers[0] < LEGACY_LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[0]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(0); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(0); break;
@@ -77,7 +77,7 @@ void RSDK::Legacy::v4::DrawStageGFX()
 
         DrawObjectList(1);
 
-        if (activeTileLayers[1] < LAYER_COUNT) {
+        if (activeTileLayers[1] < LEGACY_LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[1]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(1); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(1); break;
@@ -89,7 +89,7 @@ void RSDK::Legacy::v4::DrawStageGFX()
 
         DrawObjectList(2);
 
-        if (activeTileLayers[2] < LAYER_COUNT) {
+        if (activeTileLayers[2] < LEGACY_LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[2]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(2); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(2); break;
@@ -104,7 +104,7 @@ void RSDK::Legacy::v4::DrawStageGFX()
     }
 
     if (tLayerMidPoint < 6) {
-        if (activeTileLayers[3] < LAYER_COUNT) {
+        if (activeTileLayers[3] < LEGACY_LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[3]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(3); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(3); break;
@@ -119,9 +119,8 @@ void RSDK::Legacy::v4::DrawStageGFX()
         DrawObjectList(6);
     }
 
-    if (fadeMode > 0) {
+    if (fadeMode > 0)
         DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, fadeR, fadeG, fadeB, fadeA);
-    }
 
 #if !RETRO_USE_ORIGINAL_CODE
     DrawDebugOverlays();
@@ -155,8 +154,8 @@ void RSDK::Legacy::v4::DrawDebugOverlays()
                         if (info->collision & 8) // bottom
                             DrawRectangle(x, y + h, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
                         if (info->collision & 2) { // left
-                            int sy = y;
-                            int sh = h;
+                            int32 sy = y;
+                            int32 sh = h;
                             if (info->collision & 1) {
                                 sy++;
                                 sh--;
@@ -166,8 +165,8 @@ void RSDK::Legacy::v4::DrawDebugOverlays()
                             DrawRectangle(x, sy, 1, sh, 0xFF, 0xFF, 0x00, 0xC0);
                         }
                         if (info->collision & 4) { // right
-                            int sy = y;
-                            int sh = h;
+                            int32 sy = y;
+                            int32 sh = h;
                             if (info->collision & 1) {
                                 sy++;
                                 sh--;

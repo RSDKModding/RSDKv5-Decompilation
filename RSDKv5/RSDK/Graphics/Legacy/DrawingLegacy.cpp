@@ -1226,8 +1226,8 @@ void RSDK::Legacy::Draw3DFloorLayer(int32 layerID)
     int32 layerZPos     = layer->zpos;
     int32 sinValue      = sinM7LookupTable[layer->angle];
     int32 cosValue      = cosM7LookupTable[layer->angle];
-    uint8 *lineBuffer   = &gfxLineBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
-    uint16 *frameBuffer = &currentScreen->frameBuffer[132 * GFX_LINESIZE];
+    uint8 *lineBuffer   = &gfxLineBuffer[(SCREEN_YSIZE / 2) + 12];
+    uint16 *frameBuffer = &currentScreen->frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
     int32 layerXPos     = layer->xpos >> 4;
     int32 ZBuffer       = layerZPos >> 4;
 
@@ -1277,7 +1277,7 @@ void RSDK::Legacy::Draw3DSkyLayer(int32 layerID)
     int32 layerYPos     = layer->ypos;
     int32 sinValue      = sinM7LookupTable[layer->angle & 0x1FF];
     int32 cosValue      = cosM7LookupTable[layer->angle & 0x1FF];
-    uint16 *frameBuffer = &currentScreen->frameBuffer[(SCREEN_YSIZE / 2) + 12];
+    uint16 *frameBuffer = &currentScreen->frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
     uint8 *lineBuffer   = &gfxLineBuffer[((SCREEN_YSIZE / 2) + 12)];
     int32 layerXPos     = layer->xpos >> 4;
     int32 layerZPos     = layer->zpos >> 4;
@@ -2949,7 +2949,6 @@ void RSDK::Legacy::v4::DrawTexturedFaceBlended(void *v, uint8 sheetID)
 
 void RSDK::Legacy::v3::DrawObjectAnimation(void *objScr, void *ent, int32 XPos, int32 YPos)
 {
-    /*
     ObjectScript *objectScript = (ObjectScript *)objScr;
     Entity *entity             = (Entity *)ent;
     SpriteAnimation *sprAnim   = &animationList[objectScript->animFile->aniListOffset + entity->animation];
@@ -3064,7 +3063,6 @@ void RSDK::Legacy::v3::DrawObjectAnimation(void *objScr, void *ent, int32 XPos, 
 
         default: break;
     }
-    */
 }
 
 void RSDK::Legacy::DrawTextMenuEntry(void *menu, int32 rowID, int32 XPos, int32 YPos, int32 textHighlight)

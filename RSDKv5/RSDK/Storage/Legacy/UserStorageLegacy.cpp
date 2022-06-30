@@ -38,6 +38,16 @@ int32 RSDK::Legacy::GetGlobalVariableID(const char *name)
 bool32 RSDK::Legacy::ReadSaveRAM() { return SKU::LoadUserFile("SGame.bin", saveRAM, sizeof(saveRAM)); }
 bool32 RSDK::Legacy::WriteSaveRAM() { return SKU::SaveUserFile("SGame.bin", saveRAM, sizeof(saveRAM)); }
 
+void RSDK::Legacy::v3::SetAchievement(int32 achievementID, int32 achievementDone)
+{
+    PrintLog(PRINT_NORMAL, "Achieved achievement: %d (%d)!", achievementID, achievementDone);
+}
+void RSDK::Legacy::v3::SetLeaderboard(int32 leaderboardID, int32 score)
+{
+    PrintLog(PRINT_NORMAL, "Setting Leaderboard %d score to %d...", leaderboardID, score);
+}
+
+
 // Native Functions
 enum NotifyCallbackIDs {
     NOTIFY_DEATH_EVENT        = 128,

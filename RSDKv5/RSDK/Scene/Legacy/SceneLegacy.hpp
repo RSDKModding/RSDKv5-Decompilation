@@ -173,6 +173,8 @@ extern int32 stageMilliseconds;
 extern int32 stageSeconds;
 extern int32 stageMinutes;
 
+extern bool32 anyPress;
+
 // Category and Scene IDs
 extern char currentStageFolder[0x100];
 extern int32 actID;

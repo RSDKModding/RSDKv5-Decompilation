@@ -15,6 +15,8 @@ const int32 RSDK::Legacy::OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
 const int32 RSDK::Legacy::OBJECT_BORDER_Y3 = 0x80;
 const int32 RSDK::Legacy::OBJECT_BORDER_Y4 = SCREEN_YSIZE + 0x80;
 
+char RSDK::Legacy::scriptErrorMessage[0x400];
+
 bool32 RSDK::Legacy::ConvertStringToInteger(const char *text, int32 *value)
 {
     int32 charID    = 0;

@@ -1,7 +1,18 @@
 
 #if RETRO_USE_MOD_LOADER
-bool loadGlobalScripts = false; // stored here so I can use it later
+namespace RSDK
+{
+namespace Legacy
+{
+namespace v4
+{
+
+bool32 loadGlobalScripts = false; // stored here so I can use it later
 int32 globalObjCount     = 0;
+
+} // namespace v3
+} // namespace Legacy
+} // namespace RSDK
 #endif
 
 void RSDK::Legacy::v4::InitFirstStage(void)
@@ -14,7 +25,7 @@ void RSDK::Legacy::v4::InitFirstStage(void)
     ClearAnimationData();
     activePalette     = fullPalette[0];
     stageMode         = STAGEMODE_LOAD;
-    gameMode          = 1;
+    gameMode          = ENGINE_MAINGAME;
 }
 
 void RSDK::Legacy::v4::ProcessStage(void)
@@ -28,9 +39,6 @@ void RSDK::Legacy::v4::ProcessStage(void)
             SetActivePalette(0, 0, 256);
             gameMenu[0].visibleRowOffset = 0;
             gameMenu[1].visibleRowOffset = 0;
-            // gameMenu[1].alignment        = 0;
-            // gameMenu[1].selectionCount   = 0;
-            // engine.currentListPos        = sceneInfo.listPos;
             videoSettings.dimLimit = (5 * 60) * videoSettings.refreshRate;
             fadeMode                     = 0;
             InitCameras();
@@ -51,7 +59,7 @@ void RSDK::Legacy::v4::ProcessStage(void)
             stageMode                    = STAGEMODE_NORMAL;
 
 #if RETRO_USE_MOD_LOADER
-            // RefreshModFolders();
+            RefreshModFolders();
 #endif
             ResetBackgroundSettings();
             LoadStageFiles();
@@ -438,9 +446,9 @@ void RSDK::Legacy::v4::LoadStageFiles()
             }
 
 #if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
-            // for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
-            //     SetObjectTypeName(modTypeNames[i], globalObjectCount + i + 1);
-            // }
+            for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
+                SetObjectTypeName(modTypeNames[i], globalObjectCount + i + 1);
+            }
 #endif
 
 #if LEGACY_RETRO_USE_COMPILER
@@ -454,8 +462,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
                 CloseFile(&info);
             }
 
-            if (usingBytecode) {
-            // if (bytecodeExists && !forceUseScripts) {
+            if (bytecodeExists && !modSettings.forceScripts) {
 #else
             if (usingBytecode) {
 #endif
@@ -478,18 +485,18 @@ void RSDK::Legacy::v4::LoadStageFiles()
             CloseFile(&info);
 
 #if RETRO_USE_MOD_LOADER
-            // Engine.LoadXMLPalettes();
+            LoadXMLPalettes();
 #endif
 
 #if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
             globalObjCount = globalObjectCount;
-            // for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
-            //     SetObjectTypeName(modTypeNames[i], scriptID);
-            // 
-            //     ParseScriptFile(modScriptPaths[i], scriptID++);
-            //     if (gameMode == ENGINE_SCRIPTERROR)
-            //         return;
-            // }
+            for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
+                SetObjectTypeName(modTypeNames[i], scriptID);
+            
+                ParseScriptFile(modScriptPaths[i], scriptID++);
+                if (gameMode == ENGINE_SCRIPTERROR)
+                    return;
+            }
 #endif
         }
 
@@ -545,8 +552,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
                 CloseFile(&bytecodeInfo);
             }
 
-            if (usingBytecode) {
-            //if (bytecodeExists && !forceUseScripts) {
+            if (bytecodeExists && !modSettings.forceScripts) {
 #else
             if (usingBytecode) {
 #endif
@@ -655,10 +661,10 @@ void RSDK::Legacy::v4::LoadActLayout()
 #endif
 
 #if RETRO_USE_MOD_LOADER
-        // int32 offsetCount = 0;
-        // for (int32 m = 0; m < modObjCount; ++m)
-        //     if (modScriptFlags[m])
-        //         ++offsetCount;
+        int32 offsetCount = 0;
+        for (int32 m = 0; m < modObjCount; ++m)
+            if (modScriptFlags[m])
+                ++offsetCount;
 #endif
 
         Entity *object = &objectEntityList[32];
@@ -669,8 +675,8 @@ void RSDK::Legacy::v4::LoadActLayout()
             object->type = ReadInt8(&info);
 
 #if RETRO_USE_MOD_LOADER
-            // if (loadGlobalScripts && offsetCount && object->type >= globalObjCount)
-            //     object->type += offsetCount; // offset it by our mod count
+            if (loadGlobalScripts && offsetCount && object->type >= globalObjCount)
+                object->type += offsetCount; // offset it by our mod count
 #endif
 
             object->propertyValue = ReadInt8(&info);

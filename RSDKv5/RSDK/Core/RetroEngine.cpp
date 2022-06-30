@@ -49,6 +49,10 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         SKU::InitUserCore();
         LoadSettingsINI();
 
+#if RETRO_USE_MOD_LOADER
+        InitModAPI(); // setup mods & the mod API table
+#endif
+
 #if RETRO_REV0U
         DetectEngineVersion();
 #endif
@@ -132,13 +136,49 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #endif
 
 #if RETRO_USE_MOD_LOADER
+#if RETRO_REV0U
+                    if (((engine.version == 5 && sceneInfo.state != ENGINESTATE_DEVMENU)
+                        || (engine.version != 5 && RSDK::Legacy::gameMode != RSDK::Legacy::ENGINE_DEVMENU)) && devMenu.modsChanged) {
+#else
                     if (sceneInfo.state != ENGINESTATE_DEVMENU && devMenu.modsChanged) {
+#endif
                         devMenu.modsChanged = false;
                         SaveMods();
                         for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
 #if RETRO_REV02
                         forceHardReset = true;
 #endif
+
+#if RETRO_REV0U
+                        int32 preVersion = engine.version;
+
+                        DetectEngineVersion();
+
+                        SceneInfo pre = sceneInfo;
+                        int32 preGameMode = RSDK::Legacy::gameMode;
+                        int32 preStageMode = RSDK::Legacy::stageMode;
+
+                        InitEngine();
+
+                        switch (engine.version) {
+                            default:
+                            case 5:
+                                sceneInfo.classCount = pre.classCount;
+                                if (pre.state == ENGINESTATE_LOAD && preVersion == engine.version) {
+                                    sceneInfo.activeCategory = pre.activeCategory;
+                                    sceneInfo.listPos        = pre.listPos;
+                                }
+                                break;
+                            case 4: 
+                            case 3:
+                                if (preGameMode == RSDK::Legacy::ENGINE_MAINGAME && preStageMode == RSDK::Legacy::STAGEMODE_LOAD && preVersion == engine.version) {
+                                    sceneInfo.activeCategory = pre.activeCategory;
+                                    sceneInfo.listPos        = pre.listPos;
+                                }
+                                break;
+                        }
+
+#else
                         SceneInfo pre = sceneInfo;
                         InitEngine();
                         sceneInfo.classCount = pre.classCount;
@@ -146,6 +186,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                             sceneInfo.activeCategory = pre.activeCategory;
                             sceneInfo.listPos        = pre.listPos;
                         }
+#endif
                         RenderDevice::SetWindowTitle();
                         sceneInfo.state = ENGINESTATE_LOAD;
                     }
@@ -246,6 +287,9 @@ void RSDK::ProcessEngine()
                 sceneInfo.state = ENGINESTATE_NONE;
             }
             else {
+#if RETRO_USE_MOD_LOADER
+                RefreshModFolders();
+#endif
                 LoadSceneFolder();
                 LoadSceneAssets();
                 InitObjects();
@@ -322,6 +366,9 @@ void RSDK::ProcessEngine()
             break;
 
         case ENGINESTATE_LOAD | ENGINESTATE_STEPOVER:
+#if RETRO_USE_MOD_LOADER
+            RefreshModFolders();
+#endif
             LoadSceneFolder();
             LoadSceneAssets();
             InitObjects();
@@ -508,14 +555,12 @@ void RSDK::InitEngine()
 #if RETRO_REV0U
     switch (engine.version) {
         case 5:
-            // engine.currentListPos = 0;
 #endif
             StartGameObjects();
 #if RETRO_REV0U
             break;
 
         case 4:
-            // engine.currentListPos = 0;
             devMenu.state = DevMenu_MainMenu;
             SetupFunctionTables();
 
@@ -530,6 +575,7 @@ void RSDK::InitEngine()
                 sprintf_s(gameVerInfo.gameName, (int32)sizeof(gameVerInfo.gameName), "%s (Data Folder)", gameVerInfo.gameName);
             strcpy(gameVerInfo.gameVersion, "Legacy v4 Mode");
 
+            RSDK::GenerateBlendLookupTable();
             Legacy::GenerateBlendLookupTable();
             Legacy::v4::InitFirstStage();
             Legacy::ResetCurrentStageFolder();
@@ -537,7 +583,6 @@ void RSDK::InitEngine()
             break;
 
         case 3:
-            // engine.currentListPos = 0;
             devMenu.state = DevMenu_MainMenu;
             SetupFunctionTables();
 
@@ -552,10 +597,11 @@ void RSDK::InitEngine()
                 sprintf_s(gameVerInfo.gameName, (int32)sizeof(gameVerInfo.gameName), "%s (Data Folder)", gameVerInfo.gameName);
             strcpy(gameVerInfo.gameVersion, "Legacy v3 Mode");
 
+            RSDK::GenerateBlendLookupTable();
             Legacy::GenerateBlendLookupTable();
             Legacy::v3::InitFirstStage();
             Legacy::ResetCurrentStageFolder();
-            // Legacy::v3::ClearScriptData();
+            Legacy::v3::ClearScriptData();
             break;
     }
 #endif
@@ -583,33 +629,42 @@ void RSDK::StartGameObjects()
 }
 
 #if RETRO_USE_MOD_LOADER
-const tinyxml2::XMLElement *firstXMLChildElement(tinyxml2::XMLDocument *doc, const tinyxml2::XMLElement *elementPtr, const char *name)
+const void *RSDK::FirstXMLChildElement(void *doc, const void *elementPtr, const char *name)
 {
-    if (doc) {
+    tinyxml2::XMLDocument *d = (tinyxml2::XMLDocument *)doc;
+    tinyxml2::XMLElement *e  = (tinyxml2::XMLElement *)doc;
+
+    if (d) {
         if (!elementPtr)
-            return doc->FirstChildElement(name);
+            return d->FirstChildElement(name);
         else
-            return elementPtr->FirstChildElement(name);
+            return e->FirstChildElement(name);
     }
     return NULL;
 }
 
-const tinyxml2::XMLElement *nextXMLSiblingElement(tinyxml2::XMLDocument *doc, const tinyxml2::XMLElement *elementPtr, const char *name)
+const void *RSDK::NextXMLSiblingElement(void *doc, const void *elementPtr, const char *name)
 {
-    if (doc) {
+    tinyxml2::XMLDocument *d = (tinyxml2::XMLDocument *)doc;
+    tinyxml2::XMLElement *e  = (tinyxml2::XMLElement *)doc;
+
+    if (d) {
         if (!elementPtr)
-            return doc->NextSiblingElement(name);
+            return d->NextSiblingElement(name);
         else
-            return elementPtr->NextSiblingElement(name);
+            return e->NextSiblingElement(name);
     }
     return NULL;
 }
 
-const tinyxml2::XMLAttribute *findXMLAttribute(const tinyxml2::XMLElement *elementPtr, const char *name) { return elementPtr->FindAttribute(name); }
-const char *getXMLAttributeName(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->Name(); }
-int32 getXMLAttributeValueInt(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->IntValue(); }
-bool32 getXMLAttributeValueBool(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->BoolValue(); }
-const char *getXMLAttributeValueString(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->Value(); }
+const void *RSDK::FindXMLAttribute(const void *elementPtr, const char *name)
+{
+    return ((const tinyxml2::XMLElement *)elementPtr)->FindAttribute(name);
+}
+const char *RSDK::GetXMLAttributeName(const void *attributePtr) { return ((const tinyxml2::XMLAttribute *)attributePtr)->Name(); }
+int32 RSDK::GetXMLAttributeValueInt(const void *attributePtr) { return ((const tinyxml2::XMLAttribute *)attributePtr)->IntValue(); }
+bool32 RSDK::GetXMLAttributeValueBool(const void *attributePtr) { return ((const tinyxml2::XMLAttribute *)attributePtr)->BoolValue(); }
+const char *RSDK::GetXMLAttributeValueString(const void *attributePtr) { return ((const tinyxml2::XMLAttribute *)attributePtr)->Value(); }
 
 void RSDK::LoadXMLObjects()
 {
@@ -632,16 +687,16 @@ void RSDK::LoadXMLObjects()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement    = firstXMLChildElement(doc, nullptr, "game");
-                const tinyxml2::XMLElement *objectsElement = firstXMLChildElement(doc, gameElement, "objects");
+                const tinyxml2::XMLElement *gameElement    = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *objectsElement = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, gameElement, "objects");
                 if (objectsElement) {
-                    const tinyxml2::XMLElement *objElement = firstXMLChildElement(doc, objectsElement, "object");
+                    const tinyxml2::XMLElement *objElement = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, objectsElement, "object");
                     if (objElement) {
                         do {
-                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(objElement, "name");
+                            const tinyxml2::XMLAttribute *nameAttr = (const tinyxml2::XMLAttribute *)FindXMLAttribute(objElement, "name");
                             const char *objName                    = "unknownObject";
                             if (nameAttr)
-                                objName = getXMLAttributeValueString(nameAttr);
+                                objName = GetXMLAttributeValueString(nameAttr);
 
                             RETRO_HASH_MD5(hash);
                             GEN_HASH_MD5(objName, hash);
@@ -653,7 +708,7 @@ void RSDK::LoadXMLObjects()
                                 }
                             }
 
-                        } while ((objElement = nextXMLSiblingElement(doc, objElement, "object")));
+                        } while ((objElement = (const tinyxml2::XMLElement *)NextXMLSiblingElement(doc, objElement, "object")));
                     }
                 }
             }
@@ -687,25 +742,26 @@ void RSDK::LoadXMLSoundFX()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement   = firstXMLChildElement(doc, nullptr, "game");
-                const tinyxml2::XMLElement *soundsElement = firstXMLChildElement(doc, gameElement, "sounds");
+                const tinyxml2::XMLElement *gameElement   = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *soundsElement = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, gameElement, "sounds");
                 if (soundsElement) {
-                    const tinyxml2::XMLElement *sfxElement = firstXMLChildElement(doc, soundsElement, "soundfx");
+                    const tinyxml2::XMLElement *sfxElement = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, soundsElement, "soundfx");
                     if (sfxElement) {
                         do {
-                            const tinyxml2::XMLAttribute *valAttr = findXMLAttribute(sfxElement, "path");
+                            const tinyxml2::XMLAttribute *valAttr = (const tinyxml2::XMLAttribute *)FindXMLAttribute(sfxElement, "path");
                             const char *sfxPath                   = "unknownSFX.wav";
                             if (valAttr)
-                                sfxPath = getXMLAttributeValueString(valAttr);
+                                sfxPath = GetXMLAttributeValueString(valAttr);
 
-                            const tinyxml2::XMLAttribute *playsAttr = findXMLAttribute(sfxElement, "maxConcurrentPlays");
+                            const tinyxml2::XMLAttribute *playsAttr =
+                                (const tinyxml2::XMLAttribute *)FindXMLAttribute(sfxElement, "maxConcurrentPlays");
                             int32 maxConcurrentPlays                = 0;
                             if (playsAttr)
-                                maxConcurrentPlays = getXMLAttributeValueInt(playsAttr);
+                                maxConcurrentPlays = GetXMLAttributeValueInt(playsAttr);
 
                             LoadSfx((char *)sfxPath, maxConcurrentPlays, SCOPE_GLOBAL);
 
-                        } while ((sfxElement = nextXMLSiblingElement(doc, sfxElement, "soundfx")));
+                        } while ((sfxElement = (const tinyxml2::XMLElement *)NextXMLSiblingElement(doc, sfxElement, "soundfx")));
                     }
                 }
             }
@@ -742,19 +798,19 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement = firstXMLChildElement(doc, nullptr, "game");
-                const tinyxml2::XMLElement *listElement = firstXMLChildElement(doc, gameElement, "category");
+                const tinyxml2::XMLElement *gameElement = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *listElement = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, gameElement, "category");
                 if (listElement) {
                     do {
                         int32 listID                           = gcListCount++;
-                        const tinyxml2::XMLElement *stgElement = firstXMLChildElement(doc, listElement, "stage");
+                        const tinyxml2::XMLElement *stgElement = (const tinyxml2::XMLElement *)FirstXMLChildElement(doc, listElement, "stage");
 
                         SceneListInfo *list = &sceneInfo.listCategory[listID];
                         if (!mode) {
-                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(listElement, "name");
+                            const tinyxml2::XMLAttribute *nameAttr = (const tinyxml2::XMLAttribute *)FindXMLAttribute(listElement, "name");
                             const char *lstName                    = "unknown list";
                             if (nameAttr)
-                                lstName = getXMLAttributeValueString(nameAttr);
+                                lstName = GetXMLAttributeValueString(nameAttr);
 
                             sprintf_s(list->name, (int32)sizeof(list->name), "%s", lstName);
                             GEN_HASH_MD5(list->name, list->hash);
@@ -767,26 +823,26 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
                         if (stgElement) {
                             do {
                                 if (!mode) {
-                                    const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(stgElement, "name");
+                                    const tinyxml2::XMLAttribute *nameAttr = (const tinyxml2::XMLAttribute *)FindXMLAttribute(stgElement, "name");
                                     const char *stgName                    = "unknownStage";
                                     if (nameAttr)
-                                        stgName = getXMLAttributeValueString(nameAttr);
+                                        stgName = GetXMLAttributeValueString(nameAttr);
 
-                                    const tinyxml2::XMLAttribute *folderAttr = findXMLAttribute(stgElement, "folder");
+                                    const tinyxml2::XMLAttribute *folderAttr = (const tinyxml2::XMLAttribute *)FindXMLAttribute(stgElement, "folder");
                                     const char *stgFolder                    = "unknownStageFolder";
                                     if (nameAttr)
-                                        stgFolder = getXMLAttributeValueString(folderAttr);
+                                        stgFolder = GetXMLAttributeValueString(folderAttr);
 
-                                    const tinyxml2::XMLAttribute *idAttr = findXMLAttribute(stgElement, "id");
+                                    const tinyxml2::XMLAttribute *idAttr = (const tinyxml2::XMLAttribute *)FindXMLAttribute(stgElement, "id");
                                     const char *stgID                    = "unknownStageID";
                                     if (idAttr)
-                                        stgID = getXMLAttributeValueString(idAttr);
+                                        stgID = GetXMLAttributeValueString(idAttr);
 
 #if RETRO_REV02
-                                    const tinyxml2::XMLAttribute *filterAttr = findXMLAttribute(stgElement, "highlight");
+                                    const tinyxml2::XMLAttribute *filterAttr = (const tinyxml2::XMLAttribute *)FindXMLAttribute(stgElement, "filter");
                                     int32 stgFilter                          = 0;
                                     if (stgFilter)
-                                        stgFilter = getXMLAttributeValueInt(filterAttr);
+                                        stgFilter = GetXMLAttributeValueInt(filterAttr);
 #endif
 
                                     SceneListEntry *scene = &sceneInfo.listData[gcStageCount];
@@ -806,7 +862,7 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
                                     sceneInfo.listCategory[listID].sceneCount++;
                                 }
                                 ++stageCount;
-                            } while ((stgElement = nextXMLSiblingElement(doc, stgElement, "stage")));
+                            } while ((stgElement = (const tinyxml2::XMLElement *)NextXMLSiblingElement(doc, stgElement, "stage")));
                         }
 
                         if (!mode) {
@@ -815,7 +871,7 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
                         }
 
                         ++listCount;
-                    } while ((listElement = nextXMLSiblingElement(doc, listElement, "category")));
+                    } while ((listElement = (const tinyxml2::XMLElement *)NextXMLSiblingElement(doc, listElement, "category")));
                 }
             }
             else {
@@ -1090,16 +1146,7 @@ void RSDK::InitGameLink()
     bool32 linked = false;
 
 #if RETRO_USE_MOD_LOADER
-    bool32 gameLogicDisabled = false;
-
-    for (int32 m = 0; m < modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
-        gameLogicDisabled |= modList[m].disableGameLogic ? 1 : 0;
-    }
-
-    if (!gameLogicDisabled) {
+    if (!modSettings.disableGameLogic) {
 #endif
         if (engine.useExternalCode) {
             char buffer[0x100];

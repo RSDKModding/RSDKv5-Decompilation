@@ -34,6 +34,10 @@ enum ObjectCollisionTypes {
     C_PLATFORM = 3,
 };
 
+enum ObjectCollisionFlags {
+    C_BOX = 0x10000,
+};
+
 struct CollisionSensor {
     int32 xpos;
     int32 ypos;

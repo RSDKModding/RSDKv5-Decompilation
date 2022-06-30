@@ -78,3 +78,32 @@ void RSDK::Legacy::SetPaletteFade(uint8 destPaletteID, uint8 srcPaletteA, uint8 
         ++paletteColor;
     }
 }
+
+void RSDK::Legacy::v3::SetLimitedFade(uint8 paletteID, uint8 R, uint8 G, uint8 B, uint16 blendAmount, int32 startIndex, int32 endIndex)
+{
+    if (paletteID >= LEGACY_PALETTE_COUNT)
+        return;
+
+    paletteMode     = 1;
+    activePalette   = fullPalette[paletteID];
+
+    if (blendAmount >= 0x100)
+        blendAmount = 0xFF;
+
+    if (startIndex >= endIndex)
+        return;
+
+    uint32 blendA        = 0xFF - blendAmount;
+    uint16 *paletteColor = &fullPalette[paletteID][startIndex];
+    for (int32 i = startIndex; i <= endIndex; ++i) {
+        uint32 clrA = GetPaletteEntry(paletteID, i);
+
+        int32 r = blendAmount * R + blendA * ((clrA >> 0x10) & 0xFF);
+        int32 g = blendAmount * G + blendA * ((clrA >> 0x08) & 0xFF);
+        int32 b = blendAmount * B + blendA * ((clrA >> 0x00) & 0xFF);
+
+        *paletteColor = PACK_RGB888((uint8)(r >> 8), (uint8)(g >> 8), (uint8)(b >> 8));
+
+        ++paletteColor;
+    }
+}

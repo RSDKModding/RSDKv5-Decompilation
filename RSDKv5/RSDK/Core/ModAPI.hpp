@@ -14,6 +14,9 @@ namespace RSDK
 {
 
 #if RETRO_USE_MOD_LOADER
+
+#define LEGACY_PLAYERNAME_COUNT (0x10)
+
 extern std::map<uint32, uint32> superLevels;
 extern int32 inheritLevel; 
 
@@ -110,6 +113,7 @@ struct ModVersionInfo {
     uint8 engineVer;
     uint8 gameVer;
     uint8 modLoaderVer;
+    // uint8 engineVer; // 5, 4 or 3
 };
 
 struct ModSVInfo {
@@ -119,6 +123,7 @@ struct ModSVInfo {
 };
 
 struct ModInfo {
+    std::string path;
     std::string id;
     std::string name;
     std::string desc;
@@ -127,6 +132,10 @@ struct ModInfo {
     bool active;
     bool redirectSaveRAM;
     bool disableGameLogic;
+#if RETRO_REV0U
+    bool forceScripts;
+    int32 versionOverride;
+#endif
     std::map<std::string, std::string> fileMap;
     std::vector<ModPublicFunctionInfo> functionList;
     std::vector<Link::Handle> modLogicHandles;
@@ -145,12 +154,36 @@ struct StateHook {
     bool32 priority;
 };
 
+struct ModSettings {
+    int32 activeMod         = -1;
+    bool32 redirectSaveRAM  = false;
+    bool32 disableGameLogic = false;
+
+#if RETRO_REV0U
+    int32 versionOverride = 0;
+    bool32 forceScripts   = false;
+
+    char playerNames[LEGACY_PLAYERNAME_COUNT][0x20];
+    int32 playerCount = 0;
+#endif
+};
+
+extern ModSettings modSettings;
 extern std::vector<ModInfo> modList;
-extern int32 activeMod;
 extern std::vector<ModCallbackSTD> modCallbackList[MODCB_MAX];
 extern std::vector<StateHook> stateHookList;
 extern std::vector<ObjectHook> objectHookList;
 extern ModVersionInfo targetModVersion;
+
+#if RETRO_REV0U
+namespace Legacy
+{
+extern char modTypeNames[OBJECT_COUNT][0x40];
+extern char modScriptPaths[OBJECT_COUNT][0x40];
+extern uint8 modScriptFlags[OBJECT_COUNT];
+extern uint8 modObjCount;
+}
+#endif
 
 extern char customUserFileDir[0x100];
 
@@ -159,7 +192,7 @@ extern int32 currentObjectID;
 
 extern ModInfo *currentMod;
 
-inline void SetActiveMod(int32 id) { activeMod = id; }
+inline void SetActiveMod(int32 id) { modSettings.activeMod = id; }
 
 void InitModAPI();
 void UnloadMods();
@@ -168,6 +201,17 @@ bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 a
 void SaveMods();
 
 void SortMods();
+
+void ScanModFolder(ModInfo *info);
+inline void RefreshModFolders()
+{
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        ScanModFolder(&modList[m]);
+    }
+}
 
 void RunModCallbacks(int32 callbackID, void *data);
 
