@@ -1138,8 +1138,10 @@ enum ScrFunc {
 void RSDK::Legacy::v4::CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
             PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZERO(*variable);
@@ -1170,16 +1172,20 @@ void RSDK::Legacy::v4::CheckAliasText(char *text)
 
         variable->access = ACCESS_PUBLIC;
 
+#if !RETRO_USE_ORIGINAL_CODE
         for (int32 v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog(PRINT_NORMAL, "WARNING: Variable Name '%s' has already been used!", variable->name);
         }
+#endif
 
         ++scriptValueListCount;
     }
     else if (FindStringToken(text, "privatealias", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
             PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZERO(*variable);
@@ -1221,8 +1227,10 @@ void RSDK::Legacy::v4::CheckAliasText(char *text)
 void RSDK::Legacy::v4::CheckStaticText(char *text)
 {
     if (FindStringToken(text, "publicvalue", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
             PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZERO(*variable);
@@ -1257,16 +1265,20 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
         AppendIntegerToString(variable->value, scriptCodePos++);
         StrAdd(variable->value, "]");
 
+#if !RETRO_USE_ORIGINAL_CODE
         for (int32 v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog(PRINT_NORMAL, "WARNING: Variable Name '%s' has already been used!", variable->name);
         }
+#endif
 
         ++scriptValueListCount;
     }
     else if (FindStringToken(text, "privatevalue", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
             PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZERO(*variable);
@@ -1301,10 +1313,12 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
         AppendIntegerToString(variable->value, scriptCodePos++);
         StrAdd(variable->value, "]");
 
+#if !RETRO_USE_ORIGINAL_CODE
         for (int32 v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog(PRINT_NORMAL, "WARNING: Variable Name '%s' has already been used!", variable->name);
         }
+#endif
 
         ++scriptValueListCount;
     }
@@ -1314,8 +1328,10 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
     bool32 hasValues = false;
 
     if (FindStringToken(text, "publictable", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
             PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZERO(*variable);
@@ -1363,8 +1379,12 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
                     StrCopy(variable->value, scriptValueList[v].value);
             }
 
-            if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos]))
+            if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 1;
+#if !RETRO_USE_ORIGINAL_CODE
+                PrintLog(PRINT_NORMAL, "WARNING: Unable to parse table size!");
+#endif
+            }
 
             StrCopy(variable->value, "");
             AppendIntegerToString(variable->value, scriptCodePos);
@@ -1377,8 +1397,10 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
         scriptValueListCount++;
     }
     else if (FindStringToken(text, "privatetable", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
             PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZERO(*variable);
@@ -1426,8 +1448,12 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
                     StrCopy(variable->value, scriptValueList[v].value);
             }
 
-            if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos]))
+            if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 1;
+#if !RETRO_USE_ORIGINAL_CODE
+                PrintLog(PRINT_NORMAL, "WARNING: Unable to parse table size!");
+#endif
+            }
 
             StrCopy(variable->value, "");
             AppendIntegerToString(variable->value, scriptCodePos);
