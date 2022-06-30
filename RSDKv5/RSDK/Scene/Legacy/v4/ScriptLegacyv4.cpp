@@ -1362,6 +1362,7 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
         else {
             // no default values, just an array size
 
+            varStrPos = 0;
             while (text[textStrPos]) {
                 if (text[textStrPos] == '[' || text[textStrPos] == ']') {
                     variable->value[varStrPos] = 0;
@@ -1431,6 +1432,7 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
         else {
             // no default values, just an array size
 
+            varStrPos = 0;
             while (text[textStrPos]) {
                 if (text[textStrPos] == '[' || text[textStrPos] == ']') {
                     variable->value[varStrPos] = 0;
