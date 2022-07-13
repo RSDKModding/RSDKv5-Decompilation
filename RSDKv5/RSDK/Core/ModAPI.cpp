@@ -161,23 +161,12 @@ void RSDK::ScanModFolder(ModInfo *info)
                 if (data_de.is_regular_file()) {
                     char modBuf[0x100];
                     strcpy(modBuf, data_de.path().string().c_str());
-                    char folderTest[12][0x10] = {
-                        "Data/",
-                        "Data\\",
-                        "data/",
-                        "data\\",
+                    char folderTest[12][0x10] = { "Data/",     "Data\\",     "data/",     "data\\",
 
-                        "Bytecode/",
-                        "Bytecode\\",
-                        "bytecode/",
-                        "bytecode\\",
+                                                  "Bytecode/", "Bytecode\\", "bytecode/", "bytecode\\",
 
-                        "Videos/",
-                        "Videos\\",
-                        "videos/",
-                        "videos\\"
-                    };
-                    int32 tokenPos = -1;
+                                                  "Videos/",   "Videos\\",   "videos/",   "videos\\" };
+                    int32 tokenPos            = -1;
                     for (int32 i = 0; i < 12; ++i) {
                         tokenPos = (int32)std::string(modBuf).find(folderTest[i], 0);
                         if (tokenPos >= 0)
@@ -299,8 +288,12 @@ void RSDK::LoadMods(bool newOnly)
                 ModInfo info  = {};
                 bool32 active = iniparser_getboolean(ini, keys[m], false);
                 bool32 loaded = LoadMod(&info, modPath.string(), string(keys[m] + 5), active);
-                if (!loaded)
+                if (!loaded) {
+                    PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s.", info.id.c_str(), active ? "Y" : "N");
                     info.active = false;
+                }
+                else
+                    PrintLog(PRINT_NORMAL, "[MOD] Loaded mod %s! Active: %s", info.id.c_str(), active ? "Y" : "N");
                 modList.push_back(info);
             }
         }
@@ -433,7 +426,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                 if (linkHandle) {
                     const ModVersionInfo *modInfo = (const ModVersionInfo *)Link::GetSymbol(linkHandle, "modInfo");
                     if (!modInfo) {
-                        PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
+                        // PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
                         PrintLog(PRINT_NORMAL, "[MOD] ERROR: Failed to find modInfo", file.string().c_str());
 
                         iniparser_freedict(ini);
@@ -442,7 +435,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                     }
 
                     if (modInfo->engineVer != targetModVersion.engineVer) {
-                        PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
+                        // PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
                         PrintLog(PRINT_NORMAL, "[MOD] ERROR: Logic file '%s' engineVer %d does not match expected engineVer of %d",
                                  file.string().c_str(), modInfo->engineVer, targetModVersion.engineVer);
 
@@ -452,7 +445,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                     }
 
                     if (modInfo->modLoaderVer != targetModVersion.modLoaderVer) {
-                        PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
+                        // PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
                         PrintLog(PRINT_NORMAL, "[MOD] ERROR: Logic file '%s' modLoaderVer  %d does not match expected modLoaderVer of %d",
                                  file.string().c_str(), modInfo->modLoaderVer, targetModVersion.modLoaderVer);
                     }
@@ -467,7 +460,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                 }
 
                 if (!linked) {
-                    PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
+                    // PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
                     PrintLog(PRINT_NORMAL, "[MOD] ERROR: failed to link logic '%s'", file.string().c_str());
 
                     iniparser_freedict(ini);
@@ -607,8 +600,6 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
             modSettings.versionOverride = info->versionOverride;
         modSettings.forceScripts |= info->forceScripts ? 1 : 0;
 #endif
-
-        PrintLog(PRINT_NORMAL, "[MOD] Loaded mod %s! Active: %s", folder.c_str(), active ? "Y" : "N");
 
         iniparser_freedict(ini);
         currentMod = cur;
@@ -1158,8 +1149,8 @@ void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data
         // entity override
         override = true;
         for (int32 i = 0; i < superLevels[inheritLevel]; i++) {
-            if (!super->inherited) 
-                break; // *do not* cap superLevel because if we do we'll break things even more than what we had to do to get here 
+            if (!super->inherited)
+                break; // *do not* cap superLevel because if we do we'll break things even more than what we had to do to get here
             super = super->inherited;
         }
     }

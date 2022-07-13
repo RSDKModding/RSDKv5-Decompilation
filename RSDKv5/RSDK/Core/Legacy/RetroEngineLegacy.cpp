@@ -2,18 +2,17 @@
 #include "v3/RetroEnginev3.cpp"
 #include "v4/RetroEnginev4.cpp"
 
-int32 RSDK::Legacy::gameMode       = 1;
+int32 RSDK::Legacy::gameMode       = Legacy::ENGINE_MAINGAME;
 bool32 RSDK::Legacy::usingBytecode = false;
 
 bool32 RSDK::Legacy::trialMode     = false;
-int32 RSDK::Legacy::gamePlatformID     = 0;
-int32 RSDK::Legacy::deviceType     = 0;
+int32 RSDK::Legacy::gamePlatformID = Legacy::LEGACY_RETRO_WIN;
+int32 RSDK::Legacy::deviceType     = Legacy::DEVICE_STANDARD;
 bool32 RSDK::Legacy::onlineActive  = false;
-int32 RSDK::Legacy::language       = 0;
+int32 RSDK::Legacy::language       = Legacy::LEGACY_LANGUAGE_EN;
 #if LEGACY_RETRO_USE_HAPTICS
 bool32 RSDK::Legacy::hapticsEnabled = false;
 #endif
-
 
 void RSDK::Legacy::CalculateTrigAnglesM7()
 {

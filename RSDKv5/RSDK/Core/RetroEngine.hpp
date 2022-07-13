@@ -71,15 +71,25 @@ enum GameRegions {
 #define RETRO_STANDALONE (1)
 #endif
 
+// ============================
+// PLATFORMS
+// ============================
 #define RETRO_WIN     (0)
 #define RETRO_PS4     (1)
 #define RETRO_XB1     (2)
 #define RETRO_SWITCH  (3)
+// CUSTOM
 #define RETRO_OSX     (4)
 #define RETRO_LINUX   (5)
 #define RETRO_iOS     (6)
 #define RETRO_ANDROID (7)
 #define RETRO_UWP     (8)
+
+// ============================
+// PLATFORMS (used mostly in legacy but could come in handy here)
+// ============================
+#define RETRO_STANDARD (0)
+#define RETRO_MOBILE   (1)
 
 #define sprintf_s(x, _, ...) sprintf(x, __VA_ARGS__)
 
@@ -89,11 +99,14 @@ enum GameRegions {
 #if defined WINAPI_FAMILY
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
 #define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
 #define RETRO_PLATFORM (RETRO_UWP)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
 #elif defined __APPLE__
@@ -103,21 +116,28 @@ enum GameRegions {
 
 #if TARGET_IPHONE_SIMULATOR
 #define RETRO_PLATFORM (RETRO_iOS)
+#define RETRO_DEVICETYPE (RETRO_MOBILE)
 #elif TARGET_OS_IPHONE
 #define RETRO_PLATFORM (RETRO_iOS)
+#define RETRO_DEVICETYPE (RETRO_MOBILE)
 #elif TARGET_OS_MAC
 #define RETRO_PLATFORM (RETRO_OSX)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
 #error "Unknown Apple platform"
 #endif
 #elif defined __ANDROID__
 #define RETRO_PLATFORM (RETRO_ANDROID)
+#define RETRO_DEVICETYPE (RETRO_MOBILE)
 #elif defined __SWITCH__
 #define RETRO_PLATFORM (RETRO_SWITCH)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #elif defined __linux__
 #define RETRO_PLATFORM (RETRO_LINUX)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
 #define SCREEN_XMAX (1280)

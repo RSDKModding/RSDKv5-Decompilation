@@ -37,10 +37,8 @@ void RSDK::DetectEngineVersion()
     }
 
     // check if we have any mods with gameconfigs
-    for (int32 m = 0; m < modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    int32 m = 0;
+    for (; m < ActiveMods().size(); ++m) {
         SetActiveMod(m);
 
         FileInfo checkInfo;
@@ -51,13 +49,17 @@ void RSDK::DetectEngineVersion()
             break;
         }
     }
-    SetActiveMod(-1);
+    if (m && readDataPack)
+        SetActiveMod(-1);
 #endif
 
     FileInfo info;
     InitFileInfo(&info);
     if (!readDataPack) {
         if (LoadFile(&info, "Data/Game/GameConfig.bin", FMODE_RB)) {
+#if RETRO_USE_MOD_LOADER
+            SetActiveMod(-1);
+#endif
             uint32 sig = ReadInt32(&info, false);
 
             // GameConfig has "CFG" signature, its RSDKv5 formatted
@@ -86,11 +88,8 @@ void RSDK::DetectEngineVersion()
         }
     }
     else {
-        char dataPackPath[0x100];
-        sprintf_s(dataPackPath, (int32)sizeof(dataPackPath), "%s%s", SKU::userFileDir, dataPacks[dataPackCount - 1].name);
-
         info.externalFile = true;
-        if (LoadFile(&info, dataPackPath, FMODE_RB)) {
+        if (LoadFile(&info, dataPacks[dataPackCount - 1].name, FMODE_RB)) {
             uint32 sig = ReadInt32(&info, false);
             if (sig == RSDK_SIGNATURE_RSDK) {
                 ReadInt8(&info); // 'v'

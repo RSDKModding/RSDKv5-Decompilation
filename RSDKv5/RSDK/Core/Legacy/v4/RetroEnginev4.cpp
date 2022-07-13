@@ -232,10 +232,7 @@ void RSDK::Legacy::v4::ProcessEngine()
 void RSDK::Legacy::v4::LoadXMLVariables()
 {
     FileInfo info;
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
@@ -283,10 +280,7 @@ void RSDK::Legacy::v4::LoadXMLVariables()
 void RSDK::Legacy::v4::LoadXMLPalettes()
 {
     FileInfo info;
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
@@ -349,10 +343,7 @@ void RSDK::Legacy::v4::LoadXMLObjects()
     FileInfo info;
     modObjCount = 0;
 
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
@@ -416,10 +407,7 @@ void RSDK::Legacy::v4::LoadXMLSoundFX()
 {
     FileInfo info;
     FileInfo infoStore;
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
@@ -472,10 +460,7 @@ void RSDK::Legacy::v4::LoadXMLPlayers()
 {
     FileInfo info;
 
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
@@ -522,10 +507,7 @@ int32 RSDK::Legacy::v4::LoadXMLStages(int32 mode, int32 gcStageCount)
     int32 listCount  = 0;
     int32 stageCount = 0;
 
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;

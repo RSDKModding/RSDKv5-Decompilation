@@ -91,10 +91,11 @@ void RSDK::SKU::InitUserCore()
     gameVerInfo.platform = PLATFORM_XB1;
 #elif RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_ANDROID
     gameVerInfo.platform = PLATFORM_SWITCH;
-#endif
-
+#else
     // default to PC (or dev if dev stuff is enabled)
     gameVerInfo.platform = engine.devMenu ? PLATFORM_DEV : PLATFORM_PC;
+#endif
+
     gameVerInfo.language = LANGUAGE_EN;
     gameVerInfo.region   = REGION_US;
     engine.confirmFlip   = false;

@@ -106,6 +106,7 @@ struct DevMenu {
     int8 windowAspect;
 #if RETRO_USE_MOD_LOADER
     bool32 modsChanged;
+    uint8 startingVersion;
 #endif
 };
 

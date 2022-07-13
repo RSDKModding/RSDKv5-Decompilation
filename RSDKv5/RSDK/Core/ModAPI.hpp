@@ -18,7 +18,7 @@ namespace RSDK
 #define LEGACY_PLAYERNAME_COUNT (0x10)
 
 extern std::map<uint32, uint32> superLevels;
-extern int32 inheritLevel; 
+extern int32 inheritLevel;
 
 typedef enum {
     MODCB_GAME_STARTUP,
@@ -118,7 +118,7 @@ struct ModVersionInfo {
 
 struct ModSVInfo {
     std::string name;
-    Object** staticVars;
+    Object **staticVars;
     uint32 size;
 };
 
@@ -182,7 +182,7 @@ extern char modTypeNames[OBJECT_COUNT][0x40];
 extern char modScriptPaths[OBJECT_COUNT][0x40];
 extern uint8 modScriptFlags[OBJECT_COUNT];
 extern uint8 modObjCount;
-}
+} // namespace Legacy
 #endif
 
 extern char customUserFileDir[0x100];
@@ -199,16 +199,24 @@ void UnloadMods();
 void LoadMods(bool newOnly = false);
 bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 active);
 void SaveMods();
-
 void SortMods();
+
+inline std::vector<ModInfo*> ActiveMods()
+{
+    SortMods();
+    std::vector<ModInfo*> ret;
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
+        ret.push_back(&modList.at(m));
+    }
+    return ret;
+}
 
 void ScanModFolder(ModInfo *info);
 inline void RefreshModFolders()
 {
-    for (int32 m = 0; m < modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < ActiveMods().size(); ++m) {
         ScanModFolder(&modList[m]);
     }
 }
@@ -233,15 +241,14 @@ void ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const ch
 void ModRegisterGlobalVariables(const char *globalsPath, void **globals, uint32 size);
 
 void ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                             uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
-                             void (*create)(void *), void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(),
-                             const char *inherited);
+                       uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *),
+                       void (*stageLoad)(), void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), const char *inherited);
 
 void ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                                 uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate,
-                                 std::function<void()> staticUpdate, std::function<void()> draw, std::function<void(void *)> create,
-                                 std::function<void()> stageLoad, std::function<void()> editorDraw, std::function<void()> editorLoad,
-                                 std::function<void()> serialize, const char *inherited);
+                           uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate, std::function<void()> staticUpdate,
+                           std::function<void()> draw, std::function<void(void *)> create, std::function<void()> stageLoad,
+                           std::function<void()> editorDraw, std::function<void()> editorLoad, std::function<void()> serialize,
+                           const char *inherited);
 #endif
 
 void ModRegisterObjectHook(Object **staticVars, const char *staticName);

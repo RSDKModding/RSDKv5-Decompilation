@@ -234,10 +234,10 @@ void DevMenu_HandleTouchControls()
 
 void RSDK::OpenDevMenu()
 {
-    devMenu.state      = DevMenu_MainMenu;
-    devMenu.selection  = 0;
-    devMenu.scrollPos  = 0;
-    devMenu.timer      = 0;
+    devMenu.state     = DevMenu_MainMenu;
+    devMenu.selection = 0;
+    devMenu.scrollPos = 0;
+    devMenu.timer     = 0;
 
 #if RETRO_REV0U
     switch (engine.version) {
@@ -253,15 +253,17 @@ void RSDK::OpenDevMenu()
             RSDK::Legacy::gameMode = RSDK::Legacy::ENGINE_DEVMENU;
             break;
     }
+#if RETRO_USE_MOD_LOADER
+    devMenu.startingVersion = engine.version;
+#endif
 #else
-    devMenu.sceneState           = sceneInfo.state;
-    videoSettings.screenCount    = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
-    sceneInfo.state              = ENGINESTATE_DEVMENU;
+    devMenu.sceneState        = sceneInfo.state;
+    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
+    sceneInfo.state           = ENGINESTATE_DEVMENU;
 #endif
 
     PauseSound();
 }
-
 
 void RSDK::CloseDevMenu()
 {
@@ -276,8 +278,8 @@ void RSDK::CloseDevMenu()
         case 3: RSDK::Legacy::gameMode = devMenu.sceneState; break;
     }
 #else
-    videoSettings.screenCount    = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
-    sceneInfo.state              = devMenu.sceneState;
+    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
+    sceneInfo.state           = devMenu.sceneState;
 #endif
 
     ResumeSound();
@@ -425,6 +427,13 @@ void RSDK::DevMenu_MainMenu()
         confirm = controller[CONT_ANY].keyB.press;
 
     if (controller[CONT_ANY].keyStart.press || confirm) {
+#if RETRO_USE_MOD_LOADER
+        if (devMenu.selection == 1 && devMenu.startingVersion != engine.version) {
+            // goofy aaa hack
+            RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_NORMAL;
+            devMenu.selection       = 0;
+        }
+#endif
         switch (devMenu.selection) {
             case 0:
 #if RETRO_REV0U
@@ -733,9 +742,7 @@ void RSDK::DevMenu_SceneSelectMenu()
 #if RETRO_REV0U
             switch (engine.version) {
                 default: break;
-                case 5:
-                    sceneInfo.state = ENGINESTATE_LOAD;
-                    break;
+                case 5: sceneInfo.state = ENGINESTATE_LOAD; break;
                 case 4:
                 case 3:
                     RSDK::Legacy::gameMode  = RSDK::Legacy::ENGINE_MAINGAME;
@@ -746,9 +753,9 @@ void RSDK::DevMenu_SceneSelectMenu()
             sceneInfo.state = ENGINESTATE_LOAD;
 #endif
 
-            // Bug Details(?):
-            // rev01 had this here, rev02 does not.
-            // This can cause an annoying popup when starting a stage, so it's re-added for anyone who doesn't like that popup
+                // Bug Details(?):
+                // rev01 had this here, rev02 does not.
+                // This can cause an annoying popup when starting a stage, so it's re-added for anyone who doesn't like that popup
 #if !RETRO_REV02 || !RETRO_USE_ORIGINAL_CODE
             AssignInputSlotToDevice(CONT_P1, INPUT_AUTOASSIGN);
 #endif
@@ -1851,13 +1858,38 @@ void RSDK::DevMenu_ModsMenu()
             uint32 category                      = sceneInfo.activeCategory;
             uint32 scene                         = sceneInfo.listPos;
             dataStorage[DATASET_SFX].usedStorage = 0;
-            LoadGameConfig();
+            RefreshModFolders();
+            DetectEngineVersion();
+
+            switch (engine.version) {
+                case 5:
+                    globalVarsInitCB = NULL;
+                    LoadGameConfig();
+                    sceneInfo.state  = ENGINESTATE_DEVMENU;
+                    Legacy::gameMode = Legacy::ENGINE_MAINGAME;
+                    break;
+                case 4:
+                    Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
+                    strcpy(gameVerInfo.gameVersion, "Legacy v4 Mode");
+
+                    sceneInfo.state  = ENGINESTATE_NONE; // i think this is fine ??? lmk if otherwise
+                    Legacy::gameMode = Legacy::ENGINE_DEVMENU;
+                    break;
+                case 3:
+                    Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
+                    strcpy(gameVerInfo.gameVersion, "Legacy v3 Mode");
+
+                    sceneInfo.state  = ENGINESTATE_NONE;
+                    Legacy::gameMode = Legacy::ENGINE_DEVMENU;
+                    break;
+            }
             sceneInfo.activeCategory = category;
             sceneInfo.listPos        = scene;
 #else
             uint32 category = sceneInfo.activeCategory;
             uint32 scene = sceneInfo.listPos;
             dataStorage[DATASET_SFX].usedStorage = 0;
+            RefreshModFolders();
             LoadGameConfig();
             sceneInfo.activeCategory = category;
             sceneInfo.listPos = scene;

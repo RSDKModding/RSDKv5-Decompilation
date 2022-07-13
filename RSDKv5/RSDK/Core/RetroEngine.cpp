@@ -20,7 +20,7 @@ int32 *RSDK::globalVarsPtr = NULL;
 void (*RSDK::globalVarsInitCB)(void *globals) = NULL;
 #endif
 
-RetroEngine RSDK::engine   = RetroEngine();
+RetroEngine RSDK::engine = RetroEngine();
 
 int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 {
@@ -138,12 +138,14 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #if RETRO_USE_MOD_LOADER
 #if RETRO_REV0U
                     if (((engine.version == 5 && sceneInfo.state != ENGINESTATE_DEVMENU)
-                        || (engine.version != 5 && RSDK::Legacy::gameMode != RSDK::Legacy::ENGINE_DEVMENU)) && devMenu.modsChanged) {
+                         || (engine.version != 5 && RSDK::Legacy::gameMode != RSDK::Legacy::ENGINE_DEVMENU))
+                        && devMenu.modsChanged) {
 #else
                     if (sceneInfo.state != ENGINESTATE_DEVMENU && devMenu.modsChanged) {
 #endif
                         devMenu.modsChanged = false;
                         SaveMods();
+                        RefreshModFolders();
                         for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
 #if RETRO_REV02
                         forceHardReset = true;
@@ -154,8 +156,8 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 
                         DetectEngineVersion();
 
-                        SceneInfo pre = sceneInfo;
-                        int32 preGameMode = RSDK::Legacy::gameMode;
+                        SceneInfo pre      = sceneInfo;
+                        int32 preGameMode  = RSDK::Legacy::gameMode;
                         int32 preStageMode = RSDK::Legacy::stageMode;
 
                         InitEngine();
@@ -164,14 +166,14 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                             default:
                             case 5:
                                 sceneInfo.classCount = pre.classCount;
-                                if (pre.state == ENGINESTATE_LOAD && preVersion == engine.version) {
+                                if (pre.state == ENGINESTATE_LOAD) {
                                     sceneInfo.activeCategory = pre.activeCategory;
                                     sceneInfo.listPos        = pre.listPos;
                                 }
                                 break;
-                            case 4: 
+                            case 4:
                             case 3:
-                                if (preGameMode == RSDK::Legacy::ENGINE_MAINGAME && preStageMode == RSDK::Legacy::STAGEMODE_LOAD && preVersion == engine.version) {
+                                if (preGameMode == RSDK::Legacy::ENGINE_MAINGAME && preStageMode == RSDK::Legacy::STAGEMODE_LOAD) {
                                     sceneInfo.activeCategory = pre.activeCategory;
                                     sceneInfo.listPos        = pre.listPos;
                                 }
@@ -457,7 +459,7 @@ void RSDK::ProcessEngine()
                 else {
                     engine.displayTime -= (1.0 / 60.0); // deltaTime frame-step;
 #if RETRO_USE_MOD_LOADER
-                    RunModCallbacks(MODCB_ONVIDEOSKIPCB, (void*)engine.skipCallback);
+                    RunModCallbacks(MODCB_ONVIDEOSKIPCB, (void *)engine.skipCallback);
 #endif
                     if (engine.skipCallback && engine.skipCallback()) {
                         engine.displayTime = 0.0;
@@ -566,9 +568,23 @@ void RSDK::InitEngine()
 
             Legacy::CalculateTrigAnglesM7();
 
-            engine.gamePlatform      = "STANDARD";
+            engine.gamePlatform      = (RETRO_DEVICETYPE == RETRO_STANDARD ? "STANDARD" : "MOBILE");
             engine.gameRenderType    = "SW_RENDERING";
             engine.gameHapticSetting = "NO_F_FEEDBACK";
+
+#if !RETRO_USE_ORIGINAL_CODE
+            Legacy::deviceType = RETRO_DEVICETYPE;
+            if (SKU::curSKU.language <= LANGUAGE_JP)
+                Legacy::language = SKU::curSKU.language;
+            else {
+                switch (SKU::curSKU.language) {
+                    default: Legacy::language = Legacy::LEGACY_LANGUAGE_EN; break;
+                    case LANGUAGE_KO: Legacy::LEGACY_LANGUAGE_KO; break;
+                    case LANGUAGE_SC: Legacy::LEGACY_LANGUAGE_ZS; break;
+                    case LANGUAGE_TC: Legacy::LEGACY_LANGUAGE_ZH; break;
+                }
+            }
+#endif
 
             Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
             if (!useDataPack)
@@ -591,6 +607,23 @@ void RSDK::InitEngine()
             engine.gamePlatform      = "Standard";
             engine.gameRenderType    = "SW_Rendering";
             engine.gameHapticSetting = "No_Haptics";
+
+#if !RETRO_USE_ORIGINAL_CODE
+            Legacy::deviceType = RETRO_DEVICETYPE;
+            switch (RETRO_PLATFORM) {
+                default:
+                case RETRO_WIN: Legacy::gamePlatformID = Legacy::LEGACY_RETRO_WIN; break;
+                case RETRO_OSX: Legacy::gamePlatformID = Legacy::LEGACY_RETRO_OSX; break;
+                case RETRO_iOS: Legacy::gamePlatformID = Legacy::LEGACY_RETRO_iOS; break;
+                case RETRO_XB1: Legacy::gamePlatformID = Legacy::LEGACY_RETRO_XBOX_360; break;
+                case RETRO_PS4: Legacy::gamePlatformID = Legacy::LEGACY_RETRO_PS3; break;
+                case RETRO_ANDROID: Legacy::gamePlatformID = Legacy::LEGACY_RETRO_ANDROID; break;
+            }
+            if (SKU::curSKU.language <= LANGUAGE_JP)
+                Legacy::language = SKU::curSKU.language;
+            else
+                Legacy::language = Legacy::LEGACY_LANGUAGE_EN;
+#endif
 
             Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
             if (!useDataPack)
@@ -670,10 +703,7 @@ void RSDK::LoadXMLObjects()
 {
     FileInfo info;
 
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
@@ -725,10 +755,7 @@ void RSDK::LoadXMLObjects()
 void RSDK::LoadXMLSoundFX()
 {
     FileInfo info;
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
@@ -755,7 +782,7 @@ void RSDK::LoadXMLSoundFX()
 
                             const tinyxml2::XMLAttribute *playsAttr =
                                 (const tinyxml2::XMLAttribute *)FindXMLAttribute(sfxElement, "maxConcurrentPlays");
-                            int32 maxConcurrentPlays                = 0;
+                            int32 maxConcurrentPlays = 0;
                             if (playsAttr)
                                 maxConcurrentPlays = GetXMLAttributeValueInt(playsAttr);
 
@@ -781,10 +808,7 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
     int32 listCount  = 0;
     int32 stageCount = 0;
 
-    for (int32 m = 0; m < (int32)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
@@ -1034,7 +1058,7 @@ void RSDK::LoadGameConfig()
 #if RETRO_REV0U
             // v5U Ditches this in favour of the InitVarsCB method
             ReadInt32(&info, false);
-            int32 count  = ReadInt32(&info, false);
+            int32 count = ReadInt32(&info, false);
             for (int32 v = 0; v < count; ++v) ReadInt32(&info, false);
 #else
             if (!globalVarsPtr)
@@ -1081,7 +1105,7 @@ void RSDK::InitGameLink()
 
     RegisterObject((Object **)&DevOutput, ":DevOutput:", sizeof(EntityDevOutput), sizeof(ObjectDevOutput), DevOutput_Update, DevOutput_LateUpdate,
                    DevOutput_StaticUpdate, DevOutput_Draw, DevOutput_Create, DevOutput_StageLoad, DevOutput_EditorDraw, DevOutput_EditorLoad,
-                   DevOutput_Serialize, (void (*)(Object*))DevOutput_StaticLoad);
+                   DevOutput_Serialize, (void (*)(Object *))DevOutput_StaticLoad);
 #else
     RegisterObject((Object **)&DefaultObject, ":DefaultObject:", sizeof(EntityDefaultObject), sizeof(ObjectDefaultObject), DefaultObject_Update,
                    DefaultObject_LateUpdate, DefaultObject_StaticUpdate, DefaultObject_Draw, DefaultObject_Create, DefaultObject_StageLoad,
@@ -1183,10 +1207,7 @@ void RSDK::InitGameLink()
 #if RETRO_USE_MOD_LOADER
     }
 
-    for (int32 m = 0; m < modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
+    for (int32 m = 0; m < ActiveMods().size(); ++m) {
         currentMod = &modList[m];
         for (modLinkSTD linkModLogic : modList[m].linkModLogic) {
             if (!linkModLogic(&info, modList[m].id.c_str())) {
