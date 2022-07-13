@@ -87,7 +87,7 @@ void ParseScriptFile(char *scriptName, int32 scriptID);
 
 void LoadBytecode(int32 scriptID, bool32 globalCode);
 
-void ProcessScript(int32 scriptCodeStart, int32 jumpTableStart, byte scriptSub);
+void ProcessScript(int32 scriptCodeStart, int32 jumpTableStart, uint8 scriptSub);
 
 void ClearScriptData();
 

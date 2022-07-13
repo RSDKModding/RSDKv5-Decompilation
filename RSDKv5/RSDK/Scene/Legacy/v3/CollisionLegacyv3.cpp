@@ -61,8 +61,8 @@ void RSDK::Legacy::v3::FindFloorPosition(Player *player, CollisionSensor *sensor
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            byte cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            uint8 cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
+                            sensor->angle    = (uint8)(-0x80 - cAngle);
                             break;
                         }
                         case FLIP_XY: {
@@ -72,8 +72,8 @@ void RSDK::Legacy::v3::FindFloorPosition(Player *player, CollisionSensor *sensor
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            byte cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            uint8 cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
+                            sensor->angle    = 0x100 - (uint8)(-0x80 - cAngle);
                             break;
                         }
                     }
@@ -153,7 +153,7 @@ void RSDK::Legacy::v3::FindLWallPosition(Player *player, CollisionSensor *sensor
                             sensor->XPos     = collisionMasks[player->collisionPlane].lWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
                             int32 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF00) >> 8;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            sensor->angle    = (uint8)(-0x80 - cAngle);
                             break;
                         }
                         case FLIP_XY: {
@@ -164,7 +164,7 @@ void RSDK::Legacy::v3::FindLWallPosition(Player *player, CollisionSensor *sensor
                             sensor->XPos     = tsm1 - collisionMasks[player->collisionPlane].rWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
                             int32 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF0000) >> 16;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            sensor->angle    = 0x100 - (uint8)(-0x80 - cAngle);
                             break;
                         }
                     }
@@ -241,8 +241,8 @@ void RSDK::Legacy::v3::FindRoofPosition(Player *player, CollisionSensor *sensor,
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            byte cAngle      = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            uint8 cAngle      = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
+                            sensor->angle    = (uint8)(-0x80 - cAngle);
                             break;
                         }
                         case FLIP_XY: {
@@ -252,8 +252,8 @@ void RSDK::Legacy::v3::FindRoofPosition(Player *player, CollisionSensor *sensor,
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            byte cAngle      = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            uint8 cAngle      = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
+                            sensor->angle    = 0x100 - (uint8)(-0x80 - cAngle);
                             break;
                         }
                     }
@@ -334,7 +334,7 @@ void RSDK::Legacy::v3::FindRWallPosition(Player *player, CollisionSensor *sensor
                             sensor->XPos     = collisionMasks[player->collisionPlane].rWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
                             int32 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF0000) >> 16;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            sensor->angle    = (uint8)(-0x80 - cAngle);
                             break;
                         }
                         case FLIP_XY: {
@@ -345,7 +345,7 @@ void RSDK::Legacy::v3::FindRWallPosition(Player *player, CollisionSensor *sensor
                             sensor->XPos     = tsm1 - collisionMasks[player->collisionPlane].lWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
                             int32 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF00) >> 8;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            sensor->angle    = 0x100 - (uint8)(-0x80 - cAngle);
                             break;
                         }
                     }
@@ -427,7 +427,7 @@ void RSDK::Legacy::v3::FloorCollision(Player *player, CollisionSensor *sensor)
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
                             int32 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            sensor->angle    = (uint8)(-0x80 - cAngle);
                             break;
                         }
                         case FLIP_XY: {
@@ -438,7 +438,7 @@ void RSDK::Legacy::v3::FloorCollision(Player *player, CollisionSensor *sensor)
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
                             int32 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            sensor->angle    = 0x100 - (uint8)(-0x80 - cAngle);
                             break;
                         }
                     }
@@ -584,7 +584,7 @@ void RSDK::Legacy::v3::RoofCollision(Player *player, CollisionSensor *sensor)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = (byte)(-0x80 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
+                            sensor->angle    = (uint8)(-0x80 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
                             break;
                         }
                         case FLIP_XY: {
@@ -594,7 +594,7 @@ void RSDK::Legacy::v3::RoofCollision(Player *player, CollisionSensor *sensor)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
+                            sensor->angle    = 0x100 - (uint8)(-0x80 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
                             break;
                         }
                     }
@@ -702,10 +702,10 @@ void RSDK::Legacy::v3::ProcessAirCollision(Player *player)
     collisionRight       = playerHitbox->right[0];
     collisionBottom      = playerHitbox->bottom[0];
 
-    byte movingDown  = 0;
-    byte movingUp    = 1;
-    byte movingLeft  = 0;
-    byte movingRight = 0;
+    uint8 movingDown  = 0;
+    uint8 movingUp    = 1;
+    uint8 movingLeft  = 0;
+    uint8 movingRight = 0;
 
     if (player->XVelocity < 0) {
         movingRight = 0;
@@ -988,7 +988,7 @@ void RSDK::Legacy::v3::ProcessPathGrip(Player *player)
     int32 absSpeed  = abs(player->speed);
     int32 checkDist = absSpeed >> 18;
     absSpeed &= 0x3FFFF;
-    byte cMode = player->collisionMode;
+    uint8 cMode = player->collisionMode;
 
     while (checkDist > -1) {
         if (checkDist >= 1) {

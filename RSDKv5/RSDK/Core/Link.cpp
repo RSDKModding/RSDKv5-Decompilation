@@ -71,6 +71,13 @@ void RSDK::SetupFunctionTables()
     using namespace RSDK;
     using namespace RSDK::SKU;
 
+#if RETRO_USE_MOD_LOADER
+    if (RSDKFunctionTable[0]) {
+        InitModAPI();
+        return;
+    }
+#endif
+
     CalculateTrigAngles();
     GenerateBlendLookupTable();
     InitSystemSurfaces();
@@ -528,6 +535,10 @@ void RSDK::SetupFunctionTables()
 #if RETRO_REV0U
     ADD_RSDK_FUNCTION(FunctionTable_NotifyStats, NotifyStats);
     ADD_RSDK_FUNCTION(FunctionTable_SetGameFinished, SetGameFinished);
+#endif
+
+#if RETRO_USE_MOD_LOADER
+    InitModAPI();
 #endif
 }
 

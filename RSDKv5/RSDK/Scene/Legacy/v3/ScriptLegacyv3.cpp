@@ -1809,7 +1809,7 @@ void RSDK::Legacy::v3::LoadBytecode(int32 scriptID, bool32 globalCode)
     FileInfo info;
     InitFileInfo(&info);
     if (LoadFile(&info, scriptPath, FMODE_RB)) {
-        byte fileBuffer      = 0;
+        uint8 fileBuffer      = 0;
         int32 *scriptCodePtr = &scriptCode[scriptCodePos];
         int32 *jumpTablePtr  = &jumpTable[jumpTablePos];
 
@@ -2013,7 +2013,7 @@ void RSDK::Legacy::v3::ClearScriptData()
     SetObjectTypeName((char *)"Blank Object", 0);
 }
 
-void RSDK::Legacy::v3::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart, byte scriptSub)
+void RSDK::Legacy::v3::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart, uint8 scriptSub)
 {
     bool running        = true;
     int32 scriptCodePtr = scriptCodeStart;

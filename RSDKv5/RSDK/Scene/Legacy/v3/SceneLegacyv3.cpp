@@ -248,14 +248,14 @@ void RSDK::Legacy::v3::LoadStageFiles()
             ReadString(&info, strBuffer); // "Data"
             ReadString(&info, strBuffer); // Description
 
-            byte globalObjectCount = ReadInt8(&info);
-            for (byte i = 0; i < globalObjectCount; ++i) {
+            uint8 globalObjectCount = ReadInt8(&info);
+            for (uint8 i = 0; i < globalObjectCount; ++i) {
                 ReadString(&info, strBuffer);
                 SetObjectTypeName(strBuffer, i + scriptID);
             }
 
 #if RETRO_USE_MOD_LOADER
-            for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {
+            for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
                 SetObjectTypeName(modTypeNames[i], globalObjectCount + i + 1);
             }
 #endif
@@ -281,7 +281,7 @@ void RSDK::Legacy::v3::LoadStageFiles()
                 scriptID += globalObjectCount;
             }
             else {
-                for (byte i = 0; i < globalObjectCount; ++i) {
+                for (uint8 i = 0; i < globalObjectCount; ++i) {
                     ReadString(&info, strBuffer);
 
                     ParseScriptFile(strBuffer, scriptID++);
@@ -298,7 +298,7 @@ void RSDK::Legacy::v3::LoadStageFiles()
 
 #if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
             globalObjCount = globalObjectCount;
-            for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {
+            for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
                 SetObjectTypeName(modTypeNames[i], scriptID);
 
                 ParseScriptFile(modScriptPaths[i], scriptID++);
@@ -313,13 +313,13 @@ void RSDK::Legacy::v3::LoadStageFiles()
             ReadInt8(&info); // Load Globals
 
             for (int32 i = 96; i < 128; ++i) {
-                byte clr[3];
+                uint8 clr[3];
                 ReadBytes(&info, &clr, 3);
                 SetPaletteEntry(-1, i, clr[0], clr[1], clr[2]);
             }
 
-            byte stageObjectCount = ReadInt8(&info);
-            for (byte i = 0; i < stageObjectCount; ++i) {
+            uint8 stageObjectCount = ReadInt8(&info);
+            for (uint8 i = 0; i < stageObjectCount; ++i) {
                 ReadString(&info, strBuffer);
 
                 SetObjectTypeName(strBuffer, scriptID + i);
@@ -352,12 +352,12 @@ void RSDK::Legacy::v3::LoadStageFiles()
 #else
             if (usingBytecode) {
 #endif
-                for (byte i = 0; i < stageObjectCount; ++i) ReadString(&info, strBuffer);
+                for (uint8 i = 0; i < stageObjectCount; ++i) ReadString(&info, strBuffer);
 
                 LoadBytecode(scriptID, false);
             }
             else {
-                for (byte i = 0; i < stageObjectCount; ++i) {
+                for (uint8 i = 0; i < stageObjectCount; ++i) {
                     ReadString(&info, strBuffer);
 
                     ParseScriptFile(strBuffer, scriptID + i);
@@ -367,7 +367,7 @@ void RSDK::Legacy::v3::LoadStageFiles()
                 }
             }
 #else
-            for (byte i = 0; i < stageObjectCount; ++i) ReadString(&info, strBuffer);
+            for (uint8 i = 0; i < stageObjectCount; ++i) ReadString(&info, strBuffer);
 
             LoadBytecode(scriptID, false);
 #endif
@@ -418,12 +418,12 @@ void RSDK::Legacy::v3::LoadActLayout()
     InitFileInfo(&info);
 
     if (LoadActFile(".bin", &info)) {
-        byte length = ReadInt8(&info);
-        titleCardWord2 = (byte)length;
+        uint8 length = ReadInt8(&info);
+        titleCardWord2 = (uint8)length;
         for (int32 i = 0; i < length; i++) {
             titleCardText[i] =  ReadInt8(&info);
             if (titleCardText[i] == '-')
-                titleCardWord2 = (byte)(i + 1);
+                titleCardWord2 = (uint8)(i + 1);
         }
         titleCardText[length] = '\0';
 
@@ -516,7 +516,7 @@ void RSDK::Legacy::v3::LoadStageBackground()
     FileInfo info;
     InitFileInfo(&info);
     if (LoadStageFile("Backgrounds.bin", &info)) {
-        byte layerCount = ReadInt8(&info);
+        uint8 layerCount = ReadInt8(&info);
 
         hParallax.entryCount =  ReadInt8(&info);
         for (int32 i = 0; i < hParallax.entryCount; ++i) {
@@ -555,11 +555,11 @@ void RSDK::Legacy::v3::LoadStageBackground()
             stageLayouts[i].scrollPos   = 0;
 
             memset(stageLayouts[i].tiles, 0, LEGACY_TILELAYER_CHUNK_COUNT * sizeof(uint16));
-            byte *lineScrollPtr = stageLayouts[i].lineScroll;
+            uint8 *lineScrollPtr = stageLayouts[i].lineScroll;
             memset(stageLayouts[i].lineScroll, 0, 0x7FFF);
 
             // Read Line Scroll
-            byte buf[3];
+            uint8 buf[3];
             while (true) {
                 buf[0] =  ReadInt8(&info);
                 if (buf[0] == 0xFF) {

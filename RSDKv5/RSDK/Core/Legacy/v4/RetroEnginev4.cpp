@@ -26,7 +26,7 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
         }
 
         // Read Obect Names
-        byte objectCount = ReadInt8(&info);
+        uint8 objectCount = ReadInt8(&info);
         for (int32 o = 0; o < objectCount; ++o) {
             ReadString(&info, strBuffer);
         }
@@ -61,8 +61,8 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
         }
 
         // Read Player Names
-        byte plrCount = ReadInt8(&info);
-        for (byte p = 0; p < plrCount; ++p) {
+        uint8 plrCount = ReadInt8(&info);
+        for (uint8 p = 0; p < plrCount; ++p) {
             ReadString(&info, strBuffer);
 
             // needed for PlayerName[] stuff in scripts
@@ -77,7 +77,7 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
 
         int32 totalSceneCount   = 0;
         sceneInfo.categoryCount = STAGELIST_MAX;
-        for (byte c = 0; c < sceneInfo.categoryCount; ++c) {
+        for (uint8 c = 0; c < sceneInfo.categoryCount; ++c) {
             int32 count = ReadInt8(&info);
             for (int32 s = 0; s < count; ++s) {
                 ReadString(&info, strBuffer);
@@ -135,7 +135,7 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
         Seek_Set(&info, storedPos);
 
         int32 sceneID = 0;
-        for (byte c = 0; c < sceneInfo.categoryCount; ++c) {
+        for (uint8 c = 0; c < sceneInfo.categoryCount; ++c) {
             SceneListInfo *category = &sceneInfo.listCategory[c];
             StrCopy(category->name, categoryNames[c]);
             GEN_HASH_MD5(category->name, category->hash);
@@ -380,7 +380,7 @@ void RSDK::Legacy::v4::LoadXMLObjects()
                             if (scrAttr)
                                 objScript = GetXMLAttributeValueString(scrAttr);
 
-                            byte flags = 0;
+                            uint8 flags = 0;
 
                             // forces the object to be loaded, this means the object doesn't have to be and *SHOULD NOT* be in the stage object list
                             // if it is, it'll cause issues!!!!

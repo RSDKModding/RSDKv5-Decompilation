@@ -30,42 +30,42 @@ void RSDK::Legacy::v3::ProcessPlayerControl(Player *player)
             player->jumpPress = controller[CONT_P1].keyA.press || controller[CONT_P1].keyB.press || controller[CONT_P1].keyC.press;
 
             upBuffer <<= 1;
-            upBuffer |= (byte)player->up;
+            upBuffer |= (uint8)player->up;
 
             downBuffer <<= 1;
-            downBuffer |= (byte)player->down;
+            downBuffer |= (uint8)player->down;
 
             leftBuffer <<= 1;
-            leftBuffer |= (byte)player->left;
+            leftBuffer |= (uint8)player->left;
 
             rightBuffer <<= 1;
-            rightBuffer |= (byte)player->right;
+            rightBuffer |= (uint8)player->right;
 
             jumpPressBuffer <<= 1;
-            jumpPressBuffer |= (byte)player->jumpPress;
+            jumpPressBuffer |= (uint8)player->jumpPress;
 
             jumpHoldBuffer <<= 1;
-            jumpHoldBuffer |= (byte)player->jumpHold;
+            jumpHoldBuffer |= (uint8)player->jumpHold;
             break;
 
         case CONTROLMODE_NONE:
             upBuffer <<= 1;
-            upBuffer |= (byte)player->up;
+            upBuffer |= (uint8)player->up;
 
             downBuffer <<= 1;
-            downBuffer |= (byte)player->down;
+            downBuffer |= (uint8)player->down;
 
             leftBuffer <<= 1;
-            leftBuffer |= (byte)player->left;
+            leftBuffer |= (uint8)player->left;
 
             rightBuffer <<= 1;
-            rightBuffer |= (byte)player->right;
+            rightBuffer |= (uint8)player->right;
 
             jumpPressBuffer <<= 1;
-            jumpPressBuffer |= (byte)player->jumpPress;
+            jumpPressBuffer |= (uint8)player->jumpPress;
 
             jumpHoldBuffer <<= 1;
-            jumpHoldBuffer |= (byte)player->jumpHold;
+            jumpHoldBuffer |= (uint8)player->jumpHold;
             break;
 
         case CONTROLMODE_SIDEKICK:

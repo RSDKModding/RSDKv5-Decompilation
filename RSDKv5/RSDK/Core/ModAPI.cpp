@@ -152,7 +152,7 @@ void RSDK::ScanModFolder(ModInfo *info)
 
     info->fileMap.clear();
 
-    fs::path dataPath(modDir + "/Data");
+    fs::path dataPath(modDir);
 
     if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
         try {
@@ -161,14 +161,24 @@ void RSDK::ScanModFolder(ModInfo *info)
                 if (data_de.is_regular_file()) {
                     char modBuf[0x100];
                     strcpy(modBuf, data_de.path().string().c_str());
-                    char folderTest[4][0x10] = {
+                    char folderTest[12][0x10] = {
                         "Data/",
                         "Data\\",
                         "data/",
                         "data\\",
+
+                        "Bytecode/",
+                        "Bytecode\\",
+                        "bytecode/",
+                        "bytecode\\",
+
+                        "Videos/",
+                        "Videos\\",
+                        "videos/",
+                        "videos\\"
                     };
                     int32 tokenPos = -1;
-                    for (int32 i = 0; i < 4; ++i) {
+                    for (int32 i = 0; i < 12; ++i) {
                         tokenPos = (int32)std::string(modBuf).find(folderTest[i], 0);
                         if (tokenPos >= 0)
                             break;

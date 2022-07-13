@@ -19,10 +19,10 @@ void RSDK::Legacy::LoadAnimationFile(char *filePath)
     InitFileInfo(&info);
 
     if (LoadFile(&info, filePath, FMODE_RB)) {
-        byte sheetIDs[24];
+        uint8 sheetIDs[24];
         sheetIDs[0] = 0;
 
-        byte sheetCount = ReadInt8(&info);
+        uint8 sheetCount = ReadInt8(&info);
 
         for (int32 s = 0; s < sheetCount; ++s) {
             char sheetPath[0x21];
