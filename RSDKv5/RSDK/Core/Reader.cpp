@@ -28,16 +28,14 @@ FileIO *fOpen(const char *path, const char *mode)
 #if RETRO_REV0U
 void RSDK::DetectEngineVersion()
 {
+    bool32 readDataPack = useDataPack;
 #if RETRO_USE_MOD_LOADER
     // mods can manually set their target engine versions if needed
     if (modSettings.versionOverride) {
         engine.version = modSettings.versionOverride;
         return;
     }
-#endif
 
-    bool32 readDataPack = useDataPack;
-#if RETRO_USE_MOD_LOADER
     // check if we have any mods with gameconfigs
     for (int32 m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
@@ -50,6 +48,7 @@ void RSDK::DetectEngineVersion()
         if (LoadFile(&checkInfo, "Data/Game/GameConfig.bin", FMODE_RB)) {
             readDataPack = false;
             CloseFile(&checkInfo);
+            break;
         }
     }
     SetActiveMod(-1);

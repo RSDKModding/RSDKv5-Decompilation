@@ -209,7 +209,7 @@ bool RenderDevice::InitGraphicsAPI()
     if (!precision)
         strcpy(_glPrecision, "precision mediump float;\n");
     else
-        strcpy(_glPrecision, "precision mediump float;\n");
+        strcpy(_glPrecision, "precision highp float;\n");
 #endif
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
@@ -358,8 +358,8 @@ bool RenderDevice::InitGraphicsAPI()
     videoSettings.viewportW = 1.0 / viewSize.x;
     videoSettings.viewportH = 1.0 / viewSize.y;
 
-    PrintLog(PRINT_NORMAL, "%d %d %f %f %d %d %d %d %f %f", displayWidth[0], displayHeight[0], pixelSize.x, pixelSize.y, viewportPos.x, viewportPos.y,
-             viewportSize.x, viewportSize.y, viewSize.x, viewSize.y);
+    //PrintLog(PRINT_NORMAL, "%d %d %f %f %d %d %d %d %f %f", displayWidth[0], displayHeight[0], pixelSize.x, pixelSize.y, viewportPos.x, viewportPos.y,
+    //         viewportSize.x, viewportSize.y, viewSize.x, viewSize.y);
 
     return true;
 }
