@@ -27,7 +27,7 @@ uint16 RSDK::tintLookupTable[0x10000];
 #endif
 
 #if RETRO_REV02
-void RSDK::LoadPalette(uint8 bankID, const char *filename, uint16 rowFlags)
+void RSDK::LoadPalette(uint8 bankID, const char *filename, uint16 disabledRows)
 {
     char fullFilePath[0x80];
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Palettes/%s", filename);
@@ -36,7 +36,7 @@ void RSDK::LoadPalette(uint8 bankID, const char *filename, uint16 rowFlags)
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         for (int32 r = 0; r < 0x10; ++r) {
-            if (!(rowFlags >> r & 1)) {
+            if (!(disabledRows >> r & 1)) {
                 for (int32 c = 0; c < 0x10; ++c) {
                     uint8 red                         = ReadInt8(&info);
                     uint8 green                       = ReadInt8(&info);

@@ -38,7 +38,7 @@ extern uint16 tintLookupTable[0x10000];
 #define PACK_RGB888(r, g, b) RGB888_TO_RGB565(r, g, b)
 
 #if RETRO_REV02
-void LoadPalette(uint8 bankID, const char *filePath, uint16 rowFlags);
+void LoadPalette(uint8 bankID, const char *filePath, uint16 disabledRows);
 #endif
 
 inline void SetActivePalette(uint8 newActiveBank, int32 startLine, int32 endLine)

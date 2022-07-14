@@ -4,6 +4,22 @@
 namespace RSDK
 {
 
+enum TileCollisionModes {
+    TILECOLLISION_NONE, // no tile collisions
+    TILECOLLISION_DOWN, // downwards tile collisions
+#if RETRO_REV0U
+    TILECOLLISION_UP, // upwards tile collisions
+#endif
+};
+
+enum CSides {
+    C_NONE,
+    C_TOP,
+    C_LEFT,
+    C_RIGHT,
+    C_BOTTOM,
+};
+
 struct CollisionSensor {
     Vector2 position;
     bool32 collided;
@@ -58,12 +74,12 @@ extern uint8 roofAngleTolerance;
 inline void SetupCollisionConfig(int32 minDistance, uint8 lowTolerance, uint8 highTolerance, uint8 floorAngleTolerance, uint8 wallAngleTolerance,
                                  uint8 roofAngleTolerance)
 {
-    collisionMinimumDistance  = minDistance << 16;
-    lowCollisionTolerance     = lowTolerance;
-    highCollisionTolerance    = highTolerance;
-    RSDK::floorAngleTolerance = floorAngleTolerance;
-    RSDK::wallAngleTolerance  = wallAngleTolerance;
-    RSDK::roofAngleTolerance  = roofAngleTolerance;
+    collisionMinimumDistance = minDistance << 16;
+    lowCollisionTolerance    = lowTolerance;
+    highCollisionTolerance   = highTolerance;
+    floorAngleTolerance      = floorAngleTolerance;
+    wallAngleTolerance       = wallAngleTolerance;
+    roofAngleTolerance       = roofAngleTolerance;
 }
 
 void CopyCollisionMask(uint16 dst, uint16 src, uint8 cPlane, uint8 cMode);

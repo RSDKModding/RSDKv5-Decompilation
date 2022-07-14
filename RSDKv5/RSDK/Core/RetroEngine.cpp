@@ -1183,8 +1183,18 @@ void RSDK::InitGameLink()
                 gameLogicHandle = Link::Open(gameLogicName);
 
             if (gameLogicHandle) {
+                bool32 canLink = true;
+#if !RETRO_USE_ORIGINAL_CODE
+                int32 *RSDKRevision = (int32 *)Link::GetSymbol(gameLogicHandle, "RSDKRevision");
+                if (RSDKRevision) {
+                    canLink = *RSDKRevision == RETRO_REVISION;
+                    if (!canLink)
+                        PrintLog(PRINT_POPUP, "ERROR: Game Logic RSDK Revision doesn't match Engine RSDK Revision!");
+                }
+#endif
+
                 LogicLinkHandle linkGameLogic = (LogicLinkHandle)Link::GetSymbol(gameLogicHandle, "LinkGameLogicDLL");
-                if (linkGameLogic) {
+                if (canLink && linkGameLogic) {
 #if RETRO_REV02
                     linkGameLogic(&info);
 #else

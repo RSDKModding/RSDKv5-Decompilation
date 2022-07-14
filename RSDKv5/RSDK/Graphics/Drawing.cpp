@@ -2708,7 +2708,7 @@ void RSDK::DrawSprite(Animator *animator, Vector2 *position, bool32 screenRelati
                         drawFX ^= FX_ROTATE;
                     break;
 
-                case ROTFLAG_45DEG: // 0x00, 0x40, 0x80, 0xC0, 0x100, 0x140, 0x180, 0x1C0
+                case ROTSTYLE_45DEG: // 0x00, 0x40, 0x80, 0xC0, 0x100, 0x140, 0x180, 0x1C0
                     rotation = (sceneInfo.entity->rotation + 0x20) & 0x1C0;
                     if (rotation == 0)
                         drawFX ^= FX_ROTATE;

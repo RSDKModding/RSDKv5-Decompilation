@@ -20,7 +20,7 @@ void NullFunc() {}
 
 #if RETRO_REV0U
 // Origins-only I assume, handles sending various data to Hedgehog Engine and stuff
-void NotifyStats(int32 id, int32 param1, int32 param2, int32 param3) {}
+void NotifyCallback(int32 id, int32 param1, int32 param2, int32 param3) {}
 #endif
 
 #define ADD_RSDK_FUNCTION(id, func) RSDKFunctionTable[id] = (void *)func;
@@ -274,7 +274,7 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_CheckPosOnScreen, CheckPosOnScreen);
     ADD_RSDK_FUNCTION(FunctionTable_AddDrawListRef, AddDrawListRef);
     ADD_RSDK_FUNCTION(FunctionTable_SwapDrawListEntries, SwapDrawListEntries);
-    ADD_RSDK_FUNCTION(FunctionTable_SetDrawLayerProperties, SetDrawLayerProperties);
+    ADD_RSDK_FUNCTION(FunctionTable_SetDrawGroupProperties, SetDrawGroupProperties);
 
     // Scene Management
     ADD_RSDK_FUNCTION(FunctionTable_SetScene, SetScene);
@@ -533,7 +533,7 @@ void RSDK::SetupFunctionTables()
 
     // v5U Extras
 #if RETRO_REV0U
-    ADD_RSDK_FUNCTION(FunctionTable_NotifyStats, NotifyStats);
+    ADD_RSDK_FUNCTION(FunctionTable_NotifyCallback, NotifyCallback);
     ADD_RSDK_FUNCTION(FunctionTable_SetGameFinished, SetGameFinished);
 #endif
 

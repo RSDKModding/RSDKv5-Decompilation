@@ -114,7 +114,7 @@ enum FunctionTableIDs {
     FunctionTable_CheckPosOnScreen,
     FunctionTable_AddDrawListRef,
     FunctionTable_SwapDrawListEntries,
-    FunctionTable_SetDrawLayerProperties,
+    FunctionTable_SetDrawGroupProperties,
     FunctionTable_SetScene,
     FunctionTable_SetEngineState,
 #if RETRO_REV02
@@ -320,7 +320,7 @@ enum FunctionTableIDs {
     FunctionTable_SetDebugValue,
 #endif
 #if RETRO_REV0U
-    FunctionTable_NotifyStats,
+    FunctionTable_NotifyCallback,
     FunctionTable_SetGameFinished,
 #endif
     FunctionTable_Count,

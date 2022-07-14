@@ -170,19 +170,6 @@ void RSDK::LoadSceneFolder()
             }
         }
 
-        {
-            RETRO_HASH_MD5(hash);
-            GEN_HASH_MD5("TestObject", hash);
-
-            stageObjectIDs[sceneInfo.classCount] = 0;
-            for (int32 id = 0; id < objectClassCount; ++id) {
-                if (HASH_MATCH_MD5(hash, objectClassList[id].hash)) {
-                    stageObjectIDs[sceneInfo.classCount] = id;
-                    sceneInfo.classCount++;
-                }
-            }
-        }
-
         for (int32 o = 0; o < sceneInfo.classCount; ++o) {
             ObjectClass *objClass = &objectClassList[stageObjectIDs[o]];
             if (objClass->staticVars && !*objClass->staticVars) {

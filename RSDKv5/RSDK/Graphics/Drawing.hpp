@@ -359,7 +359,7 @@ inline Entity *GetDrawListRefPtr(uint8 drawGroup, uint16 entityID)
     return NULL;
 }
 
-inline void SetDrawLayerProperties(uint8 drawGroup, bool32 sorted, void (*callback)())
+inline void SetDrawGroupProperties(uint8 drawGroup, bool32 sorted, void (*callback)())
 {
     if (drawGroup < DRAWGROUP_COUNT) {
         DrawList *list = &drawGroups[drawGroup];

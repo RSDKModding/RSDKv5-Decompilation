@@ -1239,6 +1239,7 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
         int32 varStrPos  = 0;
         int32 parseMode  = 0;
 
+        StrCopy(variable->value, "0"); // default value is 0
         while (text[textStrPos]) {
             switch (parseMode) {
                 default: break;
@@ -1260,6 +1261,9 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
         }
 
         variable->access = ACCESS_PUBLIC;
+
+        if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos]))
+            scriptCode[scriptCodePos] = 0;
 
         StrCopy(variable->value, "local[");
         AppendIntegerToString(variable->value, scriptCodePos++);
@@ -1287,6 +1291,7 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
         int32 varStrPos  = 0;
         int32 parseMode  = 0;
 
+        StrCopy(variable->value, "0"); // default value is 0
         while (text[textStrPos]) {
             switch (parseMode) {
                 default: break;
@@ -1308,6 +1313,9 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
         }
 
         variable->access = ACCESS_PRIVATE;
+
+        if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos]))
+            scriptCode[scriptCodePos] = 0;
 
         StrCopy(variable->value, "local[");
         AppendIntegerToString(variable->value, scriptCodePos++);
