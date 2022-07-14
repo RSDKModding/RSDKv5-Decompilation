@@ -286,34 +286,34 @@ const char variableNames[][0x20] = {
     "music.position",
 
     // Input Properties
-    "inputDown.up",
-    "inputDown.down",
-    "inputDown.left",
-    "inputDown.right",
-    "inputDown.buttonA",
-    "inputDown.buttonB",
-    "inputDown.buttonC",
-    "inputDown.buttonX",
-    "inputDown.buttonY",
-    "inputDown.buttonZ",
-    "inputDown.buttonL",
-    "inputDown.buttonR",
-    "inputDown.start",
-    "inputDown.select",
-    "inputPress.up",
-    "inputPress.down",
-    "inputPress.left",
-    "inputPress.right",
-    "inputPress.buttonA",
-    "inputPress.buttonB",
-    "inputPress.buttonC",
-    "inputPress.buttonX",
-    "inputPress.buttonY",
-    "inputPress.buttonZ",
-    "inputPress.buttonL",
-    "inputPress.buttonR",
-    "inputPress.start",
-    "inputPress.select",
+    "keyDown.up",
+    "keyDown.down",
+    "keyDown.left",
+    "keyDown.right",
+    "keyDown.buttonA",
+    "keyDown.buttonB",
+    "keyDown.buttonC",
+    "keyDown.buttonX",
+    "keyDown.buttonY",
+    "keyDown.buttonZ",
+    "keyDown.buttonL",
+    "keyDown.buttonR",
+    "keyDown.start",
+    "keyDown.select",
+    "keyPress.up",
+    "keyPress.down",
+    "keyPress.left",
+    "keyPress.right",
+    "keyPress.buttonA",
+    "keyPress.buttonB",
+    "keyPress.buttonC",
+    "keyPress.buttonX",
+    "keyPress.buttonY",
+    "keyPress.buttonZ",
+    "keyPress.buttonL",
+    "keyPress.buttonR",
+    "keyPress.start",
+    "keyPress.select",
 
     // Menu Properties
     "menu1.selection",
@@ -885,34 +885,34 @@ enum ScrVar {
     VAR_MUSICVOLUME,
     VAR_MUSICCURRENTTRACK,
     VAR_MUSICPOSITION,
-    VAR_INPUTDOWNUP,
-    VAR_INPUTDOWNDOWN,
-    VAR_INPUTDOWNLEFT,
-    VAR_INPUTDOWNRIGHT,
-    VAR_INPUTDOWNBUTTONA,
-    VAR_INPUTDOWNBUTTONB,
-    VAR_INPUTDOWNBUTTONC,
-    VAR_INPUTDOWNBUTTONX,
-    VAR_INPUTDOWNBUTTONY,
-    VAR_INPUTDOWNBUTTONZ,
-    VAR_INPUTDOWNBUTTONL,
-    VAR_INPUTDOWNBUTTONR,
-    VAR_INPUTDOWNSTART,
-    VAR_INPUTDOWNSELECT,
-    VAR_INPUTPRESSUP,
-    VAR_INPUTPRESSDOWN,
-    VAR_INPUTPRESSLEFT,
-    VAR_INPUTPRESSRIGHT,
-    VAR_INPUTPRESSBUTTONA,
-    VAR_INPUTPRESSBUTTONB,
-    VAR_INPUTPRESSBUTTONC,
-    VAR_INPUTPRESSBUTTONX,
-    VAR_INPUTPRESSBUTTONY,
-    VAR_INPUTPRESSBUTTONZ,
-    VAR_INPUTPRESSBUTTONL,
-    VAR_INPUTPRESSBUTTONR,
-    VAR_INPUTPRESSSTART,
-    VAR_INPUTPRESSSELECT,
+    VAR_KEYDOWNUP,
+    VAR_KEYDOWNDOWN,
+    VAR_KEYDOWNLEFT,
+    VAR_KEYDOWNRIGHT,
+    VAR_KEYDOWNBUTTONA,
+    VAR_KEYDOWNBUTTONB,
+    VAR_KEYDOWNBUTTONC,
+    VAR_KEYDOWNBUTTONX,
+    VAR_KEYDOWNBUTTONY,
+    VAR_KEYDOWNBUTTONZ,
+    VAR_KEYDOWNBUTTONL,
+    VAR_KEYDOWNBUTTONR,
+    VAR_KEYDOWNSTART,
+    VAR_KEYDOWNSELECT,
+    VAR_KEYPRESSUP,
+    VAR_KEYPRESSDOWN,
+    VAR_KEYPRESSLEFT,
+    VAR_KEYPRESSRIGHT,
+    VAR_KEYPRESSBUTTONA,
+    VAR_KEYPRESSBUTTONB,
+    VAR_KEYPRESSBUTTONC,
+    VAR_KEYPRESSBUTTONX,
+    VAR_KEYPRESSBUTTONY,
+    VAR_KEYPRESSBUTTONZ,
+    VAR_KEYPRESSBUTTONL,
+    VAR_KEYPRESSBUTTONR,
+    VAR_KEYPRESSSTART,
+    VAR_KEYPRESSSELECT,
     VAR_MENU1SELECTION,
     VAR_MENU2SELECTION,
     VAR_TILELAYERXSIZE,
@@ -2835,7 +2835,7 @@ void RSDK::Legacy::v4::ParseScriptFile(char *scriptName, int32 scriptID)
                                 && FindStringToken(scriptText, engine.gameHapticSetting, 1) == -1
 #endif
 #if !RETRO_USE_ORIGINAL_CODE
-                                && FindStringToken(scriptText, "USE_ORIGINS", 1) == -1 // general flag for new stuff origins added
+                                && FindStringToken(scriptText, "USE_STANDALONE", 1) == -1 // general flag for new stuff origins added
 #endif
 #if !RETRO_USE_ORIGINAL_CODE
                                 && FindStringToken(scriptText, "USE_DECOMP", 1) == -1 // general flag for decomp-only stuff
@@ -3751,34 +3751,34 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     case VAR_MUSICVOLUME: scriptEng.operands[i] = musicVolume; break;
                     case VAR_MUSICCURRENTTRACK: scriptEng.operands[i] = musicCurrentTrack; break;
                     case VAR_MUSICPOSITION: scriptEng.operands[i] = 0; break;
-                    case VAR_INPUTDOWNUP: scriptEng.operands[i] = controller[arrayVal].keyUp.down; break;
-                    case VAR_INPUTDOWNDOWN: scriptEng.operands[i] = controller[arrayVal].keyDown.down; break;
-                    case VAR_INPUTDOWNLEFT: scriptEng.operands[i] = controller[arrayVal].keyLeft.down; break;
-                    case VAR_INPUTDOWNRIGHT: scriptEng.operands[i] = controller[arrayVal].keyRight.down; break;
-                    case VAR_INPUTDOWNBUTTONA: scriptEng.operands[i] = controller[arrayVal].keyA.down; break;
-                    case VAR_INPUTDOWNBUTTONB: scriptEng.operands[i] = controller[arrayVal].keyB.down; break;
-                    case VAR_INPUTDOWNBUTTONC: scriptEng.operands[i] = controller[arrayVal].keyC.down; break;
-                    case VAR_INPUTDOWNBUTTONX: scriptEng.operands[i] = controller[arrayVal].keyX.down; break;
-                    case VAR_INPUTDOWNBUTTONY: scriptEng.operands[i] = controller[arrayVal].keyY.down; break;
-                    case VAR_INPUTDOWNBUTTONZ: scriptEng.operands[i] = controller[arrayVal].keyZ.down; break;
-                    case VAR_INPUTDOWNBUTTONL: scriptEng.operands[i] = triggerL[arrayVal].keyBumper.down; break;
-                    case VAR_INPUTDOWNBUTTONR: scriptEng.operands[i] = triggerR[arrayVal].keyBumper.down; break;
-                    case VAR_INPUTDOWNSTART: scriptEng.operands[i] = controller[arrayVal].keyStart.down; break;
-                    case VAR_INPUTDOWNSELECT: scriptEng.operands[i] = controller[arrayVal].keySelect.down; break;
-                    case VAR_INPUTPRESSUP: scriptEng.operands[i] = controller[arrayVal].keyUp.press; break;
-                    case VAR_INPUTPRESSDOWN: scriptEng.operands[i] = controller[arrayVal].keyDown.press; break;
-                    case VAR_INPUTPRESSLEFT: scriptEng.operands[i] = controller[arrayVal].keyLeft.press; break;
-                    case VAR_INPUTPRESSRIGHT: scriptEng.operands[i] = controller[arrayVal].keyRight.press; break;
-                    case VAR_INPUTPRESSBUTTONA: scriptEng.operands[i] = controller[arrayVal].keyA.press; break;
-                    case VAR_INPUTPRESSBUTTONB: scriptEng.operands[i] = controller[arrayVal].keyB.press; break;
-                    case VAR_INPUTPRESSBUTTONC: scriptEng.operands[i] = controller[arrayVal].keyC.press; break;
-                    case VAR_INPUTPRESSBUTTONX: scriptEng.operands[i] = controller[arrayVal].keyX.press; break;
-                    case VAR_INPUTPRESSBUTTONY: scriptEng.operands[i] = controller[arrayVal].keyY.press; break;
-                    case VAR_INPUTPRESSBUTTONZ: scriptEng.operands[i] = controller[arrayVal].keyZ.press; break;
-                    case VAR_INPUTPRESSBUTTONL: scriptEng.operands[i] = triggerL[arrayVal].keyBumper.down; break;
-                    case VAR_INPUTPRESSBUTTONR: scriptEng.operands[i] = triggerR[arrayVal].keyBumper.down; break;
-                    case VAR_INPUTPRESSSTART: scriptEng.operands[i] = controller[arrayVal].keyStart.press; break;
-                    case VAR_INPUTPRESSSELECT: scriptEng.operands[i] = controller[arrayVal].keySelect.press; break;
+                    case VAR_KEYDOWNUP: scriptEng.operands[i] = controller[arrayVal].keyUp.down; break;
+                    case VAR_KEYDOWNDOWN: scriptEng.operands[i] = controller[arrayVal].keyDown.down; break;
+                    case VAR_KEYDOWNLEFT: scriptEng.operands[i] = controller[arrayVal].keyLeft.down; break;
+                    case VAR_KEYDOWNRIGHT: scriptEng.operands[i] = controller[arrayVal].keyRight.down; break;
+                    case VAR_KEYDOWNBUTTONA: scriptEng.operands[i] = controller[arrayVal].keyA.down; break;
+                    case VAR_KEYDOWNBUTTONB: scriptEng.operands[i] = controller[arrayVal].keyB.down; break;
+                    case VAR_KEYDOWNBUTTONC: scriptEng.operands[i] = controller[arrayVal].keyC.down; break;
+                    case VAR_KEYDOWNBUTTONX: scriptEng.operands[i] = controller[arrayVal].keyX.down; break;
+                    case VAR_KEYDOWNBUTTONY: scriptEng.operands[i] = controller[arrayVal].keyY.down; break;
+                    case VAR_KEYDOWNBUTTONZ: scriptEng.operands[i] = controller[arrayVal].keyZ.down; break;
+                    case VAR_KEYDOWNBUTTONL: scriptEng.operands[i] = triggerL[arrayVal].keyBumper.down; break;
+                    case VAR_KEYDOWNBUTTONR: scriptEng.operands[i] = triggerR[arrayVal].keyBumper.down; break;
+                    case VAR_KEYDOWNSTART: scriptEng.operands[i] = controller[arrayVal].keyStart.down; break;
+                    case VAR_KEYDOWNSELECT: scriptEng.operands[i] = controller[arrayVal].keySelect.down; break;
+                    case VAR_KEYPRESSUP: scriptEng.operands[i] = controller[arrayVal].keyUp.press; break;
+                    case VAR_KEYPRESSDOWN: scriptEng.operands[i] = controller[arrayVal].keyDown.press; break;
+                    case VAR_KEYPRESSLEFT: scriptEng.operands[i] = controller[arrayVal].keyLeft.press; break;
+                    case VAR_KEYPRESSRIGHT: scriptEng.operands[i] = controller[arrayVal].keyRight.press; break;
+                    case VAR_KEYPRESSBUTTONA: scriptEng.operands[i] = controller[arrayVal].keyA.press; break;
+                    case VAR_KEYPRESSBUTTONB: scriptEng.operands[i] = controller[arrayVal].keyB.press; break;
+                    case VAR_KEYPRESSBUTTONC: scriptEng.operands[i] = controller[arrayVal].keyC.press; break;
+                    case VAR_KEYPRESSBUTTONX: scriptEng.operands[i] = controller[arrayVal].keyX.press; break;
+                    case VAR_KEYPRESSBUTTONY: scriptEng.operands[i] = controller[arrayVal].keyY.press; break;
+                    case VAR_KEYPRESSBUTTONZ: scriptEng.operands[i] = controller[arrayVal].keyZ.press; break;
+                    case VAR_KEYPRESSBUTTONL: scriptEng.operands[i] = triggerL[arrayVal].keyBumper.down; break;
+                    case VAR_KEYPRESSBUTTONR: scriptEng.operands[i] = triggerR[arrayVal].keyBumper.down; break;
+                    case VAR_KEYPRESSSTART: scriptEng.operands[i] = controller[arrayVal].keyStart.press; break;
+                    case VAR_KEYPRESSSELECT: scriptEng.operands[i] = controller[arrayVal].keySelect.press; break;
                     case VAR_MENU1SELECTION: scriptEng.operands[i] = gameMenu[0].selection1; break;
                     case VAR_MENU2SELECTION: scriptEng.operands[i] = gameMenu[1].selection1; break;
                     case VAR_TILELAYERXSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].xsize; break;
@@ -5767,34 +5767,34 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     case VAR_MUSICVOLUME: SetMusicVolume(scriptEng.operands[i]); break;
                     case VAR_MUSICCURRENTTRACK: break;
                     case VAR_MUSICPOSITION: break;
-                    case VAR_INPUTDOWNUP: controller[arrayVal].keyUp.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNDOWN: controller[arrayVal].keyDown.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNLEFT: controller[arrayVal].keyLeft.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNRIGHT: controller[arrayVal].keyRight.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONA: controller[arrayVal].keyA.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONB: controller[arrayVal].keyB.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONC: controller[arrayVal].keyC.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONX: controller[arrayVal].keyX.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONY: controller[arrayVal].keyY.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONZ: controller[arrayVal].keyZ.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONL: triggerL[arrayVal].keyBumper.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONR: triggerR[arrayVal].keyBumper.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNSTART: controller[arrayVal].keyStart.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNSELECT: controller[arrayVal].keySelect.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSUP: controller[arrayVal].keyUp.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSDOWN: controller[arrayVal].keyDown.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSLEFT: controller[arrayVal].keyLeft.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSRIGHT: controller[arrayVal].keyRight.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONA: controller[arrayVal].keyA.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONB: controller[arrayVal].keyB.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONC: controller[arrayVal].keyC.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONX: controller[arrayVal].keyX.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONY: controller[arrayVal].keyY.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONZ: controller[arrayVal].keyZ.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONL: triggerL[arrayVal].keyBumper.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONR: triggerR[arrayVal].keyBumper.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSSTART: controller[arrayVal].keyStart.press = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSSELECT: controller[arrayVal].keySelect.press = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNUP: controller[arrayVal].keyUp.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNDOWN: controller[arrayVal].keyDown.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNLEFT: controller[arrayVal].keyLeft.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNRIGHT: controller[arrayVal].keyRight.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONA: controller[arrayVal].keyA.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONB: controller[arrayVal].keyB.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONC: controller[arrayVal].keyC.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONX: controller[arrayVal].keyX.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONY: controller[arrayVal].keyY.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONZ: controller[arrayVal].keyZ.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONL: triggerL[arrayVal].keyBumper.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONR: triggerR[arrayVal].keyBumper.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNSTART: controller[arrayVal].keyStart.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNSELECT: controller[arrayVal].keySelect.down = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSUP: controller[arrayVal].keyUp.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSDOWN: controller[arrayVal].keyDown.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSLEFT: controller[arrayVal].keyLeft.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSRIGHT: controller[arrayVal].keyRight.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONA: controller[arrayVal].keyA.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONB: controller[arrayVal].keyB.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONC: controller[arrayVal].keyC.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONX: controller[arrayVal].keyX.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONY: controller[arrayVal].keyY.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONZ: controller[arrayVal].keyZ.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONL: triggerL[arrayVal].keyBumper.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONR: triggerR[arrayVal].keyBumper.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSSTART: controller[arrayVal].keyStart.press = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSSELECT: controller[arrayVal].keySelect.press = scriptEng.operands[i]; break;
                     case VAR_MENU1SELECTION: gameMenu[0].selection1 = scriptEng.operands[i]; break;
                     case VAR_MENU2SELECTION: gameMenu[1].selection1 = scriptEng.operands[i]; break;
                     case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].xsize = scriptEng.operands[i]; break;

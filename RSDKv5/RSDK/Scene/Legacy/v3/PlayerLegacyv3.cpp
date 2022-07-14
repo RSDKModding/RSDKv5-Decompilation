@@ -11,6 +11,12 @@ uint16 RSDK::Legacy::v3::rightBuffer     = 0;
 uint16 RSDK::Legacy::v3::jumpPressBuffer = 0;
 uint16 RSDK::Legacy::v3::jumpHoldBuffer  = 0;
 
+uint8 RSDK::Legacy::v3::nextLeaderPosID = 1;
+uint8 RSDK::Legacy::v3::lastLeaderPosID = 0;
+
+int16 RSDK::Legacy::v3::leaderPositionBufferX[16];
+int16 RSDK::Legacy::v3::leaderPositionBufferY[16];
+
 void RSDK::Legacy::v3::ProcessPlayerControl(Player *player)
 {
     switch (player->controlMode) {
@@ -46,26 +52,58 @@ void RSDK::Legacy::v3::ProcessPlayerControl(Player *player)
 
             jumpHoldBuffer <<= 1;
             jumpHoldBuffer |= (uint8)player->jumpHold;
+
+            if (activePlayerCount >= 2 && !player->followPlayer1) {
+                upBuffer <<= 1;
+                upBuffer |= (uint8)player->up;
+
+                downBuffer <<= 1;
+                downBuffer |= (uint8)player->down;
+
+                leftBuffer <<= 1;
+                leftBuffer |= (uint8)player->left;
+
+                rightBuffer <<= 1;
+                rightBuffer |= (uint8)player->right;
+
+                jumpPressBuffer <<= 1;
+                jumpPressBuffer |= (uint8)player->jumpPress;
+
+                jumpHoldBuffer <<= 1;
+                jumpHoldBuffer |= (uint8)player->jumpHold;
+
+                leaderPositionBufferX[nextLeaderPosID] = player->XPos >> 16;
+                leaderPositionBufferY[nextLeaderPosID] = player->YPos >> 16;
+                nextLeaderPosID                        = (nextLeaderPosID + 1) & 0xF;
+                lastLeaderPosID                        = (nextLeaderPosID + 1) & 0xF;
+            }
             break;
 
         case CONTROLMODE_NONE:
-            upBuffer <<= 1;
-            upBuffer |= (uint8)player->up;
+            if (activePlayerCount >= 2 && !player->followPlayer1) {
+                upBuffer <<= 1;
+                upBuffer |= (uint8)player->up;
 
-            downBuffer <<= 1;
-            downBuffer |= (uint8)player->down;
+                downBuffer <<= 1;
+                downBuffer |= (uint8)player->down;
 
-            leftBuffer <<= 1;
-            leftBuffer |= (uint8)player->left;
+                leftBuffer <<= 1;
+                leftBuffer |= (uint8)player->left;
 
-            rightBuffer <<= 1;
-            rightBuffer |= (uint8)player->right;
+                rightBuffer <<= 1;
+                rightBuffer |= (uint8)player->right;
 
-            jumpPressBuffer <<= 1;
-            jumpPressBuffer |= (uint8)player->jumpPress;
+                jumpPressBuffer <<= 1;
+                jumpPressBuffer |= (uint8)player->jumpPress;
 
-            jumpHoldBuffer <<= 1;
-            jumpHoldBuffer |= (uint8)player->jumpHold;
+                jumpHoldBuffer <<= 1;
+                jumpHoldBuffer |= (uint8)player->jumpHold;
+
+                leaderPositionBufferX[nextLeaderPosID] = player->XPos >> 16;
+                leaderPositionBufferY[nextLeaderPosID] = player->YPos >> 16;
+                nextLeaderPosID                        = (nextLeaderPosID + 1) & 0xF;
+                lastLeaderPosID                        = (nextLeaderPosID + 1) & 0xF;
+            }
             break;
 
         case CONTROLMODE_SIDEKICK:
@@ -75,6 +113,9 @@ void RSDK::Legacy::v3::ProcessPlayerControl(Player *player)
             player->right     = rightBuffer >> 15;
             player->jumpPress = jumpPressBuffer >> 15;
             player->jumpHold  = jumpHoldBuffer >> 15;
+
+            player->boundEntity->XPos = leaderPositionBufferX[lastLeaderPosID] << 16;
+            player->boundEntity->YPos = leaderPositionBufferY[lastLeaderPosID] << 16;
             break;
     }
 }

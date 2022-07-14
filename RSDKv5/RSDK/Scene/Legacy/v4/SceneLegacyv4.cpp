@@ -459,7 +459,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
 
             if (LoadFile(&bytecodeInfo, "Bytecode/GlobalCode.bin", FMODE_RB)) {
                 bytecodeExists = true;
-                CloseFile(&info);
+                CloseFile(&bytecodeInfo);
             }
 
             if (bytecodeExists && !modSettings.forceScripts) {

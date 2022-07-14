@@ -71,6 +71,12 @@ extern uint16 rightBuffer;
 extern uint16 jumpPressBuffer;
 extern uint16 jumpHoldBuffer;
 
+extern uint8 nextLeaderPosID;
+extern uint8 lastLeaderPosID;
+
+extern int16 leaderPositionBufferX[16];
+extern int16 leaderPositionBufferY[16];
+
 void ProcessPlayerControl(Player *player);
 } // namespace v3
 

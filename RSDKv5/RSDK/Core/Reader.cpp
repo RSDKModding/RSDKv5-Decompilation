@@ -173,6 +173,15 @@ bool32 RSDK::LoadDataPack(const char *filePath, size_t fileOffset, bool32 useBuf
     }
 }
 
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_REV0U
+inline bool ends_with(std::string const &value, std::string const &ending)
+{
+    if (ending.size() > value.size())
+        return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+#endif
+
 bool32 RSDK::OpenDataFile(FileInfo *info, const char *filename)
 {
     StringLowerCase(textBuffer, filename);
@@ -262,6 +271,19 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
             }
         }
     }
+
+#if RETRO_REV0U
+    if (modSettings.forceScripts && !info->externalFile) {
+        if (std::string(fullFilePath).rfind("Data/Scripts/", 0) == 0 && ends_with(std::string(fullFilePath), "txt")) {
+            // is a script, since those dont exist normally, load them from "scripts/"
+            info->externalFile   = true;
+            addPath              = true;
+            std::string fStr     = std::string(fullFilePath);
+            fStr.erase(fStr.begin(), fStr.begin() + 5); // remove "Data/"
+            StrCopy(fullFilePath, fStr.c_str());
+        }
+    }
+#endif
 #endif
 
 #if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
