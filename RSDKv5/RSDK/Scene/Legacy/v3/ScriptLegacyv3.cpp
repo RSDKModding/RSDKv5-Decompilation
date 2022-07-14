@@ -1734,6 +1734,9 @@ void RSDK::Legacy::v3::ParseScriptFile(char *scriptName, int32 scriptID)
                                 && FindStringToken(scriptText, engine.gameHapticSetting, 1) == -1
 #endif
 #if !RETRO_USE_ORIGINAL_CODE
+                                && FindStringToken(scriptText, engine.releaseType, 1) == -1 // general flag for new stuff origins added
+#endif
+#if !RETRO_USE_ORIGINAL_CODE
                                 && FindStringToken(scriptText, "Use_Decomp", 1) == -1
 #endif
 #if RETRO_USE_MOD_LOADER

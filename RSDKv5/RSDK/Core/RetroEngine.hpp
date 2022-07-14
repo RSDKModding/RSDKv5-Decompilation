@@ -526,6 +526,11 @@ struct RetroEngine {
     const char *gamePlatform;
     const char *gameRenderType;
     const char *gameHapticSetting;
+
+#if !RETRO_USE_ORIGINAL_CODE
+    int gameReleaseID       = 0;
+    const char *releaseType = "USE_STANDALONE";
+#endif
 #endif
 
     int32 storedShaderID      = SHADER_NONE;

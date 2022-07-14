@@ -571,6 +571,9 @@ void RSDK::InitEngine()
             engine.gamePlatform      = (RETRO_DEVICETYPE == RETRO_STANDARD ? "STANDARD" : "MOBILE");
             engine.gameRenderType    = "SW_RENDERING";
             engine.gameHapticSetting = "NO_F_FEEDBACK";
+#if !RETRO_USE_ORIGINAL_CODE
+            engine.releaseType = (engine.releaseType ? "USE_ORIGINS" : "USE_STANDALONE");
+#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
             Legacy::deviceType = RETRO_DEVICETYPE;
@@ -607,6 +610,9 @@ void RSDK::InitEngine()
             engine.gamePlatform      = "Standard";
             engine.gameRenderType    = "SW_Rendering";
             engine.gameHapticSetting = "No_Haptics";
+#if !RETRO_USE_ORIGINAL_CODE
+            engine.releaseType = (engine.releaseType ? "Use_Origins" : "Use_Standlone");
+#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
             Legacy::deviceType = RETRO_DEVICETYPE;
@@ -619,6 +625,7 @@ void RSDK::InitEngine()
                 case RETRO_PS4: Legacy::gamePlatformID = Legacy::LEGACY_RETRO_PS3; break;
                 case RETRO_ANDROID: Legacy::gamePlatformID = Legacy::LEGACY_RETRO_ANDROID; break;
             }
+
             if (SKU::curSKU.language <= LANGUAGE_JP)
                 Legacy::language = SKU::curSKU.language;
             else

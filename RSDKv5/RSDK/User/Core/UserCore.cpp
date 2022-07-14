@@ -319,6 +319,10 @@ void RSDK::LoadSettingsINI()
         customSettings.enableControllerDebugging = iniparser_getboolean(ini, "Game:enableControllerDebugging", false);
         customSettings.disableFocusPause         = iniparser_getboolean(ini, "Game:disableFocusPause", false);
 
+#if RETRO_REV0U
+        engine.gameReleaseID                     = iniparser_getint(ini, "Game:gameType", 1);
+#endif
+
         sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "%s", iniparser_getstring(ini, "Game:gameLogic", "Game"));
         sprintf_s(customSettings.username, (int32)sizeof(customSettings.username), "%s", iniparser_getstring(ini, "Game:username", ""));
 
@@ -494,6 +498,10 @@ void RSDK::LoadSettingsINI()
         customSettings.enableControllerDebugging = false;
         customSettings.disableFocusPause         = false;
 
+#if RETRO_REV0U
+        engine.gameReleaseID = 0;
+#endif
+
         sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "Game");
         customSettings.username[0] = 0;
 
@@ -585,6 +593,11 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
 
             WriteText(file, "; if -1, the game will decide what region to use, if 0 or higher, forces a specific region\n");
             WriteText(file, "region=%d\n", customSettings.region);
+
+#if RETRO_REV0U
+            WriteText(file, "; Determines game type in scripts (0 = Standalone/Original releases, 1 = Origins release)\n");
+            WriteText(file, "gameType=%d\n", engine.gameReleaseID);
+#endif
 #endif
         }
 
