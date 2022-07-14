@@ -8,22 +8,27 @@ DEBUG		?= 1
 VERBOSE		?= 0
 PROFILE		?= 0
 
+RSDK_ONLY   ?= 0
+
 RSDK_NAME    = RSDKv5
 RSDK_SUFFIX  = 
 USERTYPE    ?= Dummy
-
-GAME_NAME   ?= Game
-GAME_SUFFIX ?= .so
-GAME_ALLC   ?= 1
-STATICGAME 	?= 0
 
 RSDK_CFLAGS  =
 RSDK_LDFLAGS =
 RSDK_LIBS    =
 
+STATICGAME 	?= 0
+
+ifeq ($(RSDK_ONLY),0)
+GAME_NAME   ?= Game
+GAME_SUFFIX ?= .so
+GAME_ALLC   ?= 1
+
 GAME_CFLAGS  =
 GAME_LDFLAGS = -shared
 GAME_LIBS    =
+endif
 
 DEFINES      =
 
@@ -148,14 +153,13 @@ RSDK_SOURCES += \
 	dependencies/all/iniparser/dictionary   \
 	dependencies/all/miniz/miniz   
 
-
+ifeq ($(RSDK_ONLY),0)
 GAME_INCLUDES = \
 	-I./$(GAME_NAME)/   		\
 	-I./$(GAME_NAME)/Objects/
 
 GAME_SOURCES = \
-	$(GAME_NAME)/GameObjects	\
-	$(GAME_NAME)/GameVariables 
+	$(GAME_NAME)/Game
 
 ifeq ($(GAME_ALLC),1)
 GAME_SOURCES += $(GAME_NAME)/Objects/All
@@ -163,19 +167,22 @@ else
 # execute Game/objectmake.py?
 include $(GAME_NAME)/Objects.cfg
 endif
+endif
 
 RSDK_PATH = $(OUTDIR)/$(RSDK_NAME)$(RSDK_SUFFIX)
-GAME_PATH = $(OUTDIR)/$(GAME_NAME)$(GAME_SUFFIX)
 
 PKG_NAME 	?= $(RSDK_NAME)
 PKG_SUFFIX 	?= $(RSDK_SUFFIX)
 PKG_PATH 	 = $(OUTDIR)/$(PKG_NAME)$(PKG_SUFFIX)
 
 RSDK_OBJECTS += $(addprefix $(RSDK_OBJDIR)/, $(addsuffix .o, $(RSDK_SOURCES)))
-GAME_OBJECTS += $(addprefix $(GAME_OBJDIR)/, $(addsuffix .o, $(GAME_SOURCES)))
 
 $(shell mkdir -p $(OUTDIR))
 $(shell mkdir -p $(RSDK_OBJDIR))
+
+ifeq ($(RSDK_ONLY),0)
+GAME_OBJECTS += $(addprefix $(GAME_OBJDIR)/, $(addsuffix .o, $(GAME_SOURCES)))
+GAME_PATH = $(OUTDIR)/$(GAME_NAME)$(GAME_SUFFIX)
 $(shell mkdir -p $(GAME_OBJDIR))
 
 $(GAME_OBJDIR)/%.o: %.c
@@ -183,6 +190,7 @@ $(GAME_OBJDIR)/%.o: %.c
 	@echo compiling $<...
 	$(CC) -c -fPIC $(CFLAGS_ALL) $(GAME_FLAGS) $(GAME_INCLUDES) $(DEFINES) $< -o $@
 	@echo done $<
+endif
 
 $(RSDK_OBJDIR)/%.o: %.c
 	@mkdir -p $(@D)
@@ -203,6 +211,7 @@ $(RSDK_PATH): $(RSDK_OBJECTS) $(GAME_OBJECTS)
 	@echo done
 	$(STRIP) $@
 else
+ifeq ($(RSDK_ONLY),0)
 $(RSDK_PATH): $(RSDK_OBJECTS)
 	@echo linking RSDK...
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $(RSDK_LDFLAGS) $(RSDK_OBJECTS) $(RSDK_LIBS) -o $@ 
@@ -213,6 +222,13 @@ $(GAME_PATH): $(GAME_OBJECTS)
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $(GAME_LDFLAGS) $(GAME_OBJECTS) $(GAME_LIBS) -o $@ 
  	$(STRIP) $@
 	@echo done linking game
+else
+$(RSDK_PATH): $(RSDK_OBJECTS)
+	@echo linking RSDK...
+	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $(RSDK_LDFLAGS) $(RSDK_OBJECTS) $(RSDK_LIBS) -o $@ 
+	$(STRIP) $@
+	@echo done linking RSDK
+endif
 endif
 
 
@@ -221,9 +237,12 @@ ifeq ($(RSDK_PATH),$(PKG_PATH))
 ifeq ($(STATICGAME),1)
 all: $(RSDK_PATH) 
 else
+ifeq ($(RSDK_ONLY),0)
 all: $(RSDK_PATH) $(GAME_PATH)
+else
+all: $(RSDK_PATH)
+endif # RSDK_ONLY
 endif # STATICGAME
-
 else
 all: $(PKG_PATH)
 endif

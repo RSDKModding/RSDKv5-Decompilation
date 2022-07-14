@@ -428,7 +428,7 @@ void RSDK::DevMenu_MainMenu()
 
     if (controller[CONT_ANY].keyStart.press || confirm) {
 #if RETRO_USE_MOD_LOADER
-        if (devMenu.selection == 1 && devMenu.startingVersion != engine.version) {
+        if (devMenu.selection <= 1 && devMenu.startingVersion != engine.version) {
             // goofy aaa hack
             RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_NORMAL;
             devMenu.selection       = 0;

@@ -1187,7 +1187,7 @@ void RSDK::InitGameLink()
         sprintf(buffer, "%s%s", SKU::userFileDir, gameLogicName);
 #endif
             if (!gameLogicHandle)
-                gameLogicHandle = Link::Open(gameLogicName);
+                gameLogicHandle = Link::Open(buffer);
 
             if (gameLogicHandle) {
                 bool32 canLink = true;
