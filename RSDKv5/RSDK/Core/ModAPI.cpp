@@ -43,7 +43,7 @@ RSDK::ModInfo *RSDK::currentMod;
 
 std::vector<RSDK::ModPublicFunctionInfo> gamePublicFuncs;
 
-void *RSDK::modFunctionTable[RSDK::ModTable_Max];
+void *RSDK::modFunctionTable[RSDK::ModTable_Count];
 
 std::map<uint32, uint32> RSDK::superLevels;
 int32 RSDK::inheritLevel = 0;

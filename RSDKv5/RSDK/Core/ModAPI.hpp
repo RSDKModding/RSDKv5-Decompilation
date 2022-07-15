@@ -20,7 +20,7 @@ namespace RSDK
 extern std::map<uint32, uint32> superLevels;
 extern int32 inheritLevel;
 
-typedef enum {
+enum ModCallbackEvents {
     MODCB_GAME_STARTUP,
     MODCB_STAGELOAD,
     MODCB_ONUPDATE,
@@ -32,9 +32,9 @@ typedef enum {
     MODCB_ONVIDEOSKIPCB,
     MODCB_ONSCANLINECB,
     MODCB_MAX,
-} ModCallbackEvents;
+};
 
-typedef enum {
+enum ModSuper {
     SUPER_UPDATE,
     SUPER_LATEUPDATE,
     SUPER_STATICUPDATE,
@@ -47,9 +47,9 @@ typedef enum {
     SUPER_EDITORDRAW,
     SUPER_EDITORLOAD,
     SUPER_SERIALIZE
-} ModSuper;
+};
 
-typedef enum {
+enum ModFunctionTableIDs {
     ModTable_RegisterGlobals,
     ModTable_RegisterObject,
     ModTable_RegisterObjectSTD,
@@ -88,8 +88,8 @@ typedef enum {
     ModTable_LoadShader,
     ModTable_StateMachineRun,
     ModTable_RegisterStateHook,
-    ModTable_Max
-} ModFunctionTable;
+    ModTable_Count
+};
 
 typedef void (*ModCallback)(void *data);
 typedef std::function<void(void *data)> ModCallbackSTD;
@@ -187,7 +187,7 @@ extern uint8 modObjCount;
 
 extern char customUserFileDir[0x100];
 
-extern void *modFunctionTable[ModTable_Max];
+extern void *modFunctionTable[ModTable_Count];
 extern int32 currentObjectID;
 
 extern ModInfo *currentMod;

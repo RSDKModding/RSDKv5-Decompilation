@@ -359,6 +359,11 @@ struct GameInfo {
 
     ScreenInfo *screenInfo;
 
+#if RETRO_REV0U
+    // only for origins, not technically needed for v5U if standalone I think
+    void *hedgehogLink;
+#endif
+
 #if RETRO_USE_MOD_LOADER
     void *modTable;
 #endif

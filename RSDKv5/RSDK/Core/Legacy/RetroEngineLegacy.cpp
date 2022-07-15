@@ -14,6 +14,9 @@ int32 RSDK::Legacy::language       = Legacy::LEGACY_LANGUAGE_EN;
 bool32 RSDK::Legacy::hapticsEnabled = false;
 #endif
 
+int32 RSDK::Legacy::sinM7LookupTable[0x200];
+int32 RSDK::Legacy::cosM7LookupTable[0x200];
+
 void RSDK::Legacy::CalculateTrigAnglesM7()
 {
     for (int32 i = 0; i < 0x200; ++i) {

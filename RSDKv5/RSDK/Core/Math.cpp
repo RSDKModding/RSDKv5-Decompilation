@@ -23,12 +23,6 @@ int32 RSDK::acos256LookupTable[0x100];
 
 uint8 RSDK::arcTan256LookupTable[0x100 * 0x100];
 
-// TODO: move to Legacy/Math
-#if RETRO_REV0U
-int32 RSDK::sinM7LookupTable[0x200];
-int32 RSDK::cosM7LookupTable[0x200];
-#endif
-
 uint32 RSDK::randSeed = 0;
 
 void RSDK::ClearTrigLookupTables()

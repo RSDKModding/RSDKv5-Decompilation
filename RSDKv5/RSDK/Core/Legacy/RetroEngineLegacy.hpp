@@ -53,6 +53,9 @@ extern int32 language;
 extern bool32 hapticsEnabled;
 #endif
 
+extern int32 sinM7LookupTable[0x200];
+extern int32 cosM7LookupTable[0x200];
+
 void CalculateTrigAnglesM7();
 
 } // namespace Legacy

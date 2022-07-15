@@ -42,12 +42,6 @@ extern int32 acos256LookupTable[0x100];
 
 extern uint8 arcTan256LookupTable[0x100 * 0x100];
 
-// TODO: move to Legacy/Math
-#if RETRO_REV0U
-extern int32 sinM7LookupTable[0x200];
-extern int32 cosM7LookupTable[0x200];
-#endif
-
 // Setup angles
 void ClearTrigLookupTables();
 void CalculateTrigAngles();

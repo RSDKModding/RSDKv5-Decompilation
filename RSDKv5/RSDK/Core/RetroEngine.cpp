@@ -573,9 +573,7 @@ void RSDK::InitEngine()
             engine.gameHapticSetting = "NO_F_FEEDBACK";
 #if !RETRO_USE_ORIGINAL_CODE
             engine.releaseType = (engine.releaseType ? "USE_ORIGINS" : "USE_STANDALONE");
-#endif
 
-#if !RETRO_USE_ORIGINAL_CODE
             Legacy::deviceType = RETRO_DEVICETYPE;
             if (SKU::curSKU.language <= LANGUAGE_JP)
                 Legacy::language = SKU::curSKU.language;
@@ -612,9 +610,7 @@ void RSDK::InitEngine()
             engine.gameHapticSetting = "No_Haptics";
 #if !RETRO_USE_ORIGINAL_CODE
             engine.releaseType = (engine.releaseType ? "Use_Origins" : "Use_Standlone");
-#endif
 
-#if !RETRO_USE_ORIGINAL_CODE
             Legacy::deviceType = RETRO_DEVICETYPE;
             switch (RETRO_PLATFORM) {
                 default:
