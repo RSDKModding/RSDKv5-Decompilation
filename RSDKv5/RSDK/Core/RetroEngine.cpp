@@ -580,9 +580,9 @@ void RSDK::InitEngine()
             else {
                 switch (SKU::curSKU.language) {
                     default: Legacy::language = Legacy::LEGACY_LANGUAGE_EN; break;
-                    case LANGUAGE_KO: Legacy::LEGACY_LANGUAGE_KO; break;
-                    case LANGUAGE_SC: Legacy::LEGACY_LANGUAGE_ZS; break;
-                    case LANGUAGE_TC: Legacy::LEGACY_LANGUAGE_ZH; break;
+                    case LANGUAGE_KO: Legacy::language = Legacy::LEGACY_LANGUAGE_KO; break;
+                    case LANGUAGE_SC: Legacy::language = Legacy::LEGACY_LANGUAGE_ZS; break;
+                    case LANGUAGE_TC: Legacy::language = Legacy::LEGACY_LANGUAGE_ZH; break;
                 }
             }
 #endif

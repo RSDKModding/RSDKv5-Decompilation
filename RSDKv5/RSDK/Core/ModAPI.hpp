@@ -134,7 +134,8 @@ struct ModInfo {
     bool disableGameLogic;
 #if RETRO_REV0U
     bool forceScripts;
-    int32 versionOverride;
+    int32 targetVersion;
+    int32 forceVersion;
 #endif
     std::map<std::string, std::string> fileMap;
     std::vector<ModPublicFunctionInfo> functionList;

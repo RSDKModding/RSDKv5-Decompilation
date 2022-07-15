@@ -401,8 +401,17 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         info->disableGameLogic = iniparser_getboolean(ini, ":DisableGameLogic", false);
 
 #if RETRO_REV0U
-        info->versionOverride = iniparser_getint(ini, ":VersionOverride", 0);
-        info->forceScripts    = iniparser_getboolean(ini, ":TxtScripts", false);
+        info->targetVersion = iniparser_getint(ini, ":TargetVersion", 0);
+        if (info->targetVersion < 3 || info->targetVersion > 5) {
+            PrintLog(PRINT_NORMAL, "[MOD] Invalid target version. Should be 3, 4, or 5");
+            return false;
+        }
+        else if (info->targetVersion != engine.version) {
+            PrintLog(PRINT_NORMAL, "[MOD] Target version does not match current engine version.");
+            return false;
+        }
+        info->forceVersion = iniparser_getint(ini, ":ForceVersion", 0);
+        info->forceScripts = iniparser_getboolean(ini, ":TxtScripts", false);
 #endif
 
         if (!active)
@@ -596,8 +605,8 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         modSettings.disableGameLogic |= info->disableGameLogic ? 1 : 0;
 
 #if RETRO_REV0U
-        if (info->versionOverride)
-            modSettings.versionOverride = info->versionOverride;
+        if (!modSettings.versionOverride && info->forceVersion)
+            modSettings.versionOverride = info->forceVersion;
         modSettings.forceScripts |= info->forceScripts ? 1 : 0;
 #endif
 
