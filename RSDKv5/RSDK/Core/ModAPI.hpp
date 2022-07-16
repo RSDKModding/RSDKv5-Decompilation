@@ -202,10 +202,10 @@ bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 a
 void SaveMods();
 void SortMods();
 
-inline std::vector<ModInfo*> ActiveMods()
+inline std::vector<ModInfo *> ActiveMods()
 {
     SortMods();
-    std::vector<ModInfo*> ret;
+    std::vector<ModInfo *> ret;
     for (int32 m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
             break;

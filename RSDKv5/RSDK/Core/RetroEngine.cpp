@@ -50,7 +50,9 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         LoadSettingsINI();
 
 #if RETRO_USE_MOD_LOADER
+        engine.version = 0;
         InitModAPI(); // setup mods & the mod API table
+        engine.version = 5;
 #endif
 
 #if RETRO_REV0U
@@ -140,6 +142,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                     if (((engine.version == 5 && sceneInfo.state != ENGINESTATE_DEVMENU)
                          || (engine.version != 5 && RSDK::Legacy::gameMode != RSDK::Legacy::ENGINE_DEVMENU))
                         && devMenu.modsChanged) {
+                        engine.version = 0;
 #else
                     if (sceneInfo.state != ENGINESTATE_DEVMENU && devMenu.modsChanged) {
 #endif
@@ -155,6 +158,8 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                         int32 preVersion = engine.version;
 
                         DetectEngineVersion();
+                        if (!engine.version)
+                            engine.version = preVersion;
 
                         SceneInfo pre      = sceneInfo;
                         int32 preGameMode  = RSDK::Legacy::gameMode;

@@ -135,6 +135,16 @@ void RSDK::InitModAPI()
 
 void RSDK::SortMods()
 {
+#if RETRO_REV0U
+    if (engine.version) {
+        for (int m = 0; m < modList.size(); ++m) {
+            if (modList[m].active && modList[m].targetVersion != -1 && modList[m].targetVersion != engine.version) {
+                PrintLog(PRINT_NORMAL, "[MOD] Mod %s disabled due to target version mismatch", modList[m].id.c_str());
+                modList[m].active = false;
+            }
+        }
+    }
+#endif
     std::sort(modList.begin(), modList.end(), [](ModInfo a, ModInfo b) {
         if (!(a.active && b.active))
             return a.active;
@@ -401,16 +411,22 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         info->disableGameLogic = iniparser_getboolean(ini, ":DisableGameLogic", false);
 
 #if RETRO_REV0U
-        info->targetVersion = iniparser_getint(ini, ":TargetVersion", 0);
-        if (info->targetVersion < 3 || info->targetVersion > 5) {
-            PrintLog(PRINT_NORMAL, "[MOD] Invalid target version. Should be 3, 4, or 5");
-            return false;
-        }
-        else if (info->targetVersion != engine.version) {
-            PrintLog(PRINT_NORMAL, "[MOD] Target version does not match current engine version.");
-            return false;
-        }
         info->forceVersion = iniparser_getint(ini, ":ForceVersion", 0);
+        if (!info->forceVersion) {
+            info->targetVersion = iniparser_getint(ini, ":TargetVersion", 0);
+            if (info->targetVersion != -1 && engine.version) {
+                if (info->targetVersion < 3 || info->targetVersion > 5) {
+                    PrintLog(PRINT_NORMAL, "[MOD] Invalid target version. Should be 3, 4, or 5");
+                    return false;
+                }
+                else if (info->targetVersion != engine.version) {
+                    PrintLog(PRINT_NORMAL, "[MOD] Target version does not match current engine version.");
+                    return false;
+                }
+            }
+        }
+        else
+            info->targetVersion = info->forceVersion;
         info->forceScripts = iniparser_getboolean(ini, ":TxtScripts", false);
 #endif
 

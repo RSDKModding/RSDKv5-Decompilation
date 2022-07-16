@@ -257,9 +257,9 @@ void RSDK::OpenDevMenu()
     devMenu.startingVersion = engine.version;
 #endif
 #else
-    devMenu.sceneState        = sceneInfo.state;
-    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
-    sceneInfo.state           = ENGINESTATE_DEVMENU;
+    devMenu.sceneState           = sceneInfo.state;
+    videoSettings.screenCount    = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
+    sceneInfo.state              = ENGINESTATE_DEVMENU;
 #endif
 
     PauseSound();
@@ -278,8 +278,8 @@ void RSDK::CloseDevMenu()
         case 3: RSDK::Legacy::gameMode = devMenu.sceneState; break;
     }
 #else
-    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
-    sceneInfo.state           = devMenu.sceneState;
+    videoSettings.screenCount    = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
+    sceneInfo.state              = devMenu.sceneState;
 #endif
 
     ResumeSound();
@@ -607,7 +607,7 @@ void RSDK::DevMenu_CategorySelectMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap = SKU::GetConfirmButtonFlip()
+    bool32 swap              = SKU::GetConfirmButtonFlip()
 #endif
     if (swap)
         confirm = controller[CONT_ANY].keyB.press;
@@ -721,7 +721,7 @@ void RSDK::DevMenu_SceneSelectMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap = SKU::GetConfirmButtonFlip()
+    bool32 swap              = SKU::GetConfirmButtonFlip()
 #endif
     if (swap)
         confirm = controller[CONT_ANY].keyB.press;
@@ -838,7 +838,7 @@ void RSDK::DevMenu_OptionsMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap = SKU::GetConfirmButtonFlip()
+    bool32 swap              = SKU::GetConfirmButtonFlip()
 #endif
     if (swap)
         confirm = controller[CONT_ANY].keyB.press;
@@ -1852,6 +1852,9 @@ void RSDK::DevMenu_ModsMenu()
         devMenu.state     = DevMenu_MainMenu;
         devMenu.scrollPos = 0;
         devMenu.selection = 4;
+#if RETRO_REV0U
+        engine.version = 0;
+#endif
         SaveMods();
         if (devMenu.modsChanged) {
 #if RETRO_REV0U
@@ -1860,6 +1863,8 @@ void RSDK::DevMenu_ModsMenu()
             dataStorage[DATASET_SFX].usedStorage = 0;
             RefreshModFolders();
             DetectEngineVersion();
+            if (!engine.version)
+                engine.version = devMenu.startingVersion;
 
             switch (engine.version) {
                 case 5:
@@ -1896,6 +1901,10 @@ void RSDK::DevMenu_ModsMenu()
 #endif
             RenderDevice::SetWindowTitle();
         }
+#if RETRO_REV0U
+        else
+            engine.version = devMenu.startingVersion;
+#endif
     }
 }
 #endif

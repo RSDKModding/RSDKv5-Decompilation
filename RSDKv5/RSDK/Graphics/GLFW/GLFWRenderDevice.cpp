@@ -397,7 +397,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = 54;
 #else
-            startVert = 18;
+            startVert   = 18;
 #endif
             glBindTexture(GL_TEXTURE_2D, imageTexture);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -413,7 +413,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[0];
 #else
-            startVert = 6;
+            startVert   = 6;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[0]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -421,7 +421,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[1];
 #else
-            startVert = 12;
+            startVert   = 12;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[1]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -468,7 +468,9 @@ void RenderDevice::Release(bool32 isRefresh)
     for (int32 i = 0; i < shaderCount; ++i) {
         glDeleteProgram(shaderList[i].programID);
     }
-    shaderCount     = 0;
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    shaderCount     = 0;    
     userShaderCount = 0;
 
     glfwDestroyWindow(window);
@@ -482,8 +484,6 @@ void RenderDevice::Release(bool32 isRefresh)
             free(scanlines);
         scanlines = NULL;
 
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
         glfwTerminate();
     }
 }
@@ -606,6 +606,12 @@ void RenderDevice::RefreshWindow()
 
     GLFWmonitor *monitor = NULL;
     int32 w, h;
+#if RETRO_PLATFORM == RETRO_SWITCH
+    videoSettings.windowed    = false;
+    videoSettings.exclusiveFS = true;
+    videoSettings.fsWidth = w = 1920;
+    videoSettings.fsHeight = h = 1080;
+#else
     if (videoSettings.windowed) {
         w = videoSettings.windowWidth;
         h = videoSettings.windowHeight;
@@ -621,6 +627,7 @@ void RenderDevice::RefreshWindow()
         w       = videoSettings.fsWidth;
         h       = videoSettings.fsHeight;
     }
+#endif
 
     window = glfwCreateWindow(w, h, gameVerInfo.gameName, monitor, NULL);
     if (!window) {
