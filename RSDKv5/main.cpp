@@ -46,7 +46,7 @@ int32 main(int32 argc, char *argv[]) { return RSDK_main(argc, argv, (void *)RSDK
 int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)
 {
 #ifdef __SWITCH__
-    initNxLink();
+    //initNxLink();
 #endif
 
     RSDK::linkGameLogic = (RSDK::LogicLinkHandle)linkLogicPtr;
@@ -54,7 +54,7 @@ int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)
     int32 exitCode = RSDK::RunRetroEngine(argc, argv);
 
 #ifdef __SWITCH__
-    socketExit();
+    //socketExit();
 #endif
 
     return exitCode;

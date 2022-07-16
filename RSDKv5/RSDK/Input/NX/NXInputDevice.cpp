@@ -9,9 +9,9 @@ int32 nxVibrateDeviceCount = 0;
 int32 lastNPadType       = -1;
 int32 activeNPadTypes[5] = { -1, -1, -1, -1, -1 };
 
-uint8 inactiveNPadCount = 0;
-uint8 nPadIDs[]         = { 2, 3, 4, 5, 6, 7, 8, 9 };
-uint8 storedNPadIDs[]   = { 0, 0, 0, 0, 0 };
+uint8 activeNPadCount = 8;
+uint8 nPadIDs[]       = { 2, 3, 4, 5, 6, 7, 8, 9 };
+uint8 storedNPadIDs[] = { 0, 0, 0, 0, 0 };
 
 int32 RSDK::SKU::currentNXControllerType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_HANDHELD << 0);
 
@@ -476,7 +476,7 @@ void RSDK::SKU::ProcessNXInputDevices()
             int32 prevID     = storedNPadIDs[d];
             storedNPadIDs[d] = 0;
             if (prevID)
-                nPadIDs[inactiveNPadCount++] = storedNPadIDs[d];
+                nPadIDs[activeNPadCount++] = prevID;
 
             InputDevice *device = InputDeviceFromID(prevID);
             if (device)
@@ -495,7 +495,7 @@ void RSDK::SKU::ProcessNXInputDevices()
             int32 prevID     = storedNPadIDs[d];
             storedNPadIDs[d] = 0;
             if (prevID)
-                nPadIDs[inactiveNPadCount++] = storedNPadIDs[d];
+                nPadIDs[activeNPadCount++] = prevID;
 
             InputDevice *device = InputDeviceFromID(prevID);
             if (device)
@@ -515,8 +515,8 @@ void RSDK::SKU::ProcessNXInputDevices()
 
             if (!device && (styleSet & HidNpadStyleTag_NpadHandheld)) {
                 id = 0;
-                if (inactiveNPadCount) {
-                    id               = nPadIDs[--inactiveNPadCount];
+                if (activeNPadCount) {
+                    id               = nPadIDs[--activeNPadCount];
                     storedNPadIDs[c] = id;
                 }
 
@@ -529,8 +529,8 @@ void RSDK::SKU::ProcessNXInputDevices()
 
             if (!device && (styleSet & HidNpadStyleTag_NpadJoyLeft)) {
                 id = 0;
-                if (inactiveNPadCount) {
-                    id               = nPadIDs[--inactiveNPadCount];
+                if (activeNPadCount) {
+                    id               = nPadIDs[--activeNPadCount];
                     storedNPadIDs[c] = id;
                 }
 
@@ -548,8 +548,8 @@ void RSDK::SKU::ProcessNXInputDevices()
 
             if (!device && (styleSet & HidNpadStyleTag_NpadJoyRight)) {
                 id = 0;
-                if (inactiveNPadCount) {
-                    id               = nPadIDs[--inactiveNPadCount];
+                if (activeNPadCount) {
+                    id               = nPadIDs[--activeNPadCount];
                     storedNPadIDs[c] = id;
                 }
 
@@ -567,8 +567,8 @@ void RSDK::SKU::ProcessNXInputDevices()
 
             if (!device && (styleSet & HidNpadStyleTag_NpadJoyDual)) {
                 id = 0;
-                if (inactiveNPadCount) {
-                    id               = nPadIDs[--inactiveNPadCount];
+                if (activeNPadCount) {
+                    id               = nPadIDs[--activeNPadCount];
                     storedNPadIDs[c] = id;
                 }
 
@@ -581,8 +581,8 @@ void RSDK::SKU::ProcessNXInputDevices()
 
             if (!device && (styleSet & HidNpadStyleTag_NpadFullKey)) {
                 id = 0;
-                if (inactiveNPadCount) {
-                    id               = nPadIDs[--inactiveNPadCount];
+                if (activeNPadCount) {
+                    id               = nPadIDs[--activeNPadCount];
                     storedNPadIDs[c] = id;
                 }
 

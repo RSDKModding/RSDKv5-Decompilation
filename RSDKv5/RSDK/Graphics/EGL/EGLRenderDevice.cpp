@@ -704,10 +704,17 @@ void RenderDevice::RefreshWindow()
 
 void RenderDevice::GetWindowSize(int32 *width, int32 *height)
 {
+#if RETRO_PLATFORM == RETRO_ANDROID
     if (width)
         eglQuerySurface(display, surface, EGL_WIDTH, width);
     if (height)
         eglQuerySurface(display, surface, EGL_HEIGHT, height);
+#elif RETRO_PLATFORM == RETRO_SWITCH
+    if (width)
+        *width = 1920;
+    if (height)
+        *height = 1080;
+#endif
 }
 
 void RenderDevice::SetupImageTexture(int32 width, int32 height, uint8 *imagePixels)
