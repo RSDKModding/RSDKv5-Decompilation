@@ -99,7 +99,7 @@ void RSDK::SKU::InputDeviceGLFW::ProcessInput(int32 controllerID)
 void RSDK::SKU::InputDeviceGLFW::CloseDevice()
 {
     this->active               = false;
-    this->assignedControllerID = false;
+    this->isAssigned = false;
     this->jid                  = GLFW_JOYSTICK_LAST;
 }
 
@@ -144,7 +144,7 @@ RSDK::SKU::InputDeviceGLFW *RSDK::SKU::InitGLFWInputDevice(uint32 id, uint8 cont
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (activeControllers[i] == id) {
             activeInputDevices[i]        = device;
-            device->assignedControllerID = true;
+            device->isAssigned = true;
         }
     }
 

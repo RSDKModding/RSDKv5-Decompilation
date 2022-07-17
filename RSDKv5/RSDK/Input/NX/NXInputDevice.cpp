@@ -311,8 +311,8 @@ InputDeviceNXHandheld *RSDK::SKU::InitNXHandheldInputDevice(uint32 id, int32 typ
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->assignedControllerID = true;
+            activeInputDevices[i] = device;
+            device->isAssigned    = true;
         }
     }
 
@@ -343,8 +343,8 @@ InputDeviceNXJoyL *RSDK::SKU::InitNXJoyLInputDevice(uint32 id, int32 type)
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->assignedControllerID = true;
+            activeInputDevices[i] = device;
+            device->isAssigned    = true;
         }
     }
 
@@ -374,8 +374,8 @@ InputDeviceNXJoyR *RSDK::SKU::InitNXJoyRInputDevice(uint32 id, int32 type)
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->assignedControllerID = true;
+            activeInputDevices[i] = device;
+            device->isAssigned    = true;
         }
     }
 
@@ -405,8 +405,8 @@ InputDeviceNXJoyGrip *RSDK::SKU::InitNXJoyGripInputDevice(uint32 id, int32 type)
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->assignedControllerID = true;
+            activeInputDevices[i] = device;
+            device->isAssigned    = true;
         }
     }
 
@@ -436,8 +436,8 @@ InputDeviceNXPro *RSDK::SKU::InitNXProInputDevice(uint32 id, int32 type)
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->assignedControllerID = true;
+            activeInputDevices[i] = device;
+            device->isAssigned    = true;
         }
     }
 

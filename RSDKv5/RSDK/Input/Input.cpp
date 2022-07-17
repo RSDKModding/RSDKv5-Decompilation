@@ -60,7 +60,10 @@ void RSDK::RemoveInputDevice(InputDevice *targetDevice)
                 delete InputDevices[d];
                 InputDevices[d] = NULL;
 
-                for (int32 id = d + 1; id < InputDeviceCount; ++id) InputDevices[id - 1] = InputDevices[id];
+                for (int32 id = d + 1; id <= InputDeviceCount && id < INPUTDEVICE_COUNT; ++id) InputDevices[id - 1] = InputDevices[id];
+                // clear end device duplicate, prevents issues with new devices deleting stuff they shouldn't be
+                if (InputDeviceCount < INPUTDEVICE_COUNT)
+                    InputDevices[InputDeviceCount] = NULL;
 
                 for (int32 id = 0; id < PLAYER_COUNT; ++id) {
                     if (activeControllers[id] == inputID) {
@@ -199,7 +202,7 @@ void RSDK::ProcessInput()
             if (assign == INPUT_AUTOASSIGN) {
                 int32 id             = GetControllerInputID();
                 activeControllers[i] = id;
-                if (id != -1)
+                if (id != INPUT_AUTOASSIGN)
                     AssignInputSlotToDevice(CONT_P1 + i, id);
             }
             else {

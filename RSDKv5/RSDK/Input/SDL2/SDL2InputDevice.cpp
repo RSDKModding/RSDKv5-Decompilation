@@ -177,7 +177,7 @@ void RSDK::SKU::InputDeviceSDL::ProcessInput(int32 controllerID)
 void RSDK::SKU::InputDeviceSDL::CloseDevice()
 {
     this->active               = false;
-    this->assignedControllerID = false;
+    this->isAssigned = false;
     SDL_GameControllerClose(this->controllerPtr);
     this->controllerPtr = NULL;
 }
@@ -223,7 +223,7 @@ RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, uint8 contr
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (activeControllers[i] == id) {
             activeInputDevices[i]        = device;
-            device->assignedControllerID = true;
+            device->isAssigned = true;
         }
     }
 

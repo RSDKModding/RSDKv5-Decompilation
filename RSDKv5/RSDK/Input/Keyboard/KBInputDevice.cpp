@@ -700,7 +700,7 @@ RSDK::SKU::InputDeviceKeyboard *RSDK::SKU::InitKeyboardDevice(uint32 id)
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (activeControllers[i] == id) {
             activeInputDevices[i]        = device;
-            device->assignedControllerID = true;
+            device->isAssigned = true;
         }
     }
 
