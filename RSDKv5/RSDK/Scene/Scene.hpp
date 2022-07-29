@@ -229,7 +229,7 @@ inline void GetLayerSize(uint16 layerID, Vector2 *size, bool32 usePixelUnits)
     }
 }
 
-inline uint16 GetTileInfo(uint16 layerID, int32 tileX, int32 tileY)
+inline uint16 GetTile(uint16 layerID, int32 tileX, int32 tileY)
 {
     if (layerID < LAYER_COUNT) {
         TileLayer *layer = &tileLayers[layerID];
@@ -240,7 +240,7 @@ inline uint16 GetTileInfo(uint16 layerID, int32 tileX, int32 tileY)
     return (uint16)-1;
 }
 
-inline void SetTileInfo(uint16 layerID, int32 tileX, int32 tileY, uint16 tile)
+inline void SetTile(uint16 layerID, int32 tileX, int32 tileY, uint16 tile)
 {
     if (layerID < LAYER_COUNT) {
         TileLayer *layer = &tileLayers[layerID];

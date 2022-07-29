@@ -755,8 +755,8 @@ void RSDK::DevMenu_SceneSelectMenu()
 
                 // Bug Details(?):
                 // rev01 had this here, rev02 does not.
-                // This can cause an annoying popup when starting a stage, so it's re-added for anyone who doesn't like that popup
-#if !RETRO_REV02 || !RETRO_USE_ORIGINAL_CODE
+                // This can cause an annoying popup when starting a stage
+#if !RETRO_REV02
             AssignInputSlotToDevice(CONT_P1, INPUT_AUTOASSIGN);
 #endif
         }

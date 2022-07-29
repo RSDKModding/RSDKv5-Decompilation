@@ -294,6 +294,8 @@ int32 GetAchievementIndexByID(const char *id);
 int32 GetAchievementCount();
 
 void StateMachineRun(void (*state)());
+bool32 StateMachineRun_Pre(void *state);
+void StateMachineRun_Post(void *state, bool32 skipState);
 void RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority);
 #endif
 

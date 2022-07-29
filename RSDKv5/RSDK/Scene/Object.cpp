@@ -741,11 +741,10 @@ void RSDK::ProcessObjectDrawLists()
             sceneInfo.currentDrawGroup = 0;
             for (int32 l = 0; l < DRAWGROUP_COUNT; ++l) {
                 if (engine.drawLayerVisible[l]) {
-
                     DrawList *list = &drawGroups[l];
 
-                    if (list->callback)
-                        list->callback();
+                    if (list->hookCB)
+                        list->hookCB();
 
                     if (list->sorted) {
                         for (int32 e = 0; e < list->entityCount; ++e) {
@@ -947,7 +946,7 @@ int32 RSDK::GetEntityCount(uint16 classID, bool32 isActive)
     return entityCount;
 }
 
-void RSDK::ResetEntityPtr(Entity *entity, uint16 classID, void *data)
+void RSDK::ResetEntity(Entity *entity, uint16 classID, void *data)
 {
     if (entity) {
         ObjectClass *info = &objectClassList[stageObjectIDs[classID]];

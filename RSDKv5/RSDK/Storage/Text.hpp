@@ -149,8 +149,8 @@ inline void InitString(String *string, char *text, uint32 textLength)
     if (text) {
         string->chars = NULL;
 
-        int32 pos = 0;
-        while (text[pos]) string->length = ++pos;
+        string->length = 0;
+        while (text[string->length]) string->length++;
 
         if (textLength && textLength >= string->length)
             string->size = textLength;
@@ -162,7 +162,7 @@ inline void InitString(String *string, char *text, uint32 textLength)
 
         AllocateStorage((void **)&string->chars, sizeof(uint16) * string->size, DATASET_STR, false);
 
-        pos = 0;
+        int32 pos = 0;
         while (text[pos]) {
             string->chars[pos] = text[pos];
             ++pos;
@@ -197,7 +197,7 @@ inline void GetCString(char *destChars, String *string)
     if (!string->chars)
         return;
 
-    char *cString = destChars ? destChars : (char *)"";
+    char *cString = destChars ? destChars : textBuffer;
     int32 textLen = destChars ? string->length : 0x400;
 
     int32 c = 0;

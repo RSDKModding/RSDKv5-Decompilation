@@ -36,7 +36,7 @@ void RSDK::DevOutput_Update()
         case DEVOUTPUT_EXITPOPUP:
             self->position.y -= 2;
             if (-self->position.y > self->ySize)
-                ResetEntityPtr(self, TYPE_DEFAULTOBJECT, NULL);
+                ResetEntity(self, TYPE_DEFAULTOBJECT, NULL);
             break;
     }
 }

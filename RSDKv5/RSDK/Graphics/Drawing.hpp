@@ -95,7 +95,7 @@ struct CameraInfo {
 struct DrawList {
     uint16 entries[ENTITY_COUNT];
     uint16 layerDrawList[LAYER_COUNT];
-    void (*callback)();
+    void (*hookCB)();
     bool32 sorted;
     int32 entityCount;
     int32 layerCount;
@@ -341,7 +341,7 @@ inline void AddDrawListRef(uint8 drawGroup, uint16 entityID)
         drawGroups[drawGroup].entries[drawGroups[drawGroup].entityCount++] = entityID;
 }
 
-inline uint16 GetDrawListRef(uint8 drawGroup, uint16 entityID)
+inline uint16 GetDrawListRefSlot(uint8 drawGroup, uint16 entityID)
 {
     DrawList *list = &drawGroups[drawGroup];
     if (drawGroup < DRAWGROUP_COUNT && entityID < list->entityCount)
@@ -350,7 +350,7 @@ inline uint16 GetDrawListRef(uint8 drawGroup, uint16 entityID)
     return 0;
 }
 
-inline Entity *GetDrawListRefPtr(uint8 drawGroup, uint16 entityID)
+inline Entity *GetDrawListRef(uint8 drawGroup, uint16 entityID)
 {
     DrawList *listPtr = &drawGroups[drawGroup];
     if (drawGroup < DRAWGROUP_COUNT && entityID < listPtr->entityCount)
@@ -359,12 +359,12 @@ inline Entity *GetDrawListRefPtr(uint8 drawGroup, uint16 entityID)
     return NULL;
 }
 
-inline void SetDrawGroupProperties(uint8 drawGroup, bool32 sorted, void (*callback)())
+inline void SetDrawGroupProperties(uint8 drawGroup, bool32 sorted, void (*hookCB)())
 {
     if (drawGroup < DRAWGROUP_COUNT) {
         DrawList *list = &drawGroups[drawGroup];
         list->sorted   = sorted;
-        list->callback = callback;
+        list->hookCB   = hookCB;
     }
 }
 

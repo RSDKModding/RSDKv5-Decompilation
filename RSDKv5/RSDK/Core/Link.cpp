@@ -18,11 +18,6 @@ RSDK::GameVersionInfo RSDK::gameVerInfo;
 
 void NullFunc() {}
 
-#if RETRO_REV0U
-// Origins-only I assume, handles sending various data to Hedgehog Engine and stuff
-void NotifyCallback(int32 id, int32 param1, int32 param2, int32 param3) {}
-#endif
-
 #define ADD_RSDK_FUNCTION(id, func) RSDKFunctionTable[id] = (void *)func;
 #if RETRO_REV02
 #define ADD_API_FUNCTION(id, func) APIFunctionTable[id] = (void *)func;
@@ -264,9 +259,9 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_GetEntity, GetEntity);
     ADD_RSDK_FUNCTION(FunctionTable_GetEntitySlot, GetEntitySlot);
     ADD_RSDK_FUNCTION(FunctionTable_GetEntityCount, GetEntityCount);
+    ADD_RSDK_FUNCTION(FunctionTable_GetDrawListRefSlot, GetDrawListRefSlot);
     ADD_RSDK_FUNCTION(FunctionTable_GetDrawListRef, GetDrawListRef);
-    ADD_RSDK_FUNCTION(FunctionTable_GetDrawListRefPtr, GetDrawListRefPtr);
-    ADD_RSDK_FUNCTION(FunctionTable_ResetEntityPtr, ResetEntityPtr);
+    ADD_RSDK_FUNCTION(FunctionTable_ResetEntity, ResetEntity);
     ADD_RSDK_FUNCTION(FunctionTable_ResetEntitySlot, ResetEntitySlot);
     ADD_RSDK_FUNCTION(FunctionTable_CreateEntity, CreateEntity);
     ADD_RSDK_FUNCTION(FunctionTable_CopyEntity, CopyEntity);
@@ -425,8 +420,8 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_GetTileLayer, GetTileLayer);
     ADD_RSDK_FUNCTION(FunctionTable_GetTileLayerID, GetTileLayerID);
     ADD_RSDK_FUNCTION(FunctionTable_GetLayerSize, GetLayerSize);
-    ADD_RSDK_FUNCTION(FunctionTable_GetTileInfo, GetTileInfo);
-    ADD_RSDK_FUNCTION(FunctionTable_SetTileInfo, SetTileInfo);
+    ADD_RSDK_FUNCTION(FunctionTable_GetTile, GetTile);
+    ADD_RSDK_FUNCTION(FunctionTable_SetTile, SetTile);
     ADD_RSDK_FUNCTION(FunctionTable_CopyTileLayer, CopyTileLayout);
     ADD_RSDK_FUNCTION(FunctionTable_ProcessParallax, ProcessParallax);
     ADD_RSDK_FUNCTION(FunctionTable_GetScanlines, GetScanlines);
@@ -533,7 +528,7 @@ void RSDK::SetupFunctionTables()
 
     // v5U Extras
 #if RETRO_REV0U
-    ADD_RSDK_FUNCTION(FunctionTable_NotifyCallback, NotifyCallback);
+    ADD_RSDK_FUNCTION(FunctionTable_NotifyCallback, NULL);
     ADD_RSDK_FUNCTION(FunctionTable_SetGameFinished, SetGameFinished);
 #endif
 

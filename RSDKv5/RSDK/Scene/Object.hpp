@@ -290,7 +290,7 @@ inline Entity *GetEntity(uint16 slot) { return &objectEntityList[slot < ENTITY_C
 inline int32 GetEntitySlot(EntityBase *entity) { return (int32)(entity - objectEntityList < ENTITY_COUNT ? entity - objectEntityList : 0); }
 int32 GetEntityCount(uint16 classID, bool32 isActive);
 
-void ResetEntityPtr(Entity *entity, uint16 classID, void *data);
+void ResetEntity(Entity *entity, uint16 classID, void *data);
 void ResetEntitySlot(uint16 slot, uint16 classID, void *data);
 Entity *CreateEntity(uint16 classID, void *data, int32 x, int32 y);
 
