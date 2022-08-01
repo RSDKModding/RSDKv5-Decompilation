@@ -78,7 +78,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 
 #if RETRO_USE_MOD_LOADER
             // we confirmed the game actually is valid & running, lets start some callbacks
-            RunModCallbacks(MODCB_GAME_STARTUP, NULL);
+            RunModCallbacks(MODCB_ONGAMESTARTUP, NULL);
 #endif
         }
         else {

@@ -109,10 +109,10 @@ struct Entity {
     int32 alpha;
     int32 rotation;
     int32 groundVel;
-    int32 depth;
+    int32 zdepth;
     uint16 group;
     uint16 classID;
-    bool32 inBounds;
+    bool32 inRange;
     bool32 isPermanent;
     bool32 tileCollisions;
     bool32 interaction;
@@ -129,7 +129,7 @@ struct Entity {
     uint8 drawFX;
     uint8 inkEffect;
     uint8 visible;
-    uint8 activeScreens;
+    uint8 onScreen;
 };
 
 struct EntityBase : Entity {

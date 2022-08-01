@@ -100,7 +100,7 @@ struct ScrollInfo {
     int32 scrollSpeed;
     int32 scrollPos;
     uint8 deform;
-    uint8 unknown;
+    uint8 unknown; // stored in the scene, but always 0, never referenced in-engine either...
 };
 
 struct ScanlineInfo {

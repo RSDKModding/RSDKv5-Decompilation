@@ -298,7 +298,7 @@ void RSDK::InitObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_STAGELOAD, NULL);
+    RunModCallbacks(MODCB_ONSTAGELOAD, NULL);
 #endif
 
     for (int32 e = 0; e < ENTITY_COUNT; ++e) {
@@ -362,13 +362,13 @@ void RSDK::ProcessObjects()
                 case ACTIVE_DISABLED: break;
 
                 case ACTIVE_NEVER:
-                case ACTIVE_PAUSED: sceneInfo.entity->inBounds = false; break;
+                case ACTIVE_PAUSED: sceneInfo.entity->inRange = false; break;
 
                 case ACTIVE_ALWAYS:
-                case ACTIVE_NORMAL: sceneInfo.entity->inBounds = true; break;
+                case ACTIVE_NORMAL: sceneInfo.entity->inRange = true; break;
 
                 case ACTIVE_BOUNDS:
-                    sceneInfo.entity->inBounds = false;
+                    sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
                         int32 sx = abs(sceneInfo.entity->position.x - cameras[s].position.x);
@@ -376,54 +376,54 @@ void RSDK::ProcessObjects()
 
                         if (sx <= sceneInfo.entity->updateRange.x + cameras[s].offset.x
                             && sy <= sceneInfo.entity->updateRange.y + cameras[s].offset.y) {
-                            sceneInfo.entity->inBounds = true;
+                            sceneInfo.entity->inRange = true;
                             break;
                         }
                     }
                     break;
 
                 case ACTIVE_XBOUNDS:
-                    sceneInfo.entity->inBounds = false;
+                    sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
                         int32 sx = abs(sceneInfo.entity->position.x - cameras[s].position.x);
 
                         if (sx <= sceneInfo.entity->updateRange.x + cameras[s].offset.x) {
-                            sceneInfo.entity->inBounds = true;
+                            sceneInfo.entity->inRange = true;
                             break;
                         }
                     }
                     break;
 
                 case ACTIVE_YBOUNDS:
-                    sceneInfo.entity->inBounds = false;
+                    sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
                         int32 sy = abs(sceneInfo.entity->position.y - cameras[s].position.y);
 
                         if (sy <= sceneInfo.entity->updateRange.y + cameras[s].offset.y) {
-                            sceneInfo.entity->inBounds = true;
+                            sceneInfo.entity->inRange = true;
                             break;
                         }
                     }
                     break;
 
                 case ACTIVE_RBOUNDS:
-                    sceneInfo.entity->inBounds = false;
+                    sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
                         int32 sx = abs(sceneInfo.entity->position.x - cameras[s].position.x) >> 0x10;
                         int32 sy = abs(sceneInfo.entity->position.y - cameras[s].position.y) >> 0x10;
 
                         if (sx * sx + sy * sy <= sceneInfo.entity->updateRange.x + cameras[s].offset.x) {
-                            sceneInfo.entity->inBounds = true;
+                            sceneInfo.entity->inRange = true;
                             break;
                         }
                     }
                     break;
             }
 
-            if (sceneInfo.entity->inBounds) {
+            if (sceneInfo.entity->inRange) {
                 if (objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update)
                     objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update();
 
@@ -432,7 +432,7 @@ void RSDK::ProcessObjects()
             }
         }
         else {
-            sceneInfo.entity->inBounds = false;
+            sceneInfo.entity->inRange = false;
         }
 
         sceneInfo.entitySlot++;
@@ -448,7 +448,7 @@ void RSDK::ProcessObjects()
     for (int32 e = 0; e < ENTITY_COUNT; ++e) {
         sceneInfo.entity = &objectEntityList[e];
 
-        if (sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
+        if (sceneInfo.entity->inRange && sceneInfo.entity->interaction) {
             typeGroups[GROUP_ALL].entries[typeGroups[GROUP_ALL].entryCount++] = e; // All active objects
 
             typeGroups[sceneInfo.entity->classID].entries[typeGroups[sceneInfo.entity->classID].entryCount++] = e; // class-based groups
@@ -464,12 +464,12 @@ void RSDK::ProcessObjects()
     for (int32 e = 0; e < ENTITY_COUNT; ++e) {
         sceneInfo.entity = &objectEntityList[e];
 
-        if (sceneInfo.entity->inBounds) {
+        if (sceneInfo.entity->inRange) {
             if (objectClassList[stageObjectIDs[sceneInfo.entity->classID]].lateUpdate)
                 objectClassList[stageObjectIDs[sceneInfo.entity->classID]].lateUpdate();
         }
 
-        sceneInfo.entity->activeScreens = 0;
+        sceneInfo.entity->onScreen = 0;
         sceneInfo.entitySlot++;
     }
 
@@ -511,7 +511,7 @@ void RSDK::ProcessPausedObjects()
             }
         }
         else {
-            sceneInfo.entity->inBounds = false;
+            sceneInfo.entity->inRange = false;
         }
 
         sceneInfo.entitySlot++;
@@ -527,7 +527,7 @@ void RSDK::ProcessPausedObjects()
     for (int32 e = 0; e < ENTITY_COUNT; ++e) {
         sceneInfo.entity = &objectEntityList[e];
 
-        if (sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
+        if (sceneInfo.entity->inRange && sceneInfo.entity->interaction) {
             typeGroups[GROUP_ALL].entries[typeGroups[GROUP_ALL].entryCount++] = e; // All active entities
 
             typeGroups[sceneInfo.entity->classID].entries[typeGroups[sceneInfo.entity->classID].entryCount++] = e; // type-based groups
@@ -552,7 +552,7 @@ void RSDK::ProcessPausedObjects()
                 objectClassList[stageObjectIDs[sceneInfo.entity->classID]].lateUpdate();
         }
 
-        sceneInfo.entity->activeScreens = 0;
+        sceneInfo.entity->onScreen = 0;
         sceneInfo.entitySlot++;
     }
 
@@ -605,13 +605,13 @@ void RSDK::ProcessFrozenObjects()
                 case ACTIVE_DISABLED: break;
 
                 case ACTIVE_NEVER:
-                case ACTIVE_PAUSED: sceneInfo.entity->inBounds = false; break;
+                case ACTIVE_PAUSED: sceneInfo.entity->inRange = false; break;
 
                 case ACTIVE_ALWAYS:
-                case ACTIVE_NORMAL: sceneInfo.entity->inBounds = true; break;
+                case ACTIVE_NORMAL: sceneInfo.entity->inRange = true; break;
 
                 case ACTIVE_BOUNDS:
-                    sceneInfo.entity->inBounds = false;
+                    sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
                         int32 sx = abs(sceneInfo.entity->position.x - cameras[s].position.x);
@@ -619,54 +619,54 @@ void RSDK::ProcessFrozenObjects()
 
                         if (sx <= sceneInfo.entity->updateRange.x + cameras[s].offset.x
                             && sy <= sceneInfo.entity->updateRange.y + cameras[s].offset.y) {
-                            sceneInfo.entity->inBounds = true;
+                            sceneInfo.entity->inRange = true;
                             break;
                         }
                     }
                     break;
 
                 case ACTIVE_XBOUNDS:
-                    sceneInfo.entity->inBounds = false;
+                    sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
                         int32 sx = abs(sceneInfo.entity->position.x - cameras[s].position.x);
 
                         if (sx <= sceneInfo.entity->updateRange.x + cameras[s].offset.x) {
-                            sceneInfo.entity->inBounds = true;
+                            sceneInfo.entity->inRange = true;
                             break;
                         }
                     }
                     break;
 
                 case ACTIVE_YBOUNDS:
-                    sceneInfo.entity->inBounds = false;
+                    sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
                         int32 sy = abs(sceneInfo.entity->position.y - cameras[s].position.y);
 
                         if (sy <= sceneInfo.entity->updateRange.y + cameras[s].offset.y) {
-                            sceneInfo.entity->inBounds = true;
+                            sceneInfo.entity->inRange = true;
                             break;
                         }
                     }
                     break;
 
                 case ACTIVE_RBOUNDS:
-                    sceneInfo.entity->inBounds = false;
+                    sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
                         int32 sx = abs(sceneInfo.entity->position.x - cameras[s].position.x) >> 0x10;
                         int32 sy = abs(sceneInfo.entity->position.y - cameras[s].position.y) >> 0x10;
 
                         if (sx * sx + sy * sy <= sceneInfo.entity->updateRange.x + cameras[s].offset.x) {
-                            sceneInfo.entity->inBounds = true;
+                            sceneInfo.entity->inRange = true;
                             break;
                         }
                     }
                     break;
             }
 
-            if (sceneInfo.entity->inBounds) {
+            if (sceneInfo.entity->inRange) {
                 if (sceneInfo.entity->active == ACTIVE_ALWAYS || sceneInfo.entity->active == ACTIVE_PAUSED) {
                     if (objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update)
                         objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update();
@@ -677,7 +677,7 @@ void RSDK::ProcessFrozenObjects()
             }
         }
         else {
-            sceneInfo.entity->inBounds = false;
+            sceneInfo.entity->inRange = false;
         }
 
         sceneInfo.entitySlot++;
@@ -692,7 +692,7 @@ void RSDK::ProcessFrozenObjects()
     sceneInfo.entitySlot = 0;
     for (int32 e = 0; e < ENTITY_COUNT; ++e) {
         sceneInfo.entity = &objectEntityList[e];
-        if (sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
+        if (sceneInfo.entity->inRange && sceneInfo.entity->interaction) {
             typeGroups[GROUP_ALL].entries[typeGroups[GROUP_ALL].entryCount++] = e; // All active entities
 
             typeGroups[sceneInfo.entity->classID].entries[typeGroups[sceneInfo.entity->classID].entryCount++] = e; // type-based groups
@@ -707,14 +707,14 @@ void RSDK::ProcessFrozenObjects()
     for (int32 e = 0; e < ENTITY_COUNT; ++e) {
         sceneInfo.entity = &objectEntityList[e];
 
-        if (sceneInfo.entity->inBounds) {
+        if (sceneInfo.entity->inRange) {
             if (sceneInfo.entity->active == ACTIVE_ALWAYS || sceneInfo.entity->active == ACTIVE_PAUSED) {
                 if (objectClassList[stageObjectIDs[sceneInfo.entity->classID]].lateUpdate)
                     objectClassList[stageObjectIDs[sceneInfo.entity->classID]].lateUpdate();
             }
         }
 
-        sceneInfo.entity->activeScreens = 0;
+        sceneInfo.entity->onScreen = 0;
         sceneInfo.entitySlot++;
     }
 
@@ -751,7 +751,7 @@ void RSDK::ProcessObjectDrawLists()
                             for (int32 i = list->entityCount - 1; i > e; --i) {
                                 int32 slot1 = list->entries[i - 1];
                                 int32 slot2 = list->entries[i];
-                                if (objectEntityList[slot2].depth > objectEntityList[slot1].depth) {
+                                if (objectEntityList[slot2].zdepth > objectEntityList[slot1].zdepth) {
                                     list->entries[i - 1] = slot2;
                                     list->entries[i]     = slot1;
                                 }
@@ -772,7 +772,7 @@ void RSDK::ProcessObjectDrawLists()
                                 SKU::DrawAchievements();
 #endif
 
-                            sceneInfo.entity->activeScreens |= validDraw << sceneInfo.currentScreenID;
+                            sceneInfo.entity->onScreen |= validDraw << sceneInfo.currentScreenID;
                         }
                     }
 

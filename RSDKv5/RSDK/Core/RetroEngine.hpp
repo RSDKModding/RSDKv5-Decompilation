@@ -65,7 +65,9 @@ enum GameRegions {
 #undef __linux__
 #endif
 
+#ifndef RETRO_USE_ORIGINAL_CODE
 #define RETRO_USE_ORIGINAL_CODE (0)
+#endif
 
 #ifndef RETRO_STANDALONE
 #define RETRO_STANDALONE (1)
@@ -140,12 +142,19 @@ enum GameRegions {
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
+#ifndef SCREEN_XMAX
 #define SCREEN_XMAX (1280)
+#endif
 
+#ifndef SCREEN_YSIZE
 #define SCREEN_YSIZE   (240)
+#endif
+
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
+#ifndef BASE_PATH
 #define BASE_PATH ""
+#endif
 
 // ============================
 // RENDER DEVICE BACKENDS
@@ -197,7 +206,9 @@ enum GameRegions {
 // ============================
 
 // Determines if the engine is RSDKv5 rev01 (all versions of mania pre-plus), rev02 (all versions of mania post-plus) or RSDKv5U (sonic origins)
+#ifndef RETRO_REVISION
 #define RETRO_REVISION (3)
+#endif
 
 // RSDKv5 Rev02 (Used prior to Sonic Mania Plus)
 #define RETRO_REV01 (RETRO_REVISION >= 1)
@@ -215,10 +226,14 @@ enum GameRegions {
 #define RETRO_USE_DUMMY_ACHIEVEMENTS (RETRO_REV02 && 1)
 
 // enables the use of the mod loader
+#ifndef RETRO_USE_MOD_LOADER
 #define RETRO_USE_MOD_LOADER (!RETRO_USE_ORIGINAL_CODE && 1)
+#endif
 
 // defines the version of the mod loader, this should be changed ONLY if the ModFunctionTable is updated in any way
+#ifndef RETRO_MOD_LOADER_VER
 #define RETRO_MOD_LOADER_VER (1)
+#endif
 
 // ============================
 // PLATFORM INIT

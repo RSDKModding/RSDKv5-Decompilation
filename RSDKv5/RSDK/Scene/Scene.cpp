@@ -25,7 +25,7 @@ void RSDK::LoadSceneFolder()
 {
 #if RETRO_USE_MOD_LOADER
     // run this before the game actually unloads all the objects & scene assets
-    RunModCallbacks(MODCB_STAGEUNLOAD, NULL);
+    RunModCallbacks(MODCB_ONSTAGEUNLOAD, NULL);
 #endif
 
     sceneInfo.timeCounter  = 0;
@@ -180,8 +180,14 @@ void RSDK::LoadSceneFolder()
                     objClass->staticLoad(*objClass->staticVars);
                 else
                     LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
+
 #else
                 LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
+#endif
+
+#if RETRO_USE_MOD_LOADER
+                // even though the static load event is rev0U only, this point in the engine is "static loading"
+                RunModCallbacks(MODCB_ONSTATICLOAD, (void *)objClass);
 #endif
 
 
