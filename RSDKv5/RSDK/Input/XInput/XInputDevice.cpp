@@ -177,15 +177,15 @@ RSDK::SKU::InputDeviceXInput *RSDK::SKU::InitXInputDevice(uint32 id)
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) disabledXInputDevices[i] = false;
 
-    device->gamePadType = (DEVICE_API_XINPUT << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_XBOX << 0);
+    device->gamepadType = (DEVICE_API_XINPUT << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_XBOX << 0);
     device->disabled    = false;
-    device->inputID     = id;
+    device->id          = id;
     device->active      = true;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->isAssigned = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
@@ -207,7 +207,7 @@ void RSDK::SKU::InitXInputAPI()
 
         InputDeviceXInput *device = NULL;
         for (int32 d = 0; d < InputDeviceCount; ++d) {
-            if (InputDevices[d] && InputDevices[d]->inputID == id) {
+            if (InputDevices[d] && InputDevices[d]->id == id) {
                 device = (InputDeviceXInput *)InputDevices[d];
                 break;
             }

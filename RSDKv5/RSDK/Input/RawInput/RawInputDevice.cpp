@@ -132,15 +132,15 @@ RSDK::SKU::InputDeviceRaw *RSDK::SKU::InitRawInputDevice(uint32 id)
     InputDeviceRaw *device = (InputDeviceRaw *)InputDevices[InputDeviceCount];
 
     InputDeviceCount++;
-    device->gamePadType = (DEVICE_API_RAWINPUT << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (0 << 0);
+    device->gamepadType = (DEVICE_API_RAWINPUT << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (0 << 0);
     device->disabled    = false;
-    device->inputID     = id;
+    device->id          = id;
     device->active      = true;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->isAssigned = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
@@ -222,7 +222,7 @@ void RSDK::SKU::InitHIDDevices()
                                 device = InitRawInputDevice(id);
 
                                 if (device) {
-                                    device->gamePadType |= gamePadMappings[g].type;
+                                    device->gamepadType |= gamePadMappings[g].type;
                                     device->deviceHandle = pRawInputDeviceList[d].hDevice;
                                     memcpy(device->buttons, gamePadMappings[g].buttons, sizeof(device->buttons));
                                     PrintLog(PRINT_NORMAL, "%s Detected - Vendor ID: %x ProductID: %x", gamePadMappings[g].name,

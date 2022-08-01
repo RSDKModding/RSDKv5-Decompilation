@@ -33,7 +33,7 @@ struct NXCore : UserCore {
         // open manualURL
     }
     int32 GetDefaultGamepadType() { return (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_PRO << 0); }
-    bool32 IsOverlayEnabled(uint32 inputID) { return false; }
+    bool32 IsOverlayEnabled(uint32 deviceID) { return false; }
     bool32 CheckDLC(uint8 id)
     {
         // check we have the DLC

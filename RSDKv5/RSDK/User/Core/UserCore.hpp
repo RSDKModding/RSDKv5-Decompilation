@@ -74,7 +74,7 @@ struct UserCore {
     virtual void LaunchManual() {}
     virtual void ExitGame() {}
     virtual int32 GetDefaultGamepadType() { return (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (0 << 0); }
-    virtual bool32 IsOverlayEnabled(uint32 inputID) { return false; }
+    virtual bool32 IsOverlayEnabled(uint32 deviceID) { return false; }
     virtual bool32 CheckDLC(uint8 id)
     {
         if (id < 8)

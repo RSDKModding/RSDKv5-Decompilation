@@ -692,15 +692,15 @@ RSDK::SKU::InputDeviceKeyboard *RSDK::SKU::InitKeyboardDevice(uint32 id)
     InputDevices[InputDeviceCount] = new InputDeviceKeyboard();
 
     InputDeviceKeyboard *device = (InputDeviceKeyboard *)InputDevices[InputDeviceCount];
-    device->gamePadType         = (DEVICE_API_KEYBOARD << 16) | (DEVICE_TYPE_KEYBOARD << 8) | (DEVICE_KEYBOARD << 0);
+    device->gamepadType         = (DEVICE_API_KEYBOARD << 16) | (DEVICE_TYPE_KEYBOARD << 8) | (DEVICE_KEYBOARD << 0);
     device->disabled            = false;
-    device->inputID             = id;
+    device->id                  = id;
     device->active              = true;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->isAssigned = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
@@ -800,7 +800,7 @@ void RSDK::SKU::InitKeyboardInputAPI()
         if (device) {
             device->controllerID = i;
             // add the keyboard "device" id to the type as its lowest byte
-            device->gamePadType |= i + 1;
+            device->gamepadType |= i + 1;
         }
     }
 }

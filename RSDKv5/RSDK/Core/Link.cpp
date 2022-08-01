@@ -481,12 +481,12 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_GetFilteredInputDeviceID, GetFilteredInputDeviceID);
     ADD_RSDK_FUNCTION(FunctionTable_GetInputDeviceType, GetInputDeviceType);
     ADD_RSDK_FUNCTION(FunctionTable_IsInputDeviceAssigned, IsInputDeviceAssigned);
-    ADD_RSDK_FUNCTION(FunctionTable_GetInputUnknown, GetInputUnknown);
-    ADD_RSDK_FUNCTION(FunctionTable_InputUnknown1, InputUnknown1);
-    ADD_RSDK_FUNCTION(FunctionTable_InputUnknown2, InputUnknown2);
-    ADD_RSDK_FUNCTION(FunctionTable_GetControllerUnknown, GetControllerUnknown);
-    ADD_RSDK_FUNCTION(FunctionTable_ControllerUnknown1, ControllerUnknown1);
-    ADD_RSDK_FUNCTION(FunctionTable_ControllerUnknown2, ControllerUnknown2);
+    ADD_RSDK_FUNCTION(FunctionTable_GetInputDeviceUnknown, GetInputDeviceUnknown);
+    ADD_RSDK_FUNCTION(FunctionTable_InputDeviceUnknown1, InputDeviceUnknown1);
+    ADD_RSDK_FUNCTION(FunctionTable_InputDeviceUnknown2, InputDeviceUnknown2);
+    ADD_RSDK_FUNCTION(FunctionTable_GetInputSlotUnknown, GetInputSlotUnknown);
+    ADD_RSDK_FUNCTION(FunctionTable_InputSlotUnknown1, InputSlotUnknown1);
+    ADD_RSDK_FUNCTION(FunctionTable_InputSlotUnknown2, InputSlotUnknown2);
     ADD_RSDK_FUNCTION(FunctionTable_AssignInputSlotToDevice, AssignInputSlotToDevice);
     ADD_RSDK_FUNCTION(FunctionTable_IsInputSlotAssigned, IsInputSlotAssigned);
     ADD_RSDK_FUNCTION(FunctionTable_ResetInputSlotAssignments, ResetInputSlotAssignments);

@@ -54,9 +54,9 @@ InputDeviceSteam *RSDK::SKU::InitSteamInputDevice(uint32 id)
 
     InputDeviceSteam *device = (InputDeviceSteam *)InputDevices[InputDeviceCount];
 
-    device->gamePadType = (DEVICE_API_STEAM << 16) | (DEVICE_TYPE_STEAMOVERLAY << 8) | (DEVICE_KEYBOARD << 0);
+    device->gamepadType = (DEVICE_API_STEAM << 16) | (DEVICE_TYPE_STEAMOVERLAY << 8) | (DEVICE_KEYBOARD << 0);
     device->disabled    = false;
-    device->inputID     = id;
+    device->id          = id;
     device->active      = true;
 
     device->keyMasks[0] = KEYMASK_UP;
@@ -73,9 +73,9 @@ InputDeviceSteam *RSDK::SKU::InitSteamInputDevice(uint32 id)
     device->prevButtonMasks = 0;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->isAssigned = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 

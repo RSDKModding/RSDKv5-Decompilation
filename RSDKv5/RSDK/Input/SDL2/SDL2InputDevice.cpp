@@ -176,7 +176,7 @@ void RSDK::SKU::InputDeviceSDL::ProcessInput(int32 controllerID)
 
 void RSDK::SKU::InputDeviceSDL::CloseDevice()
 {
-    this->active               = false;
+    this->active     = false;
     this->isAssigned = false;
     SDL_GameControllerClose(this->controllerPtr);
     this->controllerPtr = NULL;
@@ -217,13 +217,13 @@ RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, uint8 contr
 
     device->active      = true;
     device->disabled    = false;
-    device->gamePadType = (DEVICE_API_SDL2 << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (controllerType << 0);
-    device->inputID     = id;
+    device->gamepadType = (DEVICE_API_SDL2 << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (controllerType << 0);
+    device->id          = id;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->isAssigned = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
@@ -257,7 +257,7 @@ void RSDK::SKU::InitSDL2InputAPI()
             // GenerateHashCRC(&id, deviceName);
             // device = InitSDL2InputDevice(id);
             //
-            // device->gamePadType |= gamePadMappings[g].type;
+            // device->gamepadType |= gamePadMappings[g].type;
             // memcpy(device->buttons, gamePadMappings[g].buttons, sizeof(device->buttons));
             // PrintLog(PRINT_NORMAL, "%s Detected - Vendor ID: %x ProductID: %x", gamePadMappings[g].name, deviceInfo.mouse.dwId,
             //                deviceInfo.mouse.dwNumberOfButtons);

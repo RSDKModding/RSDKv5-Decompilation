@@ -97,7 +97,7 @@ inline InputDeviceRaw *GetRawInputDevice(uint8 *deviceID)
 
         InputDeviceRaw *device = (InputDeviceRaw *)InputDevices[d];
 
-        if (((device->gamePadType >> 16) & 0xFF) == DEVICE_API_RAWINPUT) {
+        if (((device->gamepadType >> 16) & 0xFF) == DEVICE_API_RAWINPUT) {
             *deviceID = d;
             return device;
         }

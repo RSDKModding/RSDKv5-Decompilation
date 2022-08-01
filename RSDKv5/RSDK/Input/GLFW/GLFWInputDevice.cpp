@@ -98,9 +98,9 @@ void RSDK::SKU::InputDeviceGLFW::ProcessInput(int32 controllerID)
 
 void RSDK::SKU::InputDeviceGLFW::CloseDevice()
 {
-    this->active               = false;
+    this->active     = false;
     this->isAssigned = false;
-    this->jid                  = GLFW_JOYSTICK_LAST;
+    this->jid        = GLFW_JOYSTICK_LAST;
 }
 
 RSDK::SKU::InputDeviceGLFW *RSDK::SKU::InitGLFWInputDevice(uint32 id, uint8 controllerID)
@@ -138,13 +138,13 @@ RSDK::SKU::InputDeviceGLFW *RSDK::SKU::InitGLFWInputDevice(uint32 id, uint8 cont
 
     device->active      = true;
     device->disabled    = false;
-    device->gamePadType = (DEVICE_API_GLFW << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (controllerType << 0);
-    device->inputID     = id;
+    device->gamepadType = (DEVICE_API_GLFW << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (controllerType << 0);
+    device->id          = id;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i]        = device;
-            device->isAssigned = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 

@@ -33,8 +33,8 @@ struct SteamCore : UserCore {
     bool32 IsOverlayEnabled(uint32 overlay)
     {
         for (int32 i = 0; i < InputDeviceCount; ++i) {
-            if (InputDevices[i] && InputDevices[i]->inputID == overlay) {
-                if (((InputDevices[i]->gamePadType >> 16) & 0xFF) != DEVICE_API_STEAM)
+            if (InputDevices[i] && InputDevices[i]->id == overlay) {
+                if (((InputDevices[i]->gamepadType >> 16) & 0xFF) != DEVICE_API_STEAM)
                     return false;
 
                 return false; // not implemented, sorry!

@@ -145,10 +145,10 @@ inline void ResumeSound()
     for (int32 c = 0; c < CHANNEL_COUNT; ++c) ResumeChannel(c);
 }
 
-inline bool32 SfxPlaying(uint16 sfxID)
+inline bool32 SfxPlaying(uint16 sfx)
 {
     for (int32 c = 0; c < CHANNEL_COUNT; ++c) {
-        if (channels[c].state == CHANNEL_SFX && channels[c].soundID == sfxID)
+        if (channels[c].state == CHANNEL_SFX && channels[c].soundID == sfx)
             return true;
     }
     return false;

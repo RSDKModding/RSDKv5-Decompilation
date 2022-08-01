@@ -53,7 +53,7 @@ void UpdateInputNX(InputDeviceNX *device, int64 *buttonMasks, int32 *hDelta, int
     int32 changedButtons = device->buttonMasks & ~prevButtonMasks;
 
     if (changedButtons) {
-        currentNXControllerType  = device->gamePadType;
+        currentNXControllerType  = device->gamepadType;
         device->inactiveTimer[0] = 0;
     }
     else {
@@ -303,16 +303,16 @@ InputDeviceNXHandheld *RSDK::SKU::InitNXHandheldInputDevice(uint32 id, int32 typ
 
     InputDeviceNXHandheld *device = (InputDeviceNXHandheld *)InputDevices[InputDeviceCount];
 
-    device->gamePadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_HANDHELD << 0);
+    device->gamepadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_HANDHELD << 0);
     device->disabled    = false;
-    device->inputID     = id;
+    device->id          = id;
     device->active      = true;
     device->npadType    = type;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i] = device;
-            device->isAssigned    = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
@@ -335,16 +335,16 @@ InputDeviceNXJoyL *RSDK::SKU::InitNXJoyLInputDevice(uint32 id, int32 type)
 
     InputDeviceNXJoyL *device = (InputDeviceNXJoyL *)InputDevices[InputDeviceCount];
 
-    device->gamePadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_JOY_L << 0);
+    device->gamepadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_JOY_L << 0);
     device->disabled    = false;
-    device->inputID     = id;
+    device->id          = id;
     device->active      = true;
     device->npadType    = type;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i] = device;
-            device->isAssigned    = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
@@ -366,16 +366,16 @@ InputDeviceNXJoyR *RSDK::SKU::InitNXJoyRInputDevice(uint32 id, int32 type)
 
     InputDeviceNXJoyR *device = (InputDeviceNXJoyR *)InputDevices[InputDeviceCount];
 
-    device->gamePadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_JOY_R << 0);
+    device->gamepadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_JOY_R << 0);
     device->disabled    = false;
-    device->inputID     = id;
+    device->id          = id;
     device->active      = true;
     device->npadType    = type;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i] = device;
-            device->isAssigned    = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
@@ -397,16 +397,16 @@ InputDeviceNXJoyGrip *RSDK::SKU::InitNXJoyGripInputDevice(uint32 id, int32 type)
 
     InputDeviceNXJoyGrip *device = (InputDeviceNXJoyGrip *)InputDevices[InputDeviceCount];
 
-    device->gamePadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_JOY_GRIP << 0);
+    device->gamepadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_JOY_GRIP << 0);
     device->disabled    = false;
-    device->inputID     = id;
+    device->id          = id;
     device->active      = true;
     device->npadType    = type;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i] = device;
-            device->isAssigned    = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
@@ -428,16 +428,16 @@ InputDeviceNXPro *RSDK::SKU::InitNXProInputDevice(uint32 id, int32 type)
 
     InputDeviceNXPro *device = (InputDeviceNXPro *)InputDevices[InputDeviceCount];
 
-    device->gamePadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_PRO << 0);
+    device->gamepadType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_PRO << 0);
     device->disabled    = false;
-    device->inputID     = id;
+    device->id          = id;
     device->active      = true;
     device->npadType    = type;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i] = device;
-            device->isAssigned    = true;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
+            device->isAssigned  = true;
         }
     }
 
