@@ -427,8 +427,8 @@ void RSDK::ProcessObjects()
                 if (objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update)
                     objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update();
 
-                if (sceneInfo.entity->drawOrder < DRAWGROUP_COUNT)
-                    drawGroups[sceneInfo.entity->drawOrder].entries[drawGroups[sceneInfo.entity->drawOrder].entityCount++] = sceneInfo.entitySlot;
+                if (sceneInfo.entity->drawGroup < DRAWGROUP_COUNT)
+                    drawGroups[sceneInfo.entity->drawGroup].entries[drawGroups[sceneInfo.entity->drawGroup].entityCount++] = sceneInfo.entitySlot;
             }
         }
         else {
@@ -506,8 +506,8 @@ void RSDK::ProcessPausedObjects()
                 if (objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update)
                     objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update();
 
-                if (sceneInfo.entity->drawOrder < DRAWGROUP_COUNT)
-                    drawGroups[sceneInfo.entity->drawOrder].entries[drawGroups[sceneInfo.entity->drawOrder].entityCount++] = sceneInfo.entitySlot;
+                if (sceneInfo.entity->drawGroup < DRAWGROUP_COUNT)
+                    drawGroups[sceneInfo.entity->drawGroup].entries[drawGroups[sceneInfo.entity->drawGroup].entityCount++] = sceneInfo.entitySlot;
             }
         }
         else {
@@ -672,8 +672,8 @@ void RSDK::ProcessFrozenObjects()
                         objectClassList[stageObjectIDs[sceneInfo.entity->classID]].update();
                 }
 
-                if (sceneInfo.entity->drawOrder < DRAWGROUP_COUNT)
-                    drawGroups[sceneInfo.entity->drawOrder].entries[drawGroups[sceneInfo.entity->drawOrder].entityCount++] = sceneInfo.entitySlot;
+                if (sceneInfo.entity->drawGroup < DRAWGROUP_COUNT)
+                    drawGroups[sceneInfo.entity->drawGroup].entries[drawGroups[sceneInfo.entity->drawGroup].entityCount++] = sceneInfo.entitySlot;
             }
         }
         else {
@@ -732,15 +732,15 @@ void RSDK::ProcessObjectDrawLists()
             for (int32 l = 0; l < DRAWGROUP_COUNT; ++l) drawGroups[l].layerCount = 0;
 
             for (int32 t = 0; t < LAYER_COUNT; ++t) {
-                uint8 drawOrder = tileLayers[t].drawLayer[s];
+                uint8 drawGroup = tileLayers[t].drawGroup[s];
 
-                if (drawOrder < DRAWGROUP_COUNT)
-                    drawGroups[drawOrder].layerDrawList[drawGroups[drawOrder].layerCount++] = t;
+                if (drawGroup < DRAWGROUP_COUNT)
+                    drawGroups[drawGroup].layerDrawList[drawGroups[drawGroup].layerCount++] = t;
             }
 
             sceneInfo.currentDrawGroup = 0;
             for (int32 l = 0; l < DRAWGROUP_COUNT; ++l) {
-                if (engine.drawLayerVisible[l]) {
+                if (engine.drawGroupVisible[l]) {
                     DrawList *list = &drawGroups[l];
 
                     if (list->hookCB)

@@ -539,7 +539,7 @@ struct RetroEngine {
     int32 fastForwardSpeed    = 8;
     bool32 frameStep          = false;
     bool32 showPaletteOverlay = false;
-    bool32 drawLayerVisible[DRAWGROUP_COUNT];
+    bool32 drawGroupVisible[DRAWGROUP_COUNT];
 
     // Image/Video support
     double displayTime       = 0.0;

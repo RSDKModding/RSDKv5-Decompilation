@@ -55,7 +55,7 @@ void RSDK::LoadSceneFolder()
     // Unload TileLayers
     for (int32 l = 0; l < LAYER_COUNT; ++l) {
         MEM_ZERO(tileLayers[l]);
-        for (int32 c = 0; c < CAMERA_COUNT; ++c) tileLayers[l].drawLayer[c] = -1;
+        for (int32 c = 0; c < CAMERA_COUNT; ++c) tileLayers[l].drawGroup[c] = -1;
     }
 
     SceneListInfo *list = &sceneInfo.listCategory[sceneInfo.activeCategory];
@@ -335,8 +335,8 @@ void RSDK::LoadSceneAssets()
             GEN_HASH_MD5(textBuffer, layer->name);
 
             layer->type         = ReadInt8(&info);
-            layer->drawLayer[0] = ReadInt8(&info);
-            for (int32 s = 1; s < CAMERA_COUNT; ++s) layer->drawLayer[s] = layer->drawLayer[0];
+            layer->drawGroup[0] = ReadInt8(&info);
+            for (int32 s = 1; s < CAMERA_COUNT; ++s) layer->drawGroup[s] = layer->drawGroup[0];
 
             layer->xsize = ReadInt16(&info);
             int32 shift  = 1;

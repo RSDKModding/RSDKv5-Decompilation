@@ -122,7 +122,7 @@ struct Entity {
     uint8 filter;
 #endif
     uint8 direction;
-    uint8 drawOrder;
+    uint8 drawGroup;
     uint8 collisionLayers;
     uint8 collisionPlane;
     uint8 collisionMode;

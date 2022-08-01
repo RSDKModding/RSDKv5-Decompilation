@@ -67,23 +67,23 @@ static char dbVarTypes[18][16] = {
 };
 
 enum DBVarTypes {
-    DBVAR_UNKNOWN, // unused (in Sonic Mania)
-    DBVAR_BOOL,    // unused (in Sonic Mania)
-    DBVAR_UINT8,   // used (in Sonic Mania)
-    DBVAR_UINT16,  // unused (in Sonic Mania)
-    DBVAR_UINT32,  // used (in Sonic Mania)
-    DBVAR_UINT64,  // unimplemented in RSDKv5
-    DBVAR_INT8,    // unused (in Sonic Mania)
-    DBVAR_INT16,   // unused (in Sonic Mania)
-    DBVAR_INT32,   // unused (in Sonic Mania)
-    DBVAR_INT64,   // unimplemented in RSDKv5
-    DBVAR_FLOAT,   // unused (in Sonic Mania)
+    DBVAR_UNKNOWN,
+    DBVAR_BOOL,
+    DBVAR_UINT8,
+    DBVAR_UINT16,
+    DBVAR_UINT32,
+    DBVAR_UINT64, // unimplemented in RSDKv5
+    DBVAR_INT8,
+    DBVAR_INT16,
+    DBVAR_INT32,
+    DBVAR_INT64, // unimplemented in RSDKv5
+    DBVAR_FLOAT,
     DBVAR_DOUBLE,  // unimplemented in RSDKv5
     DBVAR_VECTOR2, // unimplemented in RSDKv5
     DBVAR_VECTOR3, // unimplemented in RSDKv5
     DBVAR_VECTOR4, // unimplemented in RSDKv5
-    DBVAR_COLOR,   // unused (in Sonic Mania)
-    DBVAR_STRING,  // unused (in Sonic Mania)
+    DBVAR_COLOR,
+    DBVAR_STRING,
     DBVAR_HASHMD5, // unimplemented in RSDKv5
 };
 

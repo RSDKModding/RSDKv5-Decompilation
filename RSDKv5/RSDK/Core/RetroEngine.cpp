@@ -304,7 +304,7 @@ void RSDK::ProcessEngine()
 #if RETRO_REV02
                 SKU::userCore->StageLoad();
                 for (int32 v = 0; v < DRAWGROUP_COUNT; ++v)
-                    AddViewableVariable(drawGroupNames[v], &engine.drawLayerVisible[v], VIEWVAR_BOOL, false, true);
+                    AddViewableVariable(drawGroupNames[v], &engine.drawGroupVisible[v], VIEWVAR_BOOL, false, true);
 #endif
 
                 // dim after 5 mins
@@ -383,7 +383,7 @@ void RSDK::ProcessEngine()
 #if RETRO_REV02
             SKU::userCore->StageLoad();
             for (int32 v = 0; v < DRAWGROUP_COUNT; ++v)
-                AddViewableVariable(drawGroupNames[v], &engine.drawLayerVisible[v], VIEWVAR_BOOL, false, true);
+                AddViewableVariable(drawGroupNames[v], &engine.drawGroupVisible[v], VIEWVAR_BOOL, false, true);
 #endif
 
             ProcessInput();
@@ -662,7 +662,7 @@ void RSDK::StartGameObjects()
     sceneInfo.debugMode      = engine.devMenu;
     devMenu.state            = DevMenu_MainMenu;
 
-    for (int32 l = 0; l < DRAWGROUP_COUNT; ++l) engine.drawLayerVisible[l] = true;
+    for (int32 l = 0; l < DRAWGROUP_COUNT; ++l) engine.drawGroupVisible[l] = true;
 
     SetupFunctionTables();
     InitGameLink();

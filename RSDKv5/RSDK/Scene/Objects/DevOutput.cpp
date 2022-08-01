@@ -61,7 +61,7 @@ void RSDK::DevOutput_Create(void *data)
     self->active      = ACTIVE_ALWAYS;
     self->visible     = true;
     self->isPermanent = true;
-    self->drawOrder   = 15;
+    self->drawGroup   = 15;
     self->timer       = 180 * GetEntityCount(DevOutput->classID, false);
     self->ySize       = DevOutput_GetStringYSize(self->message);
     self->position.y  = -self->ySize;

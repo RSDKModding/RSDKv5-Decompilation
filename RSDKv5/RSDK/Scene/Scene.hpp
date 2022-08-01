@@ -110,7 +110,7 @@ struct ScanlineInfo {
 
 struct TileLayer {
     uint8 type;
-    uint8 drawLayer[CAMERA_COUNT];
+    uint8 drawGroup[CAMERA_COUNT];
     uint8 widthShift;
     uint8 heightShift;
     uint16 xsize;
