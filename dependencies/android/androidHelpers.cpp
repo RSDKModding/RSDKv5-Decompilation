@@ -7,11 +7,30 @@ pthread_t mainthread;
 
 using namespace RSDK;
 
+static struct JNISetup _jni_setup = { 0 };
+android_app *app                  = NULL;
+
+#include <game-activity/GameActivity.cpp>
+#include <game-text-input/gametextinput.cpp>
+extern "C" {
+#include <game-activity/native_app_glue/android_native_app_glue.c>
+}
+
+struct JNISetup *GetJNISetup()
+{
+    if (!_jni_setup.env) {
+        app->activity->vm->AttachCurrentThread(&_jni_setup.env, NULL);
+        _jni_setup.thiz  = app->activity->javaGameActivity;
+        _jni_setup.clazz = _jni_setup.env->GetObjectClass(_jni_setup.thiz);
+    }
+    return &_jni_setup;
+}
+
 int32 AndroidToWinAPIMappings(int32 mapping)
 {
     switch (mapping) {
         default: return KEYMAP_NO_MAPPING;
-        case AKEYCODE_HOME: return VK_HOME;
+        // case AKEYCODE_HOME: return VK_HOME;
         case AKEYCODE_0: return VK_0;
         case AKEYCODE_1: return VK_1;
         case AKEYCODE_2: return VK_2;
@@ -27,8 +46,8 @@ int32 AndroidToWinAPIMappings(int32 mapping)
         case AKEYCODE_DPAD_LEFT: return VK_LEFT;
         case AKEYCODE_DPAD_RIGHT: return VK_RIGHT;
         case AKEYCODE_DPAD_CENTER: return VK_SELECT;
-        case AKEYCODE_VOLUME_UP: return VK_VOLUME_UP;
-        case AKEYCODE_VOLUME_DOWN: return VK_VOLUME_DOWN;
+        // case AKEYCODE_VOLUME_UP: return VK_VOLUME_UP;
+        // case AKEYCODE_VOLUME_DOWN: return VK_VOLUME_DOWN;
         case AKEYCODE_CLEAR: return VK_CLEAR;
         case AKEYCODE_A: return VK_A;
         case AKEYCODE_B: return VK_B;
@@ -117,7 +136,7 @@ int32 AndroidToWinAPIMappings(int32 mapping)
         case AKEYCODE_NUMPAD_DOT: return VK_DECIMAL;
         case AKEYCODE_NUMPAD_COMMA: return VK_OEM_COMMA;
         case AKEYCODE_NUMPAD_ENTER: return VK_RETURN;
-        case AKEYCODE_VOLUME_MUTE: return VK_VOLUME_MUTE;
+        // case AKEYCODE_VOLUME_MUTE: return VK_VOLUME_MUTE;
         case AKEYCODE_ZOOM_IN: return VK_ZOOM;
         case AKEYCODE_ZOOM_OUT: return VK_ZOOM;
         case AKEYCODE_SLEEP: return VK_SLEEP;
@@ -125,82 +144,12 @@ int32 AndroidToWinAPIMappings(int32 mapping)
     }
 }
 
-void *threadCallback(void *a)
-{
-    while (!RenderDevice::window)
-        ;
-    return (void *)RSDK_main(0, NULL, (void *)LinkGameLogic);
-}
-
-JNIEXPORT void jnifuncN(nativeOnPause, RSDKv5)
-{
-#if RETRO_REV02
-    if (SKU::userCore)
-        SKU::userCore->focusState = 1;
-#endif
-    PrintLog(PRINT_NORMAL, "on pause");
-    videoSettings.windowState = WINDOWSTATE_INACTIVE;
-}
-JNIEXPORT void jnifuncN(nativeOnResume, RSDKv5)
-{
-#if RETRO_REV02
-    if (SKU::userCore)
-        SKU::userCore->focusState = 0;
-#endif
-    PrintLog(PRINT_NORMAL, "on resume");
-    videoSettings.windowState = WINDOWSTATE_ACTIVE;
-}
-JNIEXPORT void jnifunc(nativeOnStart, RSDKv5, jstring basepath)
-{
-    if (!launched) {
-        char buffer[0x200];
-        strcpy(buffer, env->GetStringUTFChars((jstring)basepath, NULL));
-        SKU::SetUserFileCallbacks(buffer, NULL, NULL);
-        RenderDeviceBase::isRunning = false;
-        pthread_create(&mainthread, NULL, &threadCallback, NULL);
-        launched = true;
-    }
-}
-JNIEXPORT void jnifuncN(nativeOnStop, RSDKv5)
-{
-    RenderDevice::isRunning = false;
-    pthread_join(mainthread, NULL);
-}
-
-JNIEXPORT void jnifunc(nativeSetSurface, RSDKSurface, jobject surface)
-{
-    pthread_mutex_lock(&RenderDevice::mutex);
-    videoSettings.windowState = WINDOWSTATE_INACTIVE;
-    RenderDevice::isInitialized = false;
-
-    if (surface) {
-        if (RenderDevice::window)
-            ANativeWindow_release(RenderDevice::window);
-        RenderDevice::window = ANativeWindow_fromSurface(env, surface);
-        videoSettings.windowState = WINDOWSTATE_ACTIVE;
-        PrintLog(PRINT_NORMAL, "Surface pass");
-    }
-    else {
-        RenderDevice::window = NULL;
-        PrintLog(PRINT_NORMAL, "Surface null");
-    }
-    pthread_mutex_unlock(&RenderDevice::mutex);
-}
-
-#define ACTION_DOWN 0 // 0b00
-#define ACTION_UP   1 // 0b01
-#define ACTION_MOVE 2 // 0b10
-/* #define ACTION_CANCEL 3 */  // 0b11
-/* #define ACTION_OUTSIDE 4 */ // 0b100
-#define ACTION_POINTER_DOWN 5  // 0b101
-#define ACTION_POINTER_UP   6 // 0b110
-
-JNIEXPORT void jnifunc(nativeOnTouch, RSDKSurface, jint finger, jint action, jfloat x, jfloat y)
+JNIEXPORT void jnifunc(nativeOnTouch, RSDKv5, jint finger, jint action, jfloat x, jfloat y)
 {
     if (finger > 0x10)
         return; // nah cause how tf
 
-    bool32 down = (action == ACTION_DOWN) || (action == ACTION_MOVE) || (action == ACTION_POINTER_DOWN);
+    bool32 down = (action == AMOTION_EVENT_ACTION_DOWN) || (action == AMOTION_EVENT_ACTION_MOVE) || (action == AMOTION_EVENT_ACTION_POINTER_DOWN);
 
     if (down) {
         touchInfo.x[finger]    = x;
@@ -220,8 +169,67 @@ JNIEXPORT void jnifunc(nativeOnTouch, RSDKSurface, jint finger, jint action, jfl
     }
 }
 
-JNIEXPORT void jnifunc(nativeKeyDown, RSDKSurface, jint keycode)
+void AndroidCommandCallback(android_app *app, int32 cmd)
 {
+    PrintLog(PRINT_NORMAL, "COMMAND %d %d", cmd, app->window ? 1 : 0);
+    switch (cmd) {
+        case APP_CMD_INIT_WINDOW:
+        case APP_CMD_WINDOW_RESIZED:
+        case APP_CMD_CONFIG_CHANGED:
+        case APP_CMD_TERM_WINDOW:
+            videoSettings.windowState   = WINDOWSTATE_INACTIVE;
+            RenderDevice::isInitialized = false;
+            RenderDevice::window        = app->window;
+#if RETRO_REV02
+            if (SKU::userCore)
+                SKU::userCore->focusState = 1;
+#else
+            engine.focusState &= (~1);
+#endif
+            if (app->window != NULL && cmd != APP_CMD_TERM_WINDOW) {
+#if RETRO_REV02
+                if (SKU::userCore)
+                    SKU::userCore->focusState = 0;
+#else
+                engine.focusState |= 1;
+#endif
+                videoSettings.windowState = WINDOWSTATE_ACTIVE;
+            }
+            break;
+        case APP_CMD_STOP:
+            Paddleboat_onStop(GetJNISetup()->env);
+            break;
+        case APP_CMD_START: 
+            Paddleboat_onStart(GetJNISetup()->env);
+            break;
+        case APP_CMD_GAINED_FOCUS: /*
+#if RETRO_REV02
+            if (SKU::userCore)
+                SKU::userCore->focusState = 0;
+#else
+            engine.focusState |= 1;
+#endif
+            videoSettings.windowState = WINDOWSTATE_ACTIVE;//*/
+            break;
+        case APP_CMD_LOST_FOCUS: /*
+#if RETRO_REV02
+            if (SKU::userCore)
+                SKU::userCore->focusState = 1;
+#else
+            engine.focusState &= (~1);
+#endif
+            videoSettings.windowState = WINDOWSTATE_INACTIVE; //*/
+            break;
+        default: break;
+    }
+}
+
+bool AndroidKeyDownCallback(GameActivity *activity, const GameActivityKeyEvent *event)
+{
+    if (Paddleboat_processGameActivityKeyInputEvent(event, sizeof(GameActivityKeyEvent)))
+        return true;
+    int32 keycode = event->keyCode;
+
 #if !RETRO_REV02
     ++RSDK::SKU::buttonDownCount;
 #endif
@@ -234,10 +242,14 @@ JNIEXPORT void jnifunc(nativeKeyDown, RSDKSurface, jint keycode)
             // [fallthrough]
 
         default:
+            if (AndroidToWinAPIMappings(keycode)) {
+
 #if RETRO_INPUTDEVICE_KEYBOARD
-            SKU::UpdateKeyState(AndroidToWinAPIMappings(keycode));
+                SKU::UpdateKeyState(AndroidToWinAPIMappings(keycode));
 #endif
-            break;
+                return true;
+            }
+            return false;
 
         case AKEYCODE_ESCAPE:
             if (engine.devMenu) {
@@ -255,7 +267,7 @@ JNIEXPORT void jnifunc(nativeKeyDown, RSDKSurface, jint keycode)
 #if !RETRO_REV02 && RETRO_INPUTDEVICE_KEYBOARD
             RSDK::SKU::specialKeyStates[0] = true;
 #endif
-            break;
+            return true;
 
 #if !RETRO_USE_ORIGINAL_CODE
         case AKEYCODE_F1:
@@ -269,7 +281,7 @@ JNIEXPORT void jnifunc(nativeKeyDown, RSDKSurface, jint keycode)
             }
 
             LoadScene();
-            break;
+            return true;
 
         case AKEYCODE_F2:
             sceneInfo.listPos++;
@@ -282,62 +294,67 @@ JNIEXPORT void jnifunc(nativeKeyDown, RSDKSurface, jint keycode)
             }
 
             LoadScene();
-            break;
+            return true;
 #endif
 
         case AKEYCODE_F3:
             if (userShaderCount)
                 videoSettings.shaderID = (videoSettings.shaderID + 1) % userShaderCount;
-            break;
+            return true;
 
 #if !RETRO_USE_ORIGINAL_CODE
         case AKEYCODE_F5:
             // Quick-Reload
             LoadScene();
-            break;
+            return true;
 
         case AKEYCODE_F6:
             if (engine.devMenu && videoSettings.screenCount > 1)
                 videoSettings.screenCount--;
-            break;
+            return true;
 
         case AKEYCODE_F7:
             if (engine.devMenu && videoSettings.screenCount < SCREEN_COUNT)
                 videoSettings.screenCount++;
-            break;
+            return true;
 
         case AKEYCODE_F9:
             if (engine.devMenu)
                 showHitboxes ^= 1;
-            break;
+            return true;
 
         case AKEYCODE_F10:
             if (engine.devMenu)
                 engine.showPaletteOverlay ^= 1;
-            break;
+            return true;
 #endif
         case AKEYCODE_DEL:
             if (engine.devMenu)
                 engine.gameSpeed = engine.fastForwardSpeed;
-            break;
+            return true;
 
         case AKEYCODE_F11:
         case AKEYCODE_INSERT:
             if ((sceneInfo.state & ENGINESTATE_STEPOVER) == ENGINESTATE_STEPOVER)
                 engine.frameStep = true;
-            break;
+            return true;
 
         case AKEYCODE_F12:
         case AKEYCODE_BREAK:
             if (engine.devMenu) {
                 sceneInfo.state ^= ENGINESTATE_STEPOVER;
             }
-            break;
+            return true;
     }
+    return false;
 }
 
-JNIEXPORT void jnifunc(nativeKeyUp, RSDKSurface, jint keycode)
+bool AndroidKeyUpCallback(GameActivity *activity, const GameActivityKeyEvent *event)
 {
+    if (Paddleboat_processGameActivityKeyInputEvent(event, sizeof(GameActivityKeyEvent)))
+        return true;
+
+    int32 keycode = event->keyCode;
 #if !RETRO_REV02
     --RSDK::SKU::buttonDownCount;
 #endif
@@ -346,12 +363,13 @@ JNIEXPORT void jnifunc(nativeKeyUp, RSDKSurface, jint keycode)
 #if RETRO_INPUTDEVICE_KEYBOARD
             SKU::ClearKeyState(AndroidToWinAPIMappings(keycode));
 #endif
-            break;
+            return true;
 
 #if !RETRO_REV02 && RETRO_INPUTDEVICE_KEYBOARD
-        case AKEYCODE_ESCAPE: RSDK::SKU::specialKeyStates[0] = false; break;
-        case AKEYCODE_ENTER: RSDK::SKU::specialKeyStates[1] = false; break;
+        case AKEYCODE_ESCAPE: RSDK::SKU::specialKeyStates[0] = false; return true;
+        case AKEYCODE_ENTER: RSDK::SKU::specialKeyStates[1] = false; return true;
 #endif
-        case AKEYCODE_DEL: engine.gameSpeed = 1; break;
+        case AKEYCODE_DEL: engine.gameSpeed = 1; return true;
     }
+    return false;
 }

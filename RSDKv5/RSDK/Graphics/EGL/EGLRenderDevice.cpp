@@ -132,7 +132,15 @@ bool RenderDevice::SetupRendering()
         PrintLog(PRINT_NORMAL, "[EGL] EGL_NATIVE_VISUAL_ID fetch failed: %d", eglGetError());
         return false;
     }
-    // get window somehow
+    if (!window) {
+#if RETRO_REV02
+        if (SKU::userCore)
+            SKU::userCore->focusState = 1;
+#else
+        engine.focusState = 1;
+#endif
+        return true; // lie so we can properly swtup later
+    }
     ANativeWindow_setBuffersGeometry(window, 0, 0, format);
 #if __ANDROID_API__ >= 30
     ANativeWindow_setFrameRate(window, videoSettings.refreshRate, ANATIVEWINDOW_FRAME_RATE_COMPATIBILITY_DEFAULT);
@@ -358,7 +366,8 @@ bool RenderDevice::InitGraphicsAPI()
     videoSettings.viewportW = 1.0 / viewSize.x;
     videoSettings.viewportH = 1.0 / viewSize.y;
 
-    //PrintLog(PRINT_NORMAL, "%d %d %f %f %d %d %d %d %f %f", displayWidth[0], displayHeight[0], pixelSize.x, pixelSize.y, viewportPos.x, viewportPos.y,
+    // PrintLog(PRINT_NORMAL, "%d %d %f %f %d %d %d %d %f %f", displayWidth[0], displayHeight[0], pixelSize.x, pixelSize.y, viewportPos.x,
+    // viewportPos.y,
     //         viewportSize.x, viewportSize.y, viewSize.x, viewSize.y);
 
     return true;
@@ -436,8 +445,31 @@ void RenderDevice::CopyFrameBuffer()
 
 bool RenderDevice::ProcessEvents()
 {
+#if RETRO_PLATFORM == RETRO_SWITCH
     // events aren't processed by EGL
     return true;
+#elif RETRO_PLATFORM == RETRO_ANDROID
+    // unless you're android!!
+    int events;
+    struct android_poll_source *source;
+    while (ALooper_pollAll(0, NULL, &events, (void **)&source) >= 0) {
+        if (source)
+            source->process(app, source);
+
+        if (app->destroyRequested)
+            return false;
+    }
+
+    if (videoSettings.windowState == WINDOWSTATE_INACTIVE) {
+        Release(true);
+    }
+    else if (videoSettings.windowState == WINDOWSTATE_ACTIVE && !RenderDevice::isInitialized && RenderDevice::window) {
+        Release(true);
+        Init();
+    }
+
+    return true;
+#endif
 }
 
 void RenderDevice::FlipScreen()

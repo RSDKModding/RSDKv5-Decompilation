@@ -76,10 +76,10 @@ enum GameRegions {
 // ============================
 // PLATFORMS
 // ============================
-#define RETRO_WIN     (0)
-#define RETRO_PS4     (1)
-#define RETRO_XB1     (2)
-#define RETRO_SWITCH  (3)
+#define RETRO_WIN    (0)
+#define RETRO_PS4    (1)
+#define RETRO_XB1    (2)
+#define RETRO_SWITCH (3)
 // CUSTOM
 #define RETRO_OSX     (4)
 #define RETRO_LINUX   (5)
@@ -100,14 +100,14 @@ enum GameRegions {
 
 #if defined WINAPI_FAMILY
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
-#define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
-#define RETRO_PLATFORM (RETRO_UWP)
+#define RETRO_PLATFORM   (RETRO_UWP)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 #else
-#define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
@@ -117,28 +117,28 @@ enum GameRegions {
 #include <TargetConditionals.h>
 
 #if TARGET_IPHONE_SIMULATOR
-#define RETRO_PLATFORM (RETRO_iOS)
+#define RETRO_PLATFORM   (RETRO_iOS)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #elif TARGET_OS_IPHONE
-#define RETRO_PLATFORM (RETRO_iOS)
+#define RETRO_PLATFORM   (RETRO_iOS)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #elif TARGET_OS_MAC
-#define RETRO_PLATFORM (RETRO_OSX)
+#define RETRO_PLATFORM   (RETRO_OSX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
 #error "Unknown Apple platform"
 #endif
 #elif defined __ANDROID__
-#define RETRO_PLATFORM (RETRO_ANDROID)
+#define RETRO_PLATFORM   (RETRO_ANDROID)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #elif defined __SWITCH__
-#define RETRO_PLATFORM (RETRO_SWITCH)
+#define RETRO_PLATFORM   (RETRO_SWITCH)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #elif defined __linux__
-#define RETRO_PLATFORM (RETRO_LINUX)
+#define RETRO_PLATFORM   (RETRO_LINUX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
-#define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
@@ -185,9 +185,9 @@ enum GameRegions {
 #define RETRO_INPUTDEVICE_STEAM    (0)
 #define RETRO_INPUTDEVICE_NX       (0)
 // CUSTOM
-#define RETRO_INPUTDEVICE_SDL2 (0)
-#define RETRO_INPUTDEVICE_GLFW    (0)
-#define RETRO_INPUTDEVICE_ANDROID (0)
+#define RETRO_INPUTDEVICE_SDL2   (0)
+#define RETRO_INPUTDEVICE_GLFW   (0)
+#define RETRO_INPUTDEVICE_PDBOAT (0)
 
 // ============================
 // USER CORE BACKENDS
@@ -361,8 +361,8 @@ enum GameRegions {
 #if defined RSDK_USE_GL3
 #undef RETRO_RENDERDEVICE_EGL
 #define RETRO_RENDERDEVICE_EGL (1)
-#undef RETRO_INPUTDEVICE_ANDROID
-#define RETRO_INPUTDEVICE_ANDROID (1)
+#undef RETRO_INPUTDEVICE_PDBOAT
+#define RETRO_INPUTDEVICE_PDBOAT (1)
 #undef RETRO_AUDIODEVICE_AAUDIO
 #define RETRO_AUDIODEVICE_AAUDIO (1)
 #else
@@ -464,11 +464,11 @@ enum GameRegions {
 #elif RETRO_PLATFORM == RETRO_ANDROID
 
 #if RETRO_RENDERDEVICE_EGL
-#include <EGL/egl.h>    // EGL library
+#include <EGL/egl.h> // EGL library
 #include <GLES3/gl31.h>
 #endif
 
-#include <androidHelpers.h>
+#include <androidHelpers.hpp>
 #include <theora/theoradec.h>
 
 #undef RETRO_USING_MOUSE
@@ -559,7 +559,7 @@ struct RetroEngine {
     // Image/Video support
     double displayTime       = 0.0;
     double videoStartDelay   = 0.0;
-    double imageFadeSpeed        = 0.0;
+    double imageFadeSpeed    = 0.0;
     bool32 (*skipCallback)() = NULL;
 
     bool32 streamsEnabled = true;

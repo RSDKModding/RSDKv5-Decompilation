@@ -57,6 +57,9 @@ enum InputDeviceAPIs {
 #if RETRO_INPUTDEVICE_GLFW
     DEVICE_API_GLFW, // custom-made for GL3, won't be in ANY real RSDKv5 version ever, it's just cool
 #endif
+#if RETRO_INPUTDEVICE_PDBOAT
+    DEVICE_API_PDBOAT // custom-made for android (paddleboat API)
+#endif
 };
 
 enum ControllerKeys {
@@ -485,6 +488,10 @@ extern int32 gamePadCount;
 
 #if RETRO_INPUTDEVICE_GLFW
 #include "GLFW/GLFWInputDevice.hpp"
+#endif
+
+#if RETRO_INPUTDEVICE_PDBOAT
+#include "Paddleboat/PDBInputDevice.hpp"
 #endif
 
 // Initializes the input devices & the backend APIs powering em

@@ -37,6 +37,37 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     return RSDK_main(1, &lpCmdLine, RSDK::LinkGameLogic);
 }
+#elif RETRO_PLATFORM == RETRO_ANDROID
+extern "C" {
+void android_main(struct android_app *app);
+}
+
+void android_main(struct android_app *ap)
+{
+    app                                 = ap;
+    app->onAppCmd                       = AndroidCommandCallback;
+    app->activity->callbacks->onKeyDown = AndroidKeyDownCallback;
+    app->activity->callbacks->onKeyUp   = AndroidKeyUpCallback;
+
+    JNISetup *jni = GetJNISetup();
+    // we make sure we do it here so init can chill safely before any callbacks occur
+    Paddleboat_init(jni->env, jni->thiz);
+    char buffer[0x200];
+    jmethodID method = jni->env->GetMethodID(jni->clazz, "getBasePath", "()Ljava/lang/String;");
+    auto ret         = jni->env->CallObjectMethod(jni->thiz, method);
+    strcpy(buffer, jni->env->GetStringUTFChars((jstring)ret, NULL));
+    RSDK::SKU::SetUserFileCallbacks(buffer, NULL, NULL);
+
+    GameActivity_setWindowFlags(app->activity,
+                                AWINDOW_FLAG_KEEP_SCREEN_ON | AWINDOW_FLAG_TURN_SCREEN_ON | AWINDOW_FLAG_LAYOUT_NO_LIMITS | AWINDOW_FLAG_FULLSCREEN
+                                    | AWINDOW_FLAG_SHOW_WHEN_LOCKED,
+                                0);
+
+    RSDK_main(0, NULL, (void *)RSDK::LinkGameLogic);
+
+    Paddleboat_destroy(jni->env);
+
+}
 #else
 int32 main(int32 argc, char *argv[]) { return RSDK_main(argc, argv, (void *)RSDK::LinkGameLogic); }
 #endif
@@ -46,7 +77,7 @@ int32 main(int32 argc, char *argv[]) { return RSDK_main(argc, argv, (void *)RSDK
 int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)
 {
 #ifdef __SWITCH__
-    //initNxLink();
+    // initNxLink();
 #endif
 
     RSDK::linkGameLogic = (RSDK::LogicLinkHandle)linkLogicPtr;
@@ -54,7 +85,7 @@ int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)
     int32 exitCode = RSDK::RunRetroEngine(argc, argv);
 
 #ifdef __SWITCH__
-    //socketExit();
+    // socketExit();
 #endif
 
     return exitCode;

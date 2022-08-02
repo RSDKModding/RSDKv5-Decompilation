@@ -122,7 +122,7 @@ RSDK::SKU::InputDeviceGLFW *RSDK::SKU::InitGLFWInputDevice(uint32 id, uint8 cont
 
     const char *name = glfwGetGamepadName(controllerID);
 
-    device->swapABXY     = true;
+    device->swapABXY     = false;
     uint8 controllerType = DEVICE_XBOX;
 
     if (strstr(name, "Xbox"))

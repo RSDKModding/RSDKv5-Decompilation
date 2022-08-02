@@ -48,6 +48,10 @@ int32 RSDK::gamePadCount               = 0;
 #include "GLFW/GLFWInputDevice.cpp"
 #endif
 
+#if RETRO_INPUTDEVICE_PDBOAT
+#include "Paddleboat/PDBInputDevice.cpp"
+#endif
+
 void RSDK::RemoveInputDevice(InputDevice *targetDevice)
 {
     if (targetDevice) {
@@ -122,6 +126,10 @@ void RSDK::InitInputDevices()
 
 #if RETRO_INPUTDEVICE_GLFW
     SKU::InitGLFWInputAPI();
+#endif
+
+#if RETRO_INPUTDEVICE_PDBOAT
+    SKU::InitPaddleboatInputAPI();
 #endif
 }
 
@@ -299,6 +307,9 @@ void RSDK::ProcessInputDevices()
 {
 #if RETRO_INPUTDEVICE_NX
     SKU::ProcessNXInputDevices();
+#endif
+#if RETRO_INPUTDEVICE_PDBOAT
+    SKU::ProcessPaddleboatInputDevices();
 #endif
 }
 

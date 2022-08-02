@@ -112,6 +112,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #if !RETRO_USE_ORIGINAL_CODE
             if (customSettings.disableFocusPause)
                 engine.focusState = 0;
+            else
 #endif
             if (SKU::userCore->CheckFocusLost()) {
                 if (!(engine.focusState & 1)) {
