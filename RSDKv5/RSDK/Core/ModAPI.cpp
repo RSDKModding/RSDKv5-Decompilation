@@ -171,7 +171,7 @@ void RSDK::LoadModSettings()
         ModInfo* mod = &modList[m];
 
         if (mod->redirectSaveRAM)
-            sprintf(customUserFileDir, "mods/%s/", mod.id.c_str());
+            sprintf(customUserFileDir, "mods/%s/", mod->id.c_str());
         
         modSettings.redirectSaveRAM |= mod->redirectSaveRAM ? 1 : 0;
         modSettings.disableGameLogic |= mod->disableGameLogic ? 1 : 0;
