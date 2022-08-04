@@ -32,9 +32,9 @@ struct SteamCore : UserCore {
     void ExitGame() { RenderDevice::isRunning = false; }
     bool32 IsOverlayEnabled(uint32 overlay)
     {
-        for (int32 i = 0; i < InputDeviceCount; ++i) {
-            if (InputDevices[i] && InputDevices[i]->id == overlay) {
-                if (((InputDevices[i]->gamepadType >> 16) & 0xFF) != DEVICE_API_STEAM)
+        for (int32 i = 0; i < inputDeviceCount; ++i) {
+            if (inputDeviceList[i] && inputDeviceList[i]->id == overlay) {
+                if (((inputDeviceList[i]->gamepadType >> 16) & 0xFF) != DEVICE_API_STEAM)
                     return false;
 
                 return false; // not implemented, sorry!

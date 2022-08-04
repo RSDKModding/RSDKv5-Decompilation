@@ -118,20 +118,20 @@ void RSDK::SKU::InputDeviceRaw::ProcessInput(int32 controllerID)
 
 RSDK::SKU::InputDeviceRaw *RSDK::SKU::InitRawInputDevice(uint32 id)
 {
-    if (InputDeviceCount == INPUTDEVICE_COUNT)
+    if (inputDeviceCount == INPUTDEVICE_COUNT)
         return NULL;
 
-    if (InputDevices[InputDeviceCount] && InputDevices[InputDeviceCount]->active)
+    if (inputDeviceList[inputDeviceCount] && inputDeviceList[inputDeviceCount]->active)
         return NULL;
 
-    if (InputDevices[InputDeviceCount])
-        delete InputDevices[InputDeviceCount];
+    if (inputDeviceList[inputDeviceCount])
+        delete inputDeviceList[inputDeviceCount];
 
-    InputDevices[InputDeviceCount] = new InputDeviceRaw();
+    inputDeviceList[inputDeviceCount] = new InputDeviceRaw();
 
-    InputDeviceRaw *device = (InputDeviceRaw *)InputDevices[InputDeviceCount];
+    InputDeviceRaw *device = (InputDeviceRaw *)inputDeviceList[inputDeviceCount];
 
-    InputDeviceCount++;
+    inputDeviceCount++;
     device->gamepadType = (DEVICE_API_RAWINPUT << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (0 << 0);
     device->disabled    = false;
     device->id          = id;
@@ -139,12 +139,12 @@ RSDK::SKU::InputDeviceRaw *RSDK::SKU::InitRawInputDevice(uint32 id)
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (inputSlots[i] == id) {
-            InputSlotDevices[i] = device;
+            inputSlotDevices[i] = device;
             device->isAssigned  = true;
         }
     }
 
-    InputDeviceCount++;
+    inputDeviceCount++;
     return device;
 }
 

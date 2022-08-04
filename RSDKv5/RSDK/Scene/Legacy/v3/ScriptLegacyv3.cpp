@@ -1046,7 +1046,7 @@ bool32 RSDK::Legacy::v3::ConvertSwitchStatement(char *text)
 }
 void RSDK::Legacy::v3::ConvertFunctionText(char *text)
 {
-    char strBuffer[128];
+    char arrayStr[128];
     char funcName[132];
     int32 opcode     = 0;
     int32 opcodeSize = 0;
@@ -1114,7 +1114,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                     if (text[textPos] == ']')
                         parseMode = 0;
                     else
-                        strBuffer[arrayStrPos++] = text[textPos];
+                        arrayStr[arrayStrPos++] = text[textPos];
                     ++textPos;
                 }
                 else {
@@ -1126,14 +1126,14 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                 }
             }
             funcName[varNamePos]   = 0;
-            strBuffer[arrayStrPos] = 0;
+            arrayStr[arrayStrPos] = 0;
 
             // Eg: TempValue0 = FX_SCALE
             for (int32 a = 0; a < aliasCount; ++a) {
                 if (StrComp(funcName, aliases[a].name)) {
                     CopyAliasStr(funcName, aliases[a].value, 0);
                     if (FindStringToken(aliases[a].value, "[", 1) > -1)
-                        CopyAliasStr(strBuffer, aliases[a].value, 1);
+                        CopyAliasStr(arrayStr, aliases[a].value, 1);
                 }
             }
 
@@ -1141,8 +1141,8 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
             for (int32 v = 0; v < globalVariablesCount; ++v) {
                 if (StrComp(funcName, globalVariables[v].name)) {
                     StrCopy(funcName, "Global");
-                    strBuffer[0] = 0;
-                    AppendIntegerToString(strBuffer, v);
+                    arrayStr[0] = 0;
+                    AppendIntegerToString(arrayStr, v);
                 }
             }
 
@@ -1159,7 +1159,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
                 for (int32 o = 0; o < OBJECT_COUNT; ++o) {
-                    if (StrComp(strBuffer, typeNames[o])) {
+                    if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
                     }
@@ -1173,7 +1173,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                 AppendIntegerToString(funcName, 0);
                 int32 s = 0;
                 for (; s < globalSFXCount; ++s) {
-                    if (StrComp(strBuffer, globalSfxNames[s])) {
+                    if (StrComp(arrayStr, globalSfxNames[s])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, s);
                         break;
@@ -1183,7 +1183,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                 if (s == globalSFXCount) {
                     s = 0;
                     for (; s < stageSFXCount; ++s) {
-                        if (StrComp(strBuffer, stageSfxNames[s])) {
+                        if (StrComp(arrayStr, stageSfxNames[s])) {
                             funcName[0] = 0;
                             AppendIntegerToString(funcName, s);
                             break;
@@ -1191,7 +1191,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                     }
 
                     if (s == stageSFXCount)
-                        PrintLog(PRINT_NORMAL, "WARNING: Unknown SfxName \"%s\"", strBuffer);
+                        PrintLog(PRINT_NORMAL, "WARNING: Unknown SfxName \"%s\"", arrayStr);
                 }
             }
 
@@ -1212,7 +1212,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                     }
                     buf[pos] = 0;
 
-                    if (StrComp(strBuffer, buf)) {
+                    if (StrComp(arrayStr, buf)) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, a);
                         break;
@@ -1220,7 +1220,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                 }
 
                 if (a == (int32)achievementList.size())
-                    PrintLog(PRINT_NORMAL, "WARNING: Unknown AchievementName \"%s\"", strBuffer);
+                    PrintLog(PRINT_NORMAL, "WARNING: Unknown AchievementName \"%s\"", arrayStr);
             }
 
             // Eg: TempValue0 = PlayerName[SONIC]
@@ -1240,7 +1240,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                     }
                     buf[pos] = 0;
 
-                    if (StrComp(strBuffer, buf)) {
+                    if (StrComp(arrayStr, buf)) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, p);
                         break;
@@ -1248,7 +1248,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                 }
 
                 if (p == PLAYER_COUNT)
-                    PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", strBuffer, lineID);
+                    PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
             }
 
             // Eg: TempValue0 = StageName[R - PALMTREE PANIC ZONE 1 A]
@@ -1256,8 +1256,8 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                 funcName[0] = '0';
 
                 int32 s = -1;
-                if (StrLength(strBuffer) >= 2) {
-                    char list = strBuffer[0];
+                if (StrLength(arrayStr) >= 2) {
+                    char list = arrayStr[0];
                     switch (list) {
                         case 'P': list = STAGELIST_PRESENTATION; break;
                         case 'R': list = STAGELIST_REGULAR; break;
@@ -1268,7 +1268,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                 }
 
                 if (s == -1) {
-                    PrintLog(PRINT_NORMAL, "WARNING: Unknown StageName \"%s\", on line %d", strBuffer, lineID);
+                    PrintLog(PRINT_NORMAL, "WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
                     s = 0;
                 }
 
@@ -1325,31 +1325,31 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
             }
             else {
                 scriptCode[scriptCodePos++] = SCRIPTVAR_VAR;
-                if (strBuffer[0]) {
+                if (arrayStr[0]) {
                     scriptCode[scriptCodePos] = VARARR_ARRAY;
 
-                    if (strBuffer[0] == '+')
+                    if (arrayStr[0] == '+')
                         scriptCode[scriptCodePos] = VARARR_ENTNOPLUS1;
 
-                    if (strBuffer[0] == '-')
+                    if (arrayStr[0] == '-')
                         scriptCode[scriptCodePos] = VARARR_ENTNOMINUS1;
 
                     ++scriptCodePos;
 
-                    if (strBuffer[0] == '-' || strBuffer[0] == '+') {
-                        for (int32 i = 0; i < StrLength(strBuffer); ++i) strBuffer[i] = strBuffer[i + 1];
+                    if (arrayStr[0] == '-' || arrayStr[0] == '+') {
+                        for (int32 i = 0; i < StrLength(arrayStr); ++i) arrayStr[i] = arrayStr[i + 1];
                     }
 
-                    if (ConvertStringToInteger(strBuffer, &constant)) {
+                    if (ConvertStringToInteger(arrayStr, &constant)) {
                         scriptCode[scriptCodePos++] = 0;
                         scriptCode[scriptCodePos++] = constant;
                     }
                     else {
-                        if (StrComp(strBuffer, "ArrayPos0"))
+                        if (StrComp(arrayStr, "ArrayPos0"))
                             constant = 0;
-                        if (StrComp(strBuffer, "ArrayPos1"))
+                        if (StrComp(arrayStr, "ArrayPos1"))
                             constant = 1;
-                        if (StrComp(strBuffer, "TempObjectPos"))
+                        if (StrComp(arrayStr, "TempObjectPos"))
                             constant = 2;
 
                         scriptCode[scriptCodePos++] = 1;
@@ -1384,18 +1384,14 @@ void RSDK::Legacy::v3::CheckCaseNumber(char *text)
         return;
 
     char caseString[128];
+    char caseChar = text[4];
+
+    int32 textPos    = 5;
     int32 caseStrPos = 0;
-    char caseChar    = text[4];
-    if (text[4]) {
-        int32 textPos = 5;
-        do {
-            if (caseChar != ':')
-                caseString[caseStrPos++] = caseChar;
-            caseChar = text[textPos++];
-        } while (caseChar);
-    }
-    else {
-        caseStrPos = 0;
+    while (caseChar) {
+        if (caseChar != ':')
+            caseString[caseStrPos++] = caseChar;
+        caseChar = text[textPos++];
     }
     caseString[caseStrPos] = 0;
 

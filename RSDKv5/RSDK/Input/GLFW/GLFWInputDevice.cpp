@@ -105,18 +105,18 @@ void RSDK::SKU::InputDeviceGLFW::CloseDevice()
 
 RSDK::SKU::InputDeviceGLFW *RSDK::SKU::InitGLFWInputDevice(uint32 id, uint8 controllerID)
 {
-    if (InputDeviceCount >= INPUTDEVICE_COUNT)
+    if (inputDeviceCount >= INPUTDEVICE_COUNT)
         return NULL;
 
-    if (InputDevices[InputDeviceCount] && InputDevices[InputDeviceCount]->active)
+    if (inputDeviceList[inputDeviceCount] && inputDeviceList[inputDeviceCount]->active)
         return NULL;
 
-    if (InputDevices[InputDeviceCount])
-        delete InputDevices[InputDeviceCount];
+    if (inputDeviceList[inputDeviceCount])
+        delete inputDeviceList[inputDeviceCount];
 
-    InputDevices[InputDeviceCount] = new InputDeviceGLFW();
+    inputDeviceList[inputDeviceCount] = new InputDeviceGLFW();
 
-    InputDeviceGLFW *device = (InputDeviceGLFW *)InputDevices[InputDeviceCount];
+    InputDeviceGLFW *device = (InputDeviceGLFW *)inputDeviceList[inputDeviceCount];
 
     device->jid = controllerID;
 
@@ -143,12 +143,12 @@ RSDK::SKU::InputDeviceGLFW *RSDK::SKU::InitGLFWInputDevice(uint32 id, uint8 cont
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (inputSlots[i] == id) {
-            InputSlotDevices[i] = device;
+            inputSlotDevices[i] = device;
             device->isAssigned  = true;
         }
     }
 
-    InputDeviceCount++;
+    inputDeviceCount++;
     return device;
 }
 

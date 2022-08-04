@@ -2,11 +2,11 @@
 
 using namespace RSDK;
 
-InputDevice *RSDK::InputDevices[INPUTDEVICE_COUNT];
-int32 RSDK::InputDeviceCount = 0;
+InputDevice *RSDK::inputDeviceList[INPUTDEVICE_COUNT];
+int32 RSDK::inputDeviceCount = 0;
 
-int32 RSDK::inputSlots[PLAYER_COUNT]         = { INPUT_NONE, INPUT_NONE, INPUT_NONE, INPUT_NONE };
-InputDevice *RSDK::InputSlotDevices[PLAYER_COUNT] = { NULL, NULL, NULL, NULL };
+int32 RSDK::inputSlots[PLAYER_COUNT]              = { INPUT_NONE, INPUT_NONE, INPUT_NONE, INPUT_NONE };
+InputDevice *RSDK::inputSlotDevices[PLAYER_COUNT] = { NULL, NULL, NULL, NULL };
 
 ControllerState RSDK::controller[PLAYER_COUNT + 1];
 AnalogState RSDK::stickL[PLAYER_COUNT + 1];
@@ -55,34 +55,34 @@ int32 RSDK::gamePadCount               = 0;
 void RSDK::RemoveInputDevice(InputDevice *targetDevice)
 {
     if (targetDevice) {
-        for (int32 d = 0; d < InputDeviceCount; ++d) {
-            if (InputDevices[d] && InputDevices[d] == targetDevice) {
+        for (int32 d = 0; d < inputDeviceCount; ++d) {
+            if (inputDeviceList[d] && inputDeviceList[d] == targetDevice) {
                 uint32 deviceID = targetDevice->id;
                 targetDevice->CloseDevice();
-                InputDeviceCount--;
+                inputDeviceCount--;
 
-                delete InputDevices[d];
-                InputDevices[d] = NULL;
+                delete inputDeviceList[d];
+                inputDeviceList[d] = NULL;
 
-                for (int32 id = d + 1; id <= InputDeviceCount && id < INPUTDEVICE_COUNT; ++id) InputDevices[id - 1] = InputDevices[id];
+                for (int32 id = d + 1; id <= inputDeviceCount && id < INPUTDEVICE_COUNT; ++id) inputDeviceList[id - 1] = inputDeviceList[id];
                 // clear end device duplicate, prevents issues with new devices deleting stuff they shouldn't be
-                if (InputDeviceCount < INPUTDEVICE_COUNT)
-                    InputDevices[InputDeviceCount] = NULL;
+                if (inputDeviceCount < INPUTDEVICE_COUNT)
+                    inputDeviceList[inputDeviceCount] = NULL;
 
                 for (int32 id = 0; id < PLAYER_COUNT; ++id) {
                     if (inputSlots[id] == deviceID) {
 #if !RETRO_REV02
                         inputSlots[id] = INPUT_NONE;
 #endif
-                        InputSlotDevices[id] = NULL;
+                        inputSlotDevices[id] = NULL;
                     }
                 }
 
                 for (int32 id = 0; id < PLAYER_COUNT; ++id) {
-                    for (int32 c = 0; c < InputDeviceCount; ++c) {
-                        if (InputDevices[c] && InputDevices[c]->id == inputSlots[id]) {
-                            if (InputSlotDevices[id] != InputDevices[c])
-                                InputSlotDevices[id] = InputDevices[c];
+                    for (int32 c = 0; c < inputDeviceCount; ++c) {
+                        if (inputDeviceList[c] && inputDeviceList[c]->id == inputSlots[id]) {
+                            if (inputSlotDevices[id] != inputDeviceList[c])
+                                inputSlotDevices[id] = inputDeviceList[c];
                         }
                     }
                 }
@@ -189,11 +189,11 @@ void RSDK::ProcessInput()
     ClearInput();
 
     bool32 anyPress = false;
-    for (int32 i = 0; i < InputDeviceCount; ++i) {
-        if (InputDevices[i]) {
-            InputDevices[i]->UpdateInput();
+    for (int32 i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i]) {
+            inputDeviceList[i]->UpdateInput();
 
-            anyPress |= InputDevices[i]->anyPress;
+            anyPress |= inputDeviceList[i]->anyPress;
         }
     }
 
@@ -208,13 +208,13 @@ void RSDK::ProcessInput()
         int32 assign = inputSlots[i];
         if (assign && assign != INPUT_UNASSIGNED) {
             if (assign == INPUT_AUTOASSIGN) {
-                int32 id             = GetAvaliableInputDevice();
+                int32 id      = GetAvaliableInputDevice();
                 inputSlots[i] = id;
                 if (id != INPUT_AUTOASSIGN)
                     AssignInputSlotToDevice(CONT_P1 + i, id);
             }
             else {
-                InputDevice *device = InputSlotDevices[i];
+                InputDevice *device = inputSlotDevices[i];
                 if (device && device->id == assign && device->active)
                     device->ProcessInput(CONT_P1 + i);
             }
@@ -315,9 +315,9 @@ void RSDK::ProcessInputDevices()
 
 int32 RSDK::GetInputDeviceType(uint32 deviceID)
 {
-    for (int32 i = 0; i < InputDeviceCount; ++i) {
-        if (InputDevices[i] && InputDevices[i]->id == deviceID)
-            return InputDevices[i]->gamepadType;
+    for (int32 i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID)
+            return inputDeviceList[i]->gamepadType;
     }
 
 #if RETRO_REV02

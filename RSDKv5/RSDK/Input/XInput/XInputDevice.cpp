@@ -162,18 +162,18 @@ void RSDK::SKU::InputDeviceXInput::ProcessInput(int32 controllerID)
 
 RSDK::SKU::InputDeviceXInput *RSDK::SKU::InitXInputDevice(uint32 id)
 {
-    if (InputDeviceCount == INPUTDEVICE_COUNT)
+    if (inputDeviceCount == INPUTDEVICE_COUNT)
         return NULL;
 
-    if (InputDevices[InputDeviceCount] && InputDevices[InputDeviceCount]->active)
+    if (inputDeviceList[inputDeviceCount] && inputDeviceList[inputDeviceCount]->active)
         return NULL;
 
-    if (InputDevices[InputDeviceCount])
-        delete InputDevices[InputDeviceCount];
+    if (inputDeviceList[inputDeviceCount])
+        delete inputDeviceList[inputDeviceCount];
 
-    InputDevices[InputDeviceCount] = new InputDeviceXInput();
+    inputDeviceList[inputDeviceCount] = new InputDeviceXInput();
 
-    InputDeviceXInput *device = (InputDeviceXInput *)InputDevices[InputDeviceCount];
+    InputDeviceXInput *device = (InputDeviceXInput *)inputDeviceList[inputDeviceCount];
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) disabledXInputDevices[i] = false;
 
@@ -184,12 +184,12 @@ RSDK::SKU::InputDeviceXInput *RSDK::SKU::InitXInputDevice(uint32 id)
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (inputSlots[i] == id) {
-            InputSlotDevices[i] = device;
+            inputSlotDevices[i] = device;
             device->isAssigned  = true;
         }
     }
 
-    InputDeviceCount++;
+    inputDeviceCount++;
     return device;
 }
 
@@ -206,9 +206,9 @@ void RSDK::SKU::InitXInputAPI()
         GenerateHashCRC(&id, idString);
 
         InputDeviceXInput *device = NULL;
-        for (int32 d = 0; d < InputDeviceCount; ++d) {
-            if (InputDevices[d] && InputDevices[d]->id == id) {
-                device = (InputDeviceXInput *)InputDevices[d];
+        for (int32 d = 0; d < inputDeviceCount; ++d) {
+            if (inputDeviceList[d] && inputDeviceList[d]->id == id) {
+                device = (InputDeviceXInput *)inputDeviceList[d];
                 break;
             }
         }

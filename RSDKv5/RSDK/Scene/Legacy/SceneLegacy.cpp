@@ -326,9 +326,9 @@ void RSDK::Legacy::ProcessInput() {
     RSDK::ProcessInput();
 
     anyPress = false;
-    for (int32 i = 0; i < InputDeviceCount; ++i) {
-        if (InputDevices[i])
-            anyPress |= InputDevices[i]->anyPress;
+    for (int32 i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i])
+            anyPress |= inputDeviceList[i]->anyPress;
     }
     SetGlobalVariableByName("input.pressButton", anyPress);
 }

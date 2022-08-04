@@ -88,14 +88,14 @@ InputDeviceRaw *InitRawInputDevice(uint32 id);
 
 inline InputDeviceRaw *GetRawInputDevice(uint8 *deviceID)
 {
-    if (*deviceID >= InputDeviceCount)
+    if (*deviceID >= inputDeviceCount)
         return NULL;
 
-    for (int32 d = *deviceID; d < InputDeviceCount; ++d) {
-        if (!InputDevices[d])
+    for (int32 d = *deviceID; d < inputDeviceCount; ++d) {
+        if (!inputDeviceList[d])
             continue;
 
-        InputDeviceRaw *device = (InputDeviceRaw *)InputDevices[d];
+        InputDeviceRaw *device = (InputDeviceRaw *)inputDeviceList[d];
 
         if (((device->gamepadType >> 16) & 0xFF) == DEVICE_API_RAWINPUT) {
             *deviceID = d;

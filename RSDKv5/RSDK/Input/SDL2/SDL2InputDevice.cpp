@@ -184,18 +184,18 @@ void RSDK::SKU::InputDeviceSDL::CloseDevice()
 
 RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, uint8 controllerID)
 {
-    if (InputDeviceCount >= INPUTDEVICE_COUNT)
+    if (inputDeviceCount >= INPUTDEVICE_COUNT)
         return NULL;
 
-    if (InputDevices[InputDeviceCount] && InputDevices[InputDeviceCount]->active)
+    if (inputDeviceList[inputDeviceCount] && inputDeviceList[inputDeviceCount]->active)
         return NULL;
 
-    if (InputDevices[InputDeviceCount])
-        delete InputDevices[InputDeviceCount];
+    if (inputDeviceList[inputDeviceCount])
+        delete inputDeviceList[inputDeviceCount];
 
-    InputDevices[InputDeviceCount] = new InputDeviceSDL();
+    inputDeviceList[inputDeviceCount] = new InputDeviceSDL();
 
-    InputDeviceSDL *device = (InputDeviceSDL *)InputDevices[InputDeviceCount];
+    InputDeviceSDL *device = (InputDeviceSDL *)inputDeviceList[inputDeviceCount];
 
     device->controllerPtr = SDL_GameControllerOpen(controllerID);
 
@@ -222,12 +222,12 @@ RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, uint8 contr
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (inputSlots[i] == id) {
-            InputSlotDevices[i] = device;
+            inputSlotDevices[i] = device;
             device->isAssigned  = true;
         }
     }
 
-    InputDeviceCount++;
+    inputDeviceCount++;
     return device;
 }
 

@@ -161,18 +161,18 @@ void RSDK::SKU::InputDevicePaddleboat::CloseDevice()
 
 RSDK::SKU::InputDevicePaddleboat *RSDK::SKU::InitPaddleboatInputDevice(uint32 id, uint8 controllerID)
 {
-    if (InputDeviceCount >= INPUTDEVICE_COUNT)
+    if (inputDeviceCount >= INPUTDEVICE_COUNT)
         return NULL;
 
-    if (InputDevices[InputDeviceCount] && InputDevices[InputDeviceCount]->active)
+    if (inputDeviceList[inputDeviceCount] && inputDeviceList[inputDeviceCount]->active)
         return NULL;
 
-    if (InputDevices[InputDeviceCount])
-        delete InputDevices[InputDeviceCount];
+    if (inputDeviceList[inputDeviceCount])
+        delete inputDeviceList[inputDeviceCount];
 
-    InputDevices[InputDeviceCount] = new InputDevicePaddleboat();
+    inputDeviceList[inputDeviceCount] = new InputDevicePaddleboat();
 
-    InputDevicePaddleboat *device = (InputDevicePaddleboat *)InputDevices[InputDeviceCount];
+    InputDevicePaddleboat *device = (InputDevicePaddleboat *)inputDeviceList[inputDeviceCount];
 
     device->controllerID = controllerID;
     GameActivityPointerAxes_enableAxis(controllerID);
@@ -211,7 +211,7 @@ RSDK::SKU::InputDevicePaddleboat *RSDK::SKU::InitPaddleboatInputDevice(uint32 id
         }
     }
 
-    InputDeviceCount++;
+    inputDeviceCount++;
     return device;
 }
 

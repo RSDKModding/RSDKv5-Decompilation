@@ -160,11 +160,11 @@ void RSDK::ProcessAnimation(Animator *animator)
     else { // sprite anim
         while (animator->timer > animator->frameDuration) {
             ++animator->frameID;
-
+        
             animator->timer -= animator->frameDuration;
             if (animator->frameID >= animator->frameCount)
                 animator->frameID = animator->loopIndex;
-
+        
             animator->frameDuration = animator->frames[animator->frameID].duration;
         }
     }

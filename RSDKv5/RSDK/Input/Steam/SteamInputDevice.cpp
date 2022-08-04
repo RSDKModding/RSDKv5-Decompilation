@@ -41,18 +41,18 @@ void InputDeviceSteam::ProcessInput(int32 controllerID)
 
 InputDeviceSteam *RSDK::SKU::InitSteamInputDevice(uint32 id)
 {
-    if (InputDeviceCount == INPUTDEVICE_COUNT)
+    if (inputDeviceCount == INPUTDEVICE_COUNT)
         return NULL;
 
-    if (InputDevices[InputDeviceCount] && InputDevices[InputDeviceCount]->active)
+    if (inputDeviceList[inputDeviceCount] && inputDeviceList[inputDeviceCount]->active)
         return NULL;
 
-    if (InputDevices[InputDeviceCount])
-        delete InputDevices[InputDeviceCount];
+    if (inputDeviceList[inputDeviceCount])
+        delete inputDeviceList[inputDeviceCount];
 
-    InputDevices[InputDeviceCount] = new InputDeviceSteam();
+    inputDeviceList[inputDeviceCount] = new InputDeviceSteam();
 
-    InputDeviceSteam *device = (InputDeviceSteam *)InputDevices[InputDeviceCount];
+    InputDeviceSteam *device = (InputDeviceSteam *)inputDeviceList[inputDeviceCount];
 
     device->gamepadType = (DEVICE_API_STEAM << 16) | (DEVICE_TYPE_STEAMOVERLAY << 8) | (DEVICE_KEYBOARD << 0);
     device->disabled    = false;
@@ -74,12 +74,12 @@ InputDeviceSteam *RSDK::SKU::InitSteamInputDevice(uint32 id)
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (inputSlots[i] == id) {
-            InputSlotDevices[i] = device;
+            inputSlotDevices[i] = device;
             device->isAssigned  = true;
         }
     }
 
-    InputDeviceCount++;
+    inputDeviceCount++;
     return device;
 }
 
