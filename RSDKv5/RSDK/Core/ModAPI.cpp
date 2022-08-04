@@ -127,6 +127,8 @@ void RSDK::InitModAPI()
     // StateMachine
     ADD_MOD_FUNCTION(ModTable_StateMachineRun, StateMachineRun);
     ADD_MOD_FUNCTION(ModTable_RegisterStateHook, RegisterStateHook);
+    ADD_MOD_FUNCTION(ModTable_HandleRunState_HighPriority, HandleRunState_HighPriority);
+    ADD_MOD_FUNCTION(ModTable_HandleRunState_LowPriority, HandleRunState_LowPriority);
 
     superLevels.clear();
     inheritLevel = 0;
@@ -151,6 +153,37 @@ void RSDK::SortMods()
         // keep it unsorted i guess
         return false;
     });
+}
+
+void RSDK::LoadModSettings()
+{
+    customUserFileDir[0] = 0;
+
+    modSettings.redirectSaveRAM = 0;
+    modSettings.disableGameLogic = 0;
+
+#if RETRO_REV0U
+    modSettings.versionOverride = 0;
+    modSettings.forceScripts = false;
+#endif
+
+    for (ModInfo &mod : modList) {
+        if (!mod.active)
+            continue;
+
+        if (mod.redirectSaveRAM) {
+            sprintf(customUserFileDir, "mods/%s/", mod.id.c_str());
+        }
+
+        modSettings.redirectSaveRAM |= mod.redirectSaveRAM ? 1 : 0;
+        modSettings.disableGameLogic |= mod.disableGameLogic ? 1 : 0;
+
+#if RETRO_REV0U
+        if (!modSettings.versionOverride && mod.forceVersion)
+            modSettings.versionOverride = mod.forceVersion;
+        modSettings.forceScripts |= mod.forceScripts ? 1 : 0;
+#endif
+    }
 }
 
 void RSDK::ScanModFolder(ModInfo *info)
@@ -1471,7 +1504,7 @@ void RSDK::StateMachineRun(void (*state)())
     }
 }
 
-bool32 RSDK::StateMachineRun_Pre(void *state)
+bool32 RSDK::HandleRunState_HighPriority(void *state)
 {
     bool32 skipState = false;
 
@@ -1483,7 +1516,7 @@ bool32 RSDK::StateMachineRun_Pre(void *state)
     return skipState;
 }
 
-void RSDK::StateMachineRun_Post(void *state, bool32 skipState)
+void RSDK::HandleRunState_LowPriority(void *state, bool32 skipState)
 {
     for (int32 h = 0; h < (int32)stateHookList.size(); ++h) {
         if (!stateHookList[h].priority && stateHookList[h].state == state && stateHookList[h].hook)

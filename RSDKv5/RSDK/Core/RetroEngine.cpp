@@ -154,6 +154,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                         devMenu.modsChanged = false;
                         SaveMods();
                         RefreshModFolders();
+                        LoadModSettings();
                         for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
 #if RETRO_REV02
                         forceHardReset = true;
@@ -169,6 +170,25 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                         SceneInfo pre      = sceneInfo;
                         int32 preGameMode  = RSDK::Legacy::gameMode;
                         int32 preStageMode = RSDK::Legacy::stageMode;
+
+                        // Clear some stuff
+                        sceneInfo.listData     = NULL;
+                        sceneInfo.listCategory = NULL;
+
+                        globalVarsPtr = NULL;
+#if RETRO_REV0U
+                        globalVarsInitCB = NULL;
+#endif
+                        dataStorage[DATASET_STG].entryCount = 0;
+                        dataStorage[DATASET_STG].usedStorage = 0;
+                        dataStorage[DATASET_SFX].entryCount  = 0;
+                        dataStorage[DATASET_SFX].usedStorage = 0;
+
+                        for (int32 o = 0; o < objectClassCount; ++o) {
+                            if (objectClassList[o].staticVars && *objectClassList[o].staticVars)
+                                (*objectClassList[o].staticVars) = NULL;
+                        }
+
 
                         InitEngine();
 
@@ -657,7 +677,7 @@ void RSDK::InitEngine()
 
 void RSDK::StartGameObjects()
 {
-    memset(&objectClassList, 0, OBJECT_COUNT * sizeof(ObjectClass));
+    memset(&objectClassList, 0, sizeof(objectClassList));
 
     sceneInfo.classCount     = 0;
     sceneInfo.activeCategory = 0;
@@ -1104,8 +1124,8 @@ void RSDK::InitGameLink()
 {
 #if RETRO_USE_MOD_LOADER
     objectClassCount = 0;
-    memset(globalObjectIDs, 0, sizeof(int32) * OBJECT_COUNT);
-    memset(objectEntityList, 0, sizeof(EntityBase) * ENTITY_COUNT);
+    memset(globalObjectIDs, 0, sizeof(globalObjectIDs));
+    memset(objectEntityList, 0, sizeof(objectEntityList));
     editableVarCount = 0;
     foreachStackPtr  = foreachStackList;
     currentMod       = NULL;

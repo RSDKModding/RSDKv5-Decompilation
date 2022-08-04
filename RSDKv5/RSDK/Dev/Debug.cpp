@@ -1862,6 +1862,7 @@ void RSDK::DevMenu_ModsMenu()
             uint32 scene                         = sceneInfo.listPos;
             dataStorage[DATASET_SFX].usedStorage = 0;
             RefreshModFolders();
+            LoadModSettings();
             DetectEngineVersion();
             if (!engine.version)
                 engine.version = devMenu.startingVersion;
@@ -1895,6 +1896,7 @@ void RSDK::DevMenu_ModsMenu()
             uint32 scene = sceneInfo.listPos;
             dataStorage[DATASET_SFX].usedStorage = 0;
             RefreshModFolders();
+            LoadModSettings();
             LoadGameConfig();
             sceneInfo.activeCategory = category;
             sceneInfo.listPos = scene;

@@ -89,6 +89,8 @@ enum ModFunctionTableIDs {
     ModTable_LoadShader,
     ModTable_StateMachineRun,
     ModTable_RegisterStateHook,
+    ModTable_HandleRunState_HighPriority,
+    ModTable_HandleRunState_LowPriority,
     ModTable_Count
 };
 
@@ -202,6 +204,7 @@ void LoadMods(bool newOnly = false);
 bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 active);
 void SaveMods();
 void SortMods();
+void LoadModSettings();
 
 inline std::vector<ModInfo *> ActiveMods()
 {
@@ -295,8 +298,8 @@ int32 GetAchievementIndexByID(const char *id);
 int32 GetAchievementCount();
 
 void StateMachineRun(void (*state)());
-bool32 StateMachineRun_Pre(void *state);
-void StateMachineRun_Post(void *state, bool32 skipState);
+bool32 HandleRunState_HighPriority(void *state);
+void HandleRunState_LowPriority(void *state, bool32 skipState);
 void RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority);
 #endif
 
