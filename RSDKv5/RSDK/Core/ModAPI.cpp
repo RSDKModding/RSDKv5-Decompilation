@@ -167,20 +167,17 @@ void RSDK::LoadModSettings()
     modSettings.forceScripts = false;
 #endif
 
-    for (ModInfo &mod : modList) {
-        if (!mod.active)
-            continue;
+    for (int i = ActiveMods().size() - 1; i >= 0; --i) {
+        ModInfo* mod = &modList[m];
 
-        if (mod.redirectSaveRAM) {
+        if (mod->redirectSaveRAM)
             sprintf(customUserFileDir, "mods/%s/", mod.id.c_str());
-        }
-
+        
         modSettings.redirectSaveRAM |= mod.redirectSaveRAM ? 1 : 0;
         modSettings.disableGameLogic |= mod.disableGameLogic ? 1 : 0;
 
 #if RETRO_REV0U
-        if (!modSettings.versionOverride && mod.forceVersion)
-            modSettings.versionOverride = mod.forceVersion;
+        modSettings.versionOverride = mod.forceVersion;
         modSettings.forceScripts |= mod.forceScripts ? 1 : 0;
 #endif
     }
@@ -370,7 +367,7 @@ void RSDK::LoadMods(bool newOnly)
             PrintLog(PRINT_ERROR, "Mods folder scanning error: %s", fe.what());
         }
     }
-    SortMods();
+    LoadModSettings(); // implicit SortMods
 }
 
 void loadCfg(ModInfo *info, std::string path)
@@ -645,19 +642,6 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
             }
             fClose(cfg);
         }
-
-        if (info->redirectSaveRAM) {
-            sprintf(customUserFileDir, "mods/%s/", info->id.c_str());
-        }
-
-        modSettings.redirectSaveRAM |= info->redirectSaveRAM ? 1 : 0;
-        modSettings.disableGameLogic |= info->disableGameLogic ? 1 : 0;
-
-#if RETRO_REV0U
-        if (!modSettings.versionOverride && info->forceVersion)
-            modSettings.versionOverride = info->forceVersion;
-        modSettings.forceScripts |= info->forceScripts ? 1 : 0;
-#endif
 
         iniparser_freedict(ini);
         currentMod = cur;
