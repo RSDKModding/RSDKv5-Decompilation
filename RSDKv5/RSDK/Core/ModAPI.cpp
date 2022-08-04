@@ -173,12 +173,13 @@ void RSDK::LoadModSettings()
         if (mod->redirectSaveRAM)
             sprintf(customUserFileDir, "mods/%s/", mod.id.c_str());
         
-        modSettings.redirectSaveRAM |= mod.redirectSaveRAM ? 1 : 0;
-        modSettings.disableGameLogic |= mod.disableGameLogic ? 1 : 0;
+        modSettings.redirectSaveRAM |= mod->redirectSaveRAM ? 1 : 0;
+        modSettings.disableGameLogic |= mod->disableGameLogic ? 1 : 0;
 
 #if RETRO_REV0U
-        modSettings.versionOverride = mod.forceVersion;
-        modSettings.forceScripts |= mod.forceScripts ? 1 : 0;
+        if (mod->forceVersion)
+            modSettings.versionOverride = mod->forceVersion;
+        modSettings.forceScripts |= mod->forceScripts ? 1 : 0;
 #endif
     }
 }
