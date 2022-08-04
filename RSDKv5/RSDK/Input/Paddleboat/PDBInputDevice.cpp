@@ -201,12 +201,12 @@ RSDK::SKU::InputDevicePaddleboat *RSDK::SKU::InitPaddleboatInputDevice(uint32 id
 
     device->active      = true;
     device->disabled    = false;
-    device->gamePadType = (DEVICE_API_PDBOAT << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (controllerType << 0);
-    device->inputID     = id;
+    device->gamepadType = (DEVICE_API_PDBOAT << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (controllerType << 0);
+    device->id     = id;
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        if (activeControllers[i] == id) {
-            activeInputDevices[i] = device;
+        if (inputSlots[i] == id) {
+            InputSlotDevices[i] = device;
             device->isAssigned    = true;
         }
     }
