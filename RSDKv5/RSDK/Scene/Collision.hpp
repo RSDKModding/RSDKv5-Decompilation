@@ -130,9 +130,9 @@ bool32 ObjectTileGrip(Entity *entity, uint16 cLayers, uint8 cMode, uint8 cPlane,
 void ProcessObjectMovement(Entity *entity, Hitbox *outerBox, Hitbox *innerBox);
 
 void ProcessPathGrip();
-void ProcessAirCollision();
+void ProcessAirCollision_Down();
 #if RETRO_REV0U
-void ProcessAirCollisionFlipped();
+void ProcessAirCollision_Up();
 #endif
 
 void SetPathGripSensors(CollisionSensor *cSensors);

@@ -972,9 +972,9 @@ void RSDK::ProcessObjectMovement(Entity *entity, Hitbox *outerBox, Hitbox *inner
                 useCollisionOffset = false;
                 // true = normal, false = flipped
                 if (entity->tileCollisions == TILECOLLISION_DOWN)
-                    ProcessAirCollision();
+                    ProcessAirCollision_Down();
                 else
-                    ProcessAirCollisionFlipped();
+                    ProcessAirCollision_Up();
             }
 #else
             if (collisionOuter.bottom >= 14) {
@@ -990,7 +990,7 @@ void RSDK::ProcessObjectMovement(Entity *entity, Hitbox *outerBox, Hitbox *inner
             if (entity->onGround)
                 ProcessPathGrip();
             else
-                ProcessAirCollision();
+                ProcessAirCollision_Down();
 #endif
 
             if (entity->onGround) {
@@ -1008,7 +1008,7 @@ void RSDK::ProcessObjectMovement(Entity *entity, Hitbox *outerBox, Hitbox *inner
     }
 }
 
-void RSDK::ProcessAirCollision()
+void RSDK::ProcessAirCollision_Down()
 {
     uint8 movingDown  = 0;
     uint8 movingUp    = 0;
@@ -1307,7 +1307,7 @@ void RSDK::ProcessAirCollision()
     }
 }
 #if RETRO_REV0U
-void RSDK::ProcessAirCollisionFlipped()
+void RSDK::ProcessAirCollision_Up()
 {
     uint8 movingDown  = 0;
     uint8 movingUp    = 0;
@@ -1502,12 +1502,12 @@ void RSDK::ProcessAirCollisionFlipped()
             collisionEntity->angle      = sensors[5].angle;
         }
 
-        if ((uint8)(collisionEntity->angle - 0xA3) <= 0x3C && collisionEntity->collisionMode != CMODE_LWALL) {
+        if (collisionEntity->angle > 0xA2 && collisionEntity->angle < 0xE0 && collisionEntity->collisionMode != CMODE_LWALL) {
             collisionEntity->collisionMode = CMODE_LWALL;
             collisionEntity->position.x -= 0x40000;
         }
 
-        if ((uint8)(collisionEntity->angle - 0x21) <= 0x3C && collisionEntity->collisionMode != CMODE_RWALL) {
+        if (collisionEntity->angle > 0x20 && collisionEntity->angle < 0x5E && collisionEntity->collisionMode != CMODE_RWALL) {
             collisionEntity->collisionMode = CMODE_RWALL;
             collisionEntity->position.x += 0x40000;
         }
@@ -1572,7 +1572,7 @@ void RSDK::ProcessAirCollisionFlipped()
         }
         sensorAngle &= 0xFF;
 
-        if ((uint8)(sensorAngle - 0x1F) <= 0x21) {
+        if (sensorAngle >= 0x21 && sensorAngle <= 0x40) {
             if (collisionEntity->velocity.y > -abs(collisionEntity->velocity.x)) {
                 collisionEntity->onGround      = true;
                 collisionEntity->angle         = sensorAngle;
@@ -1584,7 +1584,7 @@ void RSDK::ProcessAirCollisionFlipped()
             }
         }
 
-        if ((uint8)(sensorAngle + 0x40) <= 0x21) {
+        if (sensorAngle >= 0xC0 && sensorAngle <= 0xE2) {
             if (collisionEntity->velocity.y > -abs(collisionEntity->velocity.x)) {
                 collisionEntity->onGround      = true;
                 collisionEntity->angle         = sensorAngle;
