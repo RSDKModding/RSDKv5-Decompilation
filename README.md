@@ -3,14 +3,13 @@
 A complete decompilation of Retro Engine v5 and v5Ultimate.
 
 # **SUPPORT THE DEVELOPERS OF THE RETRO ENGINE**
-We do not own the Retro Engine in any way, shape or form, and this project would not have been possible had they not developed RSDKv5 in the first place. Retro Engine is currently owned by [Evening Star](https://eveningstar.studio/); we highly urge you to follow & support their projects if you enjoyed this project of ours!
+We do not own the Retro Engine in any way, shape or form, and this project would not have been possible had they not developed RSDKv5(U) in the first place. Retro Engine is currently owned by [Evening Star](https://eveningstar.studio/); we highly urge you to follow & support their projects if you enjoyed this project of ours!
 
-## **DO NOT USE THIS DECOMPILATION PROJECT AS A MEANS TO PIRATE SONIC MANIA OR ANY OTHER RSDKv5 GAMES.**
+## **DO NOT USE THIS DECOMPILATION PROJECT AS A MEANS TO PIRATE SONIC MANIA OR ANY OTHER RSDKv5(U) GAMES.**
 We do not condone using this project as a means for piracy in any form. This project was made with love and care for the source material and was created for purely educational purposes.
 
 # Additional Tweaks
 * Added a built-in mod loader and API allowing to easily create and play mods with features such as save file redirection and XML asset loading, supported by all sub-versions of v5U.
-* 
 * Added a built-in shader compiler for backends/platforms that support it.
 * Added various other backends to windows aside from the usual DirectX 9 backends
 
