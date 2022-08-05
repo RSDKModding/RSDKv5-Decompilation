@@ -77,8 +77,8 @@ bool RenderDevice::Init()
     wndClass.cbClsExtra    = 0;
     wndClass.cbWndExtra    = sizeof(LONG);
     wndClass.hInstance     = hInstance;
-    wndClass.hIcon         = LoadIcon(handle, MAKEINTRESOURCE(IDI_ICON1));
-    wndClass.hCursor       = LoadCursor(NULL, IDI_APPLICATION);
+    wndClass.hIcon         = LoadIcon(handle, MAKEINTRESOURCE(IDI_APPLICATION));
+    wndClass.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName  = NULL;
     wndClass.lpszClassName = gameTitle;
