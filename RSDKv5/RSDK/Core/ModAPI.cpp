@@ -159,20 +159,20 @@ void RSDK::LoadModSettings()
 {
     customUserFileDir[0] = 0;
 
-    modSettings.redirectSaveRAM = 0;
+    modSettings.redirectSaveRAM  = 0;
     modSettings.disableGameLogic = 0;
 
 #if RETRO_REV0U
     modSettings.versionOverride = 0;
-    modSettings.forceScripts = false;
+    modSettings.forceScripts    = false;
 #endif
 
     for (int i = ActiveMods().size() - 1; i >= 0; --i) {
-        ModInfo* mod = &modList[m];
+        ModInfo *mod = &modList[i];
 
         if (mod->redirectSaveRAM)
             sprintf(customUserFileDir, "mods/%s/", mod->id.c_str());
-        
+
         modSettings.redirectSaveRAM |= mod->redirectSaveRAM ? 1 : 0;
         modSettings.disableGameLogic |= mod->disableGameLogic ? 1 : 0;
 
