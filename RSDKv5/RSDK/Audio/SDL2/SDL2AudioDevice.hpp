@@ -1,7 +1,8 @@
-
 #define LockAudioDevice()   SDL_LockAudio()
 #define UnlockAudioDevice() SDL_UnlockAudio()
 
+namespace RSDK
+{
 class AudioDevice : public AudioDeviceBase
 {
 public:
@@ -31,3 +32,4 @@ private:
 
     static void AudioCallback(void *data, uint8 *stream, int32 len);
 };
+} // namespace RSDK

@@ -170,20 +170,21 @@ void ClearStageSfx();
 void ClearGlobalSfx();
 #endif
 
+#if RETRO_REV0U
+#include "Legacy/AudioLegacy.hpp"
+#endif
+
+} // namespace RSDK
+
+
 #if RETRO_AUDIODEVICE_XAUDIO
 #include "XAudio/XAudioDevice.hpp"
 #elif RETRO_AUDIODEVICE_NX
 #include "NX/NXAudioDevice.hpp"
 #elif RETRO_AUDIODEVICE_SDL2
 #include "SDL2/SDL2AudioDevice.hpp"
-#elif RETRO_AUDIODEVICE_AAUDIO
-#include "AAudio/AAudioDevice.hpp"
+#elif RETRO_AUDIODEVICE_OBOE
+#include "Oboe/OboeAudioDevice.hpp"
 #endif
-
-#if RETRO_REV0U
-#include "Legacy/AudioLegacy.hpp"
-#endif
-
-} // namespace RSDK
 
 #endif

@@ -1,8 +1,9 @@
-
 #define LockAudioDevice()   EnterCriticalSection(&AudioDevice::criticalSection)
 #define UnlockAudioDevice() LeaveCriticalSection(&AudioDevice::criticalSection)
 
 // DX9
+namespace RSDK
+{
 class AudioDeviceCallback : public IXAudio2VoiceCallback
 {
     void WINAPI OnVoiceProcessingPassStart(UINT32 BytesRequired) {}
@@ -52,3 +53,4 @@ private:
         return 0;
     }
 };
+} // namespace RSDK

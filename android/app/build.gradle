@@ -8,14 +8,14 @@ android {
     }
     defaultConfig {
         applicationId "com.decomp.rsdkv5"
-        minSdkVersion 27
+        minSdkVersion 17
         //minSdkVersion 30 // if you're getting framerate issues, uncomment this
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
             cmake {
-                arguments = ["-DANDROID_STL=c++_static", "-DPLATFORM=Android"]
+                arguments = ["-DANDROID_STL=c++_shared", "-DPLATFORM=Android"]
             }
         }
         ndk {
@@ -51,4 +51,5 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation "androidx.games:games-activity:1.1.0-beta03"
     implementation "androidx.games:games-controller:1.1.0-beta01"
+    implementation 'com.google.oboe:oboe:1.5.0'
 }

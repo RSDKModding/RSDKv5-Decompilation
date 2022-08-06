@@ -1,36 +1,36 @@
+#include <oboe/AudioStreamBuilder.h>
 
 uint8 AudioDevice::contextInitialized;
-aaudio_result_t AudioDevice::status = AAUDIO_OK;
-AAudioStream *AudioDevice::stream;
+oboe::Result AudioDevice::status = oboe::Result::OK;
+oboe::AudioStream *AudioDevice::stream;
 pthread_mutex_t AudioDevice::mutex;
+
+// REAL LINE I WROTE
+AudioDevice* AudioDevice::audioDevice;
 
 bool32 AudioDevice::Init()
 {
     if (!contextInitialized) {
         contextInitialized = true;
         InitAudioChannels();
+        audioDevice = new AudioDevice();
     }
 
-    AAudioStreamBuilder *builder;
-    aaudio_result_t result = AAudio_createStreamBuilder(&builder);
-    if (result != AAUDIO_OK)
+    oboe::AudioStreamBuilder builder;
+
+    builder.setSampleRate(AUDIO_FREQUENCY)
+        ->setFormat(oboe::AudioFormat::Float)
+        ->setChannelCount(AUDIO_CHANNELS)
+        ->setBufferCapacityInFrames(MIX_BUFFER_SIZE)
+        ->setPerformanceMode(oboe::PerformanceMode::LowLatency)
+        ->setDataCallback(audioDevice)
+        ->setErrorCallback(audioDevice);
+
+    oboe::Result result = builder.openStream(&stream);
+    if (result != oboe::Result::OK)
         return false;
 
-    AAudioStreamBuilder_setSampleRate(builder, AUDIO_FREQUENCY);
-    AAudioStreamBuilder_setFormat(builder, AAUDIO_FORMAT_PCM_FLOAT);
-    AAudioStreamBuilder_setChannelCount(builder, AUDIO_CHANNELS);
-    AAudioStreamBuilder_setBufferCapacityInFrames(builder, MIX_BUFFER_SIZE);
-    AAudioStreamBuilder_setPerformanceMode(builder, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
-    AAudioStreamBuilder_setDataCallback(builder, AudioCallback, NULL);
-    AAudioStreamBuilder_setErrorCallback(builder, ErrorCallback, NULL);
-
-    result = AAudioStreamBuilder_openStream(builder, &stream);
-    if (result != AAUDIO_OK)
-        return false;
-
-    AAudioStreamBuilder_delete(builder);
-    AAudioStream_requestStart(stream);
-
+    stream->requestStart();
     return true;
 }
 
@@ -168,26 +168,24 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
     UnlockAudioDevice();
 }
 
-aaudio_data_callback_result_t AudioDevice::AudioCallback(AAudioStream *s, void *d, void *data, int32 len)
+oboe::DataCallbackResult AudioDevice::onAudioReady(oboe::AudioStream *s, void *data, int32 len)
 {
-    (void)d; // Unused
-
     if (s != stream)
-        return AAUDIO_CALLBACK_RESULT_STOP;
+        return oboe::DataCallbackResult::Stop;
     AudioDevice::ProcessAudioMixing(data, len * AUDIO_CHANNELS);
-    return AAUDIO_CALLBACK_RESULT_CONTINUE;
+    return oboe::DataCallbackResult::Continue;
 }
 
-void AudioDevice::ErrorCallback(AAudioStream *s, void *d, aaudio_result_t error)
+bool AudioDevice::onError(oboe::AudioStream *s, oboe::Result error)
 {
     (void)s;
-    (void)d;
     status = error;
+    return false;
 }
 
 void AudioDevice::Release()
 {
-    AAudioStream_close(stream);
+    stream->close();
     if (vorbisInfo) {
         vorbis_deinit(vorbisInfo);
         if (!vorbisInfo->alloc.alloc_buffer)
@@ -199,9 +197,9 @@ void AudioDevice::Release()
 
 void AudioDevice::FrameInit()
 {
-    if (status != AAUDIO_OK) {
-        AAudioStream_requestStop(stream);
-        AAudioStream_close(stream);
+    if (status != oboe::Result::OK) {
+        stream->requestStop();
+        stream->close();
         Init();
     }
 };

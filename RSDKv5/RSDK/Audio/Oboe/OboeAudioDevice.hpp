@@ -1,9 +1,11 @@
 #define LockAudioDevice()   pthread_mutex_lock(&AudioDevice::mutex);
 #define UnlockAudioDevice() pthread_mutex_unlock(&AudioDevice::mutex);
 
-#include <aaudio/AAudio.h>
+#include <oboe/Oboe.h>
 
-struct AudioDevice : public AudioDeviceBase {
+namespace RSDK
+{
+struct AudioDevice : public AudioDeviceBase, public oboe::AudioStreamDataCallback, public oboe::AudioStreamErrorCallback {
     static bool32 Init();
     static void Release();
 
@@ -14,21 +16,24 @@ struct AudioDevice : public AudioDeviceBase {
     static void HandleStreamLoad(ChannelInfo *channel, bool32 async);
 
     static pthread_mutex_t mutex;
+
+    oboe::DataCallbackResult onAudioReady(oboe::AudioStream *, void *data, int32 len);
+    bool onError(oboe::AudioStream *, oboe::Result error);
+
 private:
     static uint8 contextInitialized;
-    static aaudio_result_t status;
-    static AAudioStream *stream;
+    static oboe::Result status;
+    static oboe::AudioStream *stream;
 
+    static AudioDevice *audioDevice; // can't believe i have to do this
 
     static void InitAudioChannels();
     static void InitMixBuffer() {}
 
-    static void ErrorCallback(AAudioStream* stream, void*, aaudio_result_t error);
-    static aaudio_data_callback_result_t AudioCallback(AAudioStream* stream, void *, void *data, int32 len);
-    
-    static void* LoadStreamASync(void* channel)
+    static void *LoadStreamASync(void *channel)
     {
         LoadStream((ChannelInfo *)channel);
         pthread_exit(NULL);
     };
 };
+} // namespace RSDK

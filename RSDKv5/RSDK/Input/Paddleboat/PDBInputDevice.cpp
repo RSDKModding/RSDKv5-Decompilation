@@ -206,7 +206,7 @@ RSDK::SKU::InputDevicePaddleboat *RSDK::SKU::InitPaddleboatInputDevice(uint32 id
 
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
         if (inputSlots[i] == id) {
-            InputSlotDevices[i] = device;
+            inputSlotDevices[i] = device;
             device->isAssigned    = true;
         }
     }

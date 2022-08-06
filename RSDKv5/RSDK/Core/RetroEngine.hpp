@@ -174,7 +174,7 @@ enum GameRegions {
 #define RETRO_AUDIODEVICE_NX     (0)
 // CUSTOM
 #define RETRO_AUDIODEVICE_SDL2   (0)
-#define RETRO_AUDIODEVICE_AAUDIO (0)
+#define RETRO_AUDIODEVICE_OBOE (0)
 
 // ============================
 // INPUT DEVICE BACKENDS
@@ -363,8 +363,8 @@ enum GameRegions {
 #define RETRO_RENDERDEVICE_EGL (1)
 #undef RETRO_INPUTDEVICE_PDBOAT
 #define RETRO_INPUTDEVICE_PDBOAT (1)
-#undef RETRO_AUDIODEVICE_AAUDIO
-#define RETRO_AUDIODEVICE_AAUDIO (1)
+#undef RETRO_AUDIODEVICE_OBOE
+#define RETRO_AUDIODEVICE_OBOE (1)
 #else
 #error RSDK_USE_GL3 must be defined.
 #endif

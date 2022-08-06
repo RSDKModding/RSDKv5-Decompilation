@@ -98,6 +98,7 @@ target_compile_options(RetroEngine PRIVATE -fexceptions -frtti -DRSDK_USE_GL3)
 
 find_package(games-controller REQUIRED CONFIG)
 find_package(game-activity REQUIRED CONFIG)
+find_package(oboe REQUIRED CONFIG)
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u GameActivity_onCreate")
 
@@ -111,7 +112,8 @@ target_link_libraries(
     log
     z
     jnigraphics
-    aaudio # TODO: replace with oboe now that i'm using cmake
     games-controller::paddleboat_static
     game-activity::game-activity
+    oboe::oboe
+    OpenSLES
 )
