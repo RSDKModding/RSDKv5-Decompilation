@@ -14,15 +14,21 @@ We do not condone using this project as a means for piracy in any form. This pro
 * Added various other backends to windows aside from the usual DirectX 9 backends
 
 # How to Build
-Firstly, follow the steps in [the common dependency readme](./dependencies/all/README.md) to install the common dependencies, then follow the steps for your platform of choice.
+First, follow the steps in [the common dependency README](./dependencies/all/README.md), then follow the steps for your platform of choice:
 
-## [Windows](./dependencies/windows/README.md)
+* ### [Windows](./dependencies/windows/README.md)
 
-## [Linux](./dependencies/linux/README.md)
+* ### [Mac](./dependencies/mac/README.md)
 
-## [Mac](./dependencies/linux/README.md)
+* ### Linux/Switch
+  * Follow the [GL3 README](../gl3/README.md) to setup the renderer's dependencies, then simply build using `make`.
+  * **For Linux, extra dependencies may be required:**
+    * On Ubuntu: `sudo apt install libsdl2-dev`
+    * On Fedora: `sudo dnf install SDL2-devel`
+    * On Arch: `sudo pacman -S sdl2` 
+  * For Switch, pass `PLATFORM=Switch` to the `make` command. 
 
-## [Android](./dependencies/android/README.md)
+* ### [Android](./dependencies/android/README.md)
 
 ### Other Platforms
 Currently, the only officially supported platforms are the ones listed above. However, the backend is very modular, so the codebase is very multiplatform.
@@ -44,8 +50,8 @@ A: No. This is the last decompilation from us. This project took about 1 and a h
 A: Absolutely not. Between the last two and this one, we're done with decompiling, at least for the time being. Please do not expect any more decompilations from us, Sonic or otherwise!
 
 # Special Thanks
-* [Chuli](https://github.com/MGRich) for general decompilation assistance, helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
-* The Weigman for creating the header you see up here along with similar assets
+* [Chuli](https://github.com/MGRich) for leading ModAPI development, porting to other platforms, general decompilation assistance, helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
+* The Weigman for creating the asset bases such as the header and icons (originally made for RSDKv3 and v4, modified by Chuli)
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine) for being supportive of me and for giving me a place to show off these things that I've found
 
 # Contact:

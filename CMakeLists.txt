@@ -1,4 +1,5 @@
 # THIS CMAKE SHOULD BE USED FOR ANDROID ONLY
+# might make this all plats later but not needed for now, the Makefile works fine
 
 cmake_minimum_required(VERSION 3.7)
 

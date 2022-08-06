@@ -17,4 +17,4 @@
 
     Download the appropriate development library for your compiler and unzip it in "./SDL2/"
 
-* For the GL3 backends, visit the GL3 readme [here.](../gl3/README.md)
+* For the GL3 backends, visit the GL3 README [here.](../gl3/README.md)
