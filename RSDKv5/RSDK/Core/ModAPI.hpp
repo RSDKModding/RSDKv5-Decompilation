@@ -99,8 +99,6 @@ typedef std::function<void(void *data)> ModCallbackSTD;
 
 typedef bool (*modLink)(GameInfo *, const char *);
 typedef std::function<bool(GameInfo *, const char *)> modLinkSTD;
-typedef const char *(*langSetup)(GameInfo *, const char *);
-typedef modLink (*newLangLink)(const char *, const char *, int32 *);
 
 struct ModPublicFunctionInfo {
     std::string name;

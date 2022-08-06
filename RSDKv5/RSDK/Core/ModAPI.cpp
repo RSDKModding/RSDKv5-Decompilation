@@ -159,8 +159,8 @@ void RSDK::LoadModSettings()
 {
     customUserFileDir[0] = 0;
 
-    modSettings.redirectSaveRAM  = 0;
-    modSettings.disableGameLogic = 0;
+    modSettings.redirectSaveRAM  = false;
+    modSettings.disableGameLogic = false;
 
 #if RETRO_REV0U
     modSettings.versionOverride = 0;
