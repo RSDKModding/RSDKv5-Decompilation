@@ -46,10 +46,12 @@ void RSDK::DetectEngineVersion()
         if (LoadFile(&checkInfo, "Data/Game/GameConfig.bin", FMODE_RB)) {
             readDataPack = false;
             CloseFile(&checkInfo);
+            m = 0; // found one, just sets this to 0 again
             break;
         }
     }
-    if (m && readDataPack)
+
+    if (m) // didn't find a gameconfig
         SetActiveMod(-1);
 #endif
 

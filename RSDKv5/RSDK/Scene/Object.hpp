@@ -72,7 +72,7 @@ enum ActiveFlags {
     ACTIVE_NEVER,   // never update
     ACTIVE_ALWAYS,  // always update (even if paused/frozen)
     ACTIVE_NORMAL,  // always update (unless paused/frozen)
-    ACTIVE_PAUSED,  // update if paused
+    ACTIVE_PAUSED,  // update only when paused/frozen
     ACTIVE_BOUNDS,  // update if in x & y bounds
     ACTIVE_XBOUNDS, // update only if in x bounds (y bounds dont matter)
     ACTIVE_YBOUNDS, // update only if in y bounds (x bounds dont matter)

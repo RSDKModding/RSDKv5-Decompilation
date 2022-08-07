@@ -1234,13 +1234,6 @@ void SuperInternal(RSDK::ObjectClass *super, RSDK::ModSuper callback, void *data
                 super->stageLoad();
             break;
 
-#if RETRO_REV0U
-        case SUPER_STATICLOAD:
-            if (super->staticLoad)
-                super->staticLoad((Object *)data);
-            break;
-#endif
-
         case SUPER_EDITORDRAW:
             if (super->editorDraw)
                 super->editorDraw();
@@ -1411,7 +1404,8 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, co
         if (!create)       info->create       = [curMod, info](void* data)          { currentMod = curMod; SuperInternal(info, SUPER_CREATE, data);            currentMod = NULL; };
         if (!stageLoad)    info->stageLoad    = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_STAGELOAD, NULL);         currentMod = NULL; };
 #if RETRO_REV0U
-        if (!staticLoad)   info->staticLoad   = [curMod, info](Object *staticVars)  { currentMod = curMod; SuperInternal(info, SUPER_STATICLOAD, staticVars);  currentMod = NULL; };
+        // Don't inherit staticLoad, that should be per-struct
+        // if (!staticLoad)   info->staticLoad   = [curMod, info](Object *staticVars)  { currentMod = curMod; SuperInternal(info, SUPER_STATICLOAD, staticVars);  currentMod = NULL; };
 #endif
         if (!editorDraw)   info->editorDraw   = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_EDITORDRAW, NULL);        currentMod = NULL; };
         if (!editorLoad)   info->editorLoad   = [curMod, info]()                    { currentMod = curMod; SuperInternal(info, SUPER_EDITORLOAD, NULL);        currentMod = NULL; };

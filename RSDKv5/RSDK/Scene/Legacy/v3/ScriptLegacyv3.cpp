@@ -3355,7 +3355,7 @@ void RSDK::Legacy::v3::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 newEnt->YPos          = scriptEng.operands[4];
                 newEnt->direction     = FLIP_NONE;
                 newEnt->frame         = 0;
-                newEnt->priority      = PRIORITY_ACTIVE_BOUNDS;
+                newEnt->priority      = PRIORITY_BOUNDS;
                 newEnt->rotation      = 0;
                 newEnt->state         = 0;
                 newEnt->drawOrder     = 3;

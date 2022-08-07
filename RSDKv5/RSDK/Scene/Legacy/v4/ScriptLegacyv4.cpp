@@ -660,9 +660,9 @@ ScriptVariableInfo scriptValueList[LEGACY_v4_SCRIPT_VAR_COUNT] = {
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FACE_TEXTURED_C", "5"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FACE_TEXTURED_C_BLEND", "6"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FACE_SPRITE_3D", "7"),
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_ACTIVE_BOUNDS", "0"),
+    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_BOUNDS", "0"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_ACTIVE", "1"),
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_ACTIVE_PAUSED", "2"),
+    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_ALWAYS", "2"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_XBOUNDS", "3"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_XBOUNDS_DESTROY", "4"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_INACTIVE", "5"),
@@ -3438,7 +3438,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                         int32 x          = entPtr->xpos >> 16;
                         int32 y          = entPtr->ypos >> 16;
 
-                        if (entPtr->priority == PRIORITY_ACTIVE_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_SMALL) {
+                        if (entPtr->priority == PRIORITY_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_SMALL) {
                             if (stageMode == STAGEMODE_2P) {
                                 x = entPtr->xpos;
                                 y = entPtr->ypos;
@@ -4649,7 +4649,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 newEnt->xpos               = scriptEng.operands[3];
                 newEnt->ypos               = scriptEng.operands[4];
                 newEnt->direction          = FLIP_NONE;
-                newEnt->priority           = PRIORITY_ACTIVE_BOUNDS;
+                newEnt->priority           = PRIORITY_BOUNDS;
                 newEnt->drawOrder          = 3;
                 newEnt->scale              = 512;
                 newEnt->inkEffect          = INK_NONE;
