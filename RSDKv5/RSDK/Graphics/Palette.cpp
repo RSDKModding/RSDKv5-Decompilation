@@ -58,7 +58,7 @@ void RSDK::BlendColors(uint8 destBankID, uint32 *srcColorsA, uint32 *srcColorsB,
     if (destBankID >= PALETTE_BANK_COUNT || !srcColorsA || !srcColorsB)
         return;
 
-    blendAmount = clampVal(blendAmount, 0x00, 0xFF);
+    blendAmount = CLAMP(blendAmount, 0x00, 0xFF);
 
     uint8 blendA         = 0xFF - blendAmount;
     uint16 *paletteColor = &fullPalette[destBankID][startIndex];
@@ -81,8 +81,8 @@ void RSDK::SetPaletteFade(uint8 destBankID, uint8 srcBankA, uint8 srcBankB, int1
     if (destBankID >= PALETTE_BANK_COUNT || srcBankA >= PALETTE_BANK_COUNT || srcBankB >= PALETTE_BANK_COUNT)
         return;
 
-    blendAmount = clampVal(blendAmount, 0x00, 0xFF);
-    endIndex    = minVal(endIndex, 0x100);
+    blendAmount = CLAMP(blendAmount, 0x00, 0xFF);
+    endIndex    = MIN(endIndex, 0x100);
 
     if (startIndex >= endIndex)
         return;

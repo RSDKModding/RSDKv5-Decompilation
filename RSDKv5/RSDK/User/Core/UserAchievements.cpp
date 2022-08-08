@@ -135,7 +135,7 @@ void RSDK::SKU::ProcessAchievements()
                             GetStringWidth(achievementAniFrames[1], 0, &achievementStrings[1], 0, achievementStrings[1].length, 0);
                     }
 
-                    achievementStrW = maxVal(achievementStringWidth[0], achievementStringWidth[1]) + 16;
+                    achievementStrW = MAX(achievementStringWidth[0], achievementStringWidth[1]) + 16;
                     achievementStrX = achievementStringWidth[1] > achievementStringWidth[0] ? 20 : 0;
                 }
             }
@@ -163,22 +163,22 @@ void RSDK::SKU::DrawAchievements()
             DrawRectangle(drawX, currentScreen->size.y - 40, achievementStrW - achievementStrX, 40, 0xFF107C, 0x10, INK_NONE, true);
 
             Vector2 vertices[3];
-            vertices[0].x = (drawX - 40) << 16;
-            vertices[0].y = currentScreen->size.y << 16;
-            vertices[1].x = drawX << 16;
-            vertices[1].y = (currentScreen->size.y - 40) << 16;
-            vertices[2].x = drawX << 16;
-            vertices[2].y = currentScreen->size.y << 16;
+            vertices[0].x = TO_FIXED(drawX - 40);
+            vertices[0].y = TO_FIXED(currentScreen->size.y);
+            vertices[1].x = TO_FIXED(drawX);
+            vertices[1].y = TO_FIXED(currentScreen->size.y - 40);
+            vertices[2].x = TO_FIXED(drawX);
+            vertices[2].y = TO_FIXED(currentScreen->size.y);
             DrawFace(vertices, 3, 0xFF, 0x10, 0x7C, 0x10, INK_NONE);
 
-            drawPos.x = (drawX - achievementStrX + achievementStrW - 8) << 16;
-            drawPos.y = vertices[1].y + 0xA0000;
+            drawPos.x = TO_FIXED(drawX - achievementStrX + achievementStrW - 8);
+            drawPos.y = vertices[1].y + TO_FIXED(10);
             SetSpriteString(achievementAniFrames[0], 0, &achievementStrings[0]);
             DrawString(&achievementAnimator[0], &drawPos, &achievementStrings[0], 0, achievementStrings[0].length, ALIGN_CENTER, 0, 0, NULL, true);
 
-            vertices[1].y += 0x1C0000;
+            vertices[1].y += TO_FIXED(28);
 
-            drawPos.x = (drawX - achievementStrX + achievementStrW - 8) << 16;
+            drawPos.x = TO_FIXED(drawX - achievementStrX + achievementStrW - 8);
             drawPos.y = vertices[1].y;
             SetSpriteString(achievementAniFrames[1], 0, &achievementStrings[1]);
             DrawString(&achievementAnimator[1], &drawPos, &achievementStrings[1], 0, achievementStrings[1].length, ALIGN_CENTER, 0, 0, NULL, true);

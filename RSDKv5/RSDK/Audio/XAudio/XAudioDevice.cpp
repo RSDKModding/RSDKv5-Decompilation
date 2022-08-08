@@ -140,8 +140,8 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
                     SAMPLE_FORMAT sample = (sfxBuffer[1] - *sfxBuffer) * speedMixAmounts[speedPercent >> 6] + *sfxBuffer;
 
                     speedPercent += channel->speed;
-                    sfxBuffer += speedPercent >> 16;
-                    channel->bufferPos += speedPercent >> 16;
+                    sfxBuffer += FROM_FIXED(speedPercent);
+                    channel->bufferPos += FROM_FIXED(speedPercent);
                     speedPercent &= 0xFFFF;
 
                     curStreamF[0] += sample * panR;
@@ -186,7 +186,7 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
                 SAMPLE_FORMAT *curStreamF = streamF;
                 while (curStreamF < streamEndF && streamF < streamEndF) {
                     speedPercent += channel->speed;
-                    int32 next = speedPercent >> 16;
+                    int32 next = FROM_FIXED(speedPercent);
                     speedPercent &= 0xFFFF;
 
                     curStreamF[0] += panR * *streamBuffer;

@@ -207,17 +207,17 @@ char RSDK::drawGroupNames[0x10][0x10] = {
 
 // Additive Blending
 #define setPixelAdditive(pixel, frameBufferClr)                                                                                                      \
-    int32 R = minVal((blendTablePtr[(pixel & 0xF800) >> 11] << 11) + (frameBufferClr & 0xF800), 0xF800);                                             \
-    int32 G = minVal((blendTablePtr[(pixel & 0x7E0) >> 6] << 6) + (frameBufferClr & 0x7E0), 0x7E0);                                                  \
-    int32 B = minVal(blendTablePtr[pixel & 0x1F] + (frameBufferClr & 0x1F), 0x1F);                                                                   \
+    int32 R = MIN((blendTablePtr[(pixel & 0xF800) >> 11] << 11) + (frameBufferClr & 0xF800), 0xF800);                                             \
+    int32 G = MIN((blendTablePtr[(pixel & 0x7E0) >> 6] << 6) + (frameBufferClr & 0x7E0), 0x7E0);                                                  \
+    int32 B = MIN(blendTablePtr[pixel & 0x1F] + (frameBufferClr & 0x1F), 0x1F);                                                                   \
                                                                                                                                                      \
     frameBufferClr = R | G | B;
 
 // Subtractive Blending
 #define setPixelSubtractive(pixel, frameBufferClr)                                                                                                   \
-    int32 R = maxVal((frameBufferClr & 0xF800) - (subBlendTable[(pixel & 0xF800) >> 11] << 11), 0);                                                  \
-    int32 G = maxVal((frameBufferClr & 0x7E0) - (subBlendTable[(pixel & 0x7E0) >> 6] << 6), 0);                                                      \
-    int32 B = maxVal((frameBufferClr & 0x1F) - subBlendTable[pixel & 0x1F], 0);                                                                      \
+    int32 R = MAX((frameBufferClr & 0xF800) - (subBlendTable[(pixel & 0xF800) >> 11] << 11), 0);                                                  \
+    int32 G = MAX((frameBufferClr & 0x7E0) - (subBlendTable[(pixel & 0x7E0) >> 6] << 6), 0);                                                      \
+    int32 B = MAX((frameBufferClr & 0x1F) - subBlendTable[pixel & 0x1F], 0);                                                                      \
                                                                                                                                                      \
     frameBufferClr = R | G | B;
 
@@ -266,7 +266,7 @@ void RSDK::GenerateBlendLookupTable()
 #if !RETRO_REV02
     for (int32 i = 0; i < 0x10000; ++i) {
         int32 tintValue    = (((uint32)i & 0x1F) + ((i >> 6) & 0x1F) + (((uint16)i >> 11) & 0x1F)) / 3 + 6;
-        tintLookupTable[i] = 0x841 * minVal(0x1F, tintValue);
+        tintLookupTable[i] = 0x841 * MIN(0x1F, tintValue);
     }
 #endif
 
@@ -589,9 +589,9 @@ void RSDK::SwapDrawListEntries(uint8 drawGroup, uint16 slot1, uint16 slot2, int3
 
 void RSDK::FillScreen(uint32 color, int32 alphaR, int32 alphaG, int32 alphaB)
 {
-    alphaR = clampVal(alphaR, 0x00, 0xFF);
-    alphaG = clampVal(alphaG, 0x00, 0xFF);
-    alphaB = clampVal(alphaB, 0x00, 0xFF);
+    alphaR = CLAMP(alphaR, 0x00, 0xFF);
+    alphaG = CLAMP(alphaG, 0x00, 0xFF);
+    alphaB = CLAMP(alphaB, 0x00, 0xFF);
 
     if (alphaR + alphaG + alphaB) {
         validDraw        = true;
@@ -648,10 +648,10 @@ void RSDK::DrawLine(int32 x1, int32 y1, int32 x2, int32 y2, uint32 color, int32 
     int32 drawX2 = x2;
 
     if (!screenRelative) {
-        drawX1 = (x1 >> 16) - currentScreen->position.x;
-        drawY1 = (y1 >> 16) - currentScreen->position.y;
-        drawX2 = (x2 >> 16) - currentScreen->position.x;
-        drawY2 = (y2 >> 16) - currentScreen->position.y;
+        drawX1 = FROM_FIXED(x1) - currentScreen->position.x;
+        drawY1 = FROM_FIXED(y1) - currentScreen->position.y;
+        drawX2 = FROM_FIXED(x2) - currentScreen->position.x;
+        drawY2 = FROM_FIXED(y2) - currentScreen->position.y;
     }
 
     int32 flags1 = 0;
@@ -1173,10 +1173,10 @@ void RSDK::DrawRectangle(int32 x, int32 y, int32 width, int32 height, uint32 col
     }
 
     if (!screenRelative) {
-        x = (x >> 16) - currentScreen->position.x;
-        y = (y >> 16) - currentScreen->position.y;
-        width >>= 16;
-        height >>= 16;
+        x = FROM_FIXED(x) - currentScreen->position.x;
+        y = FROM_FIXED(y) - currentScreen->position.y;
+        width = FROM_FIXED(width);
+        height = FROM_FIXED(height);
     }
 
     if (width + x > currentScreen->clipBound_X2)
@@ -1344,8 +1344,8 @@ void RSDK::DrawCircle(int32 x, int32 y, int32 radius, uint32 color, int32 alpha,
         }
 
         if (!screenRelative) {
-            x = (x >> 16) - currentScreen->position.x;
-            y = (y >> 16) - currentScreen->position.y;
+            x = FROM_FIXED(x) - currentScreen->position.x;
+            y = FROM_FIXED(y) - currentScreen->position.y;
         }
 
         int32 yRadiusBottom = y + radius;
@@ -1690,11 +1690,11 @@ void RSDK::DrawCircleOutline(int32 x, int32 y, int32 innerRadius, int32 outerRad
     }
 
     if (!screenRelative) {
-        x = (x >> 16) - currentScreen->position.x;
-        y = (y >> 16) - currentScreen->position.y;
+        x = FROM_FIXED(x) - currentScreen->position.x;
+        y = FROM_FIXED(y) - currentScreen->position.y;
     }
 
-    if (outerRadius >= 1 && innerRadius < outerRadius) {
+    if (outerRadius > 0 && innerRadius < outerRadius) {
         int32 top    = y - outerRadius;
         int32 left   = x - outerRadius;
         int32 right  = x + outerRadius;
@@ -1978,8 +1978,8 @@ void RSDK::DrawFace(Vector2 *vertices, int32 vertCount, int32 r, int32 g, int32 
             bottom = vertices[v].y;
     }
 
-    int32 topScreen    = top >> 16;
-    int32 bottomScreen = bottom >> 16;
+    int32 topScreen    = FROM_FIXED(top);
+    int32 bottomScreen = FROM_FIXED(bottom);
 
     if (topScreen < currentScreen->clipBound_Y1)
         topScreen = currentScreen->clipBound_Y1;
@@ -2231,8 +2231,8 @@ void RSDK::DrawBlendedFace(Vector2 *vertices, uint32 *colors, int32 vertCount, i
             bottom = vertices[v].y;
     }
 
-    int32 topScreen    = top >> 16;
-    int32 bottomScreen = bottom >> 16;
+    int32 topScreen    = FROM_FIXED(top);
+    int32 bottomScreen = FROM_FIXED(bottom);
 
     if (topScreen < currentScreen->clipBound_Y1)
         topScreen = currentScreen->clipBound_Y1;
@@ -3559,8 +3559,8 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
 
     int32 posX[4];
     int32 posY[4];
-    int32 sprXPos = (sprX - pivotX) << 16;
-    int32 sprYPos = (sprY - pivotY) << 16;
+    int32 sprXPos = TO_FIXED(sprX - pivotX);
+    int32 sprYPos = TO_FIXED(sprY - pivotY);
 
     int32 xMax     = 0;
     int32 scaledX1 = 0;
@@ -3643,8 +3643,8 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
     if (xSize >= 1 && ySize >= 1) {
         GFXSurface *surface = &gfxSurface[sheetID];
 
-        int32 fullX         = (sprX + width) << 16;
-        int32 fullY         = (sprY + height) << 16;
+        int32 fullX         = TO_FIXED(sprX + width);
+        int32 fullY         = TO_FIXED(sprY + height);
         validDraw           = true;
         int32 fullScaleX    = (int32)((512.0 / (float)scaleX) * 512.0);
         int32 fullScaleY    = (int32)((512.0 / (float)scaleY) * 512.0);
@@ -3659,8 +3659,8 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
         int32 yLen          = top - y;
         uint8 *pixels       = surface->pixels;
         uint16 *frameBuffer = &currentScreen->frameBuffer[left + (top * currentScreen->pitch)];
-        int32 fullSprY      = (sprY << 16) - 1;
-        int32 fullSprX      = (sprX << 16) - 1;
+        int32 fullSprX      = TO_FIXED(sprX) - 1;
+        int32 fullSprY      = TO_FIXED(sprY) - 1;
 
         int32 drawX = 0, drawY = 0;
         if (direction == FLIP_X) {
@@ -3682,7 +3682,7 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
                     int32 drawYPos        = drawY;
                     for (int32 x = 0; x < xSize; ++x) {
                         if (drawXPos >= fullSprX && drawXPos < fullX && drawYPos >= fullSprY && drawYPos < fullY) {
-                            uint8 index = pixels[((drawYPos >> 0x10) << lineSize) + (drawXPos >> 0x10)];
+                            uint8 index = pixels[(FROM_FIXED(drawYPos) << lineSize) + FROM_FIXED(drawXPos)];
                             if (index)
                                 *frameBuffer = activePalette[index];
                         }
@@ -3705,7 +3705,7 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
                     int32 drawYPos        = drawY;
                     for (int32 x = 0; x < xSize; ++x) {
                         if (drawXPos >= fullSprX && drawXPos < fullX && drawYPos >= fullSprY && drawYPos < fullY) {
-                            uint8 index = pixels[((drawYPos >> 0x10) << lineSize) + (drawXPos >> 0x10)];
+                            uint8 index = pixels[(FROM_FIXED(drawYPos) << lineSize) + FROM_FIXED(drawXPos)];
                             if (index)
                                 setPixelBlend(activePalette[index], *frameBuffer);
                         }
@@ -3731,7 +3731,7 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
                     int32 drawYPos        = drawY;
                     for (int32 x = 0; x < xSize; ++x) {
                         if (drawXPos >= fullSprX && drawXPos < fullX && drawYPos >= fullSprY && drawYPos < fullY) {
-                            uint8 index = pixels[((drawYPos >> 0x10) << lineSize) + (drawXPos >> 0x10)];
+                            uint8 index = pixels[(FROM_FIXED(drawYPos) << lineSize) + FROM_FIXED(drawXPos)];
                             if (index) {
                                 setPixelAlpha(activePalette[index], *frameBuffer, alpha);
                             }
@@ -3757,7 +3757,7 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
                     int32 drawYPos        = drawY;
                     for (int32 x = 0; x < xSize; ++x) {
                         if (drawXPos >= fullSprX && drawXPos < fullX && drawYPos >= fullSprY && drawYPos < fullY) {
-                            uint8 index = pixels[((drawYPos >> 0x10) << lineSize) + (drawXPos >> 0x10)];
+                            uint8 index = pixels[(FROM_FIXED(drawYPos) << lineSize) + FROM_FIXED(drawXPos)];
                             if (index) {
                                 setPixelAdditive(activePalette[index], *frameBuffer);
                             }
@@ -3783,7 +3783,7 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
                     int32 drawYPos        = drawY;
                     for (int32 x = 0; x < xSize; ++x) {
                         if (drawXPos >= fullSprX && drawXPos < fullX && drawYPos >= fullSprY && drawYPos < fullY) {
-                            uint8 index = pixels[((drawYPos >> 0x10) << lineSize) + (drawXPos >> 0x10)];
+                            uint8 index = pixels[(FROM_FIXED(drawYPos) << lineSize) + FROM_FIXED(drawXPos)];
                             if (index) {
                                 setPixelSubtractive(activePalette[index], *frameBuffer);
                             }
@@ -3807,7 +3807,7 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
                     int32 drawYPos = drawY;
                     for (int32 x = 0; x < xSize; ++x) {
                         if (drawXPos >= fullSprX && drawXPos < fullX && drawYPos >= fullSprY && drawYPos < fullY) {
-                            uint8 index = pixels[((drawYPos >> 0x10) << lineSize) + (drawXPos >> 0x10)];
+                            uint8 index = pixels[(FROM_FIXED(drawYPos) << lineSize) + FROM_FIXED(drawXPos)];
                             if (index)
                                 *frameBuffer = tintLookupTable[*frameBuffer];
                         }
@@ -3830,7 +3830,7 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
                     int32 drawYPos        = drawY;
                     for (int32 x = 0; x < xSize; ++x) {
                         if (drawXPos >= fullSprX && drawXPos < fullX && drawYPos >= fullSprY && drawYPos < fullY) {
-                            uint8 index = pixels[((drawYPos >> 0x10) << lineSize) + (drawXPos >> 0x10)];
+                            uint8 index = pixels[(FROM_FIXED(drawYPos) << lineSize) + FROM_FIXED(drawXPos)];
                             if (index && *frameBuffer == maskColor)
                                 *frameBuffer = activePalette[index];
                         }
@@ -3853,7 +3853,7 @@ void RSDK::DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int3
                     int32 drawYPos        = drawY;
                     for (int32 x = 0; x < xSize; ++x) {
                         if (drawXPos >= fullSprX && drawXPos < fullX && drawYPos >= fullSprY && drawYPos < fullY) {
-                            uint8 index = pixels[((drawYPos >> 0x10) << lineSize) + (drawXPos >> 0x10)];
+                            uint8 index = pixels[(FROM_FIXED(drawYPos) << lineSize) + FROM_FIXED(drawXPos)];
                             if (index && *frameBuffer != maskColor)
                                 *frameBuffer = activePalette[index];
                         }
@@ -3917,7 +3917,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & (ly >> 0x10)) << lineSize) + (width & (lx >> 0x10))];
+                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
                     if (palIndex)
                         *frameBuffer = activePalette[palIndex];
 
@@ -3937,7 +3937,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & (ly >> 0x10)) << lineSize) + (width & (lx >> 0x10))];
+                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
                     if (palIndex)
                         setPixelBlend(activePalette[palIndex], *frameBuffer);
 
@@ -3960,7 +3960,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & (ly >> 0x10)) << lineSize) + (width & (lx >> 0x10))];
+                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
                     if (palIndex) {
                         setPixelAlpha(activePalette[palIndex], *frameBuffer, alpha);
                     }
@@ -3983,7 +3983,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & (ly >> 0x10)) << lineSize) + (width & (lx >> 0x10))];
+                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
                     if (palIndex) {
                         setPixelAdditive(activePalette[palIndex], *frameBuffer);
                     }
@@ -4006,7 +4006,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & (ly >> 0x10)) << lineSize) + (width & (lx >> 0x10))];
+                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
                     if (palIndex) {
                         setPixelSubtractive(activePalette[palIndex], *frameBuffer);
                     }
@@ -4026,7 +4026,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx = scanline->deform.x;
                 int32 dy = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & (ly >> 0x10)) << lineSize) + (width & (lx >> 0x10))];
+                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
                     if (palIndex)
                         *frameBuffer = tintLookupTable[*frameBuffer];
                     lx += dx;
@@ -4045,7 +4045,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & (ly >> 0x10)) << lineSize) + (width & (lx >> 0x10))];
+                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
                     if (palIndex && *frameBuffer == maskColor)
                         *frameBuffer = activePalette[palIndex];
                     lx += dx;
@@ -4064,7 +4064,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & (ly >> 0x10)) << lineSize) + (width & (lx >> 0x10))];
+                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
                     if (palIndex && *frameBuffer != maskColor)
                         *frameBuffer = activePalette[palIndex];
                     lx += dx;
@@ -4083,8 +4083,8 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
         if (!position)
             position = &sceneInfo.entity->position;
 
-        int32 x = position->x >> 0x10;
-        int32 y = position->y >> 0x10;
+        int32 x = FROM_FIXED(position->x);
+        int32 y = FROM_FIXED(position->y);
         if (!screenRelative) {
             x -= currentScreen->position.x;
             y -= currentScreen->position.y;
@@ -4334,14 +4334,14 @@ void RSDK::DrawString(Animator *animator, Vector2 *position, String *string, int
 
         Entity *entity = sceneInfo.entity;
 
-        int32 x = position->x >> 0x10;
-        int32 y = position->y >> 0x10;
+        int32 x = FROM_FIXED(position->x);
+        int32 y = FROM_FIXED(position->y);
         if (!screenRelative) {
             x -= currentScreen->position.x;
             y -= currentScreen->position.y;
         }
 
-        startFrame = clampVal(startFrame, 0, string->length - 1);
+        startFrame = CLAMP(startFrame, 0, string->length - 1);
 
         if (endFrame <= 0 || endFrame > string->length)
             endFrame = string->length;
@@ -4353,8 +4353,8 @@ void RSDK::DrawString(Animator *animator, Vector2 *position, String *string, int
                         uint16 curChar = string->chars[startFrame];
                         if (curChar < animator->frameCount) {
                             SpriteFrame *frame = &animator->frames[curChar];
-                            DrawSpriteFlipped(x + (charOffsets->x >> 0x10), y + frame->pivotY + (charOffsets->y >> 0x10), frame->width, frame->height,
-                                              frame->sprX, frame->sprY, FLIP_NONE, entity->inkEffect, entity->alpha, frame->sheetID);
+                            DrawSpriteFlipped(x + FROM_FIXED(charOffsets->x), y + frame->pivotY + FROM_FIXED(charOffsets->y), frame->width,
+                                              frame->height, frame->sprX, frame->sprY, FLIP_NONE, entity->inkEffect, entity->alpha, frame->sheetID);
                             x += spacing + frame->width;
                             ++charOffsets;
                         }
@@ -4382,8 +4382,9 @@ void RSDK::DrawString(Animator *animator, Vector2 *position, String *string, int
                         uint16 curChar = string->chars[endFrame];
                         if (curChar < animator->frameCount) {
                             SpriteFrame *frame = &animator->frames[curChar];
-                            DrawSpriteFlipped(x - frame->width + (charOffset->x >> 0x10), y + frame->pivotY + (charOffset->y >> 0x10), frame->width,
-                                              frame->height, frame->sprX, frame->sprY, FLIP_NONE, entity->inkEffect, entity->alpha, frame->sheetID);
+                            DrawSpriteFlipped(x - frame->width + FROM_FIXED(charOffset->x), y + frame->pivotY + FROM_FIXED(charOffset->y),
+                                              frame->width, frame->height, frame->sprX, frame->sprY, FLIP_NONE, entity->inkEffect, entity->alpha,
+                                              frame->sheetID);
                             x = (x - frame->width) - spacing;
                             --charOffset;
                         }

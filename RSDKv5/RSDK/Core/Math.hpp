@@ -5,12 +5,15 @@ namespace RSDK
 {
 
 // not "math" but works best here
-#define intToVoid(x) (void *)(size_t)(x)
-#define voidToInt(x) (int32)(size_t)(x)
+#define INT_TO_VOID(x) (void *)(size_t)(x)
+#define VOID_TO_INT(x) (int32)(size_t)(x)
 
-#define minVal(a, b)                      ((a) < (b) ? (a) : (b))
-#define maxVal(a, b)                      ((a) > (b) ? (a) : (b))
-#define clampVal(value, minimum, maximum) (((value) < (minimum)) ? (minimum) : (((value) > (maximum)) ? (maximum) : (value)))
+#define MIN(a, b)                      ((a) < (b) ? (a) : (b))
+#define MAX(a, b)                      ((a) > (b) ? (a) : (b))
+#define CLAMP(value, minimum, maximum) (((value) < (minimum)) ? (minimum) : (((value) > (maximum)) ? (maximum) : (value)))
+
+#define TO_FIXED(x)   ((x) << 16)
+#define FROM_FIXED(x) ((x) >> 16)
 
 // M_PI is *too* accurate, so use this instead
 #define RSDK_PI (3.1415927)

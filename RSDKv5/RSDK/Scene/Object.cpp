@@ -316,7 +316,7 @@ void RSDK::InitObjects()
     sceneInfo.state = ENGINESTATE_REGULAR;
 
     if (!cameraCount)
-        AddCamera(&screens[0].position, screens[0].center.x << 16, screens[0].center.x << 16, false);
+        AddCamera(&screens[0].position, TO_FIXED(screens[0].center.x), TO_FIXED(screens[0].center.y), false);
 }
 void RSDK::ProcessObjects()
 {
@@ -335,7 +335,7 @@ void RSDK::ProcessObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONSTATICUPDATE, intToVoid(ENGINESTATE_REGULAR));
+    RunModCallbacks(MODCB_ONSTATICUPDATE, INT_TO_VOID(ENGINESTATE_REGULAR));
 #endif
 
     for (int32 s = 0; s < cameraCount; ++s) {
@@ -347,8 +347,8 @@ void RSDK::ProcessObjects()
                 camera->position.y = camera->targetPos->y;
             }
             else {
-                camera->position.x = camera->targetPos->x << 0x10;
-                camera->position.y = camera->targetPos->y << 0x10;
+                camera->position.x = TO_FIXED(camera->targetPos->x);
+                camera->position.y = TO_FIXED(camera->targetPos->y);
             }
         }
     }
@@ -412,8 +412,8 @@ void RSDK::ProcessObjects()
                     sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
-                        int32 sx = abs(sceneInfo.entity->position.x - cameras[s].position.x) >> 0x10;
-                        int32 sy = abs(sceneInfo.entity->position.y - cameras[s].position.y) >> 0x10;
+                        int32 sx = FROM_FIXED(abs(sceneInfo.entity->position.x - cameras[s].position.x));
+                        int32 sy = FROM_FIXED(abs(sceneInfo.entity->position.y - cameras[s].position.y));
 
                         if (sx * sx + sy * sy <= sceneInfo.entity->updateRange.x + cameras[s].offset.x) {
                             sceneInfo.entity->inRange = true;
@@ -439,7 +439,7 @@ void RSDK::ProcessObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONUPDATE, intToVoid(ENGINESTATE_REGULAR));
+    RunModCallbacks(MODCB_ONUPDATE, INT_TO_VOID(ENGINESTATE_REGULAR));
 #endif
 
     for (int32 i = 0; i < TYPEGROUP_COUNT; ++i) typeGroups[i].entryCount = 0;
@@ -474,7 +474,7 @@ void RSDK::ProcessObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONLATEUPDATE, intToVoid(ENGINESTATE_REGULAR));
+    RunModCallbacks(MODCB_ONLATEUPDATE, INT_TO_VOID(ENGINESTATE_REGULAR));
 #endif
 }
 void RSDK::ProcessPausedObjects()
@@ -494,7 +494,7 @@ void RSDK::ProcessPausedObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONSTATICUPDATE, intToVoid(ENGINESTATE_PAUSED));
+    RunModCallbacks(MODCB_ONSTATICUPDATE, INT_TO_VOID(ENGINESTATE_PAUSED));
 #endif
 
     sceneInfo.entitySlot = 0;
@@ -518,7 +518,7 @@ void RSDK::ProcessPausedObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONSTATICUPDATE, intToVoid(ENGINESTATE_PAUSED));
+    RunModCallbacks(MODCB_ONSTATICUPDATE, INT_TO_VOID(ENGINESTATE_PAUSED));
 #endif
 
     for (int32 i = 0; i < TYPEGROUP_COUNT; ++i) typeGroups[i].entryCount = 0;
@@ -540,7 +540,7 @@ void RSDK::ProcessPausedObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONUPDATE, intToVoid(ENGINESTATE_PAUSED));
+    RunModCallbacks(MODCB_ONUPDATE, INT_TO_VOID(ENGINESTATE_PAUSED));
 #endif
 
     sceneInfo.entitySlot = 0;
@@ -557,7 +557,7 @@ void RSDK::ProcessPausedObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONLATEUPDATE, intToVoid(ENGINESTATE_PAUSED));
+    RunModCallbacks(MODCB_ONLATEUPDATE, INT_TO_VOID(ENGINESTATE_PAUSED));
 #endif
 }
 void RSDK::ProcessFrozenObjects()
@@ -577,7 +577,7 @@ void RSDK::ProcessFrozenObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONSTATICUPDATE, intToVoid(ENGINESTATE_FROZEN));
+    RunModCallbacks(MODCB_ONSTATICUPDATE, INT_TO_VOID(ENGINESTATE_FROZEN));
 #endif
 
     for (int32 s = 0; s < cameraCount; ++s) {
@@ -589,8 +589,8 @@ void RSDK::ProcessFrozenObjects()
                 camera->position.y = camera->targetPos->y;
             }
             else {
-                camera->position.x = camera->targetPos->x << 0x10;
-                camera->position.y = camera->targetPos->y << 0x10;
+                camera->position.x = TO_FIXED(camera->targetPos->x);
+                camera->position.y = TO_FIXED(camera->targetPos->y);
             }
         }
     }
@@ -655,8 +655,8 @@ void RSDK::ProcessFrozenObjects()
                     sceneInfo.entity->inRange = false;
 
                     for (int32 s = 0; s < cameraCount; ++s) {
-                        int32 sx = abs(sceneInfo.entity->position.x - cameras[s].position.x) >> 0x10;
-                        int32 sy = abs(sceneInfo.entity->position.y - cameras[s].position.y) >> 0x10;
+                        int32 sx = FROM_FIXED(abs(sceneInfo.entity->position.x - cameras[s].position.x));
+                        int32 sy = FROM_FIXED(abs(sceneInfo.entity->position.y - cameras[s].position.y));
 
                         if (sx * sx + sy * sy <= sceneInfo.entity->updateRange.x + cameras[s].offset.x) {
                             sceneInfo.entity->inRange = true;
@@ -684,7 +684,7 @@ void RSDK::ProcessFrozenObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONUPDATE, intToVoid(ENGINESTATE_FROZEN));
+    RunModCallbacks(MODCB_ONUPDATE, INT_TO_VOID(ENGINESTATE_FROZEN));
 #endif
 
     for (int32 i = 0; i < TYPEGROUP_COUNT; ++i) typeGroups[i].entryCount = 0;
@@ -719,7 +719,7 @@ void RSDK::ProcessFrozenObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONLATEUPDATE, intToVoid(ENGINESTATE_FROZEN));
+    RunModCallbacks(MODCB_ONLATEUPDATE, INT_TO_VOID(ENGINESTATE_FROZEN));
 #endif
 }
 void RSDK::ProcessObjectDrawLists()
@@ -797,7 +797,7 @@ void RSDK::ProcessObjectDrawLists()
                     }
 
 #if RETRO_USE_MOD_LOADER
-                    RunModCallbacks(MODCB_ONDRAW, intToVoid(l));
+                    RunModCallbacks(MODCB_ONDRAW, INT_TO_VOID(l));
 #endif
 
                     if (currentScreen->clipBound_X1 > 0)
@@ -830,10 +830,10 @@ void RSDK::ProcessObjectDrawLists()
             if (showHitboxes) {
                 for (int32 i = 0; i < debugHitboxCount; ++i) {
                     DebugHitboxInfo *info = &debugHitboxList[i];
-                    int32 x               = info->pos.x + (info->hitbox.left << 16);
-                    int32 y               = info->pos.y + (info->hitbox.top << 16);
-                    int32 w               = abs((info->pos.x + (info->hitbox.right << 16)) - x);
-                    int32 h               = abs((info->pos.y + (info->hitbox.bottom << 16)) - y);
+                    int32 x               = info->pos.x + TO_FIXED(info->hitbox.left);
+                    int32 y               = info->pos.y + TO_FIXED(info->hitbox.top);
+                    int32 w               = abs((info->pos.x + TO_FIXED(info->hitbox.right)) - x);
+                    int32 h               = abs((info->pos.y + TO_FIXED(info->hitbox.bottom)) - y);
 
                     switch (info->type) {
                         case H_TYPE_TOUCH: DrawRectangle(x, y, w, h, info->collision ? 0x808000 : 0xFF0000, 0x60, INK_ALPHA, false); break;
@@ -846,24 +846,24 @@ void RSDK::ProcessObjectDrawLists()
                             DrawRectangle(x, y, w, h, 0x0000FF, 0x60, INK_ALPHA, false);
 
                             if (info->collision & 1) // top
-                                DrawRectangle(x, y, w, 1 << 16, 0xFFFF00, 0xC0, INK_ALPHA, false);
+                                DrawRectangle(x, y, w, TO_FIXED(1), 0xFFFF00, 0xC0, INK_ALPHA, false);
 
                             if (info->collision & 8) // bottom
-                                DrawRectangle(x, y + h, w, 1 << 16, 0xFFFF00, 0xC0, INK_ALPHA, false);
+                                DrawRectangle(x, y + h, w, TO_FIXED(1), 0xFFFF00, 0xC0, INK_ALPHA, false);
 
                             if (info->collision & 2) { // left
                                 int32 sy = y;
                                 int32 sh = h;
 
                                 if (info->collision & 1) {
-                                    sy += 1 << 16;
-                                    sh -= 1 << 16;
+                                    sy += TO_FIXED(1);
+                                    sh -= TO_FIXED(1);
                                 }
 
                                 if (info->collision & 8)
-                                    sh -= 1 << 16;
+                                    sh -= TO_FIXED(1);
 
-                                DrawRectangle(x, sy, 1 << 16, sh, 0xFFFF00, 0xC0, INK_ALPHA, false);
+                                DrawRectangle(x, sy, TO_FIXED(1), sh, 0xFFFF00, 0xC0, INK_ALPHA, false);
                             }
 
                             if (info->collision & 4) { // right
@@ -871,14 +871,14 @@ void RSDK::ProcessObjectDrawLists()
                                 int32 sh = h;
 
                                 if (info->collision & 1) {
-                                    sy += 1 << 16;
-                                    sh -= 1 << 16;
+                                    sy += TO_FIXED(1);
+                                    sh -= TO_FIXED(1);
                                 }
 
                                 if (info->collision & 8)
-                                    sh -= 1 << 16;
+                                    sh -= TO_FIXED(1);
 
-                                DrawRectangle(x + w, sy, 1 << 16, sh, 0xFFFF00, 0xC0, INK_ALPHA, false);
+                                DrawRectangle(x + w, sy, TO_FIXED(1), sh, 0xFFFF00, 0xC0, INK_ALPHA, false);
                             }
                             break;
 
@@ -886,10 +886,10 @@ void RSDK::ProcessObjectDrawLists()
                             DrawRectangle(x, y, w, h, 0x00FF00, 0x60, INK_ALPHA, false);
 
                             if (info->collision & 1) // top
-                                DrawRectangle(x, y, w, 1 << 16, 0xFFFF00, 0xC0, INK_ALPHA, false);
+                                DrawRectangle(x, y, w, TO_FIXED(1), 0xFFFF00, 0xC0, INK_ALPHA, false);
 
                             if (info->collision & 8) // bottom
-                                DrawRectangle(x, y + h, w, 1 << 16, 0xFFFF00, 0xC0, INK_ALPHA, false);
+                                DrawRectangle(x, y + h, w, TO_FIXED(1), 0xFFFF00, 0xC0, INK_ALPHA, false);
                             break;
                     }
                 }

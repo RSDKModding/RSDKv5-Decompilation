@@ -135,8 +135,8 @@ uint16 RSDK::CreateSpriteAnimation(const char *filename, uint32 frameCount, uint
     spr->scope           = scope;
     memcpy(spr->hash, hash, 4 * sizeof(uint32));
 
-    AllocateStorage((void **)&spr->frames, sizeof(SpriteFrame) * minVal(frameCount, SPRITEFRAME_COUNT), DATASET_STG, true);
-    AllocateStorage((void **)&spr->animations, sizeof(SpriteAnimationEntry) * minVal(animCount, SPRITEANIM_COUNT), DATASET_STG, true);
+    AllocateStorage((void **)&spr->frames, sizeof(SpriteFrame) * MIN(frameCount, SPRITEFRAME_COUNT), DATASET_STG, true);
+    AllocateStorage((void **)&spr->animations, sizeof(SpriteAnimationEntry) * MIN(animCount, SPRITEANIM_COUNT), DATASET_STG, true);
 
     return id;
 }
@@ -179,7 +179,7 @@ int32 RSDK::GetStringWidth(uint16 aniFrames, uint16 animID, String *string, int3
     if (animID < spr->animCount) {
         SpriteAnimationEntry *anim = &spr->animations[animID];
 
-        startIndex = clampVal(startIndex, 0, string->length - 1);
+        startIndex = CLAMP(startIndex, 0, string->length - 1);
 
         if (length <= 0 || length > string->length)
             length = string->length;

@@ -156,7 +156,7 @@ int32 RSDK::PlayStream(const char *filename, uint32 slot, int32 startPos, uint32
     channel->sampleLength = sfxList[SFX_COUNT - 1].length;
     channel->samplePtr    = sfxList[SFX_COUNT - 1].buffer;
     channel->bufferPos    = 0;
-    channel->speed        = 1 << 0x10;
+    channel->speed        = TO_FIXED(1);
 
     sprintf_s(streamFilePath, (int32)sizeof(streamFilePath), "Data/Music/%s", filename);
     streamStartPos  = startPos;
@@ -333,7 +333,7 @@ int32 RSDK::PlaySfx(uint16 sfx, uint32 loopPoint, uint32 priority)
     channels[slot].sampleLength = sfxList[sfx].length;
     channels[slot].volume       = 1.0;
     channels[slot].pan          = 0.0;
-    channels[slot].speed        = 1 << 0x10;
+    channels[slot].speed        = TO_FIXED(1);
     channels[slot].soundID      = sfx;
     if (loopPoint >= 2)
         channels[slot].loop = loopPoint;
@@ -361,7 +361,7 @@ void RSDK::SetChannelAttributes(uint8 channel, float volume, float panning, floa
         if (speed > 0.0)
             channels[channel].speed = (int32)(speed * 65536.0f);
         else if (speed == 1.0)
-            channels[channel].speed = 0x10000;
+            channels[channel].speed = TO_FIXED(1);
     }
 }
 

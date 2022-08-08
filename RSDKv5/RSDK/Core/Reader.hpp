@@ -169,7 +169,7 @@ inline size_t ReadBytes(FileInfo *info, void *data, int32 count)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = minVal(count, info->fileSize - info->readPos);
+        bytesRead = MIN(count, info->fileSize - info->readPos);
         memcpy(data, info->fileBuffer, bytesRead);
         info->fileBuffer += bytesRead;
     }
@@ -190,7 +190,7 @@ inline uint8 ReadInt8(FileInfo *info)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = minVal(sizeof(int8), info->fileSize - info->readPos);
+        bytesRead = MIN(sizeof(int8), info->fileSize - info->readPos);
         if (bytesRead) {
             result = info->fileBuffer[0];
             info->fileBuffer += sizeof(int8);
@@ -218,7 +218,7 @@ inline int16 ReadInt16(FileInfo *info)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = minVal(sizeof(buffer), info->fileSize - info->readPos);
+        bytesRead = MIN(sizeof(buffer), info->fileSize - info->readPos);
         if (bytesRead >= sizeof(buffer)) {
             memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
 
@@ -262,7 +262,7 @@ inline int32 ReadInt32(FileInfo *info, bool32 swapEndian)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = minVal(sizeof(buffer), info->fileSize - info->readPos);
+        bytesRead = MIN(sizeof(buffer), info->fileSize - info->readPos);
         if (bytesRead >= sizeof(buffer)) {
             memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
 
@@ -318,7 +318,7 @@ inline int64 ReadInt64(FileInfo *info)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = minVal(sizeof(buffer), info->fileSize - info->readPos);
+        bytesRead = MIN(sizeof(buffer), info->fileSize - info->readPos);
         if (bytesRead >= sizeof(buffer)) {
             memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
 
@@ -362,7 +362,7 @@ inline float ReadSingle(FileInfo *info)
     size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = minVal(sizeof(buffer), info->fileSize - info->readPos);
+        bytesRead = MIN(sizeof(buffer), info->fileSize - info->readPos);
         if (bytesRead >= sizeof(buffer)) {
             memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
 

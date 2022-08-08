@@ -27,7 +27,7 @@ void RSDK::Legacy::GenerateBlendLookupTable()
 
     for (int32 i = 0; i < 0x10000; i++) {
         int32 tintValue      = ((i & 0x1F) + ((i & 0x7E0) >> 6) + ((i & 0xF800) >> 11)) / 3 + 6;
-        tintLookupTable[i] = 0x841 * minVal(tintValue, 0x1F);
+        tintLookupTable[i] = 0x841 * MIN(tintValue, 0x1F);
     }
 }
 
@@ -2251,9 +2251,9 @@ void RSDK::Legacy::DrawAdditiveBlendedSprite(int32 XPos, int32 YPos, int32 width
             if (*pixels > 0) {
                 uint16 color = activePalette[*pixels];
 
-                int32 R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBuffer & 0xF800), 0xF800);
-                int32 G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBuffer & 0x7E0), 0x7E0);
-                int32 B = minVal(blendTablePtr[color & 0x1F] + (*frameBuffer & 0x1F), 0x1F);
+                int32 R = MIN((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBuffer & 0xF800), 0xF800);
+                int32 G = MIN((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBuffer & 0x7E0), 0x7E0);
+                int32 B = MIN(blendTablePtr[color & 0x1F] + (*frameBuffer & 0x1F), 0x1F);
 
                 *frameBuffer = R | G | B;
             }
@@ -2305,9 +2305,9 @@ void RSDK::Legacy::DrawSubtractiveBlendedSprite(int32 XPos, int32 YPos, int32 wi
             if (*pixels > 0) {
                 uint16 color = activePalette[*pixels];
 
-                int32 R = maxVal((*frameBuffer & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
-                int32 G = maxVal((*frameBuffer & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
-                int32 B = maxVal((*frameBuffer & 0x1F) - subBlendTable[color & 0x1F], 0);
+                int32 R = MAX((*frameBuffer & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
+                int32 G = MAX((*frameBuffer & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
+                int32 B = MAX((*frameBuffer & 0x1F) - subBlendTable[color & 0x1F], 0);
 
                 *frameBuffer = R | G | B;
             }

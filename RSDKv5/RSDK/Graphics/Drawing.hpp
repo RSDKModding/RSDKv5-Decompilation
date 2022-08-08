@@ -325,10 +325,10 @@ inline void SetClipBounds(uint8 screenID, int32 x1, int32 y1, int32 x2, int32 y2
     if (screenID < SCREEN_COUNT) {
         screen = &screens[screenID];
 
-        screen->clipBound_X1 = clampVal(x1, 0, screen->size.x);
-        screen->clipBound_Y1 = clampVal(y1, 0, screen->size.y);
-        screen->clipBound_X2 = clampVal(x2, 0, screen->size.x);
-        screen->clipBound_Y2 = clampVal(y2, 0, screen->size.y);
+        screen->clipBound_X1 = CLAMP(x1, 0, screen->size.x);
+        screen->clipBound_Y1 = CLAMP(y1, 0, screen->size.y);
+        screen->clipBound_X2 = CLAMP(x2, 0, screen->size.x);
+        screen->clipBound_Y2 = CLAMP(y2, 0, screen->size.y);
     }
 }
 

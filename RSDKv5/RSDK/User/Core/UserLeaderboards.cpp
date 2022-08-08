@@ -251,8 +251,8 @@ void RSDK::SKU::LeaderboardEntryInfo::LoadLeaderboardEntries(int32 start, uint32
         case LEADERBOARD_LOAD_PREV:
             loadType = (LeaderboardLoadTypes)type;
 
-            loadSize.start  = maxVal(start, 1);
-            loadSize.length = minVal(length, 200);
+            loadSize.start  = MAX(start, 1);
+            loadSize.length = MIN(length, 200);
             break;
 
         case LEADERBOARD_LOAD_NEXT: {

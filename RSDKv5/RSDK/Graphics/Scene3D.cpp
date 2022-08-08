@@ -20,26 +20,27 @@ enum ModelFlags {
 
 void RSDK::ProcessScanEdge(int32 x1, int32 y1, int32 x2, int32 y2)
 {
-    int32 top = y1 >> 16;
-    int32 iy1 = y1 >> 16;
-    int32 iy2 = y2 >> 16;
-    int32 ix2 = x2 >> 16;
-    int32 ix1 = x1 >> 16;
-    if (y1 >> 16 != y2 >> 16) {
-        if (y1 >> 16 > y2 >> 16) {
-            top = y2 >> 16;
-            ix1 = x2 >> 16;
-            ix2 = x1 >> 16;
-            iy1 = y2 >> 16;
-            iy2 = y1 >> 16;
+    int32 ix1 = FROM_FIXED(x1);
+    int32 iy1 = FROM_FIXED(y1);
+    int32 ix2 = FROM_FIXED(x2);
+    int32 iy2 = FROM_FIXED(y2);
+
+    int32 top = FROM_FIXED(y1);
+    if (iy1 != iy2) {
+        if (iy1 > iy2) {
+            top = FROM_FIXED(y2);
+            ix1 = FROM_FIXED(x2);
+            ix2 = FROM_FIXED(x1);
+            iy1 = FROM_FIXED(y2);
+            iy2 = FROM_FIXED(y1);
         }
 
         int32 bottom = iy2 + 1;
         if (top < currentScreen->clipBound_Y2 && bottom >= currentScreen->clipBound_Y1) {
             if (bottom > currentScreen->clipBound_Y2)
                 bottom = currentScreen->clipBound_Y2;
-            int32 scanPos = ix1 << 16;
-            int32 delta   = ((ix2 - ix1) << 16) / (iy2 - iy1);
+            int32 scanPos = TO_FIXED(ix1);
+            int32 delta   = TO_FIXED(ix2 - ix1) / (iy2 - iy1);
             if (top < 0) {
                 scanPos -= top * delta;
                 top = 0;
@@ -61,21 +62,21 @@ void RSDK::ProcessScanEdge(int32 x1, int32 y1, int32 x2, int32 y2)
 
 void RSDK::ProcessScanEdgeClr(uint32 c1, uint32 c2, int32 x1, int32 y1, int32 x2, int32 y2)
 {
-    int32 iy1 = y1 >> 16;
-    int32 iy2 = y2 >> 16;
-    int32 ix1 = x1 >> 16;
-    int32 ix2 = x2 >> 16;
+    int32 iy1 = FROM_FIXED(y1);
+    int32 iy2 = FROM_FIXED(y2);
+    int32 ix1 = FROM_FIXED(x1);
+    int32 ix2 = FROM_FIXED(x2);
 
-    int32 top     = y1 >> 16;
+    int32 top     = FROM_FIXED(y1);
     uint32 color1 = c1;
     uint32 color2 = c2;
-    if (y1 >> 16 != y2 >> 16) {
-        if (y1 >> 16 > y2 >> 16) {
-            top    = y2 >> 16;
-            ix1    = x2 >> 16;
-            ix2    = x1 >> 16;
-            iy1    = y2 >> 16;
-            iy2    = y1 >> 16;
+    if (iy1 != iy2) {
+        if (iy1 > iy2) {
+            top    = FROM_FIXED(y2);
+            ix1    = FROM_FIXED(x2);
+            ix2    = FROM_FIXED(x1);
+            iy1    = FROM_FIXED(y2);
+            iy2    = FROM_FIXED(y1);
             color1 = c2;
             color2 = c1;
         }
@@ -86,8 +87,8 @@ void RSDK::ProcessScanEdgeClr(uint32 c1, uint32 c2, int32 x1, int32 y1, int32 x2
                 bottom = currentScreen->clipBound_Y2;
 
             int32 size   = iy2 - iy1;
-            int32 scanX  = ix1 << 16;
-            int32 deltaX = ((ix2 - ix1) << 16) / size;
+            int32 scanX  = TO_FIXED(ix1);
+            int32 deltaX = TO_FIXED(ix2 - ix1) / size;
 
             int32 c1R   = (color1 & 0xFF0000);
             int32 c2R   = (color2 & 0xFF0000);
@@ -125,16 +126,16 @@ void RSDK::ProcessScanEdgeClr(uint32 c1, uint32 c2, int32 x1, int32 y1, int32 x2
 
             ScanEdge *edge = &scanEdgeBuffer[top];
             for (int32 i = top; i < bottom; ++i) {
-                if ((scanX >> 16) < edge->start) {
-                    edge->start = scanX >> 16;
+                if (FROM_FIXED(scanX) < edge->start) {
+                    edge->start = FROM_FIXED(scanX);
 
                     edge->startR = scanR;
                     edge->startG = scanG;
                     edge->startB = scanB;
                 }
 
-                if ((scanX >> 16) > edge->end) {
-                    edge->end = scanX >> 16;
+                if (FROM_FIXED(scanX) > edge->end) {
+                    edge->end = FROM_FIXED(scanX);
 
                     edge->endR = scanR;
                     edge->endG = scanG;
@@ -926,20 +927,20 @@ void RSDK::Draw3DScene(uint16 sceneID)
                     int32 normalVal = (normal >> 2) * (abs(normal) >> 2);
 
                     int32 specular = normalVal >> 6 >> scn->specularIntensityX;
-                    specular       = clampVal(specular, 0x00, 0xFF);
+                    specular       = CLAMP(specular, 0x00, 0xFF);
                     int32 r = specular + ((int32)((drawVert->color >> 16) & 0xFF) * ((normal >> 10) + scn->diffuseX) >> scn->diffuseIntensityX);
 
                     specular = normalVal >> 6 >> scn->specularIntensityY;
-                    specular = clampVal(specular, 0x00, 0xFF);
+                    specular = CLAMP(specular, 0x00, 0xFF);
                     int32 g  = specular + ((int32)((drawVert->color >> 8) & 0xFF) * ((normal >> 10) + scn->diffuseY) >> scn->diffuseIntensityY);
 
                     specular = normalVal >> 6 >> scn->specularIntensityZ;
-                    specular = clampVal(specular, 0x00, 0xFF);
+                    specular = CLAMP(specular, 0x00, 0xFF);
                     int32 b  = specular + ((int32)((drawVert->color >> 0) & 0xFF) * ((normal >> 10) + scn->diffuseZ) >> scn->diffuseIntensityZ);
 
-                    r = clampVal(r, 0x00, 0xFF);
-                    g = clampVal(g, 0x00, 0xFF);
-                    b = clampVal(b, 0x00, 0xFF);
+                    r = CLAMP(r, 0x00, 0xFF);
+                    g = CLAMP(g, 0x00, 0xFF);
+                    b = CLAMP(b, 0x00, 0xFF);
 
                     uint32 color = (r << 16) | (g << 8) | (b << 0);
 
@@ -970,20 +971,20 @@ void RSDK::Draw3DScene(uint16 sceneID)
                     int32 normalVal = (normal >> 2) * (abs(normal) >> 2);
 
                     int32 specular = normalVal >> 6 >> scn->specularIntensityX;
-                    specular       = clampVal(specular, 0x00, 0xFF);
+                    specular       = CLAMP(specular, 0x00, 0xFF);
                     int32 r = specular + ((int32)((drawVert->color >> 16) & 0xFF) * ((normal >> 10) + scn->diffuseX) >> scn->diffuseIntensityX);
 
                     specular = normalVal >> 6 >> scn->specularIntensityY;
-                    specular = clampVal(specular, 0x00, 0xFF);
+                    specular = CLAMP(specular, 0x00, 0xFF);
                     int32 g  = specular + ((int32)((drawVert->color >> 8) & 0xFF) * ((normal >> 10) + scn->diffuseY) >> scn->diffuseIntensityY);
 
                     specular = normalVal >> 6 >> scn->specularIntensityZ;
-                    specular = clampVal(specular, 0x00, 0xFF);
+                    specular = CLAMP(specular, 0x00, 0xFF);
                     int32 b  = specular + ((int32)((drawVert->color >> 0) & 0xFF) * ((normal >> 10) + scn->diffuseZ) >> scn->diffuseIntensityZ);
 
-                    r = clampVal(r, 0x00, 0xFF);
-                    g = clampVal(g, 0x00, 0xFF);
-                    b = clampVal(b, 0x00, 0xFF);
+                    r = CLAMP(r, 0x00, 0xFF);
+                    g = CLAMP(g, 0x00, 0xFF);
+                    b = CLAMP(b, 0x00, 0xFF);
 
                     uint32 color = (r << 16) | (g << 8) | (b << 0);
 
@@ -1007,20 +1008,20 @@ void RSDK::Draw3DScene(uint16 sceneID)
                         int32 normalVal = (normal >> 2) * (abs(normal) >> 2);
 
                         int32 specular = (normalVal >> 6) >> scn->specularIntensityX;
-                        specular       = clampVal(specular, 0x00, 0xFF);
+                        specular       = CLAMP(specular, 0x00, 0xFF);
                         int32 r = specular + ((int32)((drawVert->color >> 16) & 0xFF) * ((normal >> 10) + scn->diffuseX) >> scn->diffuseIntensityX);
 
                         specular = (normalVal >> 6) >> scn->specularIntensityY;
-                        specular = clampVal(specular, 0x00, 0xFF);
+                        specular = CLAMP(specular, 0x00, 0xFF);
                         int32 g  = specular + ((int32)((drawVert->color >> 8) & 0xFF) * ((normal >> 10) + scn->diffuseY) >> scn->diffuseIntensityY);
 
                         specular = (normalVal >> 6) >> scn->specularIntensityZ;
-                        specular = clampVal(specular, 0x00, 0xFF);
+                        specular = CLAMP(specular, 0x00, 0xFF);
                         int32 b  = specular + ((int32)((drawVert->color >> 0) & 0xFF) * ((normal >> 10) + scn->diffuseZ) >> scn->diffuseIntensityZ);
 
-                        r = clampVal(r, 0x00, 0xFF);
-                        g = clampVal(g, 0x00, 0xFF);
-                        b = clampVal(b, 0x00, 0xFF);
+                        r = CLAMP(r, 0x00, 0xFF);
+                        g = CLAMP(g, 0x00, 0xFF);
+                        b = CLAMP(b, 0x00, 0xFF);
 
                         vertClrs[v] = (r << 16) | (g << 8) | (b << 0);
                     }
@@ -1109,20 +1110,20 @@ void RSDK::Draw3DScene(uint16 sceneID)
                         int32 normalVal = (normal >> 2) * (abs(normal) >> 2);
 
                         int32 specular = normalVal >> 6 >> scn->specularIntensityX;
-                        specular       = clampVal(specular, 0x00, 0xFF);
+                        specular       = CLAMP(specular, 0x00, 0xFF);
                         int32 r = specular + ((int32)((drawVert[0].color >> 16) & 0xFF) * ((normal >> 10) + scn->diffuseX) >> scn->diffuseIntensityX);
 
                         specular = normalVal >> 6 >> scn->specularIntensityY;
-                        specular = clampVal(specular, 0x00, 0xFF);
+                        specular = CLAMP(specular, 0x00, 0xFF);
                         int32 g  = specular + ((int32)((drawVert[0].color >> 8) & 0xFF) * ((normal >> 10) + scn->diffuseY) >> scn->diffuseIntensityY);
 
                         specular = normalVal >> 6 >> scn->specularIntensityZ;
-                        specular = clampVal(specular, 0x00, 0xFF);
+                        specular = CLAMP(specular, 0x00, 0xFF);
                         int32 b  = specular + ((int32)((drawVert[0].color >> 0) & 0xFF) * ((normal >> 10) + scn->diffuseZ) >> scn->diffuseIntensityZ);
 
-                        r = clampVal(r, 0x00, 0xFF);
-                        g = clampVal(g, 0x00, 0xFF);
-                        b = clampVal(b, 0x00, 0xFF);
+                        r = CLAMP(r, 0x00, 0xFF);
+                        g = CLAMP(g, 0x00, 0xFF);
+                        b = CLAMP(b, 0x00, 0xFF);
 
                         uint32 color = (r << 16) | (g << 8) | (b << 0);
 
@@ -1162,20 +1163,20 @@ void RSDK::Draw3DScene(uint16 sceneID)
                         int32 normalVal = (normal >> 2) * (abs(normal) >> 2);
 
                         int32 specular = normalVal >> 6 >> scn->specularIntensityX;
-                        specular       = clampVal(specular, 0x00, 0xFF);
+                        specular       = CLAMP(specular, 0x00, 0xFF);
                         int32 r = specular + ((int32)((drawVert[0].color >> 16) & 0xFF) * ((normal >> 10) + scn->diffuseX) >> scn->diffuseIntensityX);
 
                         specular = normalVal >> 6 >> scn->specularIntensityY;
-                        specular = clampVal(specular, 0x00, 0xFF);
+                        specular = CLAMP(specular, 0x00, 0xFF);
                         int32 g  = specular + ((int32)((drawVert[0].color >> 8) & 0xFF) * ((normal >> 10) + scn->diffuseY) >> scn->diffuseIntensityY);
 
                         specular = normalVal >> 6 >> scn->specularIntensityZ;
-                        specular = clampVal(specular, 0x00, 0xFF);
+                        specular = CLAMP(specular, 0x00, 0xFF);
                         int32 b  = specular + ((int32)((drawVert[0].color >> 0) & 0xFF) * ((normal >> 10) + scn->diffuseZ) >> scn->diffuseIntensityZ);
 
-                        r = clampVal(r, 0x00, 0xFF);
-                        g = clampVal(g, 0x00, 0xFF);
-                        b = clampVal(b, 0x00, 0xFF);
+                        r = CLAMP(r, 0x00, 0xFF);
+                        g = CLAMP(g, 0x00, 0xFF);
+                        b = CLAMP(b, 0x00, 0xFF);
 
                         uint32 color = (r << 16) | (g << 8) | (b << 0);
 
@@ -1206,23 +1207,23 @@ void RSDK::Draw3DScene(uint16 sceneID)
                             int32 normalVal = (normal >> 2) * (abs(normal) >> 2);
 
                             int32 specular = normalVal >> 6 >> scn->specularIntensityX;
-                            specular       = clampVal(specular, 0x00, 0xFF);
+                            specular       = CLAMP(specular, 0x00, 0xFF);
                             int32 r =
                                 specular + ((int32)((drawVert[v].color >> 16) & 0xFF) * ((normal >> 10) + scn->diffuseX) >> scn->diffuseIntensityX);
 
                             specular = normalVal >> 6 >> scn->specularIntensityY;
-                            specular = clampVal(specular, 0x00, 0xFF);
+                            specular = CLAMP(specular, 0x00, 0xFF);
                             int32 g =
                                 specular + ((int32)((drawVert[v].color >> 8) & 0xFF) * ((normal >> 10) + scn->diffuseY) >> scn->diffuseIntensityY);
 
                             specular = normalVal >> 6 >> scn->specularIntensityZ;
-                            specular = clampVal(specular, 0x00, 0xFF);
+                            specular = CLAMP(specular, 0x00, 0xFF);
                             int32 b =
                                 specular + ((int32)((drawVert[v].color >> 0) & 0xFF) * ((normal >> 10) + scn->diffuseZ) >> scn->diffuseIntensityZ);
 
-                            r = clampVal(r, 0x00, 0xFF);
-                            g = clampVal(g, 0x00, 0xFF);
-                            b = clampVal(b, 0x00, 0xFF);
+                            r = CLAMP(r, 0x00, 0xFF);
+                            g = CLAMP(g, 0x00, 0xFF);
+                            b = CLAMP(b, 0x00, 0xFF);
 
                             vertClrs[v] = (r << 16) | (g << 8) | (b << 0);
                         }

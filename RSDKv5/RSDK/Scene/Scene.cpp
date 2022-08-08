@@ -952,16 +952,16 @@ void RSDK::ProcessParallax(TileLayer *layer)
             for (int32 i = 0; i < layer->scrollInfoCount; ++i) {
                 scrollInfo->tilePos = scrollInfo->scrollPos + (currentScreen->position.x * scrollInfo->parallaxFactor << 8);
 
-                int16 tilePos = (scrollInfo->tilePos >> 16) % pixelWidth;
+                int16 tilePos = FROM_FIXED(scrollInfo->tilePos) % pixelWidth;
                 if (tilePos < 0)
                     tilePos += pixelWidth;
-                scrollInfo->tilePos = tilePos << 0x10;
+                scrollInfo->tilePos = TO_FIXED(tilePos);
 
                 ++scrollInfo;
             }
 
             int16 scrollPos =
-                ((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.y << 8)) & 0xFFFF0000) >> 16) % pixelHeight;
+                FROM_FIXED((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.y << 8)) & 0xFFFF0000)) % pixelHeight;
             if (scrollPos < 0)
                 scrollPos += pixelHeight;
 
@@ -972,9 +972,9 @@ void RSDK::ProcessParallax(TileLayer *layer)
             for (int32 i = 0; i < currentScreen->waterDrawPos; ++i) {
                 scanlinePtr->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
                 if (layer->scrollInfo[*lineScrollPtr].deform)
-                    scanlinePtr->position.x += *deformationData << 0x10;
+                    scanlinePtr->position.x += TO_FIXED(*deformationData);
 
-                scanlinePtr->position.y = scrollPos++ << 0x10;
+                scanlinePtr->position.y = TO_FIXED(scrollPos++);
 
                 deformationData++;
                 if (scrollPos == pixelHeight) {
@@ -992,12 +992,12 @@ void RSDK::ProcessParallax(TileLayer *layer)
             for (int32 i = currentScreen->waterDrawPos; i < currentScreen->size.y; ++i) {
                 scanlinePtr->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
                 if (layer->scrollInfo[*lineScrollPtr].deform)
-                    scanlinePtr->position.x += *deformationData << 0x10;
+                    scanlinePtr->position.x += TO_FIXED(*deformationData);
 
-                scanlinePtr->position.y = scrollPos++ << 0x10;
+                scanlinePtr->position.y = TO_FIXED(scrollPos++);
 
-                scanlinePtr->deform.x = 1 << 16;
-                scanlinePtr->deform.y = 0 << 16;
+                scanlinePtr->deform.x = TO_FIXED(1);
+                scanlinePtr->deform.y = TO_FIXED(0);
 
                 deformationData++;
                 if (scrollPos == pixelHeight) {
@@ -1015,13 +1015,13 @@ void RSDK::ProcessParallax(TileLayer *layer)
         case LAYER_VSCROLL: {
             for (int32 i = 0; i < layer->scrollInfoCount; ++i) {
                 scrollInfo->tilePos = scrollInfo->scrollPos + (currentScreen->position.y * scrollInfo->parallaxFactor << 8);
-                scrollInfo->tilePos = ((scrollInfo->tilePos >> 16) % pixelHeight) << 0x10;
+                scrollInfo->tilePos = TO_FIXED(FROM_FIXED(scrollInfo->tilePos) % pixelHeight);
 
                 ++scrollInfo;
             }
 
             int16 scrollPos =
-                ((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.x << 8)) & 0xFFFF0000) >> 16) % pixelWidth;
+                FROM_FIXED((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.x << 8)) & 0xFFFF0000)) % pixelWidth;
             if (scrollPos < 0)
                 scrollPos += pixelWidth;
 
@@ -1029,10 +1029,10 @@ void RSDK::ProcessParallax(TileLayer *layer)
 
             // Above water
             for (int32 i = 0; i < currentScreen->size.x; ++i) {
-                scanlinePtr->position.x = scrollPos++ << 0x10;
+                scanlinePtr->position.x = TO_FIXED(scrollPos++);
                 scanlinePtr->position.y = layer->scrollInfo[*lineScrollPtr].tilePos;
-                scanlinePtr->deform.x   = 1 << 16;
-                scanlinePtr->deform.y   = 0 << 16;
+                scanlinePtr->deform.x   = TO_FIXED(1);
+                scanlinePtr->deform.y   = TO_FIXED(0);
 
                 if (scrollPos == pixelWidth) {
                     lineScrollPtr = layer->lineScroll;
@@ -1049,20 +1049,20 @@ void RSDK::ProcessParallax(TileLayer *layer)
 
         case LAYER_ROTOZOOM: {
             int16 scrollPosX =
-                ((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.x << 8)) & 0xFFFF0000) >> 0x10) % pixelWidth;
+                FROM_FIXED((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.x << 8)) & 0xFFFF0000)) % pixelWidth;
             if (scrollPosX < 0)
                 scrollPosX += pixelWidth;
 
             int16 scrollPosY =
-                ((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.y << 8)) & 0xFFFF0000) >> 0x10) % pixelHeight;
+                FROM_FIXED((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.y << 8)) & 0xFFFF0000)) % pixelHeight;
             if (scrollPosY < 0)
                 scrollPosY += pixelHeight;
 
             for (int32 i = 0; i < currentScreen->size.y; ++i) {
-                scanlinePtr->position.x = scrollPosX << 0x10;
-                scanlinePtr->position.y = scrollPosY++ << 0x10;
-                scanlinePtr->deform.x   = 1 << 16;
-                scanlinePtr->deform.y   = 0 << 16;
+                scanlinePtr->position.x = TO_FIXED(scrollPosX);
+                scanlinePtr->position.y = TO_FIXED(scrollPosY++);
+                scanlinePtr->deform.x   = TO_FIXED(1);
+                scanlinePtr->deform.y   = TO_FIXED(0);
 
                 scanlinePtr++;
             }
@@ -1073,31 +1073,31 @@ void RSDK::ProcessParallax(TileLayer *layer)
             for (int32 i = 0; i < layer->scrollInfoCount; ++i) {
                 scrollInfo->tilePos = scrollInfo->scrollPos + (currentScreen->position.x * scrollInfo->parallaxFactor << 8);
 
-                int16 tilePos = (scrollInfo->tilePos >> 16) % pixelWidth;
+                int16 tilePos = FROM_FIXED(scrollInfo->tilePos) % pixelWidth;
                 if (tilePos < 0)
                     tilePos += pixelWidth;
-                scrollInfo->tilePos = tilePos << 0x10;
+                scrollInfo->tilePos = TO_FIXED(tilePos);
 
                 ++scrollInfo;
             }
 
             int16 scrollPos =
-                ((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.y << 8)) & 0xFFFF0000) >> 16) % pixelHeight;
+                FROM_FIXED((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.y << 8)) & 0xFFFF0000)) % pixelHeight;
             if (scrollPos < 0)
                 scrollPos += pixelHeight;
 
             uint8 *lineScrollPtr = &layer->lineScroll[scrollPos];
 
             // Above water
-            int32 *deformationData = &layer->deformationData[((scrollPos >> 16) + (uint16)layer->deformationOffset) & 0x1FF];
+            int32 *deformationData = &layer->deformationData[(FROM_FIXED(scrollPos) + (uint16)layer->deformationOffset) & 0x1FF];
             for (int32 i = 0; i < currentScreen->waterDrawPos; ++i) {
                 scanlinePtr->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
                 if (layer->scrollInfo[*lineScrollPtr].deform)
                     scanlinePtr->position.x += *deformationData;
-                scanlinePtr->position.y = scrollPos++ << 0x10;
+                scanlinePtr->position.y = TO_FIXED(scrollPos++);
 
-                scanlinePtr->deform.x = 1 << 16;
-                scanlinePtr->deform.y = 0 << 16;
+                scanlinePtr->deform.x = TO_FIXED(1);
+                scanlinePtr->deform.y = TO_FIXED(0);
 
                 deformationData++;
                 if (scrollPos == pixelHeight) {
@@ -1111,12 +1111,12 @@ void RSDK::ProcessParallax(TileLayer *layer)
             }
 
             // Under water
-            deformationData = &layer->deformationDataW[((scrollPos >> 16) + (uint16)layer->deformationOffsetW) & 0x1FF];
+            deformationData = &layer->deformationDataW[(FROM_FIXED(scrollPos) + (uint16)layer->deformationOffsetW) & 0x1FF];
             for (int32 i = currentScreen->waterDrawPos; i < currentScreen->size.y; ++i) {
                 scanlinePtr->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
                 if (layer->scrollInfo[*lineScrollPtr].deform)
                     scanlinePtr->position.x += *deformationData;
-                scanlinePtr->position.y = scrollPos++ << 0x10;
+                scanlinePtr->position.y = TO_FIXED(scrollPos++);
 
                 deformationData++;
                 if (scrollPos == pixelHeight) {
@@ -1224,17 +1224,17 @@ void RSDK::DrawLayerHScroll(TileLayer *layer)
     for (int32 cy = currentScreen->clipBound_Y1; cy < currentScreen->clipBound_Y2; ++cy) {
         int32 x               = scanline->position.x;
         int32 y               = scanline->position.y;
-        int32 tileX           = x >> 0x10;
+        int32 tileX           = FROM_FIXED(x);
         uint16 *activePalette = fullPalette[*lineBuffer++];
 
         if (tileX >= TILE_SIZE * layer->xsize)
-            x = (tileX - TILE_SIZE * layer->xsize) << 0x10;
+            x = TO_FIXED(tileX - TILE_SIZE * layer->xsize);
         else if (tileX < 0)
-            x = (tileX + TILE_SIZE * layer->xsize) << 0x10;
+            x = TO_FIXED(tileX + TILE_SIZE * layer->xsize);
 
-        int32 tileRemain = TILE_SIZE - ((x >> 0x10) & 0xF);
-        int32 sheetX     = (x >> 16) & 0xF;
-        int32 sheetY     = TILE_SIZE * ((y >> 0x10) & 0xF);
+        int32 tileRemain = TILE_SIZE - (FROM_FIXED(x) & 0xF);
+        int32 sheetX     = FROM_FIXED(x) & 0xF;
+        int32 sheetY     = TILE_SIZE * (FROM_FIXED(y) & 0xF);
         int32 lineRemain = currentScreen->pitch;
 
         int32 tx       = x >> 20;
@@ -1376,16 +1376,16 @@ void RSDK::DrawLayerVScroll(TileLayer *layer)
     for (int32 cx = currentScreen->clipBound_X1; cx < currentScreen->clipBound_X2; ++cx) {
         int32 x  = scanline->position.x;
         int32 y  = scanline->position.y;
-        int32 ty = y >> 0x10;
+        int32 ty = FROM_FIXED(y);
 
         if (ty >= TILE_SIZE * layer->ysize)
-            y -= (TILE_SIZE * layer->ysize) << 0x10;
+            y -= TO_FIXED(TILE_SIZE * layer->ysize);
         else if (ty < 0)
-            y += (TILE_SIZE * layer->ysize) << 0x10;
+            y += TO_FIXED(TILE_SIZE * layer->ysize);
 
-        int32 tileRemain = TILE_SIZE - ((y >> 16) & 0xF);
-        int32 sheetX     = (x >> 16) & 0xF;
-        int32 sheetY     = (y >> 16) & 0xF;
+        int32 tileRemain = TILE_SIZE - (FROM_FIXED(y) & 0xF);
+        int32 sheetX     = FROM_FIXED(x) & 0xF;
+        int32 sheetY     = FROM_FIXED(y) & 0xF;
         int32 lineRemain = currentScreen->size.y;
 
         uint16 *layout = &layer->layout[(x >> 20) + ((y >> 20) << layer->widthShift)];
@@ -1530,8 +1530,8 @@ void RSDK::DrawLayerRotozoom(TileLayer *layer)
         for (int32 cx = 0; cx < lineSize; ++cx) {
             int32 tx = posX >> 20;
             int32 ty = posY >> 20;
-            int32 x  = (posX >> 16) & 0xF;
-            int32 y  = (posY >> 16) & 0xF;
+            int32 x  = FROM_FIXED(posX) & 0xF;
+            int32 y  = FROM_FIXED(posY) & 0xF;
 
             uint16 tile = layout[((width >> 4) & tx) + (((height >> 4) & ty) << layer->widthShift)] & 0xFFF;
             uint8 idx   = tilesetPixels[TILE_SIZE * (y + TILE_SIZE * tile) + x];
@@ -1562,10 +1562,10 @@ void RSDK::DrawLayerBasic(TileLayer *layer)
 
         ScanlineInfo *scanline = &scanlines[currentScreen->clipBound_Y1];
 
-        int32 tx          = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) >> 4;
-        int32 ty          = (scanline->position.y >> 16) >> 4;
-        int32 sheetY      = (scanline->position.y >> 16) & 0xF;
-        int32 sheetX      = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) & 0xF;
+        int32 tx          = (currentScreen->clipBound_X1 + FROM_FIXED(scanline->position.x)) >> 4;
+        int32 ty          = FROM_FIXED(scanline->position.y) >> 4;
+        int32 sheetY      = FROM_FIXED(scanline->position.y) & 0xF;
+        int32 sheetX      = (currentScreen->clipBound_X1 + FROM_FIXED(scanline->position.x)) & 0xF;
         int32 tileRemainX = TILE_SIZE - sheetX;
         int32 tileRemainY = TILE_SIZE - sheetY;
 
@@ -1715,8 +1715,8 @@ void RSDK::DrawLayerBasic(TileLayer *layer)
         // Draw the bulk of the tiles
         int32 lineTileCount = ((currentScreen->clipBound_Y2 - currentScreen->clipBound_Y1) >> 4) - 1;
         for (int32 l = 0; l < lineTileCount; ++l) {
-            sheetX      = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) & 0xF;
-            tx          = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) >> 4;
+            sheetX      = (currentScreen->clipBound_X1 + FROM_FIXED(scanline->position.x)) & 0xF;
+            tx          = (currentScreen->clipBound_X1 + FROM_FIXED(scanline->position.x)) >> 4;
             tileRemainX = TILE_SIZE - sheetX;
             layout      = &layer->layout[tx + (ty << layer->widthShift)];
 
@@ -1869,8 +1869,8 @@ void RSDK::DrawLayerBasic(TileLayer *layer)
 
         // Remaining pixels on bottom
         {
-            tx          = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) >> 4;
-            sheetX      = (currentScreen->clipBound_X1 + (scanline->position.x >> 16)) & 0xF;
+            tx          = (currentScreen->clipBound_X1 + FROM_FIXED(scanline->position.x)) >> 4;
+            sheetX      = (currentScreen->clipBound_X1 + FROM_FIXED(scanline->position.x)) & 0xF;
             tileRemainX = TILE_SIZE - sheetX;
             layout      = &layer->layout[tx + (ty << layer->widthShift)];
 

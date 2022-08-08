@@ -50,7 +50,7 @@ int32 RSDK::Legacy::PlayMusic(int32 trackID)
 
 void RSDK::Legacy::SetMusicVolume(uint32 volume)
 {
-    musicVolume = minVal(volume, 100);
+    musicVolume = MIN(volume, 100);
     SetChannelAttributes(musicChannel, musicVolume * 0.01, 0.0, 1.0);
 }
 

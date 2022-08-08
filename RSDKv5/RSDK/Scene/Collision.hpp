@@ -74,7 +74,7 @@ extern uint8 roofAngleTolerance;
 inline void SetupCollisionConfig(int32 minDistance, uint8 lowTolerance, uint8 highTolerance, uint8 floorAngleTolerance, uint8 wallAngleTolerance,
                                  uint8 roofAngleTolerance)
 {
-    collisionMinimumDistance = minDistance << 16;
+    collisionMinimumDistance = TO_FIXED(minDistance);
     lowCollisionTolerance    = lowTolerance;
     highCollisionTolerance   = highTolerance;
     floorAngleTolerance      = floorAngleTolerance;
@@ -97,9 +97,9 @@ inline void GetCollisionInfo(CollisionMask **masks, TileInfo **tileInfo)
 bool32 CheckObjectCollisionTouch(Entity *thisEntity, Hitbox *thisHitbox, Entity *otherEntity, Hitbox *otherHitbox);
 inline bool32 CheckObjectCollisionCircle(Entity *thisEntity, int32 thisRadius, Entity *otherEntity, int32 otherRadius)
 {
-    int32 x = (thisEntity->position.x - otherEntity->position.x) >> 16;
-    int32 y = (thisEntity->position.y - otherEntity->position.y) >> 16;
-    int32 r = (thisRadius + otherRadius) >> 16;
+    int32 x = FROM_FIXED(thisEntity->position.x - otherEntity->position.x);
+    int32 y = FROM_FIXED(thisEntity->position.y - otherEntity->position.y);
+    int32 r = FROM_FIXED(thisRadius + otherRadius);
 
 #if !RETRO_USE_ORIGINAL_CODE
     if (showHitboxes) {
