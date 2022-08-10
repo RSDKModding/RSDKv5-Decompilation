@@ -10,7 +10,13 @@ PROFILE		?= 0
 
 RSDK_ONLY   ?= 0
 
+
+RSDK_REVISION ?= 2
+ifeq ($(RSDK_REVISION),3)
+RSDK_NAME    = RSDKv5U
+else
 RSDK_NAME    = RSDKv5
+endif
 RSDK_SUFFIX  = 
 USERTYPE    ?= Dummy
 
@@ -22,7 +28,6 @@ RSDK_PREBUILD =
 RSDK_PRELINK  =
 RSDK_POSTLINK = 
 
-RSDK_ULTIMATE ?= 1
 
 STATICGAME 	?= 0
 
@@ -111,6 +116,8 @@ ifeq ($(STATICGAME),0)
 else
 	DEFINES += -DRETRO_STANDALONE=0
 endif
+
+DEFINES += -DRETRO_REVISION=$(RSDK_REVISION)
 
 CFLAGS_ALL += $(CFLAGS) \
 			   -fsigned-char 
