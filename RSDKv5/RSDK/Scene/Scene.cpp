@@ -190,7 +190,6 @@ void RSDK::LoadSceneFolder()
                 RunModCallbacks(MODCB_ONSTATICLOAD, (void *)objClass);
 #endif
 
-
 #if RETRO_USE_MOD_LOADER
                 for (ModInfo &mod : modList) {
                     if (mod.staticVars.find(objClass->hash) != mod.staticVars.end()) {
@@ -653,7 +652,7 @@ void RSDK::LoadTileConfig(char *filepath)
                 memcpy(maskActive, buffer + bufPos, TILE_SIZE * sizeof(uint8));
                 bufPos += TILE_SIZE;
 
-                bool32 yFlip                    = buffer[bufPos++];
+                bool32 yFlip              = buffer[bufPos++];
                 tileInfo[p][t].floorAngle = buffer[bufPos++];
                 tileInfo[p][t].lWallAngle = buffer[bufPos++];
                 tileInfo[p][t].rWallAngle = buffer[bufPos++];
@@ -778,7 +777,7 @@ void RSDK::LoadTileConfig(char *filepath)
 
             // FlipX
             for (int32 t = 0; t < TILE_COUNT; ++t) {
-                int32 off                             = (FLIP_X * TILE_COUNT);
+                int32 off                       = (FLIP_X * TILE_COUNT);
                 tileInfo[p][t + off].flag       = tileInfo[p][t].flag;
                 tileInfo[p][t + off].floorAngle = -tileInfo[p][t].floorAngle;
                 tileInfo[p][t + off].lWallAngle = -tileInfo[p][t].rWallAngle;
@@ -805,7 +804,7 @@ void RSDK::LoadTileConfig(char *filepath)
 
             // FlipY
             for (int32 t = 0; t < TILE_COUNT; ++t) {
-                int32 off                             = (FLIP_Y * TILE_COUNT);
+                int32 off                       = (FLIP_Y * TILE_COUNT);
                 tileInfo[p][t + off].flag       = tileInfo[p][t].flag;
                 tileInfo[p][t + off].floorAngle = -0x80 - tileInfo[p][t].roofAngle;
                 tileInfo[p][t + off].lWallAngle = -0x80 - tileInfo[p][t].lWallAngle;
@@ -832,9 +831,9 @@ void RSDK::LoadTileConfig(char *filepath)
 
             // FlipXY
             for (int32 t = 0; t < TILE_COUNT; ++t) {
-                int32 off                             = (FLIP_XY * TILE_COUNT);
-                int32 offY                            = (FLIP_Y * TILE_COUNT);
-                tileInfo[p][t + off].flag             = tileInfo[p][t + offY].flag;
+                int32 off                       = (FLIP_XY * TILE_COUNT);
+                int32 offY                      = (FLIP_Y * TILE_COUNT);
+                tileInfo[p][t + off].flag       = tileInfo[p][t + offY].flag;
                 tileInfo[p][t + off].floorAngle = -tileInfo[p][t + offY].floorAngle;
                 tileInfo[p][t + off].lWallAngle = -tileInfo[p][t + offY].rWallAngle;
                 tileInfo[p][t + off].roofAngle  = -tileInfo[p][t + offY].roofAngle;
@@ -940,10 +939,10 @@ void RSDK::ProcessParallax(TileLayer *layer)
     if (!layer->xsize || !layer->ysize)
         return;
 
-    int32 pixelWidth          = TILE_SIZE * layer->xsize;
-    int32 pixelHeight         = TILE_SIZE * layer->ysize;
-    ScanlineInfo *scanlinePtr = scanlines;
-    ScrollInfo *scrollInfo    = layer->scrollInfo;
+    int32 pixelWidth       = TILE_SIZE * layer->xsize;
+    int32 pixelHeight      = TILE_SIZE * layer->ysize;
+    ScanlineInfo *scanline = scanlines;
+    ScrollInfo *scrollInfo = layer->scrollInfo;
 
     switch (layer->type) {
         default: break;
@@ -970,11 +969,11 @@ void RSDK::ProcessParallax(TileLayer *layer)
             // Above water
             int32 *deformationData = &layer->deformationData[(scrollPos + (uint16)layer->deformationOffset) & 0x1FF];
             for (int32 i = 0; i < currentScreen->waterDrawPos; ++i) {
-                scanlinePtr->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
+                scanline->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
                 if (layer->scrollInfo[*lineScrollPtr].deform)
-                    scanlinePtr->position.x += TO_FIXED(*deformationData);
+                    scanline->position.x += TO_FIXED(*deformationData);
 
-                scanlinePtr->position.y = TO_FIXED(scrollPos++);
+                scanline->position.y = TO_FIXED(scrollPos++);
 
                 deformationData++;
                 if (scrollPos == pixelHeight) {
@@ -984,20 +983,17 @@ void RSDK::ProcessParallax(TileLayer *layer)
                 else {
                     ++lineScrollPtr;
                 }
-                scanlinePtr++;
+                scanline++;
             }
 
             // Under water
             deformationData = &layer->deformationDataW[(scrollPos + (uint16)layer->deformationOffsetW) & 0x1FF];
             for (int32 i = currentScreen->waterDrawPos; i < currentScreen->size.y; ++i) {
-                scanlinePtr->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
+                scanline->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
                 if (layer->scrollInfo[*lineScrollPtr].deform)
-                    scanlinePtr->position.x += TO_FIXED(*deformationData);
+                    scanline->position.x += TO_FIXED(*deformationData);
 
-                scanlinePtr->position.y = TO_FIXED(scrollPos++);
-
-                scanlinePtr->deform.x = TO_FIXED(1);
-                scanlinePtr->deform.y = TO_FIXED(0);
+                scanline->position.y = TO_FIXED(scrollPos++);
 
                 deformationData++;
                 if (scrollPos == pixelHeight) {
@@ -1007,7 +1003,7 @@ void RSDK::ProcessParallax(TileLayer *layer)
                 else {
                     ++lineScrollPtr;
                 }
-                scanlinePtr++;
+                scanline++;
             }
             break;
         }
@@ -1029,10 +1025,8 @@ void RSDK::ProcessParallax(TileLayer *layer)
 
             // Above water
             for (int32 i = 0; i < currentScreen->size.x; ++i) {
-                scanlinePtr->position.x = TO_FIXED(scrollPos++);
-                scanlinePtr->position.y = layer->scrollInfo[*lineScrollPtr].tilePos;
-                scanlinePtr->deform.x   = TO_FIXED(1);
-                scanlinePtr->deform.y   = TO_FIXED(0);
+                scanline->position.x = TO_FIXED(scrollPos++);
+                scanline->position.y = layer->scrollInfo[*lineScrollPtr].tilePos;
 
                 if (scrollPos == pixelWidth) {
                     lineScrollPtr = layer->lineScroll;
@@ -1042,7 +1036,7 @@ void RSDK::ProcessParallax(TileLayer *layer)
                     ++lineScrollPtr;
                 }
 
-                scanlinePtr++;
+                scanline++;
             }
             break;
         }
@@ -1059,12 +1053,12 @@ void RSDK::ProcessParallax(TileLayer *layer)
                 scrollPosY += pixelHeight;
 
             for (int32 i = 0; i < currentScreen->size.y; ++i) {
-                scanlinePtr->position.x = TO_FIXED(scrollPosX);
-                scanlinePtr->position.y = TO_FIXED(scrollPosY++);
-                scanlinePtr->deform.x   = TO_FIXED(1);
-                scanlinePtr->deform.y   = TO_FIXED(0);
+                scanline->position.x = TO_FIXED(scrollPosX);
+                scanline->position.y = TO_FIXED(scrollPosY++);
+                scanline->deform.x   = TO_FIXED(1);
+                scanline->deform.y   = TO_FIXED(0);
 
-                scanlinePtr++;
+                scanline++;
             }
             break;
         }
@@ -1089,17 +1083,10 @@ void RSDK::ProcessParallax(TileLayer *layer)
             uint8 *lineScrollPtr = &layer->lineScroll[scrollPos];
 
             // Above water
-            int32 *deformationData = &layer->deformationData[(FROM_FIXED(scrollPos) + (uint16)layer->deformationOffset) & 0x1FF];
             for (int32 i = 0; i < currentScreen->waterDrawPos; ++i) {
-                scanlinePtr->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
-                if (layer->scrollInfo[*lineScrollPtr].deform)
-                    scanlinePtr->position.x += *deformationData;
-                scanlinePtr->position.y = TO_FIXED(scrollPos++);
+                scanline->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
+                scanline->position.y = TO_FIXED(scrollPos++);
 
-                scanlinePtr->deform.x = TO_FIXED(1);
-                scanlinePtr->deform.y = TO_FIXED(0);
-
-                deformationData++;
                 if (scrollPos == pixelHeight) {
                     lineScrollPtr = layer->lineScroll;
                     scrollPos     = 0;
@@ -1107,18 +1094,14 @@ void RSDK::ProcessParallax(TileLayer *layer)
                 else {
                     ++lineScrollPtr;
                 }
-                scanlinePtr++;
+                scanline++;
             }
 
             // Under water
-            deformationData = &layer->deformationDataW[(FROM_FIXED(scrollPos) + (uint16)layer->deformationOffsetW) & 0x1FF];
             for (int32 i = currentScreen->waterDrawPos; i < currentScreen->size.y; ++i) {
-                scanlinePtr->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
-                if (layer->scrollInfo[*lineScrollPtr].deform)
-                    scanlinePtr->position.x += *deformationData;
-                scanlinePtr->position.y = TO_FIXED(scrollPos++);
+                scanline->position.x = layer->scrollInfo[*lineScrollPtr].tilePos;
+                scanline->position.y = TO_FIXED(scrollPos++);
 
-                deformationData++;
                 if (scrollPos == pixelHeight) {
                     lineScrollPtr = layer->lineScroll;
                     scrollPos     = 0;
@@ -1127,7 +1110,7 @@ void RSDK::ProcessParallax(TileLayer *layer)
                     ++lineScrollPtr;
                 }
 
-                scanlinePtr++;
+                scanline++;
             }
             break;
         }
@@ -1150,7 +1133,7 @@ void RSDK::ProcessSceneTimer()
             }
         }
 
-        sceneInfo.milliseconds = sceneInfo.timeCounter / videoSettings.refreshRate;
+        sceneInfo.milliseconds = sceneInfo.timeCounter / 60; // 60 == refreshRate
     }
 }
 

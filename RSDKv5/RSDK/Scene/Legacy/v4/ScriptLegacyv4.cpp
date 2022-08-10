@@ -1865,6 +1865,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
             }
 
+#if RETRO_USE_MOD_LOADER
             // Eg: temp0 = PlayerName[SONIC]
             if (StrComp(funcName, "PlayerName")) {
                 funcName[0] = '0';
@@ -1916,6 +1917,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, s);
             }
+#endif
 #endif
 
             // Storing Values
@@ -2159,6 +2161,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
                 PrintLog(PRINT_NORMAL, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
         }
 
+#if RETRO_USE_MOD_LOADER
         // Eg: temp0 = PlayerName[SONIC]
         if (StrComp(caseValue, "PlayerName")) {
             caseValue[0] = '0';
@@ -2210,6 +2213,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
             caseValue[0] = 0;
             AppendIntegerToString(caseValue, s);
         }
+#endif
 #endif
         StrCopy(caseString, caseValue);
         foundValue = true;
@@ -2356,6 +2360,7 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
             }
 
+#if RETRO_USE_MOD_LOADER
             // Eg: temp0 = PlayerName[SONIC]
             if (StrComp(caseValue, "PlayerName")) {
                 caseValue[0] = '0';
@@ -2407,6 +2412,7 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                 caseValue[0] = 0;
                 AppendIntegerToString(caseValue, s);
             }
+#endif
 #endif
             StrCopy(caseText, caseValue);
             foundValue = true;

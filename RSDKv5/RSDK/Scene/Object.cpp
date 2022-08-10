@@ -42,7 +42,7 @@ void RSDK::RegisterObject_STD(Object **staticVars, const char *name, uint32 enti
 #else
 void RSDK::RegisterObject(Object **staticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize, void (*update)(),
                           void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *), void (*stageLoad)(),
-                          void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), void (*staticLoad)())
+                          void (*editorDraw)(), void (*editorLoad)(), void (*serialize)(), void (*staticLoad)(Object *))
 #endif
 #else
 #if RETRO_USE_MOD_LOADER

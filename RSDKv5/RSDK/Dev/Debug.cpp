@@ -607,7 +607,7 @@ void RSDK::DevMenu_CategorySelectMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap              = SKU::GetConfirmButtonFlip()
+    bool32 swap = SKU::GetConfirmButtonFlip();
 #endif
     if (swap)
         confirm = controller[CONT_ANY].keyB.press;
@@ -721,7 +721,7 @@ void RSDK::DevMenu_SceneSelectMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap              = SKU::GetConfirmButtonFlip()
+    bool32 swap = SKU::GetConfirmButtonFlip();
 #endif
     if (swap)
         confirm = controller[CONT_ANY].keyB.press;
@@ -838,7 +838,7 @@ void RSDK::DevMenu_OptionsMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap              = SKU::GetConfirmButtonFlip()
+    bool32 swap = SKU::GetConfirmButtonFlip();
 #endif
     if (swap)
         confirm = controller[CONT_ANY].keyB.press;
@@ -1102,7 +1102,7 @@ void RSDK::DevMenu_VideoOptionsMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap = SKU::GetConfirmButtonFlip()
+    bool32 swap = SKU::GetConfirmButtonFlip();
 #endif
     if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
@@ -1235,7 +1235,7 @@ void RSDK::DevMenu_AudioOptionsMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap = SKU::GetConfirmButtonFlip()
+    bool32 swap = SKU::GetConfirmButtonFlip();
 #endif
     if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
@@ -1324,7 +1324,7 @@ void RSDK::DevMenu_InputOptionsMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap = SKU::GetConfirmButtonFlip()
+    bool32 swap = SKU::GetConfirmButtonFlip();
 #endif
     if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
@@ -1450,7 +1450,7 @@ void RSDK::DevMenu_KeyMappingsMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap = SKU::GetConfirmButtonFlip()
+    bool32 swap = SKU::GetConfirmButtonFlip();
 #endif
     if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
         devMenu.state     = DevMenu_OptionsMenu;
@@ -1833,7 +1833,7 @@ void RSDK::DevMenu_ModsMenu()
 #if RETRO_REV02
     bool32 swap = SKU::userCore->GetConfirmButtonFlip();
 #else
-    bool32 swap = SKU::GetConfirmButtonFlip()
+    bool32 swap = SKU::GetConfirmButtonFlip();
 #endif
     if (swap)
         confirm = controller[CONT_ANY].keyB.press;

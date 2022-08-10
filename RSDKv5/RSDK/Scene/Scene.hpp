@@ -104,8 +104,8 @@ struct ScrollInfo {
 };
 
 struct ScanlineInfo {
-    Vector2 position;
-    Vector2 deform;
+    Vector2 position; // position of the scanline
+    Vector2 deform;   // deformation that should be applied (only applies to RotoZoom type)
 };
 
 struct TileLayer {

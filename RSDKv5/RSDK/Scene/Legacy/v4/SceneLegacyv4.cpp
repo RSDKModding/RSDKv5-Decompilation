@@ -452,7 +452,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
 #endif
 
 #if LEGACY_RETRO_USE_COMPILER
-#if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_MOD_LOADER
             bool32 bytecodeExists = false;
             FileInfo bytecodeInfo;
             InitFileInfo(&bytecodeInfo);
@@ -530,7 +530,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
             }
 
 #if LEGACY_RETRO_USE_COMPILER
-#if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_MOD_LOADER
             char scriptPath[0x40];
             switch (sceneInfo.activeCategory) {
                 case STAGELIST_PRESENTATION:

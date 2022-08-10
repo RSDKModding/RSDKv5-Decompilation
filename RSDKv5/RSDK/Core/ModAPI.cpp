@@ -286,9 +286,11 @@ void RSDK::UnloadMods()
     dataStorage[DATASET_STR].usedStorage = 0;
     dataStorage[DATASET_TMP].usedStorage = 0;
 
+#if RETRO_REV02
     // Clear out any userDBs
     if (SKU::userDBStorage)
         SKU::userDBStorage->ClearAllUserDBs();
+#endif
 }
 
 void RSDK::LoadMods(bool newOnly)

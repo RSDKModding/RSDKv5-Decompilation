@@ -66,7 +66,7 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
             ReadString(&info, strBuffer);
 
             // needed for PlayerName[] stuff in scripts
-#if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_MOD_LOADER
             StrCopy(modSettings.playerNames[p], strBuffer);
             modSettings.playerCount++;
 #endif

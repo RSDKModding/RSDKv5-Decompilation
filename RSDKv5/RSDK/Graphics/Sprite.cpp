@@ -710,7 +710,7 @@ bool32 RSDK::ImageTGA::Load(const char *fileName, bool32 loadHeader)
             if (idLength)
                 Seek_Cur(&info, idLength);
 
-            AllocateStorage(sizeof(uint32) * height * width, (void **)&pixels, DATASET_TMP, false);
+            AllocateStorage((void **)&pixels, sizeof(uint32) * height * width, DATASET_TMP, false);
             uint32 *pixelsPtr = (uint32 *)pixels;
             if (reverse)
                 pixelsPtr += (height * width) - width;
