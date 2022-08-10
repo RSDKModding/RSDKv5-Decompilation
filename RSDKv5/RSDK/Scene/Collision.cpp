@@ -2426,17 +2426,18 @@ void RSDK::FloorCollision(CollisionSensor *sensor)
                             if (mask < 0xFF) {
                                 step = -TILE_SIZE;
 
-                                if (colY >= ty) {
 #if RETRO_REV0U
+                                if (colY < collidePos) {
                                     collideAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
                                     collidePos   = ty;
-                                    i            = 3;
+                                    i            = stepCount;
 #else
+                                if (colY >= ty) {
                                     if (abs(colY - ty) <= 14) {
                                         sensor->collided   = true;
                                         sensor->angle      = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
                                         sensor->position.y = TO_FIXED(ty + layer->position.y);
-                                        i                  = 3;
+                                        i                  = stepCount;
                                     }
 #endif
                                 }
@@ -2555,17 +2556,18 @@ void RSDK::RoofCollision(CollisionSensor *sensor)
                             if (mask < 0xFF) {
                                 step = TILE_SIZE;
 
-                                if (colY < ty) {
 #if RETRO_REV0U
+                                if (colY > collidePos) {
                                     collideAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
                                     collidePos   = ty;
-                                    i            = 3;
+                                    i            = stepCount;
 #else
+                                if (colY < ty) {
                                     if (abs(colY - ty) <= 14) {
                                         sensor->collided   = true;
                                         sensor->angle      = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
                                         sensor->position.y = TO_FIXED(ty + layer->position.y);
-                                        i                  = 3;
+                                        i                  = stepCount;
                                     }
 #endif
                                 }
