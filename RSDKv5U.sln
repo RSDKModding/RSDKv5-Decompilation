@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSDKv5U-sdl2", "RSDKv5U\RSDKv5U_sdl2.vcxproj", "{EC733EB3-8EC1-48B4-A00F-8BF36F61C117}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSDKv5U-dx9", "RSDKv5U\RSDKv5U_dx9.vcxproj", "{A082FD51-53AF-4EF7-B03E-BCE50E144BD4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSDKv5U-gl3", "RSDKv5U\RSDKv5U_gl3.vcxproj", "{A842E0D8-1D55-4B5D-92B2-5B6770021626}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSDKv5U-dx11", "RSDKv5U\RSDKv5U_dx11.vcxproj", "{D7519639-FF5E-4DF7-ADC7-2EAA7C22096E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSDKv5U-sdl2", "RSDKv5U\RSDKv5U_sdl2.vcxproj", "{EC733EB3-8EC1-48B4-A00F-8BF36F61C117}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSDKv5U-gl3", "RSDKv5U\RSDKv5U_gl3.vcxproj", "{A842E0D8-1D55-4B5D-92B2-5B6770021626}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
