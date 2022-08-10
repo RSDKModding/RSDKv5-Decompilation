@@ -167,11 +167,15 @@ void RSDK::LoadModSettings()
     modSettings.forceScripts    = false;
 #endif
 
-    for (int i = ActiveMods().size() - 1; i >= 0; --i) {
+    for (int i = (int32)ActiveMods().size() - 1; i >= 0; --i) {
         ModInfo *mod = &modList[i];
 
-        if (mod->redirectSaveRAM)
-            sprintf(customUserFileDir, "mods/%s/", mod->id.c_str());
+        if (mod->redirectSaveRAM) {
+            if (SKU::userFileDir[0])
+                sprintf(customUserFileDir, "%smods/%s/", SKU::userFileDir, mod->id.c_str());
+            else
+                sprintf(customUserFileDir, "mods/%s/", mod->id.c_str());
+        }
 
         modSettings.redirectSaveRAM |= mod->redirectSaveRAM ? 1 : 0;
         modSettings.disableGameLogic |= mod->disableGameLogic ? 1 : 0;
@@ -277,7 +281,7 @@ void RSDK::UnloadMods()
     modSettings.activeMod       = -1;
 #endif
 
-    sprintf(customUserFileDir, "");
+    customUserFileDir[0] = 0;
 
     // Clear storage
     dataStorage[DATASET_STG].usedStorage = 0;

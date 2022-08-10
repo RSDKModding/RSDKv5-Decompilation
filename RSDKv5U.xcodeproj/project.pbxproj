@@ -95,7 +95,7 @@
 		C9555DAC2744FE06006E1353 /* tinyxml2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tinyxml2.h; path = dependencies/all/tinyxml2/tinyxml2.h; sourceTree = SOURCE_ROOT; };
 		C9555DAD2744FE06006E1353 /* tinyxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tinyxml2.cpp; path = dependencies/all/tinyxml2/tinyxml2.cpp; sourceTree = SOURCE_ROOT; };
 		C965667526BCF1E80076832A /* Theora.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Theora.framework; path = dependencies/mac/libtheora/macosx/Theora.framework; sourceTree = "<group>"; };
-		C96881F125DF3C8700BEE4B8 /* RSDKv5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSDKv5.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C96881F125DF3C8700BEE4B8 /* RSDKv5U.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSDKv5U.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C96881FE25DF3C8B00BEE4B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../dependencies/mac/Assets.xcassets; sourceTree = "<group>"; };
 		C968886425DF3EF300BEE4B8 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = dependencies/mac/SDL2.framework; sourceTree = "<group>"; };
 		C968886A25DF3F4B00BEE4B8 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dictionary.cpp; path = dependencies/all/iniparser/dictionary.cpp; sourceTree = SOURCE_ROOT; };
@@ -260,7 +260,7 @@
 		C96881A825DF3BC700BEE4B8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C96881F125DF3C8700BEE4B8 /* RSDKv5.app */,
+				C96881F125DF3C8700BEE4B8 /* RSDKv5U.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -572,9 +572,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C96881F025DF3C8700BEE4B8 /* RSDKv5 */ = {
+		C96881F025DF3C8700BEE4B8 /* RSDKv5U */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C968821825DF3C8B00BEE4B8 /* Build configuration list for PBXNativeTarget "RSDKv5" */;
+			buildConfigurationList = C968821825DF3C8B00BEE4B8 /* Build configuration list for PBXNativeTarget "RSDKv5U" */;
 			buildPhases = (
 				C96881ED25DF3C8700BEE4B8 /* Sources */,
 				C96881EE25DF3C8700BEE4B8 /* Frameworks */,
@@ -585,9 +585,9 @@
 			);
 			dependencies = (
 			);
-			name = RSDKv5;
+			name = RSDKv5U;
 			productName = RSDKv5;
-			productReference = C96881F125DF3C8700BEE4B8 /* RSDKv5.app */;
+			productReference = C96881F125DF3C8700BEE4B8 /* RSDKv5U.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -603,7 +603,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C96881A225DF3BC700BEE4B8 /* Build configuration list for PBXProject "RSDKv5" */;
+			buildConfigurationList = C96881A225DF3BC700BEE4B8 /* Build configuration list for PBXProject "RSDKv5U" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -616,7 +616,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C96881F025DF3C8700BEE4B8 /* RSDKv5 */,
+				C96881F025DF3C8700BEE4B8 /* RSDKv5U */,
 			);
 		};
 /* End PBXProject section */
@@ -829,7 +829,7 @@
 					"$(PROJECT_DIR)/dependencies/mac/libtheora/macosx",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"RETRO_REVISION=2",
+					"RETRO_REVISION=3",
 					"RSDK_USE_SDL2=1",
 					"DEBUG=1",
 				);
@@ -844,7 +844,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = RSDK.RSDKv5;
+				PRODUCT_BUNDLE_IDENTIFIER = RSDK.RSDKv5U;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -865,7 +865,7 @@
 					"$(PROJECT_DIR)/dependencies/mac/libtheora/macosx",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"RETRO_REVISION=2",
+					"RETRO_REVISION=3",
 					"RSDK_USE_SDL2=1",
 				);
 				HEADER_SEARCH_PATHS = (
@@ -879,7 +879,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = RSDK.RSDKv5;
+				PRODUCT_BUNDLE_IDENTIFIER = RSDK.RSDKv5U;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -888,7 +888,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C96881A225DF3BC700BEE4B8 /* Build configuration list for PBXProject "RSDKv5" */ = {
+		C96881A225DF3BC700BEE4B8 /* Build configuration list for PBXProject "RSDKv5U" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C96881CF25DF3BCB00BEE4B8 /* Debug */,
@@ -897,7 +897,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C968821825DF3C8B00BEE4B8 /* Build configuration list for PBXNativeTarget "RSDKv5" */ = {
+		C968821825DF3C8B00BEE4B8 /* Build configuration list for PBXNativeTarget "RSDKv5U" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C968821925DF3C8B00BEE4B8 /* Debug */,

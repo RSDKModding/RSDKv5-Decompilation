@@ -134,7 +134,7 @@ bool32 RSDK::LoadDataPack(const char *filePath, size_t fileOffset, bool32 useBuf
         useDataPack = true;
 
         ReadInt8(&info); // 'v'
-        uint8 version = ReadInt8(&info);
+        ReadInt8(&info); // version
 
         strcpy(dataPacks[dataPackCount].name, dataPackPath);
 

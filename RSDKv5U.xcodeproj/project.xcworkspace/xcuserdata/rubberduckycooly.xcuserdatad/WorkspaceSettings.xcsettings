@@ -11,7 +11,7 @@
 	<key>CustomBuildProductsPath</key>
 	<string>Build/mac/Products</string>
 	<key>DerivedDataCustomLocation</key>
-	<string>build/mac/v5</string>
+	<string>build/mac/v5U</string>
 	<key>DerivedDataLocationStyle</key>
 	<string>WorkspaceRelativePath</string>
 	<key>IssueFilterStyle</key>

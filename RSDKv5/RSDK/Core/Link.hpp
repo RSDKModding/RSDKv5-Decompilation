@@ -419,7 +419,7 @@ public:
 #else
     typedef void *Handle;
 #if RETRO_PLATFORM == RETRO_OSX
-    static constepxr const char *extention = ".dylib";
+    static constexpr const char *extention = ".dylib";
 #else
     static constexpr const char *extention = ".so";
 #endif
