@@ -40,7 +40,7 @@ A: Try turning on VSync in settings.ini.
 ### Q: I found a bug/I have a feature request!
 A: Submit an issue in the issues tab and we _might_ fix it in the main branch. Don't expect any major future releases, however.
 
-### Q: Is there a decompilation for RSDKv3 and/or RSDKv4?
+### Q: Is there a decompilation for RSDKv3 and/or RSDKv4 alone?
 A: There is! You can find RSDKv3 [here](https://github.com/Rubberduckycooly/Sonic-CD-11-Decompilation) and RSDKv4 [here](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation).
 
 ### Q: Will there be a decompilation for any other RSDK versions?

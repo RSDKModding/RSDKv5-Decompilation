@@ -193,6 +193,7 @@ void AudioDevice::Release()
     }
     vorbisInfo = NULL;
     pthread_mutex_destroy(&mutex);
+    delete audioDevice;
 };
 
 void AudioDevice::FrameInit()

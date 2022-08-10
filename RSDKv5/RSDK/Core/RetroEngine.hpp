@@ -401,6 +401,8 @@ enum GameRegions {
 #include <commctrl.h>
 #include <dbt.h>
 
+#include <string>
+
 #if RETRO_RENDERDEVICE_DIRECTX9
 #include <d3d9.h>
 #elif RETRO_RENDERDEVICE_DIRECTX11
