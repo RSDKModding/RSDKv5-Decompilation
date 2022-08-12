@@ -411,7 +411,7 @@ enum GameRegions {
 
 #undef LoadImage
 #elif RETRO_RENDERDEVICE_GLFW
-#include <glad/glad.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #endif
 
@@ -443,7 +443,7 @@ enum GameRegions {
 #elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_SWITCH
 
 #if RETRO_RENDERDEVICE_GLFW
-#include <glad/glad.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #elif RETRO_RENDERDEVICE_EGL
 #include <glad/glad.h>
