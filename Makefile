@@ -45,7 +45,11 @@ GAME_PRELINK  =
 GAME_POSTLINK =
 endif
 
-DEFINES      =
+DEFINES      ?=
+
+ifneq ($(AUTOBUILD),)
+	DEFINES += -DRSDK_AUTOBUILD
+endif
 
 
 # =============================================================================
@@ -73,7 +77,9 @@ PLATFORM ?= Unknown
 
 RSDK_SOURCES =
 
-include makefiles/$(PLATFORM).cfg
+ifneq ("$(wildcard makefiles/$(PLATFORM).cfg)","")
+	include makefiles/$(PLATFORM).cfg
+endif
 
 DEFINES += -DRSDK_USE_$(SUBSYSTEM)
 
@@ -258,11 +264,10 @@ else
 all: $(PKG_PATH)
 endif
 
-clean:
-	rm -rf $(RSDK_OBJDIR) && rm -rf $(GAME_OBJDIR) && rm -rf $(RSDK_PATH)
-
 clean-rsdk:
 	rm -rf $(RSDK_OBJDIR) && rm -rf $(RSDK_PATH)
 
 clean-game:
-	rm -rf $(GAME_OBJDIR) && rm -rf $(RSDK_PATH)
+	rm -rf $(GAME_OBJDIR) && rm -rf $(GAME_PATH)
+
+clean: clean-rsdk clean-game  

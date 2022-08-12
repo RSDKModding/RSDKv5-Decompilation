@@ -64,10 +64,6 @@ public:
 
     static bool32 isInitialized;
 
-#if RETRO_PLATFORM == RETRO_ANDROID
-    static pthread_mutex_t mutex;
-#endif
-
 private:
     static bool InitShaders();
     static bool SetupRendering();

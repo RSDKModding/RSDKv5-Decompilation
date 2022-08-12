@@ -29,8 +29,8 @@ jobs:
           install: pkg-config make git mingw-w64-i686-gcc mingw-w64-i686-libogg mingw-w64-i686-libtheora
       - name: Build RSDKv5 + U
         run: |
-          make -j8 RSDK_ONLY=1
-          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 
+          make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -58,8 +58,8 @@ jobs:
           install: pkg-config make git mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libtheora
       - name: Build RSDKv5 + U
         run: |
-          make -j8 RSDK_ONLY=1
-          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 
+          make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -74,19 +74,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Clone theoraplay & tinyxml2
-        run: |
-          git clone https://github.com/icculus/theoraplay dependencies/all/theoraplay
-          git clone https://github.com/leethomason/tinyxml2 dependencies/all/tinyxml2
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libtheora-dev
-          ls ./dependencies/all
-      - name: Build RSDKv5
-        run: make -j8
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+          sudo apt-get install libogg-dev libsdl2-dev libtheora-dev libglew-dev libglfw3-dev
+      - name: Build RSDKv5 + U GL3
+        run: |
+          make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
+      - name: Build RSDKv5 + U SDL2
+        run: |
+          make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 AUTOBUILD=1
+          make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 RSDK_REVISION=3 AUTOBUILD=1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1.0.0
         with:
           name: v5-linux
-          path: bin
+          path: bin/Linux

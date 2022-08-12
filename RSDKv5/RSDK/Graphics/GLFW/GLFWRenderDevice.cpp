@@ -1,10 +1,4 @@
-#ifdef STFU_INTELLISENSE
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "GLFWRenderDevice.hpp"
-#endif
-
-#define _GLVERSION "#version 330 core\n"
+#define _GLVERSION "#version 130\n"
 
 #if RETRO_REV02
 #define _GLDEFINE "#define RETRO_REV02 (1)\n"
@@ -30,7 +24,7 @@ bool RenderDevice::Init()
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
@@ -39,12 +33,7 @@ bool RenderDevice::Init()
 
     GLFWmonitor *monitor = NULL;
     int32 w, h;
-#if RETRO_PLATFORM == RETRO_SWITCH
-    videoSettings.windowed    = false;
-    videoSettings.exclusiveFS = true;
-    videoSettings.fsWidth = w = 1920;
-    videoSettings.fsHeight = h = 1080;
-#else
+
     if (videoSettings.windowed) {
         w = videoSettings.windowWidth;
         h = videoSettings.windowHeight;
@@ -60,7 +49,6 @@ bool RenderDevice::Init()
         w       = videoSettings.fsWidth;
         h       = videoSettings.fsHeight;
     }
-#endif
 
     window = glfwCreateWindow(w, h, gameVerInfo.gameName, monitor, NULL);
     if (!window) {
@@ -75,7 +63,6 @@ bool RenderDevice::Init()
     glfwSetWindowFocusCallback(window, ProcessFocusEvent);
     glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
 
-    // TODO: icon, best way i can see we do it is stb_image
     if (!SetupRendering() || !AudioDevice::Init())
         return false;
 
@@ -86,8 +73,8 @@ bool RenderDevice::Init()
 bool RenderDevice::SetupRendering()
 {
     glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        PrintLog(PRINT_NORMAL, "ERROR: failed to initialize GLAD");
+    if ((GLenum err = glewInit()) != GLEW_OK) {
+        PrintLog(PRINT_NORMAL, "ERROR: failed to initialize GLEW: %s", glewGetErrorString(err));
         return false;
     }
 
@@ -397,7 +384,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = 54;
 #else
-            startVert   = 18;
+            startVert = 18;
 #endif
             glBindTexture(GL_TEXTURE_2D, imageTexture);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -413,7 +400,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[0];
 #else
-            startVert   = 6;
+            startVert = 6;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[0]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -421,7 +408,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[1];
 #else
-            startVert   = 12;
+            startVert = 12;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[1]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -470,7 +457,7 @@ void RenderDevice::Release(bool32 isRefresh)
     }
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    shaderCount     = 0;    
+    shaderCount     = 0;
     userShaderCount = 0;
 
     glfwDestroyWindow(window);
@@ -606,12 +593,7 @@ void RenderDevice::RefreshWindow()
 
     GLFWmonitor *monitor = NULL;
     int32 w, h;
-#if RETRO_PLATFORM == RETRO_SWITCH
-    videoSettings.windowed    = false;
-    videoSettings.exclusiveFS = true;
-    videoSettings.fsWidth = w = 1920;
-    videoSettings.fsHeight = h = 1080;
-#else
+
     if (videoSettings.windowed) {
         w = videoSettings.windowWidth;
         h = videoSettings.windowHeight;
@@ -627,7 +609,6 @@ void RenderDevice::RefreshWindow()
         w       = videoSettings.fsWidth;
         h       = videoSettings.fsHeight;
     }
-#endif
 
     window = glfwCreateWindow(w, h, gameVerInfo.gameName, monitor, NULL);
     if (!window) {

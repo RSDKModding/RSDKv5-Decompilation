@@ -36,7 +36,35 @@ char _glPrecision[30]; // len("precision mediump float;\n") -> 25
 #define _GLDEFINE "\n"
 #endif
 
-EGLDisplay RenderDevice::display;
+const GLchar *backupVertex = R"aa(
+in vec3 in_pos;
+in vec4 in_color;
+in vec2 in_UV;
+out vec4 ex_color;
+out vec2 ex_UV;
+
+void main()
+{
+    gl_Position = vec4(in_pos, 1.0);
+    ex_color    = in_color;
+    ex_UV       = in_UV;
+}
+)aa"
+
+    const GLchar *backupFragment = R"aa(
+in vec2 ex_UV;
+in vec4 ex_color;
+out vec4 out_color;
+
+uniform sampler2D texDiffuse;
+
+void main()
+{
+    out_color = texture(texDiffuse, ex_UV);
+}
+)aa"
+
+    EGLDisplay RenderDevice::display;
 EGLContext RenderDevice::context;
 EGLSurface RenderDevice::surface;
 EGLConfig RenderDevice::config;
@@ -45,7 +73,6 @@ EGLConfig RenderDevice::config;
 NWindow *RenderDevice::window;
 #elif RETRO_PLATFORM == RETRO_ANDROID
 ANativeWindow *RenderDevice::window;
-pthread_mutex_t RenderDevice::mutex; // multithreaded fuckhead
 #endif
 
 GLuint RenderDevice::VAO;
@@ -65,10 +92,6 @@ bool32 RenderDevice::isInitialized = false;
 
 bool RenderDevice::Init()
 {
-#if RETRO_PLATFORM == RETRO_ANDROID
-    pthread_mutex_lock(&mutex);
-#endif
-
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (!display) {
         PrintLog(PRINT_NORMAL, "[EGL] Could not connect to display: %d", eglGetError());
@@ -114,10 +137,6 @@ bool RenderDevice::Init()
     }
 
     isInitialized = true;
-#if RETRO_PLATFORM == RETRO_ANDROID
-    pthread_mutex_unlock(&mutex);
-#endif
-
     return true;
 }
 
@@ -429,26 +448,16 @@ void RenderDevice::CopyFrameBuffer()
     if (!isInitialized)
         return;
 
-#if RETRO_PLATFORM == RETRO_ANDROID
-    pthread_mutex_lock(&mutex);
-#endif
-
     for (int32 s = 0; s < videoSettings.screenCount; ++s) {
         glBindTexture(GL_TEXTURE_2D, screenTextures[s]);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, screens[s].pitch, SCREEN_YSIZE, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, screens[s].frameBuffer);
     }
-
-#if RETRO_PLATFORM == RETRO_ANDROID
-    pthread_mutex_unlock(&mutex);
-#endif
 }
 
 bool RenderDevice::ProcessEvents()
 {
-#if RETRO_PLATFORM == RETRO_SWITCH
     // events aren't processed by EGL
-    return true;
-#elif RETRO_PLATFORM == RETRO_ANDROID
+#if RETRO_PLATFORM == RETRO_ANDROID
     // unless you're android!!
     int events;
     struct android_poll_source *source;
@@ -467,9 +476,8 @@ bool RenderDevice::ProcessEvents()
         Release(true);
         Init();
     }
-
-    return true;
 #endif
+    return true;
 }
 
 void RenderDevice::FlipScreen()
@@ -477,16 +485,13 @@ void RenderDevice::FlipScreen()
     if (!isInitialized)
         return;
 
-#if RETRO_PLATFORM == RETRO_ANDROID
-    pthread_mutex_lock(&mutex);
-#endif
-
     if (lastShaderID != videoSettings.shaderID) {
         lastShaderID = videoSettings.shaderID;
 
         SetLinear(shaderList[videoSettings.shaderID].linear);
 
-        glUseProgram(shaderList[videoSettings.shaderID].programID);
+        if (videoSettings.shaderSupport)
+            glUseProgram(shaderList[videoSettings.shaderID].programID);
     }
 
     if (windowRefreshDelay > 0) {
@@ -497,10 +502,13 @@ void RenderDevice::FlipScreen()
     }
 
     glClear(GL_COLOR_BUFFER_BIT);
-    glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "textureSize"), 1, &textureSize.x);
-    glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "pixelSize"), 1, &pixelSize.x);
-    glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "viewSize"), 1, &viewSize.x);
-    glUniform1f(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "screenDim"), videoSettings.dimMax * videoSettings.dimPercent);
+
+    if (videoSettings.shaderSupport) {
+        glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "textureSize"), 1, &textureSize.x);
+        glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "pixelSize"), 1, &pixelSize.x);
+        glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "viewSize"), 1, &viewSize.x);
+        glUniform1f(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "screenDim"), videoSettings.dimMax * videoSettings.dimPercent);
+    }
 
     int32 startVert = 0;
     switch (videoSettings.screenCount) {
@@ -570,18 +578,10 @@ void RenderDevice::FlipScreen()
     if (!eglSwapBuffers(display, surface)) {
         PrintLog(PRINT_NORMAL, "[EGL] Failed to swap buffers: %d", eglGetError());
     }
-
-#if RETRO_PLATFORM == RETRO_ANDROID
-    pthread_mutex_unlock(&mutex);
-#endif
 }
 
 void RenderDevice::Release(bool32 isRefresh)
 {
-#if RETRO_PLATFORM == RETRO_ANDROID
-    pthread_mutex_lock(&mutex);
-#endif
-
     if (display != EGL_NO_DISPLAY) {
         glDeleteTextures(SCREEN_COUNT, screenTextures);
         glDeleteTextures(1, &imageTexture);
@@ -620,10 +620,6 @@ void RenderDevice::Release(bool32 isRefresh)
             free(scanlines);
         scanlines = NULL;
     }
-
-#if RETRO_PLATFORM == RETRO_ANDROID
-    pthread_mutex_unlock(&mutex);
-#endif
 }
 
 bool RenderDevice::InitShaders()
@@ -648,11 +644,44 @@ bool RenderDevice::InitShaders()
     LoadShader("YUV-422", true);
     LoadShader("YUV-444", true);
     LoadShader("RGB-Image", true);
-    maxShaders = shaderCount;
-
+    maxShaders             = shaderCount;
     videoSettings.shaderID = videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID;
 
     SetLinear(shaderList[videoSettings.shaderID].linear || videoSettings.screenCount > 1);
+
+    // no shaders == no support
+    if (!maxShaders) {
+        ShaderEntry *shader         = &shaderList[0];
+        videoSettings.shaderSupport = false;
+        videoSettings.shaderID      = 0;
+
+        // let's load
+        maxShaders  = 1;
+        shaderCount = 1;
+
+        GLuint vert, frag;
+        const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, backupVertex };
+        vert                  = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vert, 4, vchar, NULL);
+        glCompileShader(vert);
+
+        const GLchar *fchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, backupFragment };
+        frag                  = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(frag, 4, fchar, NULL);
+        glCompileShader(frag);
+
+        shader->programID = glCreateProgram();
+        glAttachShader(shader->programID, vert);
+        glAttachShader(shader->programID, frag);
+        glLinkProgram(shader->programID);
+        glDeleteShader(vert);
+        glDeleteShader(frag);
+        glBindAttribLocation(shader->programID, 0, "in_pos");
+        glBindAttribLocation(shader->programID, 1, "in_color");
+        glBindAttribLocation(shader->programID, 2, "in_UV");
+
+        SetLinear(videoSettings.windowed ? false : shaderList[0].linear);
+    }
 
     return true;
 }

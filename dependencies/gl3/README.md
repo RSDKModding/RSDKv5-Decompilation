@@ -2,19 +2,26 @@
 
 This is intended for any platform that can utilize an OpenGL3 backend (currently Windows, Linux, and Switch.) 
 
-* GLAD: https://glad.dav1d.de/
-  * **If compiling for Switch,** GLAD should already be bundled with `switch-portlibs`. If you don't have it, run `sudo dkp-pacman -S switch-glad` (or the equivalent in your Devkitpro setup)
-  * For other platforms:
-    * Keep language as C/C++, set GL API to at least version 3.0 and set it to core profile (compatibility might work too.) 
-Download glad.zip and extract it's contents to ./glad/
+Once completed, it is **heavily recommended that you grab the Shaders folder in RSDKv5 and turn it into a mod,** having the folder structure be similar to `mods/GLShaders/Data/Shaders/GL3/None.vs`. Fallback shaders will be in place otherwise, and videos will not display properly.
+
+* GLEW: http://glew.sourceforge.net/
+  * If on Windows:
+    * Download the binaries and extract them here in "./glew/"
+  * If on Linux, check your distro for GLEW:
+    * On Ubuntu: `sudo apt install libglew-dev`
+    * On Fedora: `sudo dnf install glew`
+    * On Arch: `sudo pacman -S glew`   
+
+* GLAD: **ONLY USED FOR SWITCH**
+  * Because devkitPro does not have a GLEW port, GLAD is used in-place of it.
+  * Install using `dkp-pacman -Ss switch-glad`.
 
 * GLFW: https://www.glfw.org/download.html 
   * If on Windows: 
-    Download the 64-bit or 32-bit binaries. Make sure what you're building matches the binaries use download!
-    You're also free to build it yourself.
+    * Download the 64-bit or 32-bit binaries. Make sure what you're building matches the binaries use download!
+      You're also free to build it yourself.
   * If on Linux, check your distro for GLFW:
-    
-    Ubuntu: `sudo apt install libglfw3`
-    
-    Fedora: `dnf install glfw`
-  * **If compiling for Switch, do not install.**
+    * On Ubuntu: `sudo apt install libglfw3-dev`
+    * On Fedora: `sudo dnf install glfw`
+    * On Arch: `sudo pacman -S glfw-x11` or `glfw-wayland`
+  * **Not needed for Switch; EGL is used instead.**
