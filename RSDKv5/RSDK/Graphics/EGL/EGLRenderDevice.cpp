@@ -49,9 +49,9 @@ void main()
     ex_color    = in_color;
     ex_UV       = in_UV;
 }
-)aa"
+)aa";
 
-    const GLchar *backupFragment = R"aa(
+const GLchar *backupFragment = R"aa(
 in vec2 ex_UV;
 in vec4 ex_color;
 out vec4 out_color;
@@ -62,9 +62,9 @@ void main()
 {
     out_color = texture(texDiffuse, ex_UV);
 }
-)aa"
+)aa";
 
-    EGLDisplay RenderDevice::display;
+EGLDisplay RenderDevice::display;
 EGLContext RenderDevice::context;
 EGLSurface RenderDevice::surface;
 EGLConfig RenderDevice::config;

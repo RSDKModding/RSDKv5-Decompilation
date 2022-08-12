@@ -6,6 +6,34 @@
 #define _GLDEFINE "\n"
 #endif
 
+const GLchar *backupVertex = R"aa(
+in vec3 in_pos;
+in vec4 in_color;
+in vec2 in_UV;
+out vec4 ex_color;
+out vec2 ex_UV;
+
+void main()
+{
+    gl_Position = vec4(in_pos, 1.0);
+    ex_color    = in_color;
+    ex_UV       = in_UV;
+}
+)aa";
+
+const GLchar *backupFragment = R"aa(
+in vec2 ex_UV;
+in vec4 ex_color;
+out vec4 out_color;
+
+uniform sampler2D texDiffuse;
+
+void main()
+{
+    out_color = texture(texDiffuse, ex_UV);
+}
+)aa";
+
 GLFWwindow *RenderDevice::window;
 GLuint RenderDevice::VAO;
 GLuint RenderDevice::VBO;
@@ -479,38 +507,66 @@ bool RenderDevice::InitShaders()
 {
     videoSettings.shaderSupport = true;
     int32 maxShaders            = 0;
-    if (videoSettings.shaderSupport) {
-        LoadShader("None", false);
-        LoadShader("Clean", true);
-        LoadShader("CRT-Yeetron", true);
-        LoadShader("CRT-Yee64", true);
+    shaderCount                 = 0;
+    userShaderCount             = 0;
+
+    LoadShader("None", false);
+    LoadShader("Clean", true);
+    LoadShader("CRT-Yeetron", true);
+    LoadShader("CRT-Yee64", true);
 
 #if RETRO_USE_MOD_LOADER
-        // a place for mods to load custom shaders
-        RunModCallbacks(MODCB_ONSHADERLOAD, NULL);
-        userShaderCount = shaderCount;
+    // a place for mods to load custom shaders
+    RunModCallbacks(MODCB_ONSHADERLOAD, NULL);
+    userShaderCount = shaderCount;
 #endif
 
-        LoadShader("YUV-420", true);
-        LoadShader("YUV-422", true);
-        LoadShader("YUV-444", true);
-        LoadShader("RGB-Image", true);
-        maxShaders = shaderCount;
-    }
-    else {
-        for (int32 s = 0; s < SHADER_COUNT; ++s) shaderList[s].linear = true;
-
-        shaderList[0].linear = videoSettings.windowed ? false : shaderList[0].linear;
-        maxShaders           = 1;
-        shaderCount          = 1;
-    }
-
+    LoadShader("YUV-420", true);
+    LoadShader("YUV-422", true);
+    LoadShader("YUV-444", true);
+    LoadShader("RGB-Image", true);
+    maxShaders             = shaderCount;
     videoSettings.shaderID = videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID;
 
     SetLinear(shaderList[videoSettings.shaderID].linear || videoSettings.screenCount > 1);
 
+    // no shaders == no support
+    if (!maxShaders) {
+        ShaderEntry *shader         = &shaderList[0];
+        videoSettings.shaderSupport = false;
+        videoSettings.shaderID      = 0;
+
+        // let's load
+        maxShaders  = 1;
+        shaderCount = 1;
+
+        GLuint vert, frag;
+        const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, backupVertex };
+        vert                  = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vert, 4, vchar, NULL);
+        glCompileShader(vert);
+
+        const GLchar *fchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, backupFragment };
+        frag                  = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(frag, 4, fchar, NULL);
+        glCompileShader(frag);
+
+        shader->programID = glCreateProgram();
+        glAttachShader(shader->programID, vert);
+        glAttachShader(shader->programID, frag);
+        glLinkProgram(shader->programID);
+        glDeleteShader(vert);
+        glDeleteShader(frag);
+        glBindAttribLocation(shader->programID, 0, "in_pos");
+        glBindAttribLocation(shader->programID, 1, "in_color");
+        glBindAttribLocation(shader->programID, 2, "in_UV");
+
+        SetLinear(videoSettings.windowed ? false : shaderList[0].linear);
+    }
+
     return true;
 }
+
 void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 {
     char fullFilePath[0x100];
