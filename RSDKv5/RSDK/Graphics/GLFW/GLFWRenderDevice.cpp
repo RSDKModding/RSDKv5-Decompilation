@@ -52,7 +52,7 @@ bool RenderDevice::Init()
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
@@ -80,7 +80,7 @@ bool RenderDevice::Init()
 
     window = glfwCreateWindow(w, h, gameVerInfo.gameName, monitor, NULL);
     if (!window) {
-        PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
+        PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed: %d", glfwGetError());
         return false;
     }
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
@@ -101,7 +101,8 @@ bool RenderDevice::Init()
 bool RenderDevice::SetupRendering()
 {
     glfwMakeContextCurrent(window);
-    if ((GLenum err = glewInit()) != GLEW_OK) {
+    GLenum err;
+    if ((err = glewInit()) != GLEW_OK) {
         PrintLog(PRINT_NORMAL, "ERROR: failed to initialize GLEW: %s", glewGetErrorString(err));
         return false;
     }
