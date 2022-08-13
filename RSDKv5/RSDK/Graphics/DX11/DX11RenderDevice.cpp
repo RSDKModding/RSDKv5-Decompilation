@@ -61,11 +61,11 @@ bool RenderDevice::Init()
 {
 #if _UNICODE
     // shit workaround since windows is BEGGING me to use wide strs
-    std::string str   = gameVerInfo.gameName;
+    std::string str   = gameVerInfo.gameTitle;
     std::wstring temp = std::wstring(str.begin(), str.end());
     LPCWSTR gameTitle = temp.c_str();
 #else
-    std::string str  = gameVerInfo.gameName;
+    std::string str  = gameVerInfo.gameTitle;
     LPCSTR gameTitle = str.c_str();
 #endif
 

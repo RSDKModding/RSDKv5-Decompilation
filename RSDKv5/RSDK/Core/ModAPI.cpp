@@ -700,11 +700,11 @@ bool32 RSDK::LoadModInfo(const char *id, String *name, String *description, Stri
 {
     if (!id) { // NULL == "Internal" Logic
         if (name)
-            InitString(name, gameVerInfo.gameName, false);
+            InitString(name, gameVerInfo.gameTitle, false);
         if (description)
-            InitString(description, gameVerInfo.gameSubName, false);
+            InitString(description, gameVerInfo.gameSubtitle, false);
         if (version)
-            InitString(version, gameVerInfo.gameVersion, false);
+            InitString(version, gameVerInfo.version, false);
         if (active)
             *active = true;
 

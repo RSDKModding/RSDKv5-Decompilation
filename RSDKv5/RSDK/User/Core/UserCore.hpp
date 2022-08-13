@@ -147,7 +147,7 @@ inline int32 GetDefaultGamepadType() { return userCore->GetDefaultGamepadType();
 #endif
 inline void ExitGame() { userCore->ExitGame(); }
 inline void LaunchManual() { userCore->LaunchManual(); }
-inline bool32 IsOverlayEnabled(uint32 overlay) { return userCore->IsOverlayEnabled(overlay); }
+inline bool32 IsOverlayEnabled(uint32 deviceID) { return userCore->IsOverlayEnabled(deviceID); }
 inline bool32 CheckDLC(uint8 id) { return userCore->CheckDLC(id); }
 inline bool32 ShowExtensionOverlay(int32 overlay) { return userCore->ShowExtensionOverlay(overlay); }
 #else

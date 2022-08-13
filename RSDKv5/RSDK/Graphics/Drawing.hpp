@@ -341,20 +341,20 @@ inline void AddDrawListRef(uint8 drawGroup, uint16 entityID)
         drawGroups[drawGroup].entries[drawGroups[drawGroup].entityCount++] = entityID;
 }
 
-inline uint16 GetDrawListRefSlot(uint8 drawGroup, uint16 entityID)
+inline uint16 GetDrawListRefSlot(uint8 drawGroup, uint16 listPos)
 {
     DrawList *list = &drawGroups[drawGroup];
-    if (drawGroup < DRAWGROUP_COUNT && entityID < list->entityCount)
-        return list->entries[entityID];
+    if (drawGroup < DRAWGROUP_COUNT && listPos < list->entityCount)
+        return list->entries[listPos];
 
     return 0;
 }
 
-inline Entity *GetDrawListRef(uint8 drawGroup, uint16 entityID)
+inline Entity *GetDrawListRef(uint8 drawGroup, uint16 listPos)
 {
     DrawList *listPtr = &drawGroups[drawGroup];
-    if (drawGroup < DRAWGROUP_COUNT && entityID < listPtr->entityCount)
-        return &objectEntityList[listPtr->entries[entityID]];
+    if (drawGroup < DRAWGROUP_COUNT && listPos < listPtr->entityCount)
+        return &objectEntityList[listPtr->entries[listPos]];
 
     return NULL;
 }

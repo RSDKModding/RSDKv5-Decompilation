@@ -422,7 +422,7 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_GetLayerSize, GetLayerSize);
     ADD_RSDK_FUNCTION(FunctionTable_GetTile, GetTile);
     ADD_RSDK_FUNCTION(FunctionTable_SetTile, SetTile);
-    ADD_RSDK_FUNCTION(FunctionTable_CopyTileLayer, CopyTileLayout);
+    ADD_RSDK_FUNCTION(FunctionTable_CopyTileLayer, CopyTileLayer);
     ADD_RSDK_FUNCTION(FunctionTable_ProcessParallax, ProcessParallax);
     ADD_RSDK_FUNCTION(FunctionTable_GetScanlines, GetScanlines);
 

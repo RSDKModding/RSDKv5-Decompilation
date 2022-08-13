@@ -619,8 +619,8 @@ void RSDK::InitEngine()
 
             Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
             if (!useDataPack)
-                sprintf_s(gameVerInfo.gameName, (int32)sizeof(gameVerInfo.gameName), "%s (Data Folder)", gameVerInfo.gameName);
-            strcpy(gameVerInfo.gameVersion, "Legacy v4 Mode");
+                sprintf_s(gameVerInfo.gameTitle, (int32)sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
+            strcpy(gameVerInfo.version, "Legacy v4 Mode");
 
             RSDK::GenerateBlendLookupTable();
             Legacy::GenerateBlendLookupTable();
@@ -660,8 +660,8 @@ void RSDK::InitEngine()
 
             Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
             if (!useDataPack)
-                sprintf_s(gameVerInfo.gameName, (int32)sizeof(gameVerInfo.gameName), "%s (Data Folder)", gameVerInfo.gameName);
-            strcpy(gameVerInfo.gameVersion, "Legacy v3 Mode");
+                sprintf_s(gameVerInfo.gameTitle, (int32)sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
+            strcpy(gameVerInfo.version, "Legacy v3 Mode");
 
             RSDK::GenerateBlendLookupTable();
             Legacy::GenerateBlendLookupTable();
@@ -964,11 +964,11 @@ void RSDK::LoadGameConfig()
             return;
         }
 
-        ReadString(&info, gameVerInfo.gameName);
+        ReadString(&info, gameVerInfo.gameTitle);
         if (!useDataPack)
-            sprintf_s(gameVerInfo.gameName, (int32)sizeof(gameVerInfo.gameName), "%s (Data Folder)", gameVerInfo.gameName);
-        ReadString(&info, gameVerInfo.gameSubName);
-        ReadString(&info, gameVerInfo.gameVersion);
+            sprintf_s(gameVerInfo.gameTitle, (int32)sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
+        ReadString(&info, gameVerInfo.gameSubtitle);
+        ReadString(&info, gameVerInfo.version);
 
         sceneInfo.activeCategory = ReadInt8(&info);
         int32 startScene         = ReadInt16(&info);

@@ -78,7 +78,7 @@ bool RenderDevice::Init()
         h       = videoSettings.fsHeight;
     }
 
-    window = glfwCreateWindow(w, h, gameVerInfo.gameName, monitor, NULL);
+    window = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
     if (!window) {
         PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed: %d", glfwGetError());
         return false;
@@ -667,7 +667,7 @@ void RenderDevice::RefreshWindow()
         h       = videoSettings.fsHeight;
     }
 
-    window = glfwCreateWindow(w, h, gameVerInfo.gameName, monitor, NULL);
+    window = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
     if (!window) {
         PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
         return;
