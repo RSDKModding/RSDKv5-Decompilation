@@ -1031,7 +1031,7 @@ void RSDK::DevMenu_VideoOptionsMenu()
             if (videoSettings.shaderID >= userShaderCount)
                 videoSettings.shaderID = SHADER_NONE;
             else if (videoSettings.shaderID < SHADER_NONE)
-                videoSettings.shaderID = userShaderCount - 1;
+                videoSettings.shaderID = MAX(userShaderCount - 1, 0);
             break;
 
         case 4: // confirm

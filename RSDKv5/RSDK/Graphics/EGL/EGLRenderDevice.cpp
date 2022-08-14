@@ -135,7 +135,7 @@ bool RenderDevice::Init()
             return false;
         InitInputDevices();
     }
-
+    PrintLog(PRINT_NORMAL, "nuts");
     isInitialized = true;
     return true;
 }
@@ -609,8 +609,10 @@ void RenderDevice::Release(bool32 isRefresh)
     }
 
     if (!isRefresh) {
-        shaderCount     = 0;
+        shaderCount = 0;
+#if RETRO_USE_MOD_LOADER
         userShaderCount = 0;
+#endif
 
         if (displayInfo.displays)
             free(displayInfo.displays);
@@ -627,7 +629,6 @@ bool RenderDevice::InitShaders()
     videoSettings.shaderSupport = true;
     int32 maxShaders            = 0;
     shaderCount                 = 0;
-    userShaderCount             = 0;
 
     LoadShader("None", false);
     LoadShader("Clean", true);
@@ -794,26 +795,39 @@ void RenderDevice::SetupVideoTexture_YUV420(int32 width, int32 height, uint8 *yP
     uint32 *pixels = videoBuffer;
     uint32 *preY   = pixels;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
+    if (videoSettings.shaderSupport) {
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                *pixels++ = (yPlane[x] << _YOFF) | 0xFF000000;
+            }
 
-    for (int32 y = 0; y < height; ++y) {
-        for (int32 x = 0; x < width; ++x) {
-            *pixels++ = (yPlane[x] << _YOFF) | 0xFF000000;
+            pixels += pitch;
+            yPlane += strideY;
         }
 
-        pixels += pitch;
-        yPlane += strideY;
+        pixels = preY;
+        pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
+        for (int32 y = 0; y < (height >> 1); ++y) {
+            for (int32 x = 0; x < (width >> 1); ++x) {
+                *pixels++ |= (vPlane[x] << _VOFF) | (uPlane[x] << _UOFF) | 0xFF000000;
+            }
+
+            pixels += pitch;
+            uPlane += strideU;
+            vPlane += strideV;
+        }
     }
+    else {
+        // No shader support means no YUV support! at least use the brightness to show it in grayscale!
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                int32 brightness = yPlane[x];
+                *pixels++        = (brightness << 0) | (brightness << 8) | (brightness << 16) | 0xFF000000;
+            }
 
-    pixels = preY;
-    pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
-    for (int32 y = 0; y < (height >> 1); ++y) {
-        for (int32 x = 0; x < (width >> 1); ++x) {
-            *pixels++ |= (vPlane[x] << _VOFF) | (uPlane[x] << _UOFF) | 0xFF000000;
+            pixels += pitch;
+            yPlane += strideY;
         }
-
-        pixels += pitch;
-        uPlane += strideU;
-        vPlane += strideV;
     }
 
     glBindTexture(GL_TEXTURE_2D, imageTexture);
@@ -829,25 +843,39 @@ void RenderDevice::SetupVideoTexture_YUV422(int32 width, int32 height, uint8 *yP
     uint32 *preY   = pixels;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
 
-    for (int32 y = 0; y < height; ++y) {
-        for (int32 x = 0; x < width; ++x) {
-            *pixels++ = (yPlane[x] << _YOFF) | 0xFF000000;
+    if (videoSettings.shaderSupport) {
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                *pixels++ = (yPlane[x] << _YOFF) | 0xFF000000;
+            }
+
+            pixels += pitch;
+            yPlane += strideY;
         }
 
-        pixels += pitch;
-        yPlane += strideY;
+        pixels = preY;
+        pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < (width >> 1); ++x) {
+                *pixels++ |= (vPlane[x] << _VOFF) | (uPlane[x] << _UOFF) | 0xFF000000;
+            }
+
+            pixels += pitch;
+            uPlane += strideU;
+            vPlane += strideV;
+        }
     }
+    else {
+        // No shader support means no YUV support! at least use the brightness to show it in grayscale!
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                int32 brightness = yPlane[x];
+                *pixels++        = (brightness << 0) | (brightness << 8) | (brightness << 16) | 0xFF000000;
+            }
 
-    pixels = preY;
-    pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
-    for (int32 y = 0; y < height; ++y) {
-        for (int32 x = 0; x < (width >> 1); ++x) {
-            *pixels++ |= (vPlane[x] << _VOFF) | (uPlane[x] << _UOFF) | 0xFF000000;
+            pixels += pitch;
+            yPlane += strideY;
         }
-
-        pixels += pitch;
-        uPlane += strideU;
-        vPlane += strideV;
     }
 
     glBindTexture(GL_TEXTURE_2D, imageTexture);
@@ -860,20 +888,33 @@ void RenderDevice::SetupVideoTexture_YUV444(int32 width, int32 height, uint8 *yP
         return;
     uint32 *pixels = videoBuffer;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
+    if (videoSettings.shaderSupport) {
+        for (int32 y = 0; y < height; ++y) {
+            int32 pos1  = yPlane - vPlane;
+            int32 pos2  = uPlane - vPlane;
+            uint8 *pixV = vPlane;
+            for (int32 x = 0; x < width; ++x) {
+                *pixels++ = (pixV[0] << _VOFF) | (pixV[pos2] << _UOFF) | (pixV[pos1] << _YOFF) | 0xFF000000;
+                pixV++;
+            }
 
-    for (int32 y = 0; y < height; ++y) {
-        int32 pos1  = yPlane - vPlane;
-        int32 pos2  = uPlane - vPlane;
-        uint8 *pixV = vPlane;
-        for (int32 x = 0; x < width; ++x) {
-            *pixels++ = (pixV[0] << _VOFF) | (pixV[pos2] << _UOFF) | (pixV[pos1] << _YOFF) | 0xFF000000;
-            pixV++;
+            pixels += pitch;
+            yPlane += strideY;
+            uPlane += strideU;
+            vPlane += strideV;
         }
+    }
+    else {
+        // No shader support means no YUV support! at least use the brightness to show it in grayscale!
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                int32 brightness = yPlane[x];
+                *pixels++        = (brightness << 0) | (brightness << 8) | (brightness << 16) | 0xFF000000;
+            }
 
-        pixels += pitch;
-        yPlane += strideY;
-        uPlane += strideU;
-        vPlane += strideV;
+            pixels += pitch;
+            yPlane += strideY;
+        }
     }
 
     glBindTexture(GL_TEXTURE_2D, imageTexture);

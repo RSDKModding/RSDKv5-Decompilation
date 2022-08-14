@@ -252,16 +252,16 @@ endif
 ifeq ($(RSDK_PATH),$(PKG_PATH))
 
 ifeq ($(STATICGAME),1)
-all: $(RSDK_POSTLINK) $(RSDK_PATH)
+all: $(RSDK_PATH) $(RSDK_POSTLINK) 
 else
 ifeq ($(RSDK_ONLY),0)
-all: $(RSDK_POSTLINK) $(GAME_POSTLINK) $(RSDK_PATH) $(GAME_PATH)
+all: $(RSDK_PATH) $(GAME_PATH) $(RSDK_POSTLINK) $(GAME_POSTLINK)
 else
-all: $(RSDK_POSTLINK) $(RSDK_PATH)
+all: $(RSDK_PATH) $(RSDK_POSTLINK)
 endif # RSDK_ONLY
 endif # STATICGAME
 else
-all: $(PKG_PATH)
+all: $(RSDK_PATH) $(RSDK_POSTLINK) 
 endif
 
 clean-rsdk:
