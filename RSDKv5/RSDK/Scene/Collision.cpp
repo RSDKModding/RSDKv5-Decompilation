@@ -47,6 +47,8 @@ uint8 RSDK::floorAngleTolerance = 0x20;
 uint8 RSDK::wallAngleTolerance  = 0x20;
 uint8 RSDK::roofAngleTolerance  = 0x20;
 #else
+#define collisionMinimumDistance (14)
+
 #define lowCollisionTolerance  (8)
 #define highCollisionTolerance (15)
 
@@ -2170,7 +2172,7 @@ void RSDK::FindFloorPosition(CollisionSensor *sensor)
     else
         solid = collisionEntity->collisionPlane ? (1 << 15) : (1 << 13);
 #else
-    solid                  = collisionEntity->collisionPlane ? (1 << 14) : (1 << 12);
+    solid = collisionEntity->collisionPlane ? (1 << 14) : (1 << 12);
 #endif
 
     int32 startY = posY;
@@ -2433,7 +2435,7 @@ void RSDK::FloorCollision(CollisionSensor *sensor)
                                     i            = stepCount;
 #else
                                 if (colY >= ty) {
-                                    if (abs(colY - ty) <= 14) {
+                                    if (abs(colY - ty) <= collisionMinimumDistance) {
                                         sensor->collided   = true;
                                         sensor->angle      = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
                                         sensor->position.y = TO_FIXED(ty + layer->position.y);
@@ -2563,7 +2565,7 @@ void RSDK::RoofCollision(CollisionSensor *sensor)
                                     i            = stepCount;
 #else
                                 if (colY < ty) {
-                                    if (abs(colY - ty) <= 14) {
+                                    if (abs(colY - ty) <= collisionMinimumDistance) {
                                         sensor->collided   = true;
                                         sensor->angle      = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
                                         sensor->position.y = TO_FIXED(ty + layer->position.y);

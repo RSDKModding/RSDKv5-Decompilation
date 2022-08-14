@@ -20,7 +20,7 @@ uint8 RenderDevice::lastTextureFormat = -1;
 
 bool RenderDevice::Init()
 {
-    const char *gameTitle = gameVerInfo.gameName;
+    const char *gameTitle = gameVerInfo.gameTitle;
 
     SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 

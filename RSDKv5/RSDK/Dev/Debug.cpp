@@ -316,10 +316,10 @@ void RSDK::DevMenu_MainMenu()
         DrawDevString("Game will restart on resume!", currentScreen->center.x, y, ALIGN_CENTER, 0xF08080);
 #endif
     y += 8;
-    DrawDevString(gameVerInfo.gameName, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
+    DrawDevString(gameVerInfo.gameTitle, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
 
     y += 8;
-    DrawDevString(gameVerInfo.gameVersion, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
+    DrawDevString(gameVerInfo.version, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
 
     // Selections Box
     y += 24;
@@ -1876,14 +1876,14 @@ void RSDK::DevMenu_ModsMenu()
                     break;
                 case 4:
                     Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
-                    strcpy(gameVerInfo.gameVersion, "Legacy v4 Mode");
+                    strcpy(gameVerInfo.version, "Legacy v4 Mode");
 
                     sceneInfo.state  = ENGINESTATE_NONE; // i think this is fine ??? lmk if otherwise
                     Legacy::gameMode = Legacy::ENGINE_DEVMENU;
                     break;
                 case 3:
                     Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
-                    strcpy(gameVerInfo.gameVersion, "Legacy v3 Mode");
+                    strcpy(gameVerInfo.version, "Legacy v3 Mode");
 
                     sceneInfo.state  = ENGINESTATE_NONE;
                     Legacy::gameMode = Legacy::ENGINE_DEVMENU;

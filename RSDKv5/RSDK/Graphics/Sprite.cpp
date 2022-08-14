@@ -966,7 +966,7 @@ uint16 RSDK::LoadSpriteSheet(const char *filename, int32 scope)
     }
 }
 
-bool32 RSDK::LoadImage(const char *filename, double displayLength, double speed, bool32 (*skipCallback)())
+bool32 RSDK::LoadImage(const char *filename, double displayLength, double fadeSpeed, bool32 (*skipCallback)())
 {
     char fullFilePath[0x100];
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Images/%s", filename);
@@ -997,7 +997,7 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double speed,
         videoSettings.screenCount = 0; // "Image Display Mode"
         engine.skipCallback       = skipCallback;
         sceneInfo.state           = ENGINESTATE_SHOWIMAGE;
-        engine.imageFadeSpeed     = speed / 60.0;
+        engine.imageFadeSpeed     = fadeSpeed / 60.0;
 
         image.palette = NULL;
         image.pixels  = NULL;
@@ -1023,7 +1023,7 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double speed,
         videoSettings.screenCount = 0; // "Image Display Mode"
         engine.skipCallback       = skipCallback;
         sceneInfo.state           = ENGINESTATE_SHOWIMAGE;
-        engine.imageFadeSpeed     = speed / 60.0;
+        engine.imageFadeSpeed     = fadeSpeed / 60.0;
 
         image.palette = NULL;
         image.pixels  = NULL;

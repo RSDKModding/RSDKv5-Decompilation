@@ -44,11 +44,11 @@ bool RenderDevice::Init()
 {
 #if _UNICODE
     // shoddy workaround to get the title into wide chars in UNICODE mode
-    std::string str   = gameVerInfo.gameName;
+    std::string str   = gameVerInfo.gameTitle;
     std::wstring temp = std::wstring(str.begin(), str.end());
     LPCWSTR gameTitle = temp.c_str();
 #else
-    std::string str  = gameVerInfo.gameName;
+    std::string str  = gameVerInfo.gameTitle;
     LPCSTR gameTitle = str.c_str();
 #endif
 

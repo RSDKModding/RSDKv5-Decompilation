@@ -3793,7 +3793,7 @@ void RSDK::Legacy::v3::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 opcodeSize                           = 0;
                 TextMenu *menu                       = &gameMenu[scriptEng.operands[0]];
                 menu->entryHighlight[menu->rowCount] = scriptEng.operands[1];
-                AddTextMenuEntry(menu, gameVerInfo.gameVersion);
+                AddTextMenuEntry(menu, gameVerInfo.version);
                 break;
             }
             case FUNC_SETACHIEVEMENT:

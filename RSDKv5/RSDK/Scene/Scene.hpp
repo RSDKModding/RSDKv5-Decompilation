@@ -134,8 +134,8 @@ struct TileLayer {
 struct CollisionMask {
     uint8 floorMasks[TILE_SIZE];
     uint8 lWallMasks[TILE_SIZE];
-    uint8 roofMasks[TILE_SIZE];
     uint8 rWallMasks[TILE_SIZE];
+    uint8 roofMasks[TILE_SIZE];
 };
 
 struct TileInfo {
@@ -273,7 +273,7 @@ inline void SetTileAngle(uint16 tile, uint8 cPlane, uint8 cMode, int32 angle)
 inline uint8 GetTileFlags(uint16 tile, uint8 cPlane) { return tileInfo[cPlane & 1][tile & 0x3FF].flag; }
 inline void SetTileFlags(uint16 tile, uint8 cPlane, uint8 flag) { tileInfo[cPlane & 1][tile & 0x3FF].flag = flag; }
 
-void CopyTileLayout(uint16 dstLayerID, int32 dstStartX, int32 dstStartY, uint16 srcLayerID, int32 srcStartX, int32 srcStartY, int32 countX,
+void CopyTileLayer(uint16 dstLayerID, int32 dstStartX, int32 dstStartY, uint16 srcLayerID, int32 srcStartX, int32 srcStartY, int32 countX,
                     int32 countY);
 
 inline void CopyTile(uint16 dest, uint16 src, uint16 count)

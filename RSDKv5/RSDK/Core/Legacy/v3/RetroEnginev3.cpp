@@ -4,7 +4,7 @@ int32 RSDK::Legacy::v3::engineMessage = 0;
 bool32 RSDK::Legacy::v3::LoadGameConfig(const char *filepath)
 {
     char strBuffer[0x40];
-    StrCopy(gameVerInfo.gameName, "Retro-Engine"); // this is the default window name
+    StrCopy(gameVerInfo.gameTitle, "Retro-Engine"); // this is the default window name
 
     globalVariablesCount = 0;
 #if RETRO_USE_MOD_LOADER
@@ -18,9 +18,9 @@ bool32 RSDK::Legacy::v3::LoadGameConfig(const char *filepath)
 
     bool32 loaded = LoadFile(&info, filepath, FMODE_RB);
     if (loaded) {
-        ReadString(&info, gameVerInfo.gameName);
+        ReadString(&info, gameVerInfo.gameTitle);
         ReadString(&info, strBuffer); // Load 'Data'
-        ReadString(&info, gameVerInfo.gameSubName);
+        ReadString(&info, gameVerInfo.gameSubtitle);
 
         // Read Obect Names
         uint8 objectCount = ReadInt8(&info);

@@ -562,27 +562,23 @@ void RSDK::SetVideoSetting(int32 id, int32 value)
 void RSDK::SwapDrawListEntries(uint8 drawGroup, uint16 slot1, uint16 slot2, int32 count)
 {
     if (drawGroup < DRAWGROUP_COUNT) {
-        DrawList *list = &drawGroups[drawGroup];
-        if (count < 0 || count > list->entityCount)
-            count = list->entityCount;
+        DrawList *group = &drawGroups[drawGroup];
+        if (count <= 0 || count > group->entityCount)
+            count = group->entityCount;
 
-        if (count) {
-            int32 slotA = -1;
-            int32 slotB = -1;
-            if (count > 0) {
-                for (int32 i = 0; i < count; ++i) {
-                    if (list->entries[i] == slot1)
-                        slotA = i;
-                    if (list->entries[i] == slot2)
-                        slotB = i;
-                }
+        int32 index1 = -1;
+        int32 index2 = -1;
+        for (int32 i = 0; i < count; ++i) {
+            if (group->entries[i] == slot1)
+                index1 = i;
+            if (group->entries[i] == slot2)
+                index2 = i;
+        }
 
-                if (slotA > -1 && slotB > -1 && slotA < slotB) {
-                    int32 temp           = list->entries[slotB];
-                    list->entries[slotB] = list->entries[slotA];
-                    list->entries[slotA] = temp;
-                }
-            }
+        if (index1 > -1 && index2 > -1 && index1 < index2) {
+            int32 temp             = group->entries[index2];
+            group->entries[index2] = group->entries[index1];
+            group->entries[index1] = temp;
         }
     }
 }
@@ -4090,43 +4086,40 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
             y -= currentScreen->position.y;
         }
 
+        int32 pivotX = 0;
+        int32 pivotY = 0;
         switch (sceneInfo.entity->drawFX) {
             case FX_NONE:
-            case FX_FLIP: {
-                int32 drawX = 0;
-                int32 drawY = 0;
+            case FX_FLIP: 
                 if (offset) {
-                    drawX = x - (offset->x >> 17);
-                    drawY = y - (offset->y >> 17);
+                    pivotX = x - (offset->x >> 17);
+                    pivotY = y - (offset->y >> 17);
                 }
                 else {
-                    drawX = x - 8 * countX;
-                    drawY = y - 8 * countY;
+                    pivotX = x - (countX * (TILE_SIZE >> 1));
+                    pivotY = y - (countY * (TILE_SIZE >> 1));
                 }
 
                 for (int32 ty = 0; ty < countY; ++ty) {
                     for (int32 tx = 0; tx < countX; ++tx) {
                         uint16 tile = tiles[tx + (ty * countX)];
                         if (tile < 0xFFFF) {
-                            DrawSpriteFlipped(drawX + (tx * TILE_SIZE), drawY + (ty * TILE_SIZE), TILE_SIZE, TILE_SIZE, 0, TILE_SIZE * (tile & 0xFFF),
-                                              FLIP_NONE, sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, 0);
+                            DrawSpriteFlipped((tx * TILE_SIZE) + pivotX, (ty * TILE_SIZE) + pivotY, TILE_SIZE, TILE_SIZE, 0,
+                                              TILE_SIZE * (tile & 0xFFF), FLIP_NONE, sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, 0);
                         }
                     }
                 }
                 break;
-            }
 
             case FX_ROTATE: // Flip
-            case FX_ROTATE | FX_FLIP: {
-                int32 pivotX = 0;
-                int32 pivotY = 0;
+            case FX_ROTATE | FX_FLIP: 
                 if (offset) {
                     pivotX = -(offset->x >> 17);
                     pivotY = -(offset->y >> 17);
                 }
                 else {
-                    pivotX = -(8 * countX);
-                    pivotY = -(8 * countY);
+                    pivotX = -(countX * (TILE_SIZE >> 1));
+                    pivotY = -(countY * (TILE_SIZE >> 1));
                 }
 
                 for (int32 ty = 0; ty < countY; ++ty) {
@@ -4162,19 +4155,16 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
                     }
                 }
                 break;
-            }
 
             case FX_SCALE: // Scale
-            case FX_SCALE | FX_FLIP: {
-                int32 pivotX = 0;
-                int32 pivotY = 0;
+            case FX_SCALE | FX_FLIP: 
                 if (offset) {
                     pivotX = -(offset->x >> 17);
                     pivotY = -(offset->y >> 17);
                 }
                 else {
-                    pivotX = -(8 * countX);
-                    pivotY = -(8 * countY);
+                    pivotX = -(countX * (TILE_SIZE >> 1));
+                    pivotY = -(countY * (TILE_SIZE >> 1));
                 }
 
                 for (int32 ty = 0; ty < countY; ++ty) {
@@ -4210,19 +4200,16 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
                     }
                 }
                 break;
-            }
 
             case FX_SCALE | FX_ROTATE: // Flip + Scale + Rotation
-            case FX_SCALE | FX_ROTATE | FX_FLIP: {
-                int32 pivotX = 0;
-                int32 pivotY = 0;
+            case FX_SCALE | FX_ROTATE | FX_FLIP: 
                 if (offset) {
                     pivotX = -(offset->x >> 17);
                     pivotY = -(offset->y >> 17);
                 }
                 else {
-                    pivotX = -(8 * countX);
-                    pivotY = -(8 * countY);
+                    pivotX = -(countX * (TILE_SIZE >> 1));
+                    pivotY = -(countY * (TILE_SIZE >> 1));
                 }
 
                 for (int32 ty = 0; ty < countY; ++ty) {
@@ -4258,7 +4245,6 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
                     }
                 }
                 break;
-            }
         }
     }
 }

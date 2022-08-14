@@ -5,9 +5,9 @@ namespace RSDK
 {
 
 struct GameVersionInfo {
-    char gameName[0x40];
-    char gameSubName[0x100];
-    char gameVersion[0x10];
+    char gameTitle[0x40];
+    char gameSubtitle[0x100];
+    char version[0x10];
 #if !RETRO_REV02
     uint8 platform;
     uint8 language;
