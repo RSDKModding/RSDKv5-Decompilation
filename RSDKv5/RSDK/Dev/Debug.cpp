@@ -242,11 +242,13 @@ void RSDK::OpenDevMenu()
 #if RETRO_REV0U
     switch (engine.version) {
         default: break;
+
         case 5:
             devMenu.sceneState        = sceneInfo.state;
             videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
             sceneInfo.state           = ENGINESTATE_DEVMENU;
             break;
+
         case 4:
         case 3:
             devMenu.sceneState     = RSDK::Legacy::gameMode;
@@ -1857,55 +1859,12 @@ void RSDK::DevMenu_ModsMenu()
 #endif
         SaveMods();
         if (devMenu.modsChanged) {
-#if RETRO_REV0U
-            uint32 category                      = sceneInfo.activeCategory;
-            uint32 scene                         = sceneInfo.listPos;
-            dataStorage[DATASET_SFX].usedStorage = 0;
-            RefreshModFolders();
-            LoadModSettings();
-            DetectEngineVersion();
-            if (!engine.version)
-                engine.version = devMenu.startingVersion;
-
-            switch (engine.version) {
-                case 5:
-                    globalVarsInitCB = NULL;
-                    LoadGameConfig();
-                    sceneInfo.state  = ENGINESTATE_DEVMENU;
-                    Legacy::gameMode = Legacy::ENGINE_MAINGAME;
-                    break;
-                case 4:
-                    Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
-                    strcpy(gameVerInfo.version, "Legacy v4 Mode");
-
-                    sceneInfo.state  = ENGINESTATE_NONE; // i think this is fine ??? lmk if otherwise
-                    Legacy::gameMode = Legacy::ENGINE_DEVMENU;
-                    break;
-                case 3:
-                    Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
-                    strcpy(gameVerInfo.version, "Legacy v3 Mode");
-
-                    sceneInfo.state  = ENGINESTATE_NONE;
-                    Legacy::gameMode = Legacy::ENGINE_DEVMENU;
-                    break;
-            }
-            sceneInfo.activeCategory = category;
-            sceneInfo.listPos        = scene;
-#else
-            uint32 category = sceneInfo.activeCategory;
-            uint32 scene = sceneInfo.listPos;
-            dataStorage[DATASET_SFX].usedStorage = 0;
-            RefreshModFolders();
-            LoadModSettings();
-            LoadGameConfig();
-            sceneInfo.activeCategory = category;
-            sceneInfo.listPos = scene;
-#endif
-            RenderDevice::SetWindowTitle();
+            ApplyModChanges();
         }
 #if RETRO_REV0U
-        else
+        else {
             engine.version = devMenu.startingVersion;
+        }
 #endif
     }
 }

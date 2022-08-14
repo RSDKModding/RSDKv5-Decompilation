@@ -20,15 +20,18 @@ bool32 VideoManager::initializing    = false;
 
 bool32 RSDK::LoadVideo(const char *filename, double startDelay, bool32 (*skipCallback)())
 {
-    if (sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK)
+    if (ENGINE_VERSION == 5 && sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK)
         return false;
+#if RETRO_REV0U
+    if (ENGINE_VERSION == 3 && RSDK::Legacy::gameMode == RSDK::Legacy::v3::ENGINE_VIDEOWAIT)
+        return false;
+#endif
 
     char fullFilePath[0x80];
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Video/%s", filename);
 
     InitFileInfo(&VideoManager::file);
     if (LoadFile(&VideoManager::file, fullFilePath, FMODE_RB)) {
-
         // Init
         ogg_sync_init(&VideoManager::oy);
 
@@ -145,7 +148,13 @@ bool32 RSDK::LoadVideo(const char *filename, double startDelay, bool32 (*skipCal
 
                 engine.storedShaderID      = videoSettings.shaderID;
                 videoSettings.screenCount  = 0;
-                engine.storedState         = sceneInfo.state;
+
+                if (ENGINE_VERSION == 5)
+                    engine.storedState = sceneInfo.state;
+#if RETRO_REV0U
+                else if (ENGINE_VERSION == 3)
+                    engine.storedState = RSDK::Legacy::gameMode;
+#endif
                 engine.displayTime         = 0.0;
                 VideoManager::initializing = true;
                 VideoManager::granulePos   = 0;
@@ -167,7 +176,12 @@ bool32 RSDK::LoadVideo(const char *filename, double startDelay, bool32 (*skipCal
                 engine.skipCallback = skipCallback;
 
                 changedVideoSettings = false;
-                sceneInfo.state      = ENGINESTATE_VIDEOPLAYBACK;
+                if (ENGINE_VERSION == 5)
+                    sceneInfo.state = ENGINESTATE_VIDEOPLAYBACK;
+#if RETRO_REV0U
+                else if (ENGINE_VERSION == 3)
+                    RSDK::Legacy::gameMode = RSDK::Legacy::v3::ENGINE_VIDEOWAIT;
+#endif
 
                 return true;
             }
@@ -262,6 +276,11 @@ void RSDK::ProcessVideo()
 
         videoSettings.shaderID    = engine.storedShaderID;
         videoSettings.screenCount = 1;
-        sceneInfo.state           = engine.storedState;
+        if (ENGINE_VERSION == 5)
+            sceneInfo.state = engine.storedState;
+#if RETRO_REV0U
+        else if (ENGINE_VERSION == 3)
+            RSDK::Legacy::gameMode = engine.storedState;
+#endif
     }
 }

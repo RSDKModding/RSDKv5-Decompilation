@@ -168,3 +168,5 @@ void RSDK::Legacy::v3::DrawDebugOverlays()
     }
 }
 #endif
+
+bool32 RSDK::Legacy::v3::VideoSkipCB() { return controller->keyStart.press || controller->keyA.press || controller->keyB.press; }

@@ -461,6 +461,9 @@
     <ClCompile Include="..\RSDKv5\RSDK\Graphics\Legacy\v4\DrawingLegacyv4.cpp">
       <Filter>Source Files\RSDK\Graphics\Legacy\v4</Filter>
     </ClCompile>
+    <ClCompile Include="..\RSDKv5\RSDK\Core\Legacy\ModAPILegacy.cpp">
+      <Filter>Source Files\RSDK\Core\Legacy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\all\tinyxml2\tinyxml2.h">
@@ -765,6 +768,9 @@
     </ClInclude>
     <ClInclude Include="..\RSDKv5\RSDK\Graphics\Legacy\v4\DrawingLegacyv4.hpp">
       <Filter>Source Files\RSDK\Graphics\Legacy\v4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RSDKv5\RSDK\Core\Legacy\ModAPILegacy.hpp">
+      <Filter>Source Files\RSDK\Core\Legacy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,49 @@ int32 RSDK::Legacy::v3::collisionBottom = 0;
 
 RSDK::Legacy::v3::CollisionSensor RSDK::Legacy::v3::sensors[6];
 
+#if !RETRO_USE_ORIGINAL_CODE
+int32 RSDK::Legacy::v3::AddDebugHitbox(uint8 type, Entity *entity, int32 left, int32 top, int32 right, int32 bottom)
+{
+    int32 XPos = 0, YPos = 0;
+    if (entity) {
+        XPos = entity->XPos;
+        YPos = entity->YPos;
+    }
+    else {
+        Player *player = &playerList[activePlayer];
+        XPos           = player->XPos;
+        YPos           = player->YPos;
+    }
+
+    int32 i = 0;
+    for (; i < debugHitboxCount; ++i) {
+        if (debugHitboxList[i].hitbox.left == left && debugHitboxList[i].hitbox.top == top && debugHitboxList[i].hitbox.right == right
+            && debugHitboxList[i].hitbox.bottom == bottom && debugHitboxList[i].pos.x == XPos && debugHitboxList[i].pos.y == YPos
+            && debugHitboxList[i].entity == entity) {
+            return i;
+        }
+    }
+
+    if (i < DEBUG_HITBOX_COUNT) {
+        debugHitboxList[i].type          = type;
+        debugHitboxList[i].entity        = entity;
+        debugHitboxList[i].collision     = 0;
+        debugHitboxList[i].hitbox.left   = left;
+        debugHitboxList[i].hitbox.top    = top;
+        debugHitboxList[i].hitbox.right  = right;
+        debugHitboxList[i].hitbox.bottom = bottom;
+        debugHitboxList[i].pos.x         = XPos;
+        debugHitboxList[i].pos.y         = YPos;
+
+        int32 id = debugHitboxCount;
+        debugHitboxCount++;
+        return id;
+    }
+
+    return -1;
+}
+#endif
+
 RSDK::Legacy::Hitbox *RSDK::Legacy::v3::GetPlayerHitbox(Player *player)
 {
     AnimationFile *animFile = player->animationFile;
@@ -2088,19 +2131,19 @@ void RSDK::Legacy::v3::TouchCollision(int32 left, int32 top, int32 right, int32 
         right -= entity->XPos >> 16;
         bottom -= entity->YPos >> 16;
 
-        // int32 thisHitboxID = AddDebugHitbox(H_TYPE_TOUCH, entity, left, top, right, bottom);
-        // if (thisHitboxID >= 0 && scriptEng.checkResult)
-        //     debugHitboxList[thisHitboxID].collision |= 1;
+        int32 thisHitboxID = AddDebugHitbox(H_TYPE_TOUCH, entity, left, top, right, bottom);
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1;
 
-        // int32 otherHitboxID =
-        //     AddDebugHitbox(H_TYPE_TOUCH, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
-        // if (otherHitboxID >= 0) {
-        //     debugHitboxList[otherHitboxID].XPos = player->XPos;
-        //     debugHitboxList[otherHitboxID].YPos = player->YPos;
-        //
-        //     if (scriptEng.checkResult)
-        //         debugHitboxList[otherHitboxID].collision |= 1;
-        // }
+        int32 otherHitboxID =
+            AddDebugHitbox(H_TYPE_TOUCH, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
+        if (otherHitboxID >= 0) {
+            debugHitboxList[otherHitboxID].pos.x = player->XPos;
+            debugHitboxList[otherHitboxID].pos.y = player->YPos;
+        
+            if (scriptEng.checkResult)
+                debugHitboxList[otherHitboxID].collision |= 1;
+        }
     }
 #endif
 }
@@ -2341,19 +2384,19 @@ void RSDK::Legacy::v3::BoxCollision(int32 left, int32 top, int32 right, int32 bo
         right -= entity->XPos;
         bottom -= entity->YPos;
 
-        // thisHitboxID = AddDebugHitbox(H_TYPE_BOX, &objectEntityList[objectLoop], left >> 16, top >> 16, right >> 16, bottom >> 16);
-        // if (thisHitboxID >= 0 && scriptEng.checkResult)
-        //     debugHitboxList[thisHitboxID].collision |= 1 << (scriptEng.checkResult - 1);
+        thisHitboxID = AddDebugHitbox(H_TYPE_BOX, &objectEntityList[objectLoop], left >> 16, top >> 16, right >> 16, bottom >> 16);
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1 << (scriptEng.checkResult - 1);
 
-        // int32 otherHitboxID =
-        //     AddDebugHitbox(H_TYPE_BOX, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
-        // if (otherHitboxID >= 0) {
-        //     debugHitboxList[otherHitboxID].XPos = player->XPos;
-        //     debugHitboxList[otherHitboxID].YPos = player->YPos;
-        //
-        //     if (scriptEng.checkResult)
-        //         debugHitboxList[otherHitboxID].collision |= 1 << (4 - scriptEng.checkResult);
-        // }
+        int32 otherHitboxID =
+            AddDebugHitbox(H_TYPE_BOX, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
+        if (otherHitboxID >= 0) {
+            debugHitboxList[otherHitboxID].pos.x = player->XPos;
+            debugHitboxList[otherHitboxID].pos.y = player->YPos;
+        
+            if (scriptEng.checkResult)
+                debugHitboxList[otherHitboxID].collision |= 1 << (4 - scriptEng.checkResult);
+        }
     }
 #endif
 }
@@ -2600,19 +2643,19 @@ void RSDK::Legacy::v3::BoxCollision2(int32 left, int32 top, int32 right, int32 b
         right -= entity->XPos;
         bottom -= entity->YPos;
 
-        // thisHitboxID = AddDebugHitbox(H_TYPE_BOX, &objectEntityList[objectLoop], left >> 16, top >> 16, right >> 16, bottom >> 16);
-        // if (thisHitboxID >= 0 && scriptEng.checkResult)
-        //     debugHitboxList[thisHitboxID].collision |= 1 << (scriptEng.checkResult - 1);
+        thisHitboxID = AddDebugHitbox(H_TYPE_BOX, &objectEntityList[objectLoop], left >> 16, top >> 16, right >> 16, bottom >> 16);
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1 << (scriptEng.checkResult - 1);
 
-        // int32 otherHitboxID =
-        //     AddDebugHitbox(H_TYPE_BOX, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
-        // if (otherHitboxID >= 0) {
-        //     debugHitboxList[otherHitboxID].XPos = player->XPos;
-        //     debugHitboxList[otherHitboxID].YPos = player->YPos;
-        //
-        //     if (scriptEng.checkResult)
-        //         debugHitboxList[otherHitboxID].collision |= 1 << (4 - scriptEng.checkResult);
-        // }
+        int32 otherHitboxID =
+            AddDebugHitbox(H_TYPE_BOX, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
+        if (otherHitboxID >= 0) {
+            debugHitboxList[otherHitboxID].pos.x = player->XPos;
+            debugHitboxList[otherHitboxID].pos.y = player->YPos;
+        
+            if (scriptEng.checkResult)
+                debugHitboxList[otherHitboxID].collision |= 1 << (4 - scriptEng.checkResult);
+        }
     }
 #endif
 }
@@ -2665,19 +2708,19 @@ void RSDK::Legacy::v3::PlatformCollision(int32 left, int32 top, int32 right, int
         right -= entity->XPos;
         bottom -= entity->YPos;
 
-        // thisHitboxID = AddDebugHitbox(H_TYPE_PLAT, &objectEntityList[objectLoop], left >> 16, top >> 16, right >> 16, bottom >> 16);
-        // if (thisHitboxID >= 0 && scriptEng.checkResult)
-        //     debugHitboxList[thisHitboxID].collision |= 1 << 0;
+        thisHitboxID = AddDebugHitbox(H_TYPE_PLAT, &objectEntityList[objectLoop], left >> 16, top >> 16, right >> 16, bottom >> 16);
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1 << 0;
 
-        // int32 otherHitboxID =
-        //     AddDebugHitbox(H_TYPE_PLAT, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
-        // if (otherHitboxID >= 0) {
-        //     debugHitboxList[otherHitboxID].XPos = player->XPos;
-        //     debugHitboxList[otherHitboxID].YPos = player->YPos;
-        //
-        //     if (scriptEng.checkResult)
-        //         debugHitboxList[otherHitboxID].collision |= 1 << 3;
-        // }
+        int32 otherHitboxID =
+            AddDebugHitbox(H_TYPE_PLAT, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
+        if (otherHitboxID >= 0) {
+            debugHitboxList[otherHitboxID].pos.x = player->XPos;
+            debugHitboxList[otherHitboxID].pos.y = player->YPos;
+        
+            if (scriptEng.checkResult)
+                debugHitboxList[otherHitboxID].collision |= 1 << 3;
+        }
     }
 #endif
 }

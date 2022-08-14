@@ -172,16 +172,6 @@ extern std::vector<StateHook> stateHookList;
 extern std::vector<ObjectHook> objectHookList;
 extern ModVersionInfo targetModVersion;
 
-#if RETRO_REV0U
-namespace Legacy
-{
-extern char modTypeNames[OBJECT_COUNT][0x40];
-extern char modScriptPaths[OBJECT_COUNT][0x40];
-extern uint8 modScriptFlags[OBJECT_COUNT];
-extern uint8 modObjCount;
-} // namespace Legacy
-#endif
-
 extern char customUserFileDir[0x100];
 
 extern void *modFunctionTable[ModTable_Count];
@@ -198,6 +188,7 @@ bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 a
 void SaveMods();
 void SortMods();
 void LoadModSettings();
+void ApplyModChanges();
 
 inline std::vector<ModInfo *> ActiveMods()
 {
@@ -294,6 +285,10 @@ void StateMachineRun(void (*state)());
 bool32 HandleRunState_HighPriority(void *state);
 void HandleRunState_LowPriority(void *state, bool32 skipState);
 void RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority);
+#endif
+
+#if RETRO_REV0U
+#include "Legacy/ModAPILegacy.hpp"
 #endif
 
 } // namespace RSDK

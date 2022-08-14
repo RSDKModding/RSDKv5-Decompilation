@@ -51,6 +51,10 @@ inline void LoadLeaderboardsMenu() {}
 namespace v4
 {
 // Native Functions
+void SetAchievement(int32 *achievementID, int32 *status);
+void SetLeaderboard(int32 *leaderboardID, int32 *score);
+void HapticEffect(int32 *id, int32 *unknown1, int32 *unknown2, int32 *unknown3);
+
 void NotifyCallback(int32 *callback, int32 *param1, int32 *param2, int32 *param3);
 
 }

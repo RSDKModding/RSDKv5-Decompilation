@@ -40,15 +40,37 @@ bool32 RSDK::Legacy::WriteSaveRAM() { return SKU::SaveUserFile("SGame.bin", save
 
 void RSDK::Legacy::v3::SetAchievement(int32 achievementID, int32 achievementDone)
 {
-    PrintLog(PRINT_NORMAL, "Achieved achievement: %d (%d)!", achievementID, achievementDone);
+    PrintLog(PRINT_NORMAL, "[RSDKv3] Achieved achievement: %d (%d)!", achievementID, achievementDone);
 }
 void RSDK::Legacy::v3::SetLeaderboard(int32 leaderboardID, int32 score)
 {
-    PrintLog(PRINT_NORMAL, "Setting Leaderboard %d score to %d...", leaderboardID, score);
+    PrintLog(PRINT_NORMAL, "[RSDKv3] Setting Leaderboard %d score to %d...", leaderboardID, score);
 }
 
 
 // Native Functions
+
+void RSDK::Legacy::v4::SetAchievement(int32 *achievementID, int32 *status)
+{
+    if (!achievementID || !status)
+        return;
+
+    PrintLog(PRINT_NORMAL, "[RSDKv4] Achieved achievement: %d (%d)!", *achievementID, *status);
+
+    if ((uint32)*achievementID >= achievementList.size())
+        return;
+
+    achievementList[*achievementID].achieved = *status ? true : false;
+}
+void RSDK::Legacy::v4::SetLeaderboard(int32 *leaderboardID, int32 *score)
+{
+    if (!leaderboardID || !score)
+        return;
+
+    PrintLog(PRINT_NORMAL, "[RSDKv4] Setting Leaderboard %d score to %d...", *leaderboardID, *score);
+}
+void RSDK::Legacy::v4::HapticEffect(int32 *id, int32 *unknown1, int32 *unknown2, int32 *unknown3) {}
+
 enum NotifyCallbackIDs {
     NOTIFY_DEATH_EVENT        = 128,
     NOTIFY_TOUCH_SIGNPOST     = 129,
@@ -103,25 +125,31 @@ void RSDK::Legacy::v4::NotifyCallback(int32 *callback, int32 *param1, int32 *par
         case NOTIFY_GOTO_FUTURE_PAST: PrintLog(PRINT_NORMAL, "NOTIFY: GotoFuturePast() -> %d", *param1); break;
         case NOTIFY_BOSS_END: PrintLog(PRINT_NORMAL, "NOTIFY: BossEnd() -> %d", *param1); break;
         case NOTIFY_SPECIAL_END: PrintLog(PRINT_NORMAL, "NOTIFY: SpecialEnd() -> %d", *param1); break;
-        case NOTIFY_DEBUGPRINT: PrintLog(PRINT_NORMAL, "NOTIFY: DebugPrint() -> %d", *param1); break;
+        case NOTIFY_DEBUGPRINT: PrintLog(PRINT_NORMAL, "NOTIFY: DebugPrint() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_KILL_BOSS: PrintLog(PRINT_NORMAL, "NOTIFY: KillBoss() -> %d", *param1); break;
         case NOTIFY_TOUCH_EMERALD: PrintLog(PRINT_NORMAL, "NOTIFY: TouchEmerald() -> %d", *param1); break;
-        case NOTIFY_STATS_ENEMY: PrintLog(PRINT_NORMAL, "NOTIFY: StatsEnemy() -> %d", *param1); break;
-        case NOTIFY_STATS_CHARA_ACTION: PrintLog(PRINT_NORMAL, "NOTIFY: StatsCharaAction() -> %d", *param1); break;
+        case NOTIFY_STATS_ENEMY: PrintLog(PRINT_NORMAL, "NOTIFY: StatsEnemy() -> %d, %d, %d", *param1, *param2, *param3); break;
+        case NOTIFY_STATS_CHARA_ACTION: PrintLog(PRINT_NORMAL, "NOTIFY: StatsCharaAction() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_RING: PrintLog(PRINT_NORMAL, "NOTIFY: StatsRing() -> %d", *param1); break;
         case NOTIFY_STATS_MOVIE: PrintLog(PRINT_NORMAL, "NOTIFY: StatsMovie() -> %d", *param1); break;
-        case NOTIFY_STATS_PARAM_1: PrintLog(PRINT_NORMAL, "NOTIFY: StatsParam1() -> %d", *param1); break;
+        case NOTIFY_STATS_PARAM_1: PrintLog(PRINT_NORMAL, "NOTIFY: StatsParam1() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_PARAM_2: PrintLog(PRINT_NORMAL, "NOTIFY: StatsParam2() -> %d", *param1); break;
         case NOTIFY_CHARACTER_SELECT:
             PrintLog(PRINT_NORMAL, "NOTIFY: CharacterSelect() -> %d", *param1);
             SetGlobalVariableByName("game.callbackResult", 1);
             SetGlobalVariableByName("game.continueFlag", 0);
             break;
-        case NOTIFY_SPECIAL_RETRY: SetGlobalVariableByName("game.callbackResult", 1); break;
+        case NOTIFY_SPECIAL_RETRY:
+            PrintLog(PRINT_NORMAL, "NOTIFY: SpecialRetry() -> %d, %d, %d", *param1, *param2, *param3);
+            SetGlobalVariableByName("game.callbackResult", 1);
+            break;
         case NOTIFY_TOUCH_CHECKPOINT: PrintLog(PRINT_NORMAL, "NOTIFY: TouchCheckpoint() -> %d", *param1); break;
         case NOTIFY_ACT_FINISH: PrintLog(PRINT_NORMAL, "NOTIFY: ActFinish() -> %d", *param1); break;
         case NOTIFY_1P_VS_SELECT: PrintLog(PRINT_NORMAL, "NOTIFY: 1PVSSelect() -> %d", *param1); break;
-        case NOTIFY_CONTROLLER_SUPPORT: PrintLog(PRINT_NORMAL, "NOTIFY: ControllerSupport() -> %d", *param1); break;
+        case NOTIFY_CONTROLLER_SUPPORT:
+            PrintLog(PRINT_NORMAL, "NOTIFY: ControllerSupport() -> %d", *param1);
+            SetGlobalVariableByName("game.callbackResult", 1);
+            break;
         case NOTIFY_STAGE_RETRY: PrintLog(PRINT_NORMAL, "NOTIFY: StageRetry() -> %d", *param1); break;
         case NOTIFY_SOUND_TRACK: PrintLog(PRINT_NORMAL, "NOTIFY: SoundTrack() -> %d", *param1); break;
         case NOTIFY_GOOD_ENDING: PrintLog(PRINT_NORMAL, "NOTIFY: GoodEnding() -> %d", *param1); break;

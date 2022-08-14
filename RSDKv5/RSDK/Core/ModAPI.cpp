@@ -2,6 +2,10 @@
 
 #if RETRO_USE_MOD_LOADER
 
+#if RETRO_REV0U
+#include "Legacy/ModAPILegacy.cpp"
+#endif
+
 #include <filesystem>
 #include <sstream>
 #include <stdexcept>
@@ -29,13 +33,6 @@ std::vector<ModCallbackSTD> RSDK::modCallbackList[MODCB_MAX];
 std::vector<StateHook> RSDK::stateHookList;
 std::vector<ObjectHook> RSDK::objectHookList;
 ModVersionInfo RSDK::targetModVersion = { RETRO_REVISION, 0, RETRO_MOD_LOADER_VER };
-
-#if RETRO_REV0U
-char RSDK::Legacy::modTypeNames[OBJECT_COUNT][0x40];
-char RSDK::Legacy::modScriptPaths[OBJECT_COUNT][0x40];
-uint8 RSDK::Legacy::modScriptFlags[OBJECT_COUNT];
-uint8 RSDK::Legacy::modObjCount;
-#endif
 
 char RSDK::customUserFileDir[0x100];
 
@@ -187,6 +184,56 @@ void RSDK::LoadModSettings()
         modSettings.forceScripts |= mod->forceScripts ? 1 : 0;
 #endif
     }
+}
+
+void RSDK::ApplyModChanges() {
+#if RETRO_REV0U
+    uint32 category                      = sceneInfo.activeCategory;
+    uint32 scene                         = sceneInfo.listPos;
+    dataStorage[DATASET_SFX].usedStorage = 0;
+    RefreshModFolders();
+    LoadModSettings();
+    DetectEngineVersion();
+    if (!engine.version)
+        engine.version = devMenu.startingVersion;
+
+    switch (engine.version) {
+        case 5:
+            globalVarsInitCB = NULL;
+            LoadGameConfig();
+            sceneInfo.state  = ENGINESTATE_DEVMENU;
+            Legacy::gameMode = Legacy::ENGINE_MAINGAME;
+            break;
+
+        case 4:
+            Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
+            strcpy(gameVerInfo.version, "Legacy v4 Mode");
+
+            sceneInfo.state  = ENGINESTATE_NONE; // i think this is fine ??? lmk if otherwise
+            Legacy::gameMode = Legacy::ENGINE_DEVMENU;
+            break;
+
+        case 3:
+            Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
+            strcpy(gameVerInfo.version, "Legacy v3 Mode");
+
+            sceneInfo.state  = ENGINESTATE_NONE;
+            Legacy::gameMode = Legacy::ENGINE_DEVMENU;
+            break;
+    }
+    sceneInfo.activeCategory = category;
+    sceneInfo.listPos        = scene;
+#else
+    uint32 category                      = sceneInfo.activeCategory;
+    uint32 scene                         = sceneInfo.listPos;
+    dataStorage[DATASET_SFX].usedStorage = 0;
+    RefreshModFolders();
+    LoadModSettings();
+    LoadGameConfig();
+    sceneInfo.activeCategory = category;
+    sceneInfo.listPos        = scene;
+#endif
+    RenderDevice::SetWindowTitle();
 }
 
 void RSDK::ScanModFolder(ModInfo *info)

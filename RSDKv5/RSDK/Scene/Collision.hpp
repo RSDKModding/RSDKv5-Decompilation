@@ -32,7 +32,7 @@ struct CollisionSensor {
 struct DebugHitboxInfo {
     uint8 type;
     uint8 collision;
-    uint16 entityID;
+    void *entity;
     Hitbox hitbox;
     Vector2 pos;
 };

@@ -8,6 +8,39 @@ int32 RSDK::Legacy::v4::collisionTolerance = 0;
 
 RSDK::Legacy::v4::CollisionSensor RSDK::Legacy::v4::sensors[7];
 
+#if !RETRO_USE_ORIGINAL_CODE
+int32 RSDK::Legacy::v4::AddDebugHitbox(uint8 type, Entity *entity, int32 left, int32 top, int32 right, int32 bottom)
+{
+    int32 i        = 0;
+    for (; i < debugHitboxCount; ++i) {
+        if (debugHitboxList[i].hitbox.left == left && debugHitboxList[i].hitbox.top == top
+            && debugHitboxList[i].hitbox.right == right && debugHitboxList[i].hitbox.bottom == bottom
+            && debugHitboxList[i].pos.x == entity->xpos && debugHitboxList[i].pos.y == entity->ypos
+            && debugHitboxList[i].entity == entity) {
+            return i;
+        }
+    }
+
+    if (i < DEBUG_HITBOX_COUNT) {
+        debugHitboxList[i].type          = type;
+        debugHitboxList[i].entity        = entity;
+        debugHitboxList[i].collision     = 0;
+        debugHitboxList[i].hitbox.left   = left;
+        debugHitboxList[i].hitbox.top    = top;
+        debugHitboxList[i].hitbox.right  = right;
+        debugHitboxList[i].hitbox.bottom = bottom;
+        debugHitboxList[i].pos.x         = entity ? entity->xpos : 0;
+        debugHitboxList[i].pos.y         = entity ? entity->ypos : 0;
+
+        int32 id = debugHitboxCount;
+        debugHitboxCount++;
+        return id;
+    }
+
+    return -1;
+}
+#endif
+
 RSDK::Legacy::Hitbox *RSDK::Legacy::v4::GetHitbox(Entity *entity)
 {
     AnimationFile *thisAnim = objectScriptList[entity->type].animFile;
@@ -2143,8 +2176,8 @@ void RSDK::Legacy::v4::TouchCollision(Entity *thisEntity, int32 thisLeft, int32 
     int32 thisHitboxID  = 0;
     int32 otherHitboxID = 0;
     if (showHitboxes) {
-        // thisHitboxID  = AddDebugHitbox(H_TYPE_TOUCH, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
-        // otherHitboxID = AddDebugHitbox(H_TYPE_TOUCH, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+        thisHitboxID  = AddDebugHitbox(H_TYPE_TOUCH, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = AddDebugHitbox(H_TYPE_TOUCH, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
     }
 #endif
 
@@ -2204,8 +2237,8 @@ void RSDK::Legacy::v4::BoxCollision(Entity *thisEntity, int32 thisLeft, int32 th
     int32 thisHitboxID  = 0;
     int32 otherHitboxID = 0;
     if (showHitboxes) {
-        // thisHitboxID  = AddDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
-        // otherHitboxID = AddDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+        thisHitboxID  = AddDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = AddDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
     }
 #endif
 
@@ -2523,8 +2556,8 @@ void RSDK::Legacy::v4::BoxCollision2(Entity *thisEntity, int32 thisLeft, int32 t
     int32 thisHitboxID  = 0;
     int32 otherHitboxID = 0;
     if (showHitboxes) {
-        // thisHitboxID  = AddDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
-        // otherHitboxID = AddDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+        thisHitboxID  = AddDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = AddDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
     }
 #endif
 
@@ -2830,8 +2863,8 @@ void RSDK::Legacy::v4::PlatformCollision(Entity *thisEntity, int32 thisLeft, int
     int32 thisHitboxID  = 0;
     int32 otherHitboxID = 0;
     if (showHitboxes) {
-        // thisHitboxID  = AddDebugHitbox(H_TYPE_PLAT, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
-        // otherHitboxID = AddDebugHitbox(H_TYPE_PLAT, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+        thisHitboxID  = AddDebugHitbox(H_TYPE_PLAT, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = AddDebugHitbox(H_TYPE_PLAT, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
     }
 #endif
 

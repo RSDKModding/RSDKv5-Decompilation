@@ -213,7 +213,10 @@ void RSDK::Legacy::v3::ProcessEngine()
         case ENGINE_ENTER_HIRESMODE:
         case ENGINE_EXIT_HIRESMODE: gameMode = ENGINE_MAINGAME; break;
 
-        case ENGINE_VIDEOWAIT: gameMode = ENGINE_INITDEVMENU; break;
+        case ENGINE_VIDEOWAIT:
+            ProcessInput();
+            ProcessVideo();
+            break;
 
         case ENGINE_PAUSE: break;
 

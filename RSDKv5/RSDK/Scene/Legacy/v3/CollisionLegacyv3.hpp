@@ -47,6 +47,10 @@ extern int32 collisionBottom;
 
 extern CollisionSensor sensors[6];
 
+#if !RETRO_USE_ORIGINAL_CODE
+int32 AddDebugHitbox(uint8 type, Entity *entity, int32 left, int32 top, int32 right, int32 bottom);
+#endif
+
 Hitbox *GetPlayerHitbox(Player *player);
 
 void FindFloorPosition(Player *player, CollisionSensor *sensor, int32 startYPos);

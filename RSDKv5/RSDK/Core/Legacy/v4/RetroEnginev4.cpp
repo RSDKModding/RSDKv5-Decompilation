@@ -184,7 +184,56 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
     // These need to be set every time its reloaded
     nativeFunctionCount = 0;
 
+    nativeFunctionCount = 0;
+    AddNativeFunction("SetAchievement", SetAchievement);
+    AddNativeFunction("SetLeaderboard", SetLeaderboard);
+    AddNativeFunction("HapticEffect", HapticEffect);
+
+    // AddNativeFunction("Connect2PVS", Connect2PVS);
+    // AddNativeFunction("Disconnect2PVS", Disconnect2PVS);
+    // AddNativeFunction("SendEntity", SendEntity);
+    // AddNativeFunction("SendValue", SendValue);
+    // AddNativeFunction("ReceiveEntity", ReceiveEntity);
+    // AddNativeFunction("ReceiveValue", ReceiveValue);
+    // AddNativeFunction("TransmitGlobal", TransmitGlobal);
+    // AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
+
     AddNativeFunction("NotifyCallback", NotifyCallback);
+
+#if RETRO_USE_MOD_LOADER
+    AddNativeFunction("ExitGame", ExitGame);
+    AddNativeFunction("FileExists", FileExists);
+    AddNativeFunction("OpenModMenu", OpenModMenu); // Opens the dev menu-based mod menu incase you cant be bothered or smth
+    AddNativeFunction("AddAchievement", AddGameAchievement);
+    AddNativeFunction("SetAchievementDescription", SetAchievementDescription);
+    AddNativeFunction("ClearAchievements", ClearAchievements);
+    AddNativeFunction("GetAchievementCount", GetAchievementCount);
+    AddNativeFunction("GetAchievement", GetAchievement);
+    AddNativeFunction("GetAchievementName", GetAchievementName);
+    AddNativeFunction("GetAchievementDescription", GetAchievementDescription);
+    AddNativeFunction("GetScreenWidth", GetScreenWidth);
+    AddNativeFunction("SetScreenWidth", SetScreenWidth);
+    AddNativeFunction("GetWindowScale", GetWindowScale);
+    AddNativeFunction("SetWindowScale", SetWindowScale);
+    AddNativeFunction("GetWindowScaleMode", GetWindowScaleMode);
+    AddNativeFunction("SetWindowScaleMode", SetWindowScaleMode);
+    AddNativeFunction("GetWindowFullScreen", GetWindowFullScreen);
+    AddNativeFunction("SetWindowFullScreen", SetWindowFullScreen);
+    AddNativeFunction("GetWindowBorderless", GetWindowBorderless);
+    AddNativeFunction("SetWindowBorderless", SetWindowBorderless);
+    AddNativeFunction("GetWindowVSync", GetWindowVSync);
+    AddNativeFunction("SetWindowVSync", SetWindowVSync);
+    AddNativeFunction("ApplyWindowChanges", ApplyWindowChanges); // Refresh window after changing window options
+    AddNativeFunction("GetModCount", GetModCount);
+    AddNativeFunction("GetModName", GetModName);
+    AddNativeFunction("GetModDescription", GetModDescription);
+    AddNativeFunction("GetModAuthor", GetModAuthor);
+    AddNativeFunction("GetModVersion", GetModVersion);
+    AddNativeFunction("GetModActive", GetModActive);
+    AddNativeFunction("SetModActive", SetModActive);
+    AddNativeFunction("MoveMod", MoveMod);
+    AddNativeFunction("RefreshEngine", RefreshEngine); // Reload engine after changing mod status
+#endif
 
     return loaded;
 }
