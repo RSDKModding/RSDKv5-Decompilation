@@ -134,8 +134,8 @@ void RSDK::Legacy::LoadStageCollisions()
     if (LoadStageFile("CollisionMasks.bin", &info)) {
         int32 tileIndex = 0;
 
-        for (int32 t = 0; t < TILE_COUNT; ++t) {
-            for (int32 p = 0; p < CPATH_COUNT; ++p) {
+        for (int32 t = 0; t < LEGACY_TILE_COUNT; ++t) {
+            for (int32 p = 0; p < LEGACY_CPATH_COUNT; ++p) {
                 uint8 flags                = ReadInt8(&info);
                 bool32 isCeiling           = flags >> 4;
                 collisionMasks[p].flags[t] = flags & 0xF;
@@ -303,7 +303,7 @@ void RSDK::Legacy::LoadStageGIFFile()
     char dest[0x40];
     GetStageFilepath(dest, "16x16Tiles.gif");
 
-    if (tileset.Load(dest, true) && tileset.width == TILE_SIZE && tileset.height <= TILE_COUNT * TILE_SIZE) {
+    if (tileset.Load(dest, true) && tileset.width == TILE_SIZE && tileset.height <= LEGACY_TILE_COUNT * TILE_SIZE) {
         tileset.pixels = tilesetGFXData;
         tileset.Load(NULL, false);
 

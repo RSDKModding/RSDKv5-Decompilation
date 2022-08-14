@@ -66,7 +66,7 @@ void RSDK::Legacy::v3::ProcessStage() {
             vertexCount = 0;
             faceCount   = 0;
 
-            for (int32 p = 0; p < PLAYER_COUNT; ++p) {
+            for (int32 p = 0; p < LEGACY_v3_PLAYER_COUNT; ++p) {
                 memset(&playerList[p], 0, sizeof(playerList[p]));
                 playerList[p].visible            = true;
                 playerList[p].gravity            = 1; // Air
@@ -188,7 +188,7 @@ void RSDK::Legacy::v3::ProcessStage() {
 
 void RSDK::Legacy::v3::HandleCameras()
 {
-    if (currentCamera->target >= LEGACY_v4_ENTITY_COUNT)
+    if (currentCamera->target >= LEGACY_v3_ENTITY_COUNT)
         return;
 
     if (currentCamera->enabled) {

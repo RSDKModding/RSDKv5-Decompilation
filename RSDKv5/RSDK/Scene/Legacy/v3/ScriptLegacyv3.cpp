@@ -1158,7 +1158,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
-                for (int32 o = 0; o < OBJECT_COUNT; ++o) {
+                for (int32 o = 0; o < LEGACY_v3_OBJECT_COUNT; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
@@ -1247,7 +1247,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                     }
                 }
 
-                if (p == PLAYER_COUNT)
+                if (p == LEGACY_PLAYERNAME_COUNT)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
             }
 

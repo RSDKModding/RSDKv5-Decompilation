@@ -1791,7 +1791,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                 funcName[0] = '0';
 
                 int32 o = 0;
-                for (; o < OBJECT_COUNT; ++o) {
+                for (; o < LEGACY_v4_OBJECT_COUNT; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
@@ -1799,7 +1799,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                     }
                 }
 
-                if (o == OBJECT_COUNT)
+                if (o == LEGACY_v4_OBJECT_COUNT)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
             }
             // Eg: temp0 = SfxName[Jump]
@@ -1890,7 +1890,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                     }
                 }
 
-                if (p == PLAYER_COUNT)
+                if (p == LEGACY_PLAYERNAME_COUNT)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
             }
 
@@ -2086,7 +2086,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
             caseValue[0] = '0';
 
             int32 o = 0;
-            for (; o < OBJECT_COUNT; ++o) {
+            for (; o < LEGACY_v4_OBJECT_COUNT; ++o) {
                 if (StrComp(arrayStr, typeNames[o])) {
                     caseValue[0] = 0;
                     AppendIntegerToString(caseValue, o);
@@ -2094,7 +2094,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
                 }
             }
 
-            if (o == OBJECT_COUNT)
+            if (o == LEGACY_v4_OBJECT_COUNT)
                 PrintLog(PRINT_NORMAL, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
         }
 
@@ -2186,7 +2186,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
                 }
             }
 
-            if (p == PLAYER_COUNT) 
+            if (p == LEGACY_PLAYERNAME_COUNT) 
                 PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
         }
 
@@ -2285,7 +2285,7 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                 caseValue[0] = '0';
 
                 int32 o = 0;
-                for (; o < OBJECT_COUNT; ++o) {
+                for (; o < LEGACY_v4_OBJECT_COUNT; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         caseValue[0] = 0;
                         AppendIntegerToString(caseValue, o);
@@ -2293,7 +2293,7 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                     }
                 }
 
-                if (o == OBJECT_COUNT)
+                if (o == LEGACY_v4_OBJECT_COUNT)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
             }
 
@@ -2385,7 +2385,7 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                     }
                 }
 
-                if (p == PLAYER_COUNT)
+                if (p == LEGACY_PLAYERNAME_COUNT)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
             }
 

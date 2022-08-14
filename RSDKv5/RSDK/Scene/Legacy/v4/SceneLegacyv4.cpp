@@ -591,8 +591,8 @@ void RSDK::Legacy::v4::LoadStageFiles()
 
     for (int32 i = 0; i < LEGACY_TRACK_COUNT; ++i) SetMusicTrack("", i, false, 0);
 
-    memset(objectEntityList, 0, ENTITY_COUNT * sizeof(Entity));
-    for (int32 i = 0; i < ENTITY_COUNT; ++i) {
+    memset(objectEntityList, 0, LEGACY_v4_ENTITY_COUNT * sizeof(Entity));
+    for (int32 i = 0; i < LEGACY_v4_ENTITY_COUNT; ++i) {
         objectEntityList[i].drawOrder          = 3;
         objectEntityList[i].scale              = 512;
         objectEntityList[i].objectInteractions = true;
