@@ -137,16 +137,17 @@ void RSDK::InitModAPI()
 
 void RSDK::SortMods()
 {
-#if RETRO_REV0U
-    if (engine.version) {
-        for (int m = 0; m < modList.size(); ++m) {
-            if (modList[m].active && modList[m].targetVersion != -1 && modList[m].targetVersion != engine.version) {
+    if (ENGINE_VERSION) {
+        for (int32 m = 0; m < modList.size(); ++m) {
+            int32 targetVersion = modList[m].forceVersion ? modList[m].forceVersion : modList[m].targetVersion;
+
+            if (modList[m].active && targetVersion != -1 && targetVersion != ENGINE_VERSION) {
                 PrintLog(PRINT_NORMAL, "[MOD] Mod %s disabled due to target version mismatch", modList[m].id.c_str());
                 modList[m].active = false;
             }
         }
     }
-#endif
+
     std::sort(modList.begin(), modList.end(), [](ModInfo a, ModInfo b) {
         if (!(a.active && b.active))
             return a.active;
@@ -447,16 +448,15 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         info->redirectSaveRAM  = iniparser_getboolean(ini, ":RedirectSaveRAM", false);
         info->disableGameLogic = iniparser_getboolean(ini, ":DisableGameLogic", false);
 
-#if RETRO_REV0U
         info->forceVersion = iniparser_getint(ini, ":ForceVersion", 0);
         if (!info->forceVersion) {
             info->targetVersion = iniparser_getint(ini, ":TargetVersion", 0);
-            if (info->targetVersion != -1 && engine.version) {
+            if (info->targetVersion != -1 && ENGINE_VERSION) {
                 if (info->targetVersion < 3 || info->targetVersion > 5) {
                     PrintLog(PRINT_NORMAL, "[MOD] Invalid target version. Should be 3, 4, or 5");
                     return false;
                 }
-                else if (info->targetVersion != engine.version) {
+                else if (info->targetVersion != ENGINE_VERSION) {
                     PrintLog(PRINT_NORMAL, "[MOD] Target version does not match current engine version.");
                     return false;
                 }
@@ -465,7 +465,6 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
         else
             info->targetVersion = info->forceVersion;
         info->forceScripts = iniparser_getboolean(ini, ":TxtScripts", false);
-#endif
 
         if (!active)
             return true;

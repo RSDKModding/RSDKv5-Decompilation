@@ -513,6 +513,12 @@ enum GameRegions {
 #include "RSDK/Scene/Objects/DevOutput.hpp"
 #endif
 
+#if !RETRO_REV0U
+#define ENGINE_VERSION (5)
+#else
+#define ENGINE_VERSION (engine.version)
+#endif
+
 namespace RSDK
 {
 

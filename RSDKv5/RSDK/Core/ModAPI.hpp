@@ -130,11 +130,9 @@ struct ModInfo {
     bool active;
     bool redirectSaveRAM;
     bool disableGameLogic;
-#if RETRO_REV0U
     bool forceScripts;
     int32 targetVersion;
     int32 forceVersion;
-#endif
     std::map<std::string, std::string> fileMap;
     std::vector<ModPublicFunctionInfo> functionList;
     std::vector<Link::Handle> modLogicHandles;
