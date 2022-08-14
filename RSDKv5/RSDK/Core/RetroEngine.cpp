@@ -50,11 +50,11 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         LoadSettingsINI();
 
 #if RETRO_USE_MOD_LOADER
-#if RETRO_REV03
+#if RETRO_REV0U
         engine.version = 0;
 #endif
         InitModAPI(); // setup mods & the mod API table
-#if RETRO_REV03
+#if RETRO_REV0U
         engine.version = 5;
 #endif
 #endif
