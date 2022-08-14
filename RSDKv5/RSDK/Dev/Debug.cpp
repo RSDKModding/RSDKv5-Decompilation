@@ -442,6 +442,7 @@ void RSDK::DevMenu_MainMenu()
                 switch (engine.version) {
                     default:
                     case 5: sceneInfo.state = devMenu.sceneState; break;
+
                     case 4:
                     case 3: RSDK::Legacy::gameMode = devMenu.sceneState; break;
                 }
@@ -455,6 +456,7 @@ void RSDK::DevMenu_MainMenu()
                 switch (engine.version) {
                     default: break;
                     case 5: sceneInfo.state = ENGINESTATE_LOAD; break;
+
                     case 4:
                     case 3:
                         RSDK::Legacy::gameMode  = RSDK::Legacy::ENGINE_MAINGAME;

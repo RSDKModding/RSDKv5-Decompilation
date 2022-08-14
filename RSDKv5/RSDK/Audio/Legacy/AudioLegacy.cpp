@@ -40,8 +40,12 @@ int32 RSDK::Legacy::PlayMusic(int32 trackID)
             RSDK::Legacy::v4::musicRatio = 0.0;
         }
 
+        int32 loopPoint = track->loopPoint;
+        if (!loopPoint && track->trackLoop)
+            loopPoint = 1;
+
         musicCurrentTrack = trackID;
-        musicChannel      = PlayStream(track->fileName, musicChannel, startPos, track->loopPoint, true);
+        musicChannel      = PlayStream(track->fileName, musicChannel, startPos, loopPoint, true);
         musicVolume       = 100;
     }
 

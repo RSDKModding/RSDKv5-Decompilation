@@ -2196,7 +2196,11 @@ void RSDK::FindFloorPosition(CollisionSensor *sensor)
                                 if (!sensor->collided || startY >= ty) {
                                     if (abs(colY - ty) <= collisionTolerance) {
 #if RETRO_REV0U
+#if !RETRO_USE_ORIGINAL_CODE
+                                        if (abs(sensor->angle - tileAngle) <= TILE_SIZE * 2 // * 3 causes some issues in certain tiles
+#else
                                         if (abs(sensor->angle - tileAngle) <= TILE_SIZE * 3
+#endif
                                             || abs(sensor->angle - tileAngle + 0x100) <= floorAngleTolerance
                                             || abs(sensor->angle - tileAngle - 0x100) <= floorAngleTolerance) {
 #else

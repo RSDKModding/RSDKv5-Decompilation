@@ -325,11 +325,8 @@ void RSDK::Legacy::LoadStageGIFFile()
 void RSDK::Legacy::ProcessInput() {
     RSDK::ProcessInput();
 
-    anyPress = false;
-    for (int32 i = 0; i < inputDeviceCount; ++i) {
-        if (inputDeviceList[i])
-            anyPress |= inputDeviceList[i]->anyPress;
-    }
+    anyPress = controller->keyA.press || controller->keyB.press || controller->keyC.press || controller->keyX.press || controller->keyY.press
+               || controller->keyZ.press || controller->keyStart.press || controller->keySelect.press;
     SetGlobalVariableByName("input.pressButton", anyPress);
 }
 
