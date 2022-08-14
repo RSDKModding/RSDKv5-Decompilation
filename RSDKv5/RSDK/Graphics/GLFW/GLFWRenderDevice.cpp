@@ -80,7 +80,7 @@ bool RenderDevice::Init()
 
     window = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
     if (!window) {
-        PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed: %d", glfwGetError());
+        PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
         return false;
     }
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
@@ -390,7 +390,8 @@ void RenderDevice::FlipScreen()
 
         SetLinear(shaderList[videoSettings.shaderID].linear);
 
-        glUseProgram(shaderList[videoSettings.shaderID].programID);
+        if (videoSettings.shaderSupport)
+            glUseProgram(shaderList[videoSettings.shaderID].programID);
     }
 
     if (windowRefreshDelay > 0) {
@@ -401,10 +402,12 @@ void RenderDevice::FlipScreen()
     }
 
     glClear(GL_COLOR_BUFFER_BIT);
-    glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "textureSize"), 1, &textureSize.x);
-    glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "pixelSize"), 1, &pixelSize.x);
-    glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "viewSize"), 1, &viewSize.x);
-    glUniform1f(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "screenDim"), videoSettings.dimMax * videoSettings.dimPercent);
+    if (videoSettings.shaderSupport) {
+        glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "textureSize"), 1, &textureSize.x);
+        glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "pixelSize"), 1, &pixelSize.x);
+        glUniform2fv(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "viewSize"), 1, &viewSize.x);
+        glUniform1f(glGetUniformLocation(shaderList[videoSettings.shaderID].programID, "screenDim"), videoSettings.dimMax * videoSettings.dimPercent);
+    }
 
     int32 startVert = 0;
     switch (videoSettings.screenCount) {
@@ -413,7 +416,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = 54;
 #else
-            startVert = 18;
+            startVert   = 18;
 #endif
             glBindTexture(GL_TEXTURE_2D, imageTexture);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -429,7 +432,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[0];
 #else
-            startVert = 6;
+            startVert   = 6;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[0]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -437,7 +440,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[1];
 #else
-            startVert = 12;
+            startVert   = 12;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[1]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -486,8 +489,10 @@ void RenderDevice::Release(bool32 isRefresh)
     }
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    shaderCount     = 0;
+    shaderCount = 0;
+#if RETRO_USE_MOD_LOADER
     userShaderCount = 0;
+#endif
 
     glfwDestroyWindow(window);
 
@@ -509,7 +514,6 @@ bool RenderDevice::InitShaders()
     videoSettings.shaderSupport = true;
     int32 maxShaders            = 0;
     shaderCount                 = 0;
-    userShaderCount             = 0;
 
     LoadShader("None", false);
     LoadShader("Clean", true);
@@ -526,30 +530,26 @@ bool RenderDevice::InitShaders()
     LoadShader("YUV-422", true);
     LoadShader("YUV-444", true);
     LoadShader("RGB-Image", true);
-    maxShaders             = shaderCount;
-    videoSettings.shaderID = videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID;
-
-    SetLinear(shaderList[videoSettings.shaderID].linear || videoSettings.screenCount > 1);
+    maxShaders = shaderCount;
 
     // no shaders == no support
     if (!maxShaders) {
         ShaderEntry *shader         = &shaderList[0];
         videoSettings.shaderSupport = false;
-        videoSettings.shaderID      = 0;
 
         // let's load
         maxShaders  = 1;
         shaderCount = 1;
 
         GLuint vert, frag;
-        const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, backupVertex };
+        const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, backupVertex };
         vert                  = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vert, 4, vchar, NULL);
+        glShaderSource(vert, 3, vchar, NULL);
         glCompileShader(vert);
 
-        const GLchar *fchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, backupFragment };
+        const GLchar *fchar[] = { _GLVERSION, _GLDEFINE, backupFragment };
         frag                  = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(frag, 4, fchar, NULL);
+        glShaderSource(frag, 3, fchar, NULL);
         glCompileShader(frag);
 
         shader->programID = glCreateProgram();
@@ -562,8 +562,13 @@ bool RenderDevice::InitShaders()
         glBindAttribLocation(shader->programID, 1, "in_color");
         glBindAttribLocation(shader->programID, 2, "in_UV");
 
-        SetLinear(videoSettings.windowed ? false : shaderList[0].linear);
+        glUseProgram(shader->programID);
+
+        shader->linear = videoSettings.windowed ? false : shader->linear;
     }
+
+    videoSettings.shaderID = MAX(videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID, 0);
+    SetLinear(shaderList[videoSettings.shaderID].linear || videoSettings.screenCount > 1);
 
     return true;
 }
@@ -702,27 +707,40 @@ void RenderDevice::SetupVideoTexture_YUV420(int32 width, int32 height, uint8 *yP
     uint32 *preY   = pixels;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
 
-    for (int32 y = 0; y < height; ++y) {
-        for (int32 x = 0; x < width; ++x) {
-            *pixels++ = (yPlane[x] << 16) | 0xFF000000;
+    if (videoSettings.shaderSupport) {
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                *pixels++ = (yPlane[x] << 16) | 0xFF000000;
+            }
+
+            pixels += pitch;
+            yPlane += strideY;
         }
 
-        pixels += pitch;
-        yPlane += strideY;
-    }
+        pixels = preY;
+        pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
+        for (int32 y = 0; y < (height >> 1); ++y) {
+            for (int32 x = 0; x < (width >> 1); ++x) {
+                *pixels++ |= (vPlane[x] << 0) | (uPlane[x] << 8) | 0xFF000000;
+            }
 
-    pixels = preY;
-    pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
-    for (int32 y = 0; y < (height >> 1); ++y) {
-        for (int32 x = 0; x < (width >> 1); ++x) {
-            *pixels++ |= (vPlane[x] << 0) | (uPlane[x] << 8) | 0xFF000000;
+            pixels += pitch;
+            uPlane += strideU;
+            vPlane += strideV;
         }
-
-        pixels += pitch;
-        uPlane += strideU;
-        vPlane += strideV;
     }
+    else {
+        // No shader support means no YUV support! at least use the brightness to show it in grayscale!
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                int32 brightness = yPlane[x];
+                *pixels++        = (brightness << 0) | (brightness << 8) | (brightness << 16) | 0xFF000000;
+            }
 
+            pixels += pitch;
+            yPlane += strideY;
+        }
+    }
     glBindTexture(GL_TEXTURE_2D, imageTexture);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, RETRO_VIDEO_TEXTURE_W, RETRO_VIDEO_TEXTURE_H, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, videoBuffer);
 }
@@ -734,25 +752,39 @@ void RenderDevice::SetupVideoTexture_YUV422(int32 width, int32 height, uint8 *yP
     uint32 *preY   = pixels;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
 
-    for (int32 y = 0; y < height; ++y) {
-        for (int32 x = 0; x < width; ++x) {
-            *pixels++ = (yPlane[x] << 16) | 0xFF000000;
+    if (videoSettings.shaderSupport) {
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                *pixels++ = (yPlane[x] << 16) | 0xFF000000;
+            }
+
+            pixels += pitch;
+            yPlane += strideY;
         }
 
-        pixels += pitch;
-        yPlane += strideY;
+        pixels = preY;
+        pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < (width >> 1); ++x) {
+                *pixels++ |= (vPlane[x] << 0) | (uPlane[x] << 8) | 0xFF000000;
+            }
+
+            pixels += pitch;
+            uPlane += strideU;
+            vPlane += strideV;
+        }
     }
+    else {
+        // No shader support means no YUV support! at least use the brightness to show it in grayscale!
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                int32 brightness = yPlane[x];
+                *pixels++        = (brightness << 0) | (brightness << 8) | (brightness << 16) | 0xFF000000;
+            }
 
-    pixels = preY;
-    pitch  = RETRO_VIDEO_TEXTURE_W - (width >> 1);
-    for (int32 y = 0; y < height; ++y) {
-        for (int32 x = 0; x < (width >> 1); ++x) {
-            *pixels++ |= (vPlane[x] << 0) | (uPlane[x] << 8) | 0xFF000000;
+            pixels += pitch;
+            yPlane += strideY;
         }
-
-        pixels += pitch;
-        uPlane += strideU;
-        vPlane += strideV;
     }
 
     glBindTexture(GL_TEXTURE_2D, imageTexture);
@@ -764,21 +796,34 @@ void RenderDevice::SetupVideoTexture_YUV444(int32 width, int32 height, uint8 *yP
     uint32 *pixels = videoBuffer;
     int32 pitch    = RETRO_VIDEO_TEXTURE_W - width;
 
-    for (int32 y = 0; y < height; ++y) {
-        int32 pos1  = yPlane - vPlane;
-        int32 pos2  = uPlane - vPlane;
-        uint8 *pixV = vPlane;
-        for (int32 x = 0; x < width; ++x) {
-            *pixels++ = pixV[0] | (pixV[pos2] << 8) | (pixV[pos1] << 16) | 0xFF000000;
-            pixV++;
+    if (videoSettings.shaderSupport) {
+        for (int32 y = 0; y < height; ++y) {
+            int32 pos1  = yPlane - vPlane;
+            int32 pos2  = uPlane - vPlane;
+            uint8 *pixV = vPlane;
+            for (int32 x = 0; x < width; ++x) {
+                *pixels++ = pixV[0] | (pixV[pos2] << 8) | (pixV[pos1] << 16) | 0xFF000000;
+                pixV++;
+            }
+
+            pixels += pitch;
+            yPlane += strideY;
+            uPlane += strideU;
+            vPlane += strideV;
         }
-
-        pixels += pitch;
-        yPlane += strideY;
-        uPlane += strideU;
-        vPlane += strideV;
     }
+    else {
+        // No shader support means no YUV support! at least use the brightness to show it in grayscale!
+        for (int32 y = 0; y < height; ++y) {
+            for (int32 x = 0; x < width; ++x) {
+                int32 brightness = yPlane[x];
+                *pixels++        = (brightness << 0) | (brightness << 8) | (brightness << 16) | 0xFF000000;
+            }
 
+            pixels += pitch;
+            yPlane += strideY;
+        }
+    }
     glBindTexture(GL_TEXTURE_2D, imageTexture);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, RETRO_VIDEO_TEXTURE_W, RETRO_VIDEO_TEXTURE_H, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, videoBuffer);
 }
