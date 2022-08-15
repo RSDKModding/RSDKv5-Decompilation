@@ -94,7 +94,7 @@ target_include_directories(RetroEngine PRIVATE
     dependencies/all/iniparser/
 )
 
-target_compile_options(RetroEngine PRIVATE -fexceptions -frtti -DRSDK_USE_GL3)
+target_compile_options(RetroEngine PRIVATE -fexceptions -frtti -DRSDK_USE_GL3 -DRETRO_REVISION=3)
 
 find_package(games-controller REQUIRED CONFIG)
 find_package(game-activity REQUIRED CONFIG)

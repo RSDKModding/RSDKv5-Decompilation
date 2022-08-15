@@ -131,6 +131,10 @@ public class RSDKv5 extends GameActivity {
         //getExternalStorageDirectory is deprecated. I do not care.
         //rmg 20220610 i'm a changed woman EDIT: nvm not yet
         new File(p).mkdirs();
+        try {
+            new File(p + "../.nomedia").createNewFile();
+        }
+        catch (Exception e) {};
         return p + "/";
     }
 }
