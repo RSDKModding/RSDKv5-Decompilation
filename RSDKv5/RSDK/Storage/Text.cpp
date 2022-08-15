@@ -398,7 +398,7 @@ void RSDK::InitStringList(String *stringList, int32 size)
 
     for (int32 c = 0; c < size && c < stringList->length; ++c) text[c] = stringList->chars[c];
 
-    CopyStorage((int32 **)stringList, (int32 **)&text);
+    CopyStorage((int32 **)&stringList->chars, (int32 **)&text);
     stringList->size = size;
     if (stringList->length > (uint16)size)
         stringList->length = size;
@@ -472,6 +472,10 @@ void RSDK::LoadStringList(String *stringList, const char *filePath, uint32 charS
         switch (charSize) {
             default:
             case 8: // ASCII
+                if (stringList->size < info.fileSize) {
+                    stringList->size = info.fileSize;
+                    AllocateStorage((void **)&stringList->chars, sizeof(uint16) * stringList->size, DATASET_STR, false);
+                }
                 stringList->length = info.fileSize;
                 InitStringList(stringList, info.fileSize);
 
@@ -479,6 +483,10 @@ void RSDK::LoadStringList(String *stringList, const char *filePath, uint32 charS
                 break;
 
             case 16: // UTF-16
+                if (stringList->size < info.fileSize) {
+                    stringList->size = info.fileSize >> 1;
+                    AllocateStorage((void **)&stringList->chars, sizeof(uint16) * stringList->size, DATASET_STR, false);
+                }
                 stringList->length = info.fileSize >> 1;
                 InitStringList(stringList, info.fileSize >> 1);
 
