@@ -300,7 +300,7 @@ bool RenderDevice::InitGraphicsAPI()
         screens[s].size.y = videoSettings.pixHeight;
 
         float viewAspect  = viewSize.x / viewSize.y;
-        int32 screenWidth = (int)((viewAspect * videoSettings.pixHeight) + 3) & 0xFFFFFFFC;
+        int32 screenWidth = (int32)((viewAspect * videoSettings.pixHeight) + 3) & 0xFFFFFFFC;
         if (screenWidth < videoSettings.pixWidth)
             screenWidth = videoSettings.pixWidth;
 
@@ -458,7 +458,7 @@ bool RenderDevice::ProcessEvents()
     // events aren't processed by EGL
 #if RETRO_PLATFORM == RETRO_ANDROID
     // unless you're android!!
-    int events;
+    int32 events;
     struct android_poll_source *source;
     while (ALooper_pollAll(0, NULL, &events, (void **)&source) >= 0) {
         if (source)

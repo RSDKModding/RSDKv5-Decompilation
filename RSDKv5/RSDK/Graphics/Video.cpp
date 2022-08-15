@@ -146,8 +146,8 @@ bool32 RSDK::LoadVideo(const char *filename, double startDelay, bool32 (*skipCal
 
                 th_setup_free(VideoManager::ts);
 
-                engine.storedShaderID      = videoSettings.shaderID;
-                videoSettings.screenCount  = 0;
+                engine.storedShaderID     = videoSettings.shaderID;
+                videoSettings.screenCount = 0;
 
                 if (ENGINE_VERSION == 5)
                     engine.storedState = sceneInfo.state;
@@ -208,7 +208,7 @@ void RSDK::ProcessVideo()
         curTime = th_granule_time(VideoManager::td, VideoManager::granulePos);
 
 #if RETRO_USE_MOD_LOADER
-        RunModCallbacks(MODCB_ONVIDEOSKIPCB, (void*)engine.skipCallback);
+        RunModCallbacks(MODCB_ONVIDEOSKIPCB, (void *)engine.skipCallback);
 #endif
         if (engine.skipCallback && engine.skipCallback()) {
             finished = true;

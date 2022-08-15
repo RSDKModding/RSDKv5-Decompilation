@@ -10,6 +10,6 @@ void DrawStageGFX();
 #if !RETRO_USE_ORIGINAL_CODE
 void DrawDebugOverlays();
 #endif
-}
+} // namespace v4
 
-}
+} // namespace Legacy

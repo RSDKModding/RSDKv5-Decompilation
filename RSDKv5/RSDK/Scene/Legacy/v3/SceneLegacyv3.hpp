@@ -24,6 +24,6 @@ void SetPlayerScreenPositionCDStyle(Player *player);
 void SetPlayerHLockedScreenPosition(Player *player);
 void SetPlayerLockedScreenPosition(Player *player);
 
-}
+} // namespace v3
 
-}
+} // namespace Legacy

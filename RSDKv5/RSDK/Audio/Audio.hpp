@@ -176,7 +176,6 @@ void ClearGlobalSfx();
 
 } // namespace RSDK
 
-
 #if RETRO_AUDIODEVICE_XAUDIO
 #include "XAudio/XAudioDevice.hpp"
 #elif RETRO_AUDIODEVICE_NX

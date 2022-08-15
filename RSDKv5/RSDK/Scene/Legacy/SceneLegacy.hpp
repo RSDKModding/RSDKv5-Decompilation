@@ -243,10 +243,10 @@ inline void Copy16x16Tile(uint16 dest, uint16 src)
     uint8 *destPtr = &tilesetGFXData[LEGACY_TILELAYER_CHUNK_W * dest];
     uint8 *srcPtr  = &tilesetGFXData[LEGACY_TILELAYER_CHUNK_W * src];
 
-    int32 cnt      = LEGACY_TILE_DATASIZE;
+    int32 cnt = LEGACY_TILE_DATASIZE;
     while (cnt--) *destPtr++ = *srcPtr++;
 }
 
 void InitCameras();
 
-}
+} // namespace Legacy

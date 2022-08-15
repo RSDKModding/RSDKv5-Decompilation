@@ -104,7 +104,7 @@ void RSDK::Legacy::v3::FindFloorPosition(Player *player, CollisionSensor *sensor
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            uint8 cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
+                            uint8 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
                             sensor->angle    = (uint8)(-0x80 - cAngle);
                             break;
                         }
@@ -115,7 +115,7 @@ void RSDK::Legacy::v3::FindFloorPosition(Player *player, CollisionSensor *sensor
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            uint8 cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
+                            uint8 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
                             sensor->angle    = 0x100 - (uint8)(-0x80 - cAngle);
                             break;
                         }
@@ -284,7 +284,7 @@ void RSDK::Legacy::v3::FindRoofPosition(Player *player, CollisionSensor *sensor,
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            uint8 cAngle      = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
+                            uint8 cAngle     = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
                             sensor->angle    = (uint8)(-0x80 - cAngle);
                             break;
                         }
@@ -295,7 +295,7 @@ void RSDK::Legacy::v3::FindRoofPosition(Player *player, CollisionSensor *sensor,
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            uint8 cAngle      = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
+                            uint8 cAngle     = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
                             sensor->angle    = 0x100 - (uint8)(-0x80 - cAngle);
                             break;
                         }
@@ -2140,7 +2140,7 @@ void RSDK::Legacy::v3::TouchCollision(int32 left, int32 top, int32 right, int32 
         if (otherHitboxID >= 0) {
             debugHitboxList[otherHitboxID].pos.x = player->XPos;
             debugHitboxList[otherHitboxID].pos.y = player->YPos;
-        
+
             if (scriptEng.checkResult)
                 debugHitboxList[otherHitboxID].collision |= 1;
         }
@@ -2393,7 +2393,7 @@ void RSDK::Legacy::v3::BoxCollision(int32 left, int32 top, int32 right, int32 bo
         if (otherHitboxID >= 0) {
             debugHitboxList[otherHitboxID].pos.x = player->XPos;
             debugHitboxList[otherHitboxID].pos.y = player->YPos;
-        
+
             if (scriptEng.checkResult)
                 debugHitboxList[otherHitboxID].collision |= 1 << (4 - scriptEng.checkResult);
         }
@@ -2652,7 +2652,7 @@ void RSDK::Legacy::v3::BoxCollision2(int32 left, int32 top, int32 right, int32 b
         if (otherHitboxID >= 0) {
             debugHitboxList[otherHitboxID].pos.x = player->XPos;
             debugHitboxList[otherHitboxID].pos.y = player->YPos;
-        
+
             if (scriptEng.checkResult)
                 debugHitboxList[otherHitboxID].collision |= 1 << (4 - scriptEng.checkResult);
         }
@@ -2717,7 +2717,7 @@ void RSDK::Legacy::v3::PlatformCollision(int32 left, int32 top, int32 right, int
         if (otherHitboxID >= 0) {
             debugHitboxList[otherHitboxID].pos.x = player->XPos;
             debugHitboxList[otherHitboxID].pos.y = player->YPos;
-        
+
             if (scriptEng.checkResult)
                 debugHitboxList[otherHitboxID].collision |= 1 << 3;
         }

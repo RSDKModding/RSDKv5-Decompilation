@@ -197,7 +197,7 @@ std::string RSDK::achievementText = "Achievement!";
 std::vector<RSDK::AchievementInfo> RSDK::achievementList;
 std::vector<int32> RSDK::achievementStack;
 // End Dummy Achievements
-// 
+//
 // this is added because we don't have access to any store APIs that would otherwise use this feature
 void RSDK::RegisterAchievement(const char *identifier, const char *name, const char *desc)
 {

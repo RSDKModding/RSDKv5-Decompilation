@@ -9,7 +9,7 @@ namespace RSDK
 {
 namespace SKU
 {
-    
+
 // Dummy API
 #if RETRO_USERCORE_DUMMY
 #include "RSDK/User/Dummy/DummyStats.cpp"

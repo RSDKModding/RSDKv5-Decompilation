@@ -54,18 +54,18 @@ void Draw3DSkyLayer(int32 layerID);
 // Shape Drawing
 void DrawRectangle(int32 XPos, int32 YPos, int32 width, int32 height, int32 R, int32 G, int32 B, int32 A);
 void DrawTintRectangle(int32 XPos, int32 YPos, int32 width, int32 height);
-void DrawScaledTintMask(int32 direction, int32 XPos, int32 YPos, int32 pivotX, int32 pivotY, int32 scaleX, int32 scaleY, int32 width, int32 height, int32 sprX, int32 sprY,
-                        int32 sheetID);
+void DrawScaledTintMask(int32 direction, int32 XPos, int32 YPos, int32 pivotX, int32 pivotY, int32 scaleX, int32 scaleY, int32 width, int32 height,
+                        int32 sprX, int32 sprY, int32 sheetID);
 
 // Sprite Drawing
 void DrawSprite(int32 XPos, int32 YPos, int32 width, int32 height, int32 sprX, int32 sprY, int32 sheetID);
 void DrawSpriteFlipped(int32 XPos, int32 YPos, int32 width, int32 height, int32 sprX, int32 sprY, int32 direction, int32 sheetID);
-void DrawSpriteScaled(int32 direction, int32 XPos, int32 YPos, int32 pivotX, int32 pivotY, int32 scaleX, int32 scaleY, int32 width, int32 height, int32 sprX, int32 sprY,
-                      int32 sheetID);
-void DrawSpriteRotated(int32 direction, int32 XPos, int32 YPos, int32 pivotX, int32 pivotY, int32 sprX, int32 sprY, int32 width, int32 height, int32 rotation,
-                       int32 sheetID);
-void DrawSpriteRotozoom(int32 direction, int32 XPos, int32 YPos, int32 pivotX, int32 pivotY, int32 sprX, int32 sprY, int32 width, int32 height, int32 rotation, int32 scale,
-                        int32 sheetID);
+void DrawSpriteScaled(int32 direction, int32 XPos, int32 YPos, int32 pivotX, int32 pivotY, int32 scaleX, int32 scaleY, int32 width, int32 height,
+                      int32 sprX, int32 sprY, int32 sheetID);
+void DrawSpriteRotated(int32 direction, int32 XPos, int32 YPos, int32 pivotX, int32 pivotY, int32 sprX, int32 sprY, int32 width, int32 height,
+                       int32 rotation, int32 sheetID);
+void DrawSpriteRotozoom(int32 direction, int32 XPos, int32 YPos, int32 pivotX, int32 pivotY, int32 sprX, int32 sprY, int32 width, int32 height,
+                        int32 rotation, int32 scale, int32 sheetID);
 
 void DrawBlendedSprite(int32 XPos, int32 YPos, int32 width, int32 height, int32 sprX, int32 sprY, int32 sheetID);
 void DrawAlphaBlendedSprite(int32 XPos, int32 YPos, int32 width, int32 height, int32 sprX, int32 sprY, int32 alpha, int32 sheetID);
@@ -81,7 +81,7 @@ void DrawObjectAnimation(void *objScr, void *ent, int32 XPos, int32 YPos);
 
 void DrawFadedFace(void *v, uint32 color, uint32 fogColor, int32 alpha);
 void DrawTexturedFaceBlended(void *v, uint8 sheetID);
-}
+} // namespace v4
 
 namespace v3
 {
@@ -93,7 +93,7 @@ void DrawTextMenuEntry(void *menu, int32 rowID, int32 XPos, int32 YPos, int32 te
 void DrawStageTextEntry(void *menu, int32 rowID, int32 XPos, int32 YPos, int32 textHighlight);
 void DrawBlendedTextMenuEntry(void *menu, int32 rowID, int32 XPos, int32 YPos, int32 textHighlight);
 
-}
+} // namespace Legacy
 
 #include "v3/DrawingLegacyv3.hpp"
 #include "v4/DrawingLegacyv4.hpp"

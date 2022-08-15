@@ -67,7 +67,7 @@ extern int32 faceLineEndV[SCREEN_YSIZE];
 void ProcessScanEdge(Vertex *vertA, Vertex *vertB);
 void ProcessScanEdgeUV(Vertex *vertA, Vertex *vertB);
 
-}
+} // namespace Legacy
 
 #include "v3/Scene3DLegacyv3.hpp"
 #include "v4/Scene3DLegacyv4.hpp"

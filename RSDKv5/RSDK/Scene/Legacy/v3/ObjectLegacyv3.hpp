@@ -59,6 +59,6 @@ void ProcessObjects();
 void ProcessPausedObjects();
 
 void SetObjectTypeName(const char *objectName, int32 objectID);
-}
+} // namespace v3
 
-}
+} // namespace Legacy

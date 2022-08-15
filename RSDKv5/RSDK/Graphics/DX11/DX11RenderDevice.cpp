@@ -137,7 +137,7 @@ void RenderDevice::CopyFrameBuffer()
     for (int32 s = 0; s < videoSettings.screenCount; ++s) {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         if (SUCCEEDED(dx11Context->Map(screenTextures[s], 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource))) {
-            WORD *pixels           = (WORD *)mappedResource.pData;
+            WORD *pixels        = (WORD *)mappedResource.pData;
             uint16 *frameBuffer = screens[s].frameBuffer;
 
             int32 screenPitch = screens[s].pitch;

@@ -17,7 +17,7 @@ int32 RSDK::Legacy::GetGlobalVariableByName(const char *name)
     return 0;
 }
 
-void RSDK::Legacy::SetGlobalVariableByName(const char *name, int value)
+void RSDK::Legacy::SetGlobalVariableByName(const char *name, int32 value)
 {
     for (int32 v = 0; v < globalVariablesCount; ++v) {
         if (StrComp(name, globalVariables[v].name)) {
@@ -46,7 +46,6 @@ void RSDK::Legacy::v3::SetLeaderboard(int32 leaderboardID, int32 score)
 {
     PrintLog(PRINT_NORMAL, "[RSDKv3] Setting Leaderboard %d score to %d...", leaderboardID, score);
 }
-
 
 // Native Functions
 

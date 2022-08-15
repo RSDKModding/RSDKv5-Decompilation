@@ -1125,7 +1125,7 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                     ++textPos;
                 }
             }
-            funcName[varNamePos]   = 0;
+            funcName[varNamePos]  = 0;
             arrayStr[arrayStrPos] = 0;
 
             // Eg: TempValue0 = FX_SCALE
@@ -1808,7 +1808,7 @@ void RSDK::Legacy::v3::LoadBytecode(int32 scriptID, bool32 globalCode)
     FileInfo info;
     InitFileInfo(&info);
     if (LoadFile(&info, scriptPath, FMODE_RB)) {
-        uint8 fileBuffer      = 0;
+        uint8 fileBuffer     = 0;
         int32 *scriptCodePtr = &scriptCode[scriptCodePos];
         int32 *jumpTablePtr  = &jumpTable[jumpTablePos];
 

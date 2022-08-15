@@ -175,12 +175,13 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                         sceneInfo.listData     = NULL;
                         sceneInfo.listCategory = NULL;
 
-                        globalVarsPtr = NULL;
+                        globalVarsPtr    = NULL;
                         globalVarsInitCB = NULL;
-                        dataStorage[DATASET_STG].entryCount  = 0;
-                        dataStorage[DATASET_STG].usedStorage = 0;
-                        dataStorage[DATASET_SFX].entryCount  = 0;
-                        dataStorage[DATASET_SFX].usedStorage = 0;
+
+                        dataStorage[DATASET_STG].entryCount     = 0;
+                        dataStorage[DATASET_STG].usedStorage    = 0;
+                        dataStorage[DATASET_SFX].entryCount     = 0;
+                        dataStorage[DATASET_SFX].usedStorage    = 0;
 
                         for (int32 o = 0; o < objectClassCount; ++o) {
                             if (objectClassList[o].staticVars && *objectClassList[o].staticVars)
@@ -208,13 +209,13 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                         }
 
 #else
-                        SceneInfo pre = sceneInfo;
-                        InitEngine();
-                        sceneInfo.classCount = pre.classCount;
-                        if (pre.state == ENGINESTATE_LOAD) {
-                            sceneInfo.activeCategory = pre.activeCategory;
-                            sceneInfo.listPos        = pre.listPos;
-                        }
+                    SceneInfo pre = sceneInfo;
+                    InitEngine();
+                    sceneInfo.classCount = pre.classCount;
+                    if (pre.state == ENGINESTATE_LOAD) {
+                        sceneInfo.activeCategory = pre.activeCategory;
+                        sceneInfo.listPos        = pre.listPos;
+                    }
 #endif
                         RenderDevice::SetWindowTitle();
                         sceneInfo.state = ENGINESTATE_LOAD;
@@ -235,7 +236,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                         case 3: Legacy::v3::ProcessEngine(); break;
                     }
 #else
-                    ProcessEngine();
+                ProcessEngine();
 #endif
                 }
 

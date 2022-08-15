@@ -6,7 +6,7 @@ oboe::AudioStream *AudioDevice::stream;
 pthread_mutex_t AudioDevice::mutex;
 
 // REAL LINE I WROTE
-AudioDevice* AudioDevice::audioDevice;
+AudioDevice *AudioDevice::audioDevice;
 
 bool32 AudioDevice::Init()
 {

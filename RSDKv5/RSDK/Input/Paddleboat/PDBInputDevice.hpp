@@ -38,6 +38,6 @@ InputDevicePaddleboat *InitPaddleboatInputDevice(uint32 id, uint8 controllerID);
 void InitPaddleboatInputAPI();
 void ProcessPaddleboatInputDevices();
 
-void PaddleboatStatusCallback(const int32 jid, const Paddleboat_ControllerStatus status, void*);
+void PaddleboatStatusCallback(const int32 jid, const Paddleboat_ControllerStatus status, void *);
 
 } // namespace SKU

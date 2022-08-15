@@ -320,7 +320,7 @@ void RSDK::LoadSettingsINI()
         customSettings.disableFocusPause         = iniparser_getboolean(ini, "Game:disableFocusPause", false);
 
 #if RETRO_REV0U
-        engine.gameReleaseID                     = iniparser_getint(ini, "Game:gameType", 1);
+        engine.gameReleaseID = iniparser_getint(ini, "Game:gameType", 1);
 #endif
 
         sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "%s", iniparser_getstring(ini, "Game:gameLogic", "Game"));
@@ -486,10 +486,10 @@ void RSDK::LoadSettingsINI()
         videoSettings.refreshRate    = 60;
         videoSettings.shaderID       = SHADER_NONE;
 
-        engine.streamsEnabled        = true;
-        engine.streamVolume          = 1.0f;
-        engine.soundFXVolume         = 1.0f;
-        engine.devMenu               = false;
+        engine.streamsEnabled = true;
+        engine.streamVolume   = 1.0f;
+        engine.soundFXVolume  = 1.0f;
+        engine.devMenu        = false;
 
 #if !RETRO_USE_ORIGINAL_CODE
         customSettings.region                    = -1;

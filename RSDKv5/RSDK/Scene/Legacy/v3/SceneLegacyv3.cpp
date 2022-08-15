@@ -1,9 +1,9 @@
 
-int32 RSDK::Legacy::v3::yScrollA       = 0;
-int32 RSDK::Legacy::v3::yScrollB       = SCREEN_YSIZE;
-int32 RSDK::Legacy::v3::xScrollA       = 0;
-int32 RSDK::Legacy::v3::xScrollB       = SCREEN_XSIZE;
-int32 RSDK::Legacy::v3::yScrollMove    = 0;
+int32 RSDK::Legacy::v3::yScrollA    = 0;
+int32 RSDK::Legacy::v3::yScrollB    = SCREEN_YSIZE;
+int32 RSDK::Legacy::v3::xScrollA    = 0;
+int32 RSDK::Legacy::v3::xScrollB    = SCREEN_XSIZE;
+int32 RSDK::Legacy::v3::yScrollMove = 0;
 
 #if RETRO_USE_MOD_LOADER
 namespace RSDK
@@ -26,7 +26,7 @@ void RSDK::Legacy::v3::InitFirstStage()
     xScrollOffset = 0;
     yScrollOffset = 0;
     StopMusic();
-    fadeMode     = 0;
+    fadeMode = 0;
     ClearGraphicsData();
     ClearAnimationData();
     activePalette = fullPalette[0];
@@ -39,8 +39,8 @@ void RSDK::Legacy::v3::InitFirstStage()
     gameMode  = ENGINE_MAINGAME;
 }
 
-
-void RSDK::Legacy::v3::ProcessStage() {
+void RSDK::Legacy::v3::ProcessStage()
+{
 
 #if !RETRO_USE_ORIGINAL_CODE
     debugHitboxCount = 0;
@@ -153,7 +153,7 @@ void RSDK::Legacy::v3::ProcessStage() {
                 ProcessSceneTimer();
                 ProcessObjects();
                 HandleCameras();
-                
+
                 DrawStageGFX();
 
                 if (fadeMode)
@@ -171,7 +171,6 @@ void RSDK::Legacy::v3::ProcessStage() {
                 DrawObjectList(5);
                 DrawObjectList(7); // ???
                 DrawObjectList(6);
-
             }
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -205,7 +204,6 @@ void RSDK::Legacy::v3::HandleCameras()
         SetPlayerLockedScreenPosition(&playerList[currentCamera->target]);
     }
 }
-
 
 void RSDK::Legacy::v3::LoadStageFiles()
 {
@@ -418,10 +416,10 @@ void RSDK::Legacy::v3::LoadActLayout()
     InitFileInfo(&info);
 
     if (LoadActFile(".bin", &info)) {
-        uint8 length = ReadInt8(&info);
+        uint8 length   = ReadInt8(&info);
         titleCardWord2 = (uint8)length;
         for (int32 i = 0; i < length; i++) {
-            titleCardText[i] =  ReadInt8(&info);
+            titleCardText[i] = ReadInt8(&info);
             if (titleCardText[i] == '-')
                 titleCardWord2 = (uint8)(i + 1);
         }
@@ -431,17 +429,17 @@ void RSDK::Legacy::v3::LoadActLayout()
         ReadBytes(&info, activeTileLayers, 4);
         tLayerMidPoint = ReadInt8(&info);
 
-        stageLayouts[0].xsize =  ReadInt8(&info);
-        stageLayouts[0].ysize =  ReadInt8(&info);
-        curXBoundary1    = 0;
-        newXBoundary1 = 0;
-        curYBoundary1    = 0;
-        newYBoundary1 = 0;
-        curXBoundary2    = stageLayouts[0].xsize << 7;
-        curYBoundary2    = stageLayouts[0].ysize << 7;
-        waterLevel    = curYBoundary2 + 128;
-        newXBoundary2 = stageLayouts[0].xsize << 7;
-        newYBoundary2 = stageLayouts[0].ysize << 7;
+        stageLayouts[0].xsize = ReadInt8(&info);
+        stageLayouts[0].ysize = ReadInt8(&info);
+        curXBoundary1         = 0;
+        newXBoundary1         = 0;
+        curYBoundary1         = 0;
+        newYBoundary1         = 0;
+        curXBoundary2         = stageLayouts[0].xsize << 7;
+        curYBoundary2         = stageLayouts[0].ysize << 7;
+        waterLevel            = curYBoundary2 + 128;
+        newXBoundary2         = stageLayouts[0].xsize << 7;
+        newYBoundary2         = stageLayouts[0].ysize << 7;
 
         for (int32 i = 0; i < 0x10000; ++i) stageLayouts[0].tiles[i] = 0;
 
@@ -518,7 +516,7 @@ void RSDK::Legacy::v3::LoadStageBackground()
     if (LoadStageFile("Backgrounds.bin", &info)) {
         uint8 layerCount = ReadInt8(&info);
 
-        hParallax.entryCount =  ReadInt8(&info);
+        hParallax.entryCount = ReadInt8(&info);
         for (int32 i = 0; i < hParallax.entryCount; ++i) {
             hParallax.parallaxFactor[i] = ReadInt8(&info) << 8;
             hParallax.parallaxFactor[i] |= ReadInt8(&info);
@@ -527,10 +525,10 @@ void RSDK::Legacy::v3::LoadStageBackground()
 
             hParallax.scrollPos[i] = 0;
 
-            hParallax.deform[i] =  ReadInt8(&info);
+            hParallax.deform[i] = ReadInt8(&info);
         }
 
-        vParallax.entryCount =  ReadInt8(&info);
+        vParallax.entryCount = ReadInt8(&info);
         for (int32 i = 0; i < vParallax.entryCount; ++i) {
             vParallax.parallaxFactor[i] = ReadInt8(&info) << 8;
             vParallax.parallaxFactor[i] |= ReadInt8(&info);
@@ -539,7 +537,7 @@ void RSDK::Legacy::v3::LoadStageBackground()
 
             vParallax.scrollPos[i] = 0;
 
-            vParallax.deform[i] =  ReadInt8(&info);
+            vParallax.deform[i] = ReadInt8(&info);
         }
 
         for (int32 i = 1; i < layerCount + 1; ++i) {
@@ -561,7 +559,7 @@ void RSDK::Legacy::v3::LoadStageBackground()
             // Read Line Scroll
             uint8 buf[3];
             while (true) {
-                buf[0] =  ReadInt8(&info);
+                buf[0] = ReadInt8(&info);
                 if (buf[0] == 0xFF) {
                     buf[1] = ReadInt8(&info);
                     if (buf[1] == 0xFF) {
@@ -901,8 +899,8 @@ void RSDK::Legacy::v3::SetPlayerScreenPositionCDStyle(Player *player)
             xScrollOffset      = curXBoundary2 - SCREEN_XSIZE - cameraShakeX;
         }
     }
-    xScrollA         = xScrollOffset;
-    xScrollB         = SCREEN_XSIZE + xScrollOffset;
+    xScrollA           = xScrollOffset;
+    xScrollB           = SCREEN_XSIZE + xScrollOffset;
     int32 yscrollA     = yScrollA;
     int32 yscrollB     = yScrollB;
     int32 adjustY      = currentCamera->adjustY + playerYPos;

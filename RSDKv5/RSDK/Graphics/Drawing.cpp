@@ -207,17 +207,17 @@ char RSDK::drawGroupNames[0x10][0x10] = {
 
 // Additive Blending
 #define setPixelAdditive(pixel, frameBufferClr)                                                                                                      \
-    int32 R = MIN((blendTablePtr[(pixel & 0xF800) >> 11] << 11) + (frameBufferClr & 0xF800), 0xF800);                                             \
-    int32 G = MIN((blendTablePtr[(pixel & 0x7E0) >> 6] << 6) + (frameBufferClr & 0x7E0), 0x7E0);                                                  \
-    int32 B = MIN(blendTablePtr[pixel & 0x1F] + (frameBufferClr & 0x1F), 0x1F);                                                                   \
+    int32 R = MIN((blendTablePtr[(pixel & 0xF800) >> 11] << 11) + (frameBufferClr & 0xF800), 0xF800);                                                \
+    int32 G = MIN((blendTablePtr[(pixel & 0x7E0) >> 6] << 6) + (frameBufferClr & 0x7E0), 0x7E0);                                                     \
+    int32 B = MIN(blendTablePtr[pixel & 0x1F] + (frameBufferClr & 0x1F), 0x1F);                                                                      \
                                                                                                                                                      \
     frameBufferClr = R | G | B;
 
 // Subtractive Blending
 #define setPixelSubtractive(pixel, frameBufferClr)                                                                                                   \
-    int32 R = MAX((frameBufferClr & 0xF800) - (subBlendTable[(pixel & 0xF800) >> 11] << 11), 0);                                                  \
-    int32 G = MAX((frameBufferClr & 0x7E0) - (subBlendTable[(pixel & 0x7E0) >> 6] << 6), 0);                                                      \
-    int32 B = MAX((frameBufferClr & 0x1F) - subBlendTable[pixel & 0x1F], 0);                                                                      \
+    int32 R = MAX((frameBufferClr & 0xF800) - (subBlendTable[(pixel & 0xF800) >> 11] << 11), 0);                                                     \
+    int32 G = MAX((frameBufferClr & 0x7E0) - (subBlendTable[(pixel & 0x7E0) >> 6] << 6), 0);                                                         \
+    int32 B = MAX((frameBufferClr & 0x1F) - subBlendTable[pixel & 0x1F], 0);                                                                         \
                                                                                                                                                      \
     frameBufferClr = R | G | B;
 
@@ -249,7 +249,7 @@ void RSDK::RenderDeviceBase::ProcessDimming()
         }
     }
     else {
-        if (videoSettings.dimPercent > 0.25) 
+        if (videoSettings.dimPercent > 0.25)
             videoSettings.dimPercent *= 0.9f;
     }
 }
@@ -1169,9 +1169,9 @@ void RSDK::DrawRectangle(int32 x, int32 y, int32 width, int32 height, uint32 col
     }
 
     if (!screenRelative) {
-        x = FROM_FIXED(x) - currentScreen->position.x;
-        y = FROM_FIXED(y) - currentScreen->position.y;
-        width = FROM_FIXED(width);
+        x      = FROM_FIXED(x) - currentScreen->position.x;
+        y      = FROM_FIXED(y) - currentScreen->position.y;
+        width  = FROM_FIXED(width);
         height = FROM_FIXED(height);
     }
 
@@ -4090,7 +4090,7 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
         int32 pivotY = 0;
         switch (sceneInfo.entity->drawFX) {
             case FX_NONE:
-            case FX_FLIP: 
+            case FX_FLIP:
                 if (offset) {
                     pivotX = x - (offset->x >> 17);
                     pivotY = y - (offset->y >> 17);
@@ -4112,7 +4112,7 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
                 break;
 
             case FX_ROTATE: // Flip
-            case FX_ROTATE | FX_FLIP: 
+            case FX_ROTATE | FX_FLIP:
                 if (offset) {
                     pivotX = -(offset->x >> 17);
                     pivotY = -(offset->y >> 17);
@@ -4157,7 +4157,7 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
                 break;
 
             case FX_SCALE: // Scale
-            case FX_SCALE | FX_FLIP: 
+            case FX_SCALE | FX_FLIP:
                 if (offset) {
                     pivotX = -(offset->x >> 17);
                     pivotY = -(offset->y >> 17);
@@ -4202,7 +4202,7 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
                 break;
 
             case FX_SCALE | FX_ROTATE: // Flip + Scale + Rotation
-            case FX_SCALE | FX_ROTATE | FX_FLIP: 
+            case FX_SCALE | FX_ROTATE | FX_FLIP:
                 if (offset) {
                     pivotX = -(offset->x >> 17);
                     pivotY = -(offset->y >> 17);

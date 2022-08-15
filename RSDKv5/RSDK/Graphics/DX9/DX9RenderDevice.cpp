@@ -6,7 +6,7 @@
 // for some reason this seems to be applying "thick frame" instead of thin frame (intended)
 // it is for this reason that I'm unable to get the cool mini window toolbar that og mania has :(
 // tldr: microsoft sucks again
-#define DX9_WINDOWFLAGS_BORDERED   (WS_POPUP | (WS_BORDER | WS_DLGFRAME) | (WS_SYSMENU | WS_GROUP))
+#define DX9_WINDOWFLAGS_BORDERED (WS_POPUP | (WS_BORDER | WS_DLGFRAME) | (WS_SYSMENU | WS_GROUP))
 
 #define DX9_WINDOWFLAGS_BORDERLESS (WS_POPUP)
 
@@ -123,7 +123,7 @@ void RenderDevice::CopyFrameBuffer()
         D3DLOCKED_RECT rect;
 
         if (SUCCEEDED(screenTextures[s]->LockRect(0, &rect, NULL, D3DLOCK_DISCARD))) {
-            WORD *pixels           = (WORD *)rect.pBits;
+            WORD *pixels        = (WORD *)rect.pBits;
             uint16 *frameBuffer = screens[s].frameBuffer;
 
             int32 screenPitch = screens[s].pitch;
@@ -532,7 +532,7 @@ bool RenderDevice::InitGraphicsAPI()
         // for some reason this seems to force the window to have permanent top focus after coming out of fullscreen
         // despite this being 1:1 with the original code and it not having that behaviour
         // tldr: microsoft sucks
-        presentParams.BackBufferFormat = D3DFMT_X8R8G8B8; 
+        presentParams.BackBufferFormat = D3DFMT_X8R8G8B8;
         presentParams.BackBufferCount  = videoSettings.tripleBuffered ? 2 : 1;
 
         presentParams.MultiSampleType    = D3DMULTISAMPLE_NONE;
@@ -1122,7 +1122,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                     if (engine.devMenu) {
                         engine.gameSpeed = engine.fastForwardSpeed;
 
-                        handledMsg       = true;
+                        handledMsg = true;
                     }
                     break;
 
@@ -1186,7 +1186,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                     if (userShaderCount) {
                         videoSettings.shaderID = (videoSettings.shaderID + 1) % userShaderCount;
 
-                        handledMsg             = true;
+                        handledMsg = true;
                     }
                     break;
 
@@ -1238,7 +1238,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                     if (engine.devMenu) {
                         engine.frameStep = true;
 
-                        handledMsg       = true;
+                        handledMsg = true;
                     }
                     break;
 
@@ -1293,7 +1293,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_BACK:
                     engine.gameSpeed = 1;
 
-                    handledMsg       = true;
+                    handledMsg = true;
                     break;
             }
 
@@ -1304,14 +1304,14 @@ void RenderDevice::ProcessEvent(MSG Msg)
             touchInfo.down[0] = 1;
             touchInfo.count   = 1;
 
-            handledMsg        = true;
+            handledMsg = true;
             break;
 
         case WM_LBUTTONUP:
             touchInfo.down[0] = 0;
             touchInfo.count   = 0;
 
-            handledMsg        = true;
+            handledMsg = true;
             break;
 
         case WM_MBUTTONDOWN:

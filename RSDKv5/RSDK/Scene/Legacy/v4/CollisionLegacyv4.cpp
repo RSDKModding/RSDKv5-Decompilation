@@ -11,11 +11,10 @@ RSDK::Legacy::v4::CollisionSensor RSDK::Legacy::v4::sensors[7];
 #if !RETRO_USE_ORIGINAL_CODE
 int32 RSDK::Legacy::v4::AddDebugHitbox(uint8 type, Entity *entity, int32 left, int32 top, int32 right, int32 bottom)
 {
-    int32 i        = 0;
+    int32 i = 0;
     for (; i < debugHitboxCount; ++i) {
-        if (debugHitboxList[i].hitbox.left == left && debugHitboxList[i].hitbox.top == top
-            && debugHitboxList[i].hitbox.right == right && debugHitboxList[i].hitbox.bottom == bottom
-            && debugHitboxList[i].pos.x == entity->xpos && debugHitboxList[i].pos.y == entity->ypos
+        if (debugHitboxList[i].hitbox.left == left && debugHitboxList[i].hitbox.top == top && debugHitboxList[i].hitbox.right == right
+            && debugHitboxList[i].hitbox.bottom == bottom && debugHitboxList[i].pos.x == entity->xpos && debugHitboxList[i].pos.y == entity->ypos
             && debugHitboxList[i].entity == entity) {
             return i;
         }
@@ -150,7 +149,7 @@ void RSDK::Legacy::v4::FindLWallPosition(Entity *player, CollisionSensor *sensor
             int32 tileY  = (YPos & 0x7F) >> 4;
             if (XPos > -1 && YPos > -1) {
                 int32 tile      = stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6;
-                tile          = tile + tileX + (tileY << 3);
+                tile            = tile + tileX + (tileY << 3);
                 int32 tileIndex = tiles128x128.tileIndex[tile];
                 if (tiles128x128.collisionFlags[player->collisionPlane][tile] < SOLID_NONE) {
                     switch (tiles128x128.direction[tile]) {
@@ -233,7 +232,7 @@ void RSDK::Legacy::v4::FindRoofPosition(Entity *player, CollisionSensor *sensor,
             int32 tileY  = (YPos & 0x7F) >> 4;
             if (XPos > -1 && YPos > -1) {
                 int32 tile      = stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6;
-                tile          = tile + tileX + (tileY << 3);
+                tile            = tile + tileX + (tileY << 3);
                 int32 tileIndex = tiles128x128.tileIndex[tile];
                 if (tiles128x128.collisionFlags[player->collisionPlane][tile] < SOLID_NONE) {
                     switch (tiles128x128.direction[tile]) {
@@ -319,7 +318,7 @@ void RSDK::Legacy::v4::FindRWallPosition(Entity *player, CollisionSensor *sensor
             int32 tileY  = (YPos & 0x7F) >> 4;
             if (XPos > -1 && YPos > -1) {
                 int32 tile      = stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6;
-                tile          = tile + tileX + (tileY << 3);
+                tile            = tile + tileX + (tileY << 3);
                 int32 tileIndex = tiles128x128.tileIndex[tile];
                 if (tiles128x128.collisionFlags[player->collisionPlane][tile] < SOLID_NONE) {
                     switch (tiles128x128.direction[tile]) {
@@ -437,7 +436,7 @@ void RSDK::Legacy::v4::FloorCollision(Entity *player, CollisionSensor *sensor)
 
                             sensor->ypos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            uint8 cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
+                            uint8 cAngle     = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
                             sensor->angle    = (uint8)(0x180 - cAngle);
                             break;
                         }
@@ -1627,9 +1626,9 @@ void RSDK::Legacy::v4::ObjectFloorCollision(int32 xOffset, int32 yOffset, int32 
 {
     scriptEng.checkResult = false;
     Entity *entity        = &objectEntityList[objectEntityPos];
-    int32 c                 = 0;
-    int32 XPos              = (entity->xpos >> 16) + xOffset;
-    int32 YPos              = (entity->ypos >> 16) + yOffset;
+    int32 c               = 0;
+    int32 XPos            = (entity->xpos >> 16) + xOffset;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
     if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7) {
         int32 chunkX    = XPos >> 7;
         int32 tileX     = (XPos & 0x7F) >> 4;
@@ -1687,15 +1686,15 @@ void RSDK::Legacy::v4::ObjectLWallCollision(int32 xOffset, int32 yOffset, int32 
     int32 c;
     scriptEng.checkResult = false;
     Entity *entity        = &objectEntityList[objectEntityPos];
-    int32 XPos              = (entity->xpos >> 16) + xOffset;
-    int32 YPos              = (entity->ypos >> 16) + yOffset;
+    int32 XPos            = (entity->xpos >> 16) + xOffset;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
     if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7) {
         int32 chunkX    = XPos >> 7;
         int32 tileX     = (XPos & 0x7F) >> 4;
         int32 chunkY    = YPos >> 7;
         int32 tileY     = (YPos & 0x7F) >> 4;
         int32 chunk     = stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6;
-        chunk         = chunk + tileX + (tileY << 3);
+        chunk           = chunk + tileX + (tileY << 3);
         int32 tileIndex = tiles128x128.tileIndex[chunk];
         if (tiles128x128.collisionFlags[cPath][chunk] != SOLID_TOP && tiles128x128.collisionFlags[cPath][chunk] < SOLID_NONE) {
             switch (tiles128x128.direction[chunk]) {
@@ -1747,15 +1746,15 @@ void RSDK::Legacy::v4::ObjectRoofCollision(int32 xOffset, int32 yOffset, int32 c
     int32 c;
     scriptEng.checkResult = false;
     Entity *entity        = &objectEntityList[objectEntityPos];
-    int32 XPos              = (entity->xpos >> 16) + xOffset;
-    int32 YPos              = (entity->ypos >> 16) + yOffset;
+    int32 XPos            = (entity->xpos >> 16) + xOffset;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
     if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7) {
         int32 chunkX    = XPos >> 7;
         int32 tileX     = (XPos & 0x7F) >> 4;
         int32 chunkY    = YPos >> 7;
         int32 tileY     = (YPos & 0x7F) >> 4;
         int32 chunk     = stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6;
-        chunk         = chunk + tileX + (tileY << 3);
+        chunk           = chunk + tileX + (tileY << 3);
         int32 tileIndex = tiles128x128.tileIndex[chunk];
         if (tiles128x128.collisionFlags[cPath][chunk] != SOLID_TOP && tiles128x128.collisionFlags[cPath][chunk] < SOLID_NONE) {
             switch (tiles128x128.direction[chunk]) {
@@ -1807,15 +1806,15 @@ void RSDK::Legacy::v4::ObjectRWallCollision(int32 xOffset, int32 yOffset, int32 
     int32 c;
     scriptEng.checkResult = false;
     Entity *entity        = &objectEntityList[objectEntityPos];
-    int32 XPos              = (entity->xpos >> 16) + xOffset;
-    int32 YPos              = (entity->ypos >> 16) + yOffset;
+    int32 XPos            = (entity->xpos >> 16) + xOffset;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
     if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7) {
         int32 chunkX    = XPos >> 7;
         int32 tileX     = (XPos & 0x7F) >> 4;
         int32 chunkY    = YPos >> 7;
         int32 tileY     = (YPos & 0x7F) >> 4;
         int32 chunk     = stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6;
-        chunk         = chunk + tileX + (tileY << 3);
+        chunk           = chunk + tileX + (tileY << 3);
         int32 tileIndex = tiles128x128.tileIndex[chunk];
         if (tiles128x128.collisionFlags[cPath][chunk] != SOLID_TOP && tiles128x128.collisionFlags[cPath][chunk] < SOLID_NONE) {
             switch (tiles128x128.direction[chunk]) {
@@ -1868,9 +1867,9 @@ void RSDK::Legacy::v4::ObjectFloorGrip(int32 xOffset, int32 yOffset, int32 cPath
     int32 c;
     scriptEng.checkResult = false;
     Entity *entity        = &objectEntityList[objectEntityPos];
-    int32 XPos              = (entity->xpos >> 16) + xOffset;
-    int32 YPos              = (entity->ypos >> 16) + yOffset;
-    int32 chunkX            = YPos;
+    int32 XPos            = (entity->xpos >> 16) + xOffset;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
+    int32 chunkX          = YPos;
     YPos                  = YPos - 16;
     for (int32 i = 3; i > 0; i--) {
         if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7 && !scriptEng.checkResult) {
@@ -1938,9 +1937,9 @@ void RSDK::Legacy::v4::ObjectLWallGrip(int32 xOffset, int32 yOffset, int32 cPath
     int32 c;
     scriptEng.checkResult = false;
     Entity *entity        = &objectEntityList[objectEntityPos];
-    int32 XPos              = (entity->xpos >> 16) + xOffset;
-    int32 YPos              = (entity->ypos >> 16) + yOffset;
-    int32 startX            = XPos;
+    int32 XPos            = (entity->xpos >> 16) + xOffset;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
+    int32 startX          = XPos;
     XPos                  = XPos - 16;
     for (int32 i = 3; i > 0; i--) {
         if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7 && !scriptEng.checkResult) {
@@ -2007,9 +2006,9 @@ void RSDK::Legacy::v4::ObjectRoofGrip(int32 xOffset, int32 yOffset, int32 cPath)
     int32 c;
     scriptEng.checkResult = false;
     Entity *entity        = &objectEntityList[objectEntityPos];
-    int32 XPos              = (entity->xpos >> 16) + xOffset;
-    int32 YPos              = (entity->ypos >> 16) + yOffset;
-    int32 startY            = YPos;
+    int32 XPos            = (entity->xpos >> 16) + xOffset;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
+    int32 startY          = YPos;
     YPos                  = YPos + 16;
     for (int32 i = 3; i > 0; i--) {
         if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7 && !scriptEng.checkResult) {
@@ -2076,9 +2075,9 @@ void RSDK::Legacy::v4::ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath
     int32 c;
     scriptEng.checkResult = false;
     Entity *entity        = &objectEntityList[objectEntityPos];
-    int32 XPos              = (entity->xpos >> 16) + xOffset;
-    int32 YPos              = (entity->ypos >> 16) + yOffset;
-    int32 startX            = XPos;
+    int32 XPos            = (entity->xpos >> 16) + xOffset;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
+    int32 startX          = XPos;
     XPos                  = XPos + 16;
     for (int32 i = 3; i > 0; i--) {
         if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7 && !scriptEng.checkResult) {
@@ -2142,8 +2141,7 @@ void RSDK::Legacy::v4::ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath
 }
 
 void RSDK::Legacy::v4::TouchCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity,
-                                      int32 otherLeft, int32 otherTop,
-                    int32 otherRight, int32 otherBottom)
+                                      int32 otherLeft, int32 otherTop, int32 otherRight, int32 otherBottom)
 {
     Hitbox *thisHitbox  = GetHitbox(thisEntity);
     Hitbox *otherHitbox = GetHitbox(otherEntity);
@@ -2203,8 +2201,7 @@ void RSDK::Legacy::v4::TouchCollision(Entity *thisEntity, int32 thisLeft, int32 
 #endif
 }
 void RSDK::Legacy::v4::BoxCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity,
-                                    int32 otherLeft, int32 otherTop,
-                  int32 otherRight, int32 otherBottom)
+                                    int32 otherLeft, int32 otherTop, int32 otherRight, int32 otherBottom)
 {
     Hitbox *thisHitbox  = GetHitbox(thisEntity);
     Hitbox *otherHitbox = GetHitbox(otherEntity);
@@ -2522,8 +2519,7 @@ void RSDK::Legacy::v4::BoxCollision(Entity *thisEntity, int32 thisLeft, int32 th
 #endif
 }
 void RSDK::Legacy::v4::BoxCollision2(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity,
-                                     int32 otherLeft, int32 otherTop,
-                   int32 otherRight, int32 otherBottom)
+                                     int32 otherLeft, int32 otherTop, int32 otherRight, int32 otherBottom)
 {
     Hitbox *thisHitbox  = GetHitbox(thisEntity);
     Hitbox *otherHitbox = GetHitbox(otherEntity);
@@ -2827,8 +2823,7 @@ void RSDK::Legacy::v4::BoxCollision2(Entity *thisEntity, int32 thisLeft, int32 t
 #endif
 }
 void RSDK::Legacy::v4::PlatformCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity,
-                                         int32 otherLeft, int32 otherTop,
-                       int32 otherRight, int32 otherBottom)
+                                         int32 otherLeft, int32 otherTop, int32 otherRight, int32 otherBottom)
 {
     scriptEng.checkResult = false;
 

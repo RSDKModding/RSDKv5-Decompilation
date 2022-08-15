@@ -76,14 +76,14 @@ void ProcessAirCollision(Entity *player);
 
 void ProcessTileCollisions(Entity *player);
 
-void TouchCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity, int32 otherLeft, int32 otherTop,
-                    int32 otherRight, int32 otherBottom);
-void BoxCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity, int32 otherLeft, int32 otherTop,
-                  int32 otherRight, int32 otherBottom); // Standard
-void BoxCollision2(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity, int32 otherLeft, int32 otherTop,
-                   int32 otherRight, int32 otherBottom); // Updated (?)
-void PlatformCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity, int32 otherLeft, int32 otherTop,
-                       int32 otherRight, int32 otherBottom);
+void TouchCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity, int32 otherLeft,
+                    int32 otherTop, int32 otherRight, int32 otherBottom);
+void BoxCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity, int32 otherLeft,
+                  int32 otherTop, int32 otherRight, int32 otherBottom); // Standard
+void BoxCollision2(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity, int32 otherLeft,
+                   int32 otherTop, int32 otherRight, int32 otherBottom); // Updated (?)
+void PlatformCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity, int32 otherLeft,
+                       int32 otherTop, int32 otherRight, int32 otherBottom);
 
 void ObjectFloorCollision(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectLWallCollision(int32 xOffset, int32 yOffset, int32 cPath);
@@ -95,6 +95,6 @@ void ObjectLWallGrip(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectRoofGrip(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath);
 
-}
+} // namespace v4
 
-}
+} // namespace Legacy

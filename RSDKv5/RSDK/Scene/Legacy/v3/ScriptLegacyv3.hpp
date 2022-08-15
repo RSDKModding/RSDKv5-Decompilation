@@ -6,8 +6,8 @@ namespace v3
 {
 
 #define LEGACY_v3_SCRIPTDATA_COUNT (0x40000)
-#define LEGACY_v3_JUMPTABLE_COUNT (0x4000)
-#define LEGACY_v3_FUNCTION_COUNT (0x200)
+#define LEGACY_v3_JUMPTABLE_COUNT  (0x4000)
+#define LEGACY_v3_FUNCTION_COUNT   (0x200)
 
 #define LEGACY_v3_JUMPSTACK_COUNT (0x400)
 #define LEGACY_v3_FUNCSTACK_COUNT (0x400)
@@ -91,6 +91,6 @@ void ProcessScript(int32 scriptCodeStart, int32 jumpTableStart, uint8 scriptSub)
 
 void ClearScriptData();
 
-}
+} // namespace v3
 
 } // namespace Legacy

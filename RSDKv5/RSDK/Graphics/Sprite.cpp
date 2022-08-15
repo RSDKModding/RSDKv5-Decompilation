@@ -796,7 +796,7 @@ bool32 RSDK::ImageTGA::Load(const char *fileName, bool32 loadHeader)
                                     --count;
                                 }
                                 else {
-                                    count = ReadInt8(&info);
+                                    count       = ReadInt8(&info);
                                     decodingRLE = count & 0x80;
                                     count &= 0x7F;
 
@@ -841,7 +841,7 @@ bool32 RSDK::ImageTGA::Load(const char *fileName, bool32 loadHeader)
                                     --count;
                                 }
                                 else {
-                                    count = ReadInt8(&info);
+                                    count       = ReadInt8(&info);
                                     decodingRLE = count & 0x80;
                                     count &= 0x7F;
 
@@ -873,7 +873,7 @@ bool32 RSDK::ImageTGA::Load(const char *fileName, bool32 loadHeader)
                                     --count;
                                 }
                                 else {
-                                    count = ReadInt8(&info);
+                                    count       = ReadInt8(&info);
                                     decodingRLE = count & 0x80;
                                     count &= 0x7F;
 

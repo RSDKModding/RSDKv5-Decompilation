@@ -94,6 +94,6 @@ void ProcessScript(int32 scriptCodeStart, int32 jumpTableStart, uint8 scriptEven
 
 void ClearScriptData();
 
-}
+} // namespace v4
 
-}
+} // namespace Legacy

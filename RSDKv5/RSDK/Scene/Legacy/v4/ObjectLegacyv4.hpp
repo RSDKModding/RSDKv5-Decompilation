@@ -15,8 +15,8 @@ enum ObjectControlModes {
 };
 
 struct TypeGroupList {
-    int entityRefs[LEGACY_v4_ENTITY_COUNT];
-    int listSize;
+    int32 entityRefs[LEGACY_v4_ENTITY_COUNT];
+    int32 listSize;
 };
 
 struct Entity {

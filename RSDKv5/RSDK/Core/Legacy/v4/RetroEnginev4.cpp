@@ -169,7 +169,7 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
         RSDK::Legacy::v4::LoadXMLObjects();
         RSDK::Legacy::v4::LoadXMLPlayers();
         RSDK::Legacy::v4::LoadXMLStages(0, gcSceneCount);
-        
+
         SetGlobalVariableByName("options.devMenuFlag", false);
         if (engine.devMenu)
             SetGlobalVariableByName("options.devMenuFlag", true);
@@ -261,7 +261,7 @@ void RSDK::Legacy::v4::ProcessEngine()
 
         case ENGINE_WAIT:
             break;
-        // case ENGINE_RESETGAME: break;
+            // case ENGINE_RESETGAME: break;
 
         case ENGINE_SCRIPTERROR: {
             currentScreen = screens;

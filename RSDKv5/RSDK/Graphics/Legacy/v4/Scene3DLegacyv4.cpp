@@ -37,7 +37,7 @@ void RSDK::Legacy::v4::MatrixMultiply(Matrix *matrixA, Matrix *matrixB)
     for (int32 i = 0; i < 0x10; ++i) {
         uint32 rowA = i / 4;
         uint32 rowB = i % 4;
-        output[i] = (matrixA->values[rowA][3] * matrixB->values[3][rowB] >> 8) + (matrixA->values[rowA][2] * matrixB->values[2][rowB] >> 8)
+        output[i]   = (matrixA->values[rowA][3] * matrixB->values[3][rowB] >> 8) + (matrixA->values[rowA][2] * matrixB->values[2][rowB] >> 8)
                     + (matrixA->values[rowA][1] * matrixB->values[1][rowB] >> 8) + (matrixA->values[rowA][0] * matrixB->values[0][rowB] >> 8);
     }
 
@@ -139,8 +139,8 @@ void RSDK::Legacy::v4::MatrixRotateY(Matrix *matrix, int32 rotationY)
 }
 void RSDK::Legacy::v4::MatrixRotateZ(Matrix *matrix, int32 rotationZ)
 {
-    int32 sine             = sin512LookupTable[rotationZ & 0x1FF] >> 1;
-    int32 cosine           = cos512LookupTable[rotationZ & 0x1FF] >> 1;
+    int32 sine           = sin512LookupTable[rotationZ & 0x1FF] >> 1;
+    int32 cosine         = cos512LookupTable[rotationZ & 0x1FF] >> 1;
     matrix->values[0][0] = cosine;
     matrix->values[0][1] = 0;
     matrix->values[0][2] = sine;
@@ -281,9 +281,9 @@ void RSDK::Legacy::v4::TransformVertexBuffer()
 void RSDK::Legacy::v4::TransformVertices(Matrix *matrix, int32 startIndex, int32 endIndex)
 {
     for (int32 v = startIndex; v < endIndex; ++v) {
-        int32 vx       = vertexBuffer[v].x;
-        int32 vy       = vertexBuffer[v].y;
-        int32 vz       = vertexBuffer[v].z;
+        int32 vx     = vertexBuffer[v].x;
+        int32 vy     = vertexBuffer[v].y;
+        int32 vz     = vertexBuffer[v].z;
         Vertex *vert = &vertexBuffer[v];
         vert->x      = (vx * matrix->values[0][0] >> 8) + (vy * matrix->values[1][0] >> 8) + (vz * matrix->values[2][0] >> 8) + matrix->values[3][0];
         vert->y      = (vx * matrix->values[0][1] >> 8) + (vy * matrix->values[1][1] >> 8) + (vz * matrix->values[2][1] >> 8) + matrix->values[3][1];
@@ -302,8 +302,8 @@ void RSDK::Legacy::v4::Sort3DDrawList()
     for (int32 i = 0; i < faceCount; ++i) {
         for (int32 j = faceCount - 1; j > i; --j) {
             if (drawList3D[j].depth > drawList3D[j - 1].depth) {
-                int32 faceID               = drawList3D[j].faceID;
-                int32 depth                = drawList3D[j].depth;
+                int32 faceID             = drawList3D[j].faceID;
+                int32 depth              = drawList3D[j].depth;
                 drawList3D[j].faceID     = drawList3D[j - 1].faceID;
                 drawList3D[j].depth      = drawList3D[j - 1].depth;
                 drawList3D[j - 1].faceID = faceID;

@@ -4,17 +4,17 @@ uint16 RSDK::Legacy::fullPalette[LEGACY_PALETTE_COUNT][LEGACY_PALETTE_COLOR_COUN
 uint16 *RSDK::Legacy::activePalette = fullPalette[0]; // Ptr to the 256 color set thats active
 
 uint8 RSDK::Legacy::gfxLineBuffer[SCREEN_YSIZE * 2]; // Pointers to active palette
-int32 RSDK::Legacy::GFX_LINESIZE = 0;
+int32 RSDK::Legacy::GFX_LINESIZE          = 0;
 int32 RSDK::Legacy::GFX_LINESIZE_MINUSONE = 0;
-int32 RSDK::Legacy::GFX_LINESIZE_DOUBLE = 0;
-int32 RSDK::Legacy::GFX_FRAMEBUFFERSIZE = 0;
-int32 RSDK::Legacy::GFX_FBUFFERMINUSONE = 0;
+int32 RSDK::Legacy::GFX_LINESIZE_DOUBLE   = 0;
+int32 RSDK::Legacy::GFX_FRAMEBUFFERSIZE   = 0;
+int32 RSDK::Legacy::GFX_FBUFFERMINUSONE   = 0;
 
 int32 RSDK::Legacy::fadeMode = 0;
-uint8 RSDK::Legacy::fadeA   = 0;
-uint8 RSDK::Legacy::fadeR   = 0;
-uint8 RSDK::Legacy::fadeG   = 0;
-uint8 RSDK::Legacy::fadeB   = 0;
+uint8 RSDK::Legacy::fadeA    = 0;
+uint8 RSDK::Legacy::fadeR    = 0;
+uint8 RSDK::Legacy::fadeG    = 0;
+uint8 RSDK::Legacy::fadeB    = 0;
 
 int32 RSDK::Legacy::paletteMode = 1;
 
@@ -84,8 +84,8 @@ void RSDK::Legacy::v3::SetLimitedFade(uint8 paletteID, uint8 R, uint8 G, uint8 B
     if (paletteID >= LEGACY_PALETTE_COUNT)
         return;
 
-    paletteMode     = 1;
-    activePalette   = fullPalette[paletteID];
+    paletteMode   = 1;
+    activePalette = fullPalette[paletteID];
 
     if (blendAmount >= 0x100)
         blendAmount = 0xFF;
