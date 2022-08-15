@@ -176,9 +176,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                         sceneInfo.listCategory = NULL;
 
                         globalVarsPtr = NULL;
-#if RETRO_REV0U
                         globalVarsInitCB = NULL;
-#endif
                         dataStorage[DATASET_STG].entryCount  = 0;
                         dataStorage[DATASET_STG].usedStorage = 0;
                         dataStorage[DATASET_SFX].entryCount  = 0;

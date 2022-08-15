@@ -186,7 +186,8 @@ void RSDK::LoadModSettings()
     }
 }
 
-void RSDK::ApplyModChanges() {
+void RSDK::ApplyModChanges()
+{
 #if RETRO_REV0U
     uint32 category                      = sceneInfo.activeCategory;
     uint32 scene                         = sceneInfo.listPos;
@@ -209,7 +210,7 @@ void RSDK::ApplyModChanges() {
             Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
             strcpy(gameVerInfo.version, "Legacy v4 Mode");
 
-            sceneInfo.state  = ENGINESTATE_NONE; // i think this is fine ??? lmk if otherwise
+            sceneInfo.state  = ENGINESTATE_NONE; // i think this is fine ??? lmk if otherwise // rmg seal of approval
             Legacy::gameMode = Legacy::ENGINE_DEVMENU;
             break;
 
@@ -221,8 +222,10 @@ void RSDK::ApplyModChanges() {
             Legacy::gameMode = Legacy::ENGINE_DEVMENU;
             break;
     }
-    sceneInfo.activeCategory = category;
-    sceneInfo.listPos        = scene;
+    if (engine.version == devMenu.startingVersion) {
+        sceneInfo.activeCategory = category;
+        sceneInfo.listPos        = scene;
+    }
 #else
     uint32 category                      = sceneInfo.activeCategory;
     uint32 scene                         = sceneInfo.listPos;
