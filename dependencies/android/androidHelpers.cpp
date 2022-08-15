@@ -196,12 +196,8 @@ void AndroidCommandCallback(android_app *app, int32 cmd)
                 videoSettings.windowState = WINDOWSTATE_ACTIVE;
             }
             break;
-        case APP_CMD_STOP:
-            Paddleboat_onStop(GetJNISetup()->env);
-            break;
-        case APP_CMD_START: 
-            Paddleboat_onStart(GetJNISetup()->env);
-            break;
+        case APP_CMD_STOP: Paddleboat_onStop(GetJNISetup()->env); break;
+        case APP_CMD_START: Paddleboat_onStart(GetJNISetup()->env); break;
         case APP_CMD_GAINED_FOCUS: /*
 #if RETRO_REV02
             if (SKU::userCore)
@@ -253,7 +249,11 @@ bool AndroidKeyDownCallback(GameActivity *activity, const GameActivityKeyEvent *
 
         case AKEYCODE_ESCAPE:
             if (engine.devMenu) {
+#if RETRO_REV0U
+                if (sceneInfo.state == ENGINESTATE_DEVMENU || RSDK::Legacy::gameMode == RSDK::Legacy::ENGINE_DEVMENU)
+#else
                 if (sceneInfo.state == ENGINESTATE_DEVMENU)
+#endif
                     CloseDevMenu();
                 else
                     OpenDevMenu();
@@ -335,16 +335,32 @@ bool AndroidKeyDownCallback(GameActivity *activity, const GameActivityKeyEvent *
 
         case AKEYCODE_F11:
         case AKEYCODE_INSERT:
-            if ((sceneInfo.state & ENGINESTATE_STEPOVER) == ENGINESTATE_STEPOVER)
+            if (engine.devMenu)
                 engine.frameStep = true;
             return true;
 
         case AKEYCODE_F12:
         case AKEYCODE_BREAK:
             if (engine.devMenu) {
-                sceneInfo.state ^= ENGINESTATE_STEPOVER;
+#if RETRO_REV0U
+                switch (engine.version) {
+                    default: break;
+                    case 5:
+                        if (sceneInfo.state != ENGINESTATE_NONE)
+                            sceneInfo.state ^= ENGINESTATE_STEPOVER;
+                        break;
+                    case 4:
+                    case 3:
+                        if (RSDK::Legacy::stageMode != ENGINESTATE_NONE)
+                            RSDK::Legacy::stageMode ^= RSDK::Legacy::STAGEMODE_STEPOVER;
+                        break;
+                }
+#else
+                if (sceneInfo.state != ENGINESTATE_NONE)
+                    sceneInfo.state ^= ENGINESTATE_STEPOVER;
+#endif
             }
-            return true;
+            break;
     }
     return false;
 }

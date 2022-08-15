@@ -118,7 +118,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                 engine.focusState = 0;
             else
 #endif
-            if (SKU::userCore->CheckFocusLost()) {
+                if (SKU::userCore->CheckFocusLost()) {
                 if (!(engine.focusState & 1)) {
                     engine.focusState = 1;
                     PauseSound();
@@ -179,7 +179,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #if RETRO_REV0U
                         globalVarsInitCB = NULL;
 #endif
-                        dataStorage[DATASET_STG].entryCount = 0;
+                        dataStorage[DATASET_STG].entryCount  = 0;
                         dataStorage[DATASET_STG].usedStorage = 0;
                         dataStorage[DATASET_SFX].entryCount  = 0;
                         dataStorage[DATASET_SFX].usedStorage = 0;
@@ -188,7 +188,6 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                             if (objectClassList[o].staticVars && *objectClassList[o].staticVars)
                                 (*objectClassList[o].staticVars) = NULL;
                         }
-
 
                         InitEngine();
 
@@ -1273,26 +1272,39 @@ void RSDK::ProcessDebugCommands()
 #endif
 
     if (controller[CONT_P1].keySelect.press) {
+#if RETRO_REV0U
+        if (sceneInfo.state == ENGINESTATE_DEVMENU || RSDK::Legacy::gameMode == RSDK::Legacy::ENGINE_DEVMENU)
+#else
         if (sceneInfo.state == ENGINESTATE_DEVMENU)
+#endif
             CloseDevMenu();
         else
             OpenDevMenu();
     }
 
-    bool32 framePaused = (sceneInfo.state >> 2) & 1;
+#if RETRO_REV0U
+    int32 state          = engine.version == 5 ? sceneInfo.state : Legacy::stageMode;
+    const int32 stepOver = engine.version == 5 ? ENGINESTATE_STEPOVER : Legacy::STAGEMODE_STEPOVER;
+#else
+    uint8 state = sceneInfo.state;
+    const uint8 stepOver = ENGINESTATE_STEPOVER;
+#endif
+
+    bool32 framePaused = (state & stepOver) == stepOver;
 
 #if RETRO_REV02
     if (triggerL[CONT_P1].keyBumper.down) {
         if (triggerL[CONT_P1].keyTrigger.down || triggerL[CONT_P1].triggerDelta >= 0.3) {
             if (!framePaused)
-                sceneInfo.state ^= ENGINESTATE_STEPOVER;
+                state ^= stepOver;
         }
         else {
             if (framePaused)
-                sceneInfo.state ^= ENGINESTATE_STEPOVER;
+                state ^= stepOver;
         }
 
-        framePaused = (sceneInfo.state >> 2) & 1;
+        framePaused = (state & stepOver) == stepOver;
+
         if (framePaused) {
             if (triggerR[CONT_P1].keyBumper.press)
                 engine.frameStep = true;
@@ -1306,8 +1318,15 @@ void RSDK::ProcessDebugCommands()
             engine.gameSpeed = 1;
 
         if (framePaused)
-            sceneInfo.state ^= ENGINESTATE_STEPOVER;
+            state ^= stepOver;
     }
+
+#if RETRO_REV0U
+    if (engine.version != 5)
+        Legacy::stageMode = state;
+    else
+#endif
+        sceneInfo.state = state;
 #else
     if (controller[CONT_P1].keyBumperL.down) {
         if (controller[CONT_P1].keyTriggerL.down || stickL[CONT_P1].triggerDeltaL >= 0.3) {

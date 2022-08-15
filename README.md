@@ -21,12 +21,11 @@ First, follow the steps in [the common dependency README](./dependencies/all/REA
 * ### [Mac](./dependencies/mac/README.md)
 
 * ## Linux/Switch
-  * **For Linux, extra dependencies may be required:**
-    * Follow the [GL3 README](./dependencies/gl3/README.md) to setup the renderer's dependencies.
-    * Then, set up SDL for audio:
-      * On Ubuntu: `sudo apt install libsdl2-dev`
-      * On Fedora: `sudo dnf install SDL2-devel`
-      * On Arch: `sudo pacman -S sdl2` 
+  * Follow the [GL3 README](./dependencies/gl3/README.md) to setup the renderer's dependencies.
+  * **For Linux, SDL for audio** (or if you use the SDL2 backend) **will be required:**
+    * On Ubuntu: `sudo apt install libsdl2-dev`
+    * On Fedora: `sudo dnf install SDL2-devel`
+    * On Arch: `sudo pacman -S sdl2` 
   * Then, for both platforms, the makefile can be used by running `make`.
     * For Switch, pass `PLATFORM=Switch` to the `make` command to ensure you're building for Switch.
 

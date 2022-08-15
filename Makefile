@@ -26,8 +26,6 @@ RSDK_LIBS    =
 
 RSDK_PREBUILD =
 RSDK_PRELINK  =
-RSDK_POSTLINK = 
-
 
 STATICGAME 	?= 0
 
@@ -42,7 +40,6 @@ GAME_LIBS    =
 
 GAME_PREBUILD =
 GAME_PRELINK  =
-GAME_POSTLINK =
 endif
 
 DEFINES      ?=
@@ -229,11 +226,11 @@ $(RSDK_OBJDIR)/%.o: $(RSDK_PREBUILD) %.cpp
 
 ifeq ($(STATICGAME),1)
 $(RSDK_PATH): $(RSDK_PRELINK) $(RSDK_OBJECTS) $(GAME_OBJECTS)
-	@echo -n linking...
+	@echo linking...
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $(RSDK_LDFLAGS) $(RSDK_OBJECTS) $(GAME_OBJECTS) $(RSDK_LIBS) $(GAME_LIBS) -o $@ 
-	@echo done
 	$(STRIP) $@
-else
+	@echo done
+else # STATICGAME
 $(RSDK_PATH): $(RSDK_PRELINK) $(RSDK_OBJECTS)
 	@echo linking RSDK...
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $(RSDK_LDFLAGS) $(RSDK_OBJECTS) $(RSDK_LIBS) -o $@ 
@@ -245,29 +242,37 @@ $(GAME_PATH): $(GAME_PRELINK) $(GAME_OBJECTS)
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $(GAME_LDFLAGS) $(GAME_OBJECTS) $(GAME_LIBS) -o $@ 
  	$(STRIP) $@
 	@echo done linking game
-endif
-endif
+endif # RSDK_ONLY
+endif # STATICGAME
 
 
 ifeq ($(RSDK_PATH),$(PKG_PATH))
 
 ifeq ($(STATICGAME),1)
-all: $(RSDK_PATH) $(RSDK_POSTLINK) 
-else
+all: $(RSDK_PATH)
+else # STATICGAME
+
 ifeq ($(RSDK_ONLY),0)
-all: $(RSDK_PATH) $(GAME_PATH) $(RSDK_POSTLINK) $(GAME_POSTLINK)
-else
-all: $(RSDK_PATH) $(RSDK_POSTLINK)
+all: $(RSDK_PATH) $(GAME_PATH)
+else # RSDK_ONLY
+all: $(RSDK_PATH)
 endif # RSDK_ONLY
+
 endif # STATICGAME
-else
-all: $(RSDK_PATH) $(RSDK_POSTLINK) 
-endif
+
+else # PKGPATH
+all: $(PKG_PATH)
+endif # PKGPATH
 
 clean-rsdk:
-	rm -rf $(RSDK_OBJDIR) && rm -rf $(RSDK_PATH)
+	rm -rf $(RSDK_PATH) && rm -rf $(RSDK_OBJDIR)
 
 clean-game:
-	rm -rf $(GAME_OBJDIR) && rm -rf $(GAME_PATH)
+	rm -rf $(GAME_PATH) && rm -rf $(GAME_OBJDIR)
 
-clean: clean-rsdk clean-game  
+ifeq ($(RSDK_PATH),$(PKG_PATH))
+clean: clean-rsdk clean-game 
+else
+clean: clean-rsdk clean-game
+	rm -rf $(PKG_PATH)
+endif

@@ -6,8 +6,8 @@
   * `Game` -> root of the Mania repository (or any other game that you may be compiling)
   * Extra symbolic links can be added for things like mods, **as mods do not use the local files for logic.** Just ensure that there is an `Android.mk` file at the root of them. 
     * (to add symbolic links, use the following:)
-      * Windows: `mklink /D RSDKv5 "[path]"`
-      * Linux: `ln -s RSDKv5 "[path]"`
+      * Windows: `mklink /D "name-of-symlink" "[path]"`
+      * Linux: `ln -s "name-of-symlink" "[path]"`
 * Open `[root]/android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 
 The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL shaders are required, or you will get a black screen.** See [the shaders README](../../RSDKv5/Shaders/README.md) for more details.
@@ -19,7 +19,7 @@ The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL 
 
 * libtheora: https://xiph.org/downloads/ (libtheora)
   
-  Download libvorbis and unzip it in "./libtheora/".
+  Download libtheora and unzip it in "./libtheora/".
 
 ## Common build issues (Windows)
 ### `make: *** INTERNAL: readdir: No such file or directory`

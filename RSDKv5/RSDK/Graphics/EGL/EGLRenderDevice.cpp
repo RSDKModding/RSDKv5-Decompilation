@@ -135,7 +135,6 @@ bool RenderDevice::Init()
             return false;
         InitInputDevices();
     }
-    PrintLog(PRINT_NORMAL, "nuts");
     isInitialized = true;
     return true;
 }
@@ -645,30 +644,26 @@ bool RenderDevice::InitShaders()
     LoadShader("YUV-422", true);
     LoadShader("YUV-444", true);
     LoadShader("RGB-Image", true);
-    maxShaders             = shaderCount;
-    videoSettings.shaderID = videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID;
-
-    SetLinear(shaderList[videoSettings.shaderID].linear || videoSettings.screenCount > 1);
+    maxShaders = shaderCount;
 
     // no shaders == no support
     if (!maxShaders) {
         ShaderEntry *shader         = &shaderList[0];
         videoSettings.shaderSupport = false;
-        videoSettings.shaderID      = 0;
 
         // let's load
         maxShaders  = 1;
         shaderCount = 1;
 
         GLuint vert, frag;
-        const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, backupVertex };
+        const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, backupVertex };
         vert                  = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vert, 4, vchar, NULL);
+        glShaderSource(vert, 3, vchar, NULL);
         glCompileShader(vert);
 
-        const GLchar *fchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, backupFragment };
+        const GLchar *fchar[] = { _GLVERSION, _GLDEFINE, backupFragment };
         frag                  = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(frag, 4, fchar, NULL);
+        glShaderSource(frag, 3, fchar, NULL);
         glCompileShader(frag);
 
         shader->programID = glCreateProgram();
@@ -681,11 +676,17 @@ bool RenderDevice::InitShaders()
         glBindAttribLocation(shader->programID, 1, "in_color");
         glBindAttribLocation(shader->programID, 2, "in_UV");
 
-        SetLinear(videoSettings.windowed ? false : shaderList[0].linear);
+        glUseProgram(shader->programID);
+
+        shader->linear = videoSettings.windowed ? false : shader->linear;
     }
+
+    videoSettings.shaderID = MAX(videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID, 0);
+    SetLinear(shaderList[videoSettings.shaderID].linear || videoSettings.screenCount > 1);
 
     return true;
 }
+
 void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 {
     char fullFilePath[0x100];
