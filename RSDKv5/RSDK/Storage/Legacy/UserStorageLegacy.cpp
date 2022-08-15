@@ -131,7 +131,13 @@ void RSDK::Legacy::v4::NotifyCallback(int32 *callback, int32 *param1, int32 *par
         case NOTIFY_STATS_ENEMY: PrintLog(PRINT_NORMAL, "NOTIFY: StatsEnemy() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_CHARA_ACTION: PrintLog(PRINT_NORMAL, "NOTIFY: StatsCharaAction() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_RING: PrintLog(PRINT_NORMAL, "NOTIFY: StatsRing() -> %d", *param1); break;
-        case NOTIFY_STATS_MOVIE: PrintLog(PRINT_NORMAL, "NOTIFY: StatsMovie() -> %d", *param1); break;
+        case NOTIFY_STATS_MOVIE:
+            PrintLog(PRINT_NORMAL, "NOTIFY: StatsMovie() -> %d", *param1);
+            sceneInfo.activeCategory = 0;
+            sceneInfo.listPos        = 0;
+            gameMode                 = ENGINE_MAINGAME;
+            stageMode                = STAGEMODE_LOAD;
+            break;
         case NOTIFY_STATS_PARAM_1: PrintLog(PRINT_NORMAL, "NOTIFY: StatsParam1() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_PARAM_2: PrintLog(PRINT_NORMAL, "NOTIFY: StatsParam2() -> %d", *param1); break;
         case NOTIFY_CHARACTER_SELECT:

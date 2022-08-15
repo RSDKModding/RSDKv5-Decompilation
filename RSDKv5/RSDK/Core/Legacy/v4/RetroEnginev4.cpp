@@ -177,8 +177,10 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
 
         usingBytecode = false;
         InitFileInfo(&info);
-        if (useDataPack && LoadFile(&info, "Bytecode/GlobalCode.bin", FMODE_RB))
+        if (useDataPack && LoadFile(&info, "Bytecode/GlobalCode.bin", FMODE_RB)) {
             usingBytecode = true;
+            CloseFile(&info);
+        }
     }
 
     // These need to be set every time its reloaded
@@ -258,7 +260,8 @@ void RSDK::Legacy::v4::ProcessEngine()
             break;
 
         case ENGINE_WAIT:
-        case ENGINE_RESETGAME: break;
+            break;
+        // case ENGINE_RESETGAME: break;
 
         case ENGINE_SCRIPTERROR: {
             currentScreen = screens;
@@ -273,6 +276,13 @@ void RSDK::Legacy::v4::ProcessEngine()
         case ENGINE_EXITPAUSE: gameMode = ENGINE_MAINGAME; break;
 
         case ENGINE_ENDGAME:
+        case ENGINE_RESETGAME:
+            sceneInfo.activeCategory = 0;
+            sceneInfo.listPos        = 0;
+            gameMode                 = ENGINE_MAINGAME;
+            stageMode                = STAGEMODE_LOAD;
+            break;
+
         default: break;
     }
 }

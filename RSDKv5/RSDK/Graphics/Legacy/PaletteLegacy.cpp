@@ -66,8 +66,8 @@ void RSDK::Legacy::SetPaletteFade(uint8 destPaletteID, uint8 srcPaletteA, uint8 
     uint32 blendA        = 0xFF - blendAmount;
     uint16 *paletteColor = &fullPalette[destPaletteID][startIndex];
     for (int32 i = startIndex; i <= endIndex; ++i) {
-        uint32 clrA = GetPaletteEntry(srcPaletteA, i);
-        uint32 clrB = GetPaletteEntry(srcPaletteB, i);
+        uint32 clrA = GetPaletteEntryPacked(srcPaletteA, i);
+        uint32 clrB = GetPaletteEntryPacked(srcPaletteB, i);
 
         int32 r = blendAmount * ((clrB >> 0x10) & 0xFF) + blendA * ((clrA >> 0x10) & 0xFF);
         int32 g = blendAmount * ((clrB >> 0x08) & 0xFF) + blendA * ((clrA >> 0x08) & 0xFF);
@@ -96,7 +96,7 @@ void RSDK::Legacy::v3::SetLimitedFade(uint8 paletteID, uint8 R, uint8 G, uint8 B
     uint32 blendA        = 0xFF - blendAmount;
     uint16 *paletteColor = &fullPalette[paletteID][startIndex];
     for (int32 i = startIndex; i <= endIndex; ++i) {
-        uint32 clrA = GetPaletteEntry(paletteID, i);
+        uint32 clrA = GetPaletteEntryPacked(paletteID, i);
 
         int32 r = blendAmount * R + blendA * ((clrA >> 0x10) & 0xFF);
         int32 g = blendAmount * G + blendA * ((clrA >> 0x08) & 0xFF);

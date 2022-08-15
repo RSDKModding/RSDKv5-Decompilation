@@ -174,8 +174,10 @@ bool32 RSDK::Legacy::v3::LoadGameConfig(const char *filepath)
 
         usingBytecode = false;
         InitFileInfo(&info);
-        if (useDataPack && LoadFile(&info, "Data/Scripts/Bytecode/GlobalCode.bin", FMODE_RB))
+        if (useDataPack && LoadFile(&info, "Data/Scripts/Bytecode/GlobalCode.bin", FMODE_RB)) {
             usingBytecode = true;
+            CloseFile(&info);
+        }
     }
 
     return loaded;
@@ -397,7 +399,13 @@ void RSDK::Legacy::v3::RetroEngineCallback(int32 callbackID)
         case NOTIFY_STATS_ENEMY: PrintLog(PRINT_NORMAL, "NOTIFY: StatsEnemy() -> %d", notifyParam1); break;
         case NOTIFY_STATS_CHARA_ACTION: PrintLog(PRINT_NORMAL, "NOTIFY: StatsCharaAction() -> %d", notifyParam1); break;
         case NOTIFY_STATS_RING: PrintLog(PRINT_NORMAL, "NOTIFY: StatsRing() -> %d", notifyParam1); break;
-        case NOTIFY_STATS_MOVIE: PrintLog(PRINT_NORMAL, "NOTIFY: StatsMovie() -> %d", notifyParam1); break;
+        case NOTIFY_STATS_MOVIE:
+            PrintLog(PRINT_NORMAL, "NOTIFY: StatsMovie() -> %d", notifyParam1);
+            sceneInfo.activeCategory = 0;
+            sceneInfo.listPos        = 0;
+            gameMode                 = ENGINE_MAINGAME;
+            stageMode                = STAGEMODE_LOAD;
+            break;
         case NOTIFY_STATS_PARAM_1: PrintLog(PRINT_NORMAL, "NOTIFY: StatsParam1() -> %d", notifyParam1); break;
         case NOTIFY_STATS_PARAM_2: PrintLog(PRINT_NORMAL, "NOTIFY: StatsParam2() -> %d", notifyParam1); break;
         case NOTIFY_CHARACTER_SELECT:

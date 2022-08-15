@@ -452,8 +452,9 @@ void loadCfg(ModInfo *info, std::string path)
                     info->config[catBuf][keyBuf] = std::to_string(ReadInt32(cfg, false));
             }
         }
+
+        CloseFile(cfg);
     }
-    CloseFile(cfg);
 }
 
 bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 active)
