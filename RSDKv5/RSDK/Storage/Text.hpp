@@ -72,9 +72,9 @@ inline bool StrComp(const char *stringA, const char *stringB)
     return match;
 }
 
-inline int StrLength(const char *string)
+inline int32 StrLength(const char *string)
 {
-    int len = 0;
+    int32 len = 0;
     for (len = 0; string[len]; len++)
         ;
     return len;

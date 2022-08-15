@@ -5,7 +5,7 @@ void RSDK::Legacy::v4::DrawObjectList(int32 group)
     for (int32 i = 0; i < drawListEntries[group].listSize; ++i) {
         objectEntityPos = drawListEntries[group].entityRefs[i];
 
-        int32 type        = objectEntityList[objectEntityPos].type;
+        int32 type = objectEntityList[objectEntityPos].type;
         if (type) {
             if (scriptCode[objectScriptList[type].eventDraw.scriptCodePtr] > 0)
                 ProcessScript(objectScriptList[type].eventDraw.scriptCodePtr, objectScriptList[type].eventDraw.jumpTablePtr, EVENT_DRAW);
@@ -133,10 +133,10 @@ void RSDK::Legacy::v4::DrawDebugOverlays()
     if (showHitboxes) {
         for (int32 i = 0; i < debugHitboxCount; ++i) {
             DebugHitboxInfo *info = &debugHitboxList[i];
-            int32 x                 = info->pos.x + (info->hitbox.left << 16);
-            int32 y                 = info->pos.y + (info->hitbox.top << 16);
-            int32 w                 = abs((info->pos.x + (info->hitbox.right << 16)) - x) >> 16;
-            int32 h                 = abs((info->pos.y + (info->hitbox.bottom << 16)) - y) >> 16;
+            int32 x               = info->pos.x + (info->hitbox.left << 16);
+            int32 y               = info->pos.y + (info->hitbox.top << 16);
+            int32 w               = abs((info->pos.x + (info->hitbox.right << 16)) - x) >> 16;
+            int32 h               = abs((info->pos.y + (info->hitbox.bottom << 16)) - y) >> 16;
             x                     = (x >> 16) - xScrollOffset;
             y                     = (y >> 16) - yScrollOffset;
 

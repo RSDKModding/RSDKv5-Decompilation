@@ -12,8 +12,6 @@ extern char modScriptPaths[OBJECT_COUNT][0x40];
 extern uint8 modScriptFlags[OBJECT_COUNT];
 extern uint8 modObjCount;
 
-
-
 namespace v4
 {
 
@@ -54,7 +52,7 @@ void SetWindowBorderless(int32 *borderless, int32 *unused);
 void GetWindowVSync();
 void SetWindowVSync(int32 *enabled, int32 *unused);
 void ApplyWindowChanges();
-}
+} // namespace v4
 
 #endif
 

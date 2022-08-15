@@ -369,7 +369,7 @@ const char variableNames[][0x20] = {
     "engine.trialMode",
     "engine.deviceType",
 
-// Extras
+    // Extras
     "screen.currentID",
     "camera.enabled",
     "camera.target",
@@ -1132,7 +1132,7 @@ enum ScrFunc {
 } // namespace v4
 
 } // namespace Legacy
-}
+} // namespace RSDK
 
 #if LEGACY_RETRO_USE_COMPILER
 void RSDK::Legacy::v4::CheckAliasText(char *text)
@@ -1498,7 +1498,7 @@ void RSDK::Legacy::v4::ConvertArithmaticSyntax(char *text)
         for (int32 i = 0; i < offset; ++i) dest[findID++] = text[i];
         if (functions[token].opcodeSize > 1) {
             dest[findID] = ',';
-            int32 len      = StrLength(scriptEvaluationTokens[token - 1]);
+            int32 len    = StrLength(scriptEvaluationTokens[token - 1]);
             offset += len;
             ++findID;
             while (text[offset]) dest[findID++] = text[offset++];
@@ -1664,7 +1664,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
             jumpTable[jumpTableStack[jumpTableStackPos]] = scriptCodePos - scriptCodeOffset;
 
         if (StrComp("endif", functions[opcode].name) == 1) {
-            int32 jPos            = jumpTableStack[jumpTableStackPos];
+            int32 jPos          = jumpTableStack[jumpTableStackPos];
             jumpTable[jPos + 1] = scriptCodePos - scriptCodeOffset;
             if (jumpTable[jPos] == -1)
                 jumpTable[jPos] = (scriptCodePos - scriptCodeOffset) - 1;
@@ -1672,11 +1672,11 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
         }
 
         if (StrComp("endswitch", functions[opcode].name)) {
-            int32 jPos            = jumpTableStack[jumpTableStackPos];
+            int32 jPos          = jumpTableStack[jumpTableStackPos];
             jumpTable[jPos + 3] = scriptCodePos - scriptCodeOffset;
             if (jumpTable[jPos + 2] == -1) {
                 jumpTable[jPos + 2] = (scriptCodePos - scriptCodeOffset) - 1;
-                int32 caseCnt         = abs(jumpTable[jPos + 1] - jumpTable[jPos]) + 1;
+                int32 caseCnt       = abs(jumpTable[jPos + 1] - jumpTable[jPos]) + 1;
 
                 int32 jOffset = jPos + 4;
                 for (int32 c = 0; c < caseCnt; ++c) {
@@ -1845,7 +1845,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                 for (; a < (int32)achievementList.size(); ++a) {
                     char buf[0x40];
                     const char *str = achievementList[a].identifier.c_str();
-                    int32 pos   = 0;
+                    int32 pos       = 0;
 
                     while (*str) {
                         if (*str != ' ')
@@ -1874,7 +1874,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                 for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
                     char buf[0x40];
                     char *str = modSettings.playerNames[p];
-                    int32 pos   = 0;
+                    int32 pos = 0;
 
                     while (*str) {
                         if (*str != ' ')
@@ -1931,7 +1931,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                 scriptCode[scriptCodePos++] = StrLength(funcName) - 2;
 
                 int32 scriptTextPos = 1;
-                arrayStrPos       = 0;
+                arrayStrPos         = 0;
                 while (scriptTextPos > -1) {
                     switch (arrayStrPos) {
                         case 0:
@@ -2027,7 +2027,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                     PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Operand not found\nOPERAND: %s\nLINE: %d\nFILE: %s", funcName, lineID, scriptFile);
 
                     gameMode = ENGINE_SCRIPTERROR;
-                    constant        = 0;
+                    constant = 0;
                 }
 
                 scriptCode[scriptCodePos++] = constant;
@@ -2129,7 +2129,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
                 }
             }
 
-            if (v == globalVariablesCount) 
+            if (v == globalVariablesCount)
                 PrintLog(PRINT_NORMAL, "WARNING: Unknown varName \"%s\", on line %d", arrayStr, lineID);
         }
 
@@ -2141,7 +2141,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
             for (; a < (int32)achievementList.size(); ++a) {
                 char buf[0x40];
                 const char *str = achievementList[a].identifier.c_str();
-                int32 pos   = 0;
+                int32 pos       = 0;
 
                 while (*str) {
                     if (*str != ' ')
@@ -2157,7 +2157,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
                 }
             }
 
-            if (a == (int32)achievementList.size()) 
+            if (a == (int32)achievementList.size())
                 PrintLog(PRINT_NORMAL, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
         }
 
@@ -2170,7 +2170,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
             for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
                 char buf[0x40];
                 char *str = modSettings.playerNames[p];
-                int32 pos   = 0;
+                int32 pos = 0;
 
                 while (*str) {
                     if (*str != ' ')
@@ -2186,7 +2186,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
                 }
             }
 
-            if (p == LEGACY_PLAYERNAME_COUNT) 
+            if (p == LEGACY_PLAYERNAME_COUNT)
                 PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
         }
 
@@ -2340,7 +2340,7 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                 for (; a < (int32)achievementList.size(); ++a) {
                     char buf[0x40];
                     const char *str = achievementList[a].identifier.c_str();
-                    int32 pos   = 0;
+                    int32 pos       = 0;
 
                     while (*str) {
                         if (*str != ' ')
@@ -2369,7 +2369,7 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                 for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
                     char buf[0x40];
                     char *str = modSettings.playerNames[p];
-                    int32 pos   = 0;
+                    int32 pos = 0;
 
                     while (*str) {
                         if (*str != ' ')
@@ -2437,9 +2437,9 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
         return true;
     }
     else if (FindStringToken(text, "default", 1) == 0) {
-        int32 jumpTablepos            = jumpTableStack[jumpTableStackPos];
+        int32 jumpTablepos          = jumpTableStack[jumpTableStackPos];
         jumpTable[jumpTablepos + 2] = scriptCodePos - scriptCodeOffset;
-        int32 cnt                     = abs(jumpTable[jumpTablepos + 1] - jumpTable[jumpTablepos]) + 1;
+        int32 cnt                   = abs(jumpTable[jumpTablepos + 1] - jumpTable[jumpTablepos]) + 1;
 
         int32 jOffset = jumpTablepos + 4;
         for (int32 i = 0; i < cnt; ++i) {
@@ -2522,8 +2522,8 @@ void RSDK::Legacy::v4::AppendIntegerToString(char *text, int32 value)
 }
 void RSDK::Legacy::v4::CopyAliasStr(char *dest, char *text, bool32 arrayIndex)
 {
-    int32 textPos     = 0;
-    int32 destPos     = 0;
+    int32 textPos   = 0;
+    int32 destPos   = 0;
     bool arrayValue = false;
     if (arrayIndex) {
         while (text[textPos]) {
@@ -2616,7 +2616,7 @@ void RSDK::Legacy::v4::ParseScriptFile(char *scriptName, int32 scriptID)
 
         while (readMode < READMODE_EOF) {
             int32 textPos               = 0;
-            readMode                  = READMODE_NORMAL;
+            readMode                    = READMODE_NORMAL;
             bool32 disableLineIncrement = false;
 
             while (readMode < READMODE_ENDLINE) {
@@ -2714,7 +2714,7 @@ void RSDK::Legacy::v4::ParseScriptFile(char *scriptName, int32 scriptID)
                         char funcName[0x40];
                         for (textPos = 15; scriptText[textPos]; ++textPos) funcName[textPos - 15] = scriptText[textPos];
                         funcName[textPos - 15] = 0;
-                        int32 funcID             = -1;
+                        int32 funcID           = -1;
                         for (int32 f = 0; f < scriptFunctionCount; ++f) {
                             if (StrComp(funcName, scriptFunctionList[f].name))
                                 funcID = f;
@@ -2734,7 +2734,7 @@ void RSDK::Legacy::v4::ParseScriptFile(char *scriptName, int32 scriptID)
                         for (textPos = 14; scriptText[textPos]; ++textPos) funcName[textPos - 14] = scriptText[textPos];
 
                         funcName[textPos - 14] = 0;
-                        int32 funcID             = -1;
+                        int32 funcID           = -1;
                         for (int32 f = 0; f < scriptFunctionCount; ++f) {
                             if (StrComp(funcName, scriptFunctionList[f].name))
                                 funcID = f;
@@ -2772,7 +2772,7 @@ void RSDK::Legacy::v4::ParseScriptFile(char *scriptName, int32 scriptID)
                         for (textPos = 15; scriptText[textPos]; ++textPos) funcName[textPos - 15] = scriptText[textPos];
 
                         funcName[textPos - 15] = 0;
-                        int32 funcID             = -1;
+                        int32 funcID           = -1;
                         for (int32 f = 0; f < scriptFunctionCount; ++f) {
                             if (StrComp(funcName, scriptFunctionList[f].name))
                                 funcID = f;
@@ -2850,15 +2850,15 @@ void RSDK::Legacy::v4::ParseScriptFile(char *scriptName, int32 scriptID)
                         else if (FindStringToken(scriptText, "#endplatform", 1) == -1) {
                             ConvertConditionalStatement(scriptText);
                             if (ConvertSwitchStatement(scriptText)) {
-                                parseMode    = PARSEMODE_SWITCHREAD;
+                                parseMode  = PARSEMODE_SWITCHREAD;
                                 storedPos  = (int32)info.readPos;
-                                switchDeep   = 0;
+                                switchDeep = 0;
                             }
                             ConvertArithmaticSyntax(scriptText);
                             if (!ReadSwitchCase(scriptText)) {
                                 ConvertFunctionText(scriptText);
 
-                                if (gameMode == ENGINE_SCRIPTERROR) 
+                                if (gameMode == ENGINE_SCRIPTERROR)
                                     parseMode = PARSEMODE_ERROR;
                             }
                         }
@@ -2876,7 +2876,7 @@ void RSDK::Legacy::v4::ParseScriptFile(char *scriptName, int32 scriptID)
                     else if (FindStringToken(scriptText, "endswitch", 1) == 0) {
                         Seek_Set(&info, storedPos);
                         parseMode  = PARSEMODE_FUNCTION;
-                        int32 jPos   = jumpTableStack[jumpTableStackPos];
+                        int32 jPos = jumpTableStack[jumpTableStackPos];
                         switchDeep = abs(jumpTable[jPos + 1] - jumpTable[jPos]) + 1;
                         for (textPos = 0; textPos < switchDeep; ++textPos) jumpTable[jumpTablePos++] = -1;
                     }
@@ -2934,7 +2934,7 @@ void RSDK::Legacy::v4::LoadBytecode(int32 scriptID, bool32 globalCode)
 
         while (scriptCodeSize > 0) {
             uint8 fileBuffer = ReadInt8(&info);
-            int32 blockSize = fileBuffer & 0x7F;
+            int32 blockSize  = fileBuffer & 0x7F;
             if (fileBuffer >= 0x80) {
                 while (blockSize > 0) {
                     *scriptCodePtr = ReadInt8(&info);
@@ -2967,7 +2967,7 @@ void RSDK::Legacy::v4::LoadBytecode(int32 scriptID, bool32 globalCode)
 
         while (jumpTableSize > 0) {
             uint8 fileBuffer = ReadInt8(&info);
-            int32 blockSize = fileBuffer & 0x7F;
+            int32 blockSize  = fileBuffer & 0x7F;
 
             if (fileBuffer >= 0x80) {
                 while (blockSize > 0) {
@@ -3122,11 +3122,11 @@ void RSDK::Legacy::v4::ClearScriptData()
 
 void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart, uint8 scriptEvent)
 {
-    bool running      = true;
+    bool running        = true;
     int32 scriptCodePtr = scriptCodeStart;
-    jumpTableStackPos = 0;
-    functionStackPos  = 0;
-    foreachStackPos   = 0;
+    jumpTableStackPos   = 0;
+    functionStackPos    = 0;
+    foreachStackPos     = 0;
 
     while (running) {
         int32 opcode           = scriptCode[scriptCodePtr++];
@@ -3441,8 +3441,8 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                         int32 boundY4_2P = (0x100 << 16);
 
                         Entity *entPtr = &objectEntityList[arrayVal];
-                        int32 x          = entPtr->xpos >> 16;
-                        int32 y          = entPtr->ypos >> 16;
+                        int32 x        = entPtr->xpos >> 16;
+                        int32 y        = entPtr->ypos >> 16;
 
                         if (entPtr->priority == PRIORITY_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_SMALL) {
                             if (stageMode == STAGEMODE_2P) {
@@ -3843,7 +3843,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 scriptEng.operands[i] = scriptCode[scriptCodePtr++];
             }
             else if (opcodeType == SCRIPTVAR_STRCONST) { // string constant
-                int32 strLen         = scriptCode[scriptCodePtr++];
+                int32 strLen       = scriptCode[scriptCodePtr++];
                 scriptText[strLen] = 0;
                 for (int32 c = 0; c < strLen; ++c) {
                     switch (c % 4) {
@@ -4001,7 +4001,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
             case FUNC_FOREACHACTIVE: {
                 int32 groupID = scriptEng.operands[1];
                 if (groupID < LEGACY_v4_TYPEGROUP_COUNT) {
-                    int32 loop                      = foreachStack[++foreachStackPos] + 1;
+                    int32 loop                    = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
                     if (loop >= objectTypeGroupList[groupID].listSize) {
                         opcodeSize                      = 0;
@@ -4023,7 +4023,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
             case FUNC_FOREACHALL: {
                 int32 objType = scriptEng.operands[1];
                 if (objType < LEGACY_v4_OBJECT_COUNT) {
-                    int32 loop                      = foreachStack[++foreachStackPos] + 1;
+                    int32 loop                    = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
 
                     if (scriptEvent == EVENT_SETUP) {
@@ -4157,11 +4157,11 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 break;
             case FUNC_DRAWNUMBERS: {
                 opcodeSize = 0;
-                int32 i      = 10;
+                int32 i    = 10;
                 if (scriptEng.operands[6]) {
                     while (scriptEng.operands[4] > 0) {
                         int32 frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
-                        spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
+                        spriteFrame   = &scriptFrames[scriptInfo->frameListOffset + frameID];
                         DrawSprite(spriteFrame->pivotX + scriptEng.operands[1], spriteFrame->pivotY + scriptEng.operands[2], spriteFrame->width,
                                    spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
                         scriptEng.operands[1] -= scriptEng.operands[5];
@@ -4176,7 +4176,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     while (scriptEng.operands[4] > 0) {
                         if (extra >= i) {
                             int32 frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
-                            spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
+                            spriteFrame   = &scriptFrames[scriptInfo->frameListOffset + frameID];
                             DrawSprite(spriteFrame->pivotX + scriptEng.operands[1], spriteFrame->pivotY + scriptEng.operands[2], spriteFrame->width,
                                        spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
                         }
@@ -4188,7 +4188,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 break;
             }
             case FUNC_DRAWACTNAME: {
-                opcodeSize = 0;
+                opcodeSize   = 0;
                 int32 charID = 0;
                 switch (scriptEng.operands[3]) { // Draw Mode
                     case 0:                      // Draw Word 1 (but aligned from the right instead of left)
@@ -4230,7 +4230,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     case 1: // Draw Word 1
                         charID = 0;
 
-                        // Draw the first letter as a capital letter, the rest are lowercase 
+                        // Draw the first letter as a capital letter, the rest are lowercase
                         // (if scriptEng.operands[4] is trueotherwise they're all uppercase)
                         if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
                             int32 character = titleCardText[charID];
@@ -4286,7 +4286,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     case 2: // Draw Word 2
                         charID = titleCardWord2;
 
-                        // Draw the first letter as a capital letter, the rest are lowercase 
+                        // Draw the first letter as a capital letter, the rest are lowercase
                         // (if scriptEng.operands[4] is true, otherwise they're all uppercase)
                         if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
                             int32 character = titleCardText[charID];
@@ -4938,8 +4938,8 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                         int32 touchX = (int32)(touchInfo.x[f] * SCREEN_XSIZE);
                         int32 touchY = (int32)(touchInfo.y[f] * SCREEN_YSIZE);
 
-                        if (touchX > scriptEng.operands[0] && touchX < scriptEng.operands[2]
-                            && touchY > scriptEng.operands[1] && touchY < scriptEng.operands[3]) {
+                        if (touchX > scriptEng.operands[0] && touchX < scriptEng.operands[2] && touchY > scriptEng.operands[1]
+                            && touchY < scriptEng.operands[3]) {
                             scriptEng.checkResult = f;
                         }
                     }
@@ -5019,7 +5019,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
             case FUNC_GETANIMATIONBYNAME: {
                 AnimationFile *animFile = scriptInfo->animFile;
                 scriptEng.operands[0]   = -1;
-                int32 id                  = 0;
+                int32 id                = 0;
                 while (scriptEng.operands[0] == -1) {
                     SpriteAnimation *anim = &animationList[animFile->aniListOffset + id];
                     if (StrComp(scriptText, anim->name))
@@ -5072,7 +5072,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 break;
             }
             case FUNC_SETTABLEVALUE: {
-                opcodeSize = 0;
+                opcodeSize   = 0;
                 int32 arrPos = scriptEng.operands[1];
                 if (arrPos >= 0) {
                     int32 pos     = scriptEng.operands[2];
@@ -5124,12 +5124,14 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
             case FUNC_CALLNATIVEFUNCTION4:
                 if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < LEGACY_v4_NATIIVEFUNCTION_COUNT) {
                     if (StrLength(scriptText)) {
-                        void (*func)(int32 *, char *, int32 *, int32 *) = (void (*)(int32 *, char *, int32 *, int32 *))nativeFunction[scriptEng.operands[0]];
+                        void (*func)(int32 *, char *, int32 *, int32 *) =
+                            (void (*)(int32 *, char *, int32 *, int32 *))nativeFunction[scriptEng.operands[0]];
                         if (func)
                             func(&scriptEng.operands[1], scriptText, &scriptEng.operands[3], &scriptEng.operands[4]);
                     }
                     else {
-                        void (*func)(int32 *, int32 *, int32 *, int32 *) = (void (*)(int32 *, int32 *, int32 *, int32 *))nativeFunction[scriptEng.operands[0]];
+                        void (*func)(int32 *, int32 *, int32 *, int32 *) =
+                            (void (*)(int32 *, int32 *, int32 *, int32 *))nativeFunction[scriptEng.operands[0]];
                         if (func)
                             func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
                     }
@@ -5140,7 +5142,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 // scriptEng.operands[0] = range
 
                 opcodeSize       = 0;
-                int32 offset       = (scriptEng.operands[0] >> 1) - SCREEN_CENTERX;
+                int32 offset     = (scriptEng.operands[0] >> 1) - SCREEN_CENTERX;
                 OBJECT_BORDER_X1 = offset + 0x80;
                 OBJECT_BORDER_X2 = scriptEng.operands[0] + 0x80 - offset;
                 OBJECT_BORDER_X3 = offset + 0x20;
@@ -5206,7 +5208,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 // scriptEng.operands[1] = pos.y
                 // scriptEng.operands[2] = range.x
                 // scriptEng.operands[3] = range.y
-                // 
+                //
                 // FUNCTION NOTES:
                 // - Sets scriptEng.checkResult
 
@@ -5249,7 +5251,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 // FUNCTION PARAMS:
                 // scriptEng.operands[0] = screenCount
 
-                RSDK::SetVideoSetting(VIDEOSETTING_SCREENCOUNT, scriptEng.operands[0]); 
+                RSDK::SetVideoSetting(VIDEOSETTING_SCREENCOUNT, scriptEng.operands[0]);
                 break;
 
             case FUNC_SETSCREENVERTICES:
@@ -5268,7 +5270,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 // FUNCTION PARAMS:
                 // scriptEng.operands[0] = deviceID
                 // scriptEng.operands[1] = inputSlot
-                // 
+                //
                 // FUNCTION NOTES:
                 // - Assigns the device's id to scriptEng.operands[0]
 
@@ -5281,7 +5283,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 // scriptEng.operands[1] = confirmOnly
                 // scriptEng.operands[2] = unassignedOnly
                 // scriptEng.operands[3] = maxInactiveTimer
-                // 
+                //
                 // FUNCTION NOTES:
                 // - Assigns the filtered device's id to scriptEng.operands[0]
 
@@ -5292,7 +5294,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 // FUNCTION PARAMS:
                 // scriptEng.operands[0] = deviceType
                 // scriptEng.operands[1] = deviceID
-                // 
+                //
                 // FUNCTION NOTES:
                 // - Assigns the device's type to scriptEng.operands[0]
 
@@ -5317,18 +5319,18 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
             case FUNC_ISSLOTASSIGNED:
                 // FUNCTION PARAMS:
                 // scriptEng.operands[0] = inputSlot
-                // 
+                //
                 // FUNCTION NOTES:
                 // - Sets scriptEng.checkResult
 
-                scriptEng.checkResult = IsInputSlotAssigned(scriptEng.operands[0]); 
+                scriptEng.checkResult = IsInputSlotAssigned(scriptEng.operands[0]);
                 break;
 
             case FUNC_RESETINPUTSLOTASSIGNMENTS:
                 // FUNCTION PARAMS:
                 // None
 
-                ResetInputSlotAssignments(); 
+                ResetInputSlotAssignments();
                 break;
         }
 

@@ -32,7 +32,7 @@ void RSDK::Legacy::v3::MatrixMultiply(Matrix *matrixA, Matrix *matrixB)
     for (int32 i = 0; i < 0x10; ++i) {
         uint32 RowB = i & 3;
         uint32 RowA = (i & 0xC) / 4;
-        output[i] = (matrixA->values[RowA][3] * matrixB->values[3][RowB] >> 8) + (matrixA->values[RowA][2] * matrixB->values[2][RowB] >> 8)
+        output[i]   = (matrixA->values[RowA][3] * matrixB->values[3][RowB] >> 8) + (matrixA->values[RowA][2] * matrixB->values[2][RowB] >> 8)
                     + (matrixA->values[RowA][1] * matrixB->values[1][RowB] >> 8) + (matrixA->values[RowA][0] * matrixB->values[0][RowB] >> 8);
     }
 
@@ -81,8 +81,8 @@ void RSDK::Legacy::v3::MatrixRotateX(Matrix *matrix, int32 rotationX)
     if (rotationX < 0)
         rotationX = 0x200 - rotationX;
     rotationX &= 0x1FF;
-    int32 sine             = sin512LookupTable[rotationX] >> 1;
-    int32 cosine           = cos512LookupTable[rotationX] >> 1;
+    int32 sine           = sin512LookupTable[rotationX] >> 1;
+    int32 cosine         = cos512LookupTable[rotationX] >> 1;
     matrix->values[0][0] = 0x100;
     matrix->values[0][1] = 0;
     matrix->values[0][2] = 0;
@@ -105,8 +105,8 @@ void RSDK::Legacy::v3::MatrixRotateY(Matrix *matrix, int32 rotationY)
     if (rotationY < 0)
         rotationY = 0x200 - rotationY;
     rotationY &= 0x1FF;
-    int32 sine             = sin512LookupTable[rotationY] >> 1;
-    int32 cosine           = cos512LookupTable[rotationY] >> 1;
+    int32 sine           = sin512LookupTable[rotationY] >> 1;
+    int32 cosine         = cos512LookupTable[rotationY] >> 1;
     matrix->values[0][0] = cosine;
     matrix->values[0][1] = 0;
     matrix->values[0][2] = sine;
@@ -129,8 +129,8 @@ void RSDK::Legacy::v3::MatrixRotateZ(Matrix *matrix, int32 rotationZ)
     if (rotationZ < 0)
         rotationZ = 0x200 - rotationZ;
     rotationZ &= 0x1FF;
-    int32 sine             = sin512LookupTable[rotationZ] >> 1;
-    int32 cosine           = cos512LookupTable[rotationZ] >> 1;
+    int32 sine           = sin512LookupTable[rotationZ] >> 1;
+    int32 cosine         = cos512LookupTable[rotationZ] >> 1;
     matrix->values[0][0] = cosine;
     matrix->values[0][1] = 0;
     matrix->values[0][2] = sine;
@@ -198,9 +198,9 @@ void RSDK::Legacy::v3::TransformVertexBuffer()
     int32 inVertexID  = 0;
     int32 outVertexID = 0;
     do {
-        int32 vx       = vertexBuffer[inVertexID].x;
-        int32 vy       = vertexBuffer[inVertexID].y;
-        int32 vz       = vertexBuffer[inVertexID].z;
+        int32 vx     = vertexBuffer[inVertexID].x;
+        int32 vy     = vertexBuffer[inVertexID].y;
+        int32 vz     = vertexBuffer[inVertexID].z;
         Vertex *vert = &vertexBufferT[inVertexID++];
 
         vert->x = (vx * matFinal.values[0][0] >> 8) + (vy * matFinal.values[1][0] >> 8) + (vz * matFinal.values[2][0] >> 8) + matFinal.values[3][0];
@@ -214,9 +214,9 @@ void RSDK::Legacy::v3::TransformVerticies(Matrix *matrix, int32 startIndex, int3
         return;
 
     do {
-        int32 vx       = vertexBuffer[startIndex].x;
-        int32 vy       = vertexBuffer[startIndex].y;
-        int32 vz       = vertexBuffer[startIndex].z;
+        int32 vx     = vertexBuffer[startIndex].x;
+        int32 vy     = vertexBuffer[startIndex].y;
+        int32 vz     = vertexBuffer[startIndex].z;
         Vertex *vert = &vertexBuffer[startIndex];
         vert->x      = (vx * matrix->values[0][0] >> 8) + (vy * matrix->values[1][0] >> 8) + (vz * matrix->values[2][0] >> 8) + matrix->values[3][0];
         vert->y      = (vx * matrix->values[0][1] >> 8) + (vy * matrix->values[1][1] >> 8) + (vz * matrix->values[2][1] >> 8) + matrix->values[3][1];
@@ -235,8 +235,8 @@ void RSDK::Legacy::v3::Sort3DDrawList()
     for (int32 i = 0; i < faceCount; ++i) {
         for (int32 j = faceCount - 1; j > i; --j) {
             if (drawList3D[j].depth > drawList3D[j - 1].depth) {
-                int32 faceID               = drawList3D[j].faceID;
-                int32 depth                = drawList3D[j].depth;
+                int32 faceID             = drawList3D[j].faceID;
+                int32 depth              = drawList3D[j].depth;
                 drawList3D[j].faceID     = drawList3D[j - 1].faceID;
                 drawList3D[j].depth      = drawList3D[j - 1].depth;
                 drawList3D[j - 1].faceID = faceID;

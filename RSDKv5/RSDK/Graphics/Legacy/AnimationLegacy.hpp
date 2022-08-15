@@ -75,4 +75,4 @@ namespace v4
 void ProcessObjectAnimation(void *objScr, void *ent);
 }
 
-}
+} // namespace Legacy

@@ -259,9 +259,9 @@ void RSDK::OpenDevMenu()
     devMenu.startingVersion = engine.version;
 #endif
 #else
-    devMenu.sceneState           = sceneInfo.state;
-    videoSettings.screenCount    = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
-    sceneInfo.state              = ENGINESTATE_DEVMENU;
+    devMenu.sceneState        = sceneInfo.state;
+    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 1 : videoSettings.screenCount;
+    sceneInfo.state           = ENGINESTATE_DEVMENU;
 #endif
 
     PauseSound();
@@ -280,8 +280,8 @@ void RSDK::CloseDevMenu()
         case 3: RSDK::Legacy::gameMode = devMenu.sceneState; break;
     }
 #else
-    videoSettings.screenCount    = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
-    sceneInfo.state              = devMenu.sceneState;
+    videoSettings.screenCount = sceneInfo.state == ENGINESTATE_VIDEOPLAYBACK ? 0 : videoSettings.screenCount;
+    sceneInfo.state           = devMenu.sceneState;
 #endif
 
     ResumeSound();

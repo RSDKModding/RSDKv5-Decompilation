@@ -27,6 +27,6 @@ void TransformVerticies(Matrix *matrix, int32 startIndex, int32 endIndex);
 void Sort3DDrawList();
 void Draw3DScene(int32 spriteSheetID);
 
-}
+} // namespace v3
 
-}
+} // namespace Legacy

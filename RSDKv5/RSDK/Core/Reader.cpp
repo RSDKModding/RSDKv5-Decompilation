@@ -278,9 +278,9 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
     if (modSettings.forceScripts && !info->externalFile) {
         if (std::string(fullFilePath).rfind("Data/Scripts/", 0) == 0 && ends_with(std::string(fullFilePath), "txt")) {
             // is a script, since those dont exist normally, load them from "scripts/"
-            info->externalFile   = true;
-            addPath              = true;
-            std::string fStr     = std::string(fullFilePath);
+            info->externalFile = true;
+            addPath            = true;
+            std::string fStr   = std::string(fullFilePath);
             fStr.erase(fStr.begin(), fStr.begin() + 5); // remove "Data/"
             StrCopy(fullFilePath, fStr.c_str());
         }

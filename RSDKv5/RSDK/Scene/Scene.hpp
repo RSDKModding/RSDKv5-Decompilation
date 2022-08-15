@@ -150,7 +150,7 @@ extern ScanlineInfo *scanlines;
 extern TileLayer tileLayers[LAYER_COUNT];
 
 extern CollisionMask collisionMasks[CPATH_COUNT][TILE_COUNT * 4]; // 1024 * 1 per direction
-extern TileInfo tileInfo[CPATH_COUNT][TILE_COUNT * 4]; // 1024 * 1 per direction
+extern TileInfo tileInfo[CPATH_COUNT][TILE_COUNT * 4];            // 1024 * 1 per direction
 
 #if RETRO_REV02
 extern bool32 forceHardReset;
@@ -274,7 +274,7 @@ inline uint8 GetTileFlags(uint16 tile, uint8 cPlane) { return tileInfo[cPlane & 
 inline void SetTileFlags(uint16 tile, uint8 cPlane, uint8 flag) { tileInfo[cPlane & 1][tile & 0x3FF].flag = flag; }
 
 void CopyTileLayer(uint16 dstLayerID, int32 dstStartX, int32 dstStartY, uint16 srcLayerID, int32 srcStartX, int32 srcStartY, int32 countX,
-                    int32 countY);
+                   int32 countY);
 
 inline void CopyTile(uint16 dest, uint16 src, uint16 count)
 {

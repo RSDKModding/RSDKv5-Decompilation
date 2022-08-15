@@ -65,7 +65,7 @@ DebugHitboxInfo RSDK::debugHitboxList[DEBUG_HITBOX_COUNT];
 
 int32 RSDK::AddDebugHitbox(uint8 type, uint8 dir, Entity *entity, Hitbox *hitbox)
 {
-    int32 i        = 0;
+    int32 i = 0;
     for (; i < debugHitboxCount; ++i) {
         if (debugHitboxList[i].hitbox.left == hitbox->left && debugHitboxList[i].hitbox.top == hitbox->top
             && debugHitboxList[i].hitbox.right == hitbox->right && debugHitboxList[i].hitbox.bottom == hitbox->bottom
@@ -623,7 +623,7 @@ bool32 RSDK::ObjectTileCollision(Entity *entity, uint16 cLayers, uint8 cMode, ui
     switch (cMode) {
         default: return false;
 
-        case CMODE_FLOOR: 
+        case CMODE_FLOOR:
             solid = cPlane ? (1 << 14) : (1 << 12);
 
             for (int32 l = 0; l < LAYER_COUNT; ++l, layerID <<= 1) {
@@ -1013,7 +1013,7 @@ void RSDK::ProcessAirCollision_Down()
 #if RETRO_REV0U
     offset = useCollisionOffset ? COLLISION_OFFSET : 0;
 #else
-    offset                 = collisionOffset;
+    offset = collisionOffset;
 #endif
 
     if (collisionEntity->velocity.x >= 0) {
@@ -2091,7 +2091,7 @@ void RSDK::SetPathGripSensors(CollisionSensor *sensors)
 #if RETRO_REV0U
     offset = useCollisionOffset ? COLLISION_OFFSET : 0;
 #else
-    offset                 = collisionOffset;
+    offset = collisionOffset;
 #endif
 
     switch (collisionEntity->collisionMode) {

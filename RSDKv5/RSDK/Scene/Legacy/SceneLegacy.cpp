@@ -69,7 +69,7 @@ RSDK::Legacy::CollisionMasks RSDK::Legacy::collisionMasks[2];
 
 uint8 RSDK::Legacy::tilesetGFXData[LEGACY_TILESET_SIZE];
 
-void RSDK::Legacy::GetStageFilepath(char* dest, const char *filePath)
+void RSDK::Legacy::GetStageFilepath(char *dest, const char *filePath)
 {
     StrCopy(dest, "Data/Stages/");
     StrAdd(dest, sceneInfo.listData[sceneInfo.listPos].folder);
@@ -155,7 +155,7 @@ void RSDK::Legacy::LoadStageCollisions()
 
                     // Has Collision (Pt 1)
                     uint8 solid = ReadInt8(&info);
-                    int32 id = 1;
+                    int32 id    = 1;
                     for (int32 c = 0; c < TILE_SIZE / 2; ++c) {
                         if (solid & id) {
                             collisionMasks[p].floorMasks[c + tileIndex + 8] = 0;
@@ -169,7 +169,7 @@ void RSDK::Legacy::LoadStageCollisions()
 
                     // Has Collision (Pt 2)
                     solid = ReadInt8(&info);
-                    id = 1;
+                    id    = 1;
                     for (int32 c = 0; c < TILE_SIZE / 2; ++c) {
                         if (solid & id) {
                             collisionMasks[p].floorMasks[c + tileIndex] = 0;
@@ -226,7 +226,7 @@ void RSDK::Legacy::LoadStageCollisions()
                     }
 
                     uint8 solid = ReadInt8(&info);
-                    int32 id = 1;
+                    int32 id    = 1;
                     for (int32 c = 0; c < TILE_SIZE / 2; ++c) // HasCollision
                     {
                         if (solid & id) {
@@ -240,7 +240,7 @@ void RSDK::Legacy::LoadStageCollisions()
                     }
 
                     solid = ReadInt8(&info);
-                    id = 1;
+                    id    = 1;
                     for (int32 c = 0; c < TILE_SIZE / 2; ++c) // HasCollision (pt 2)
                     {
                         if (solid & id) {
@@ -322,7 +322,8 @@ void RSDK::Legacy::LoadStageGIFFile()
     }
 }
 
-void RSDK::Legacy::ProcessInput() {
+void RSDK::Legacy::ProcessInput()
+{
     RSDK::ProcessInput();
 
     anyPress = controller->keyA.press || controller->keyB.press || controller->keyC.press || controller->keyX.press || controller->keyY.press
@@ -402,23 +403,19 @@ void RSDK::Legacy::SetLayerDeformation(int32 selectedDef, int32 waveLength, int3
 
     switch (selectedDef) {
         case DEFORM_FG:
-            for (int32 i = LEGACY_DEFORM_STORE; i < LEGACY_DEFORM_COUNT; ++i)
-                bgDeformationData0[i] = bgDeformationData0[i - LEGACY_DEFORM_STORE];
+            for (int32 i = LEGACY_DEFORM_STORE; i < LEGACY_DEFORM_COUNT; ++i) bgDeformationData0[i] = bgDeformationData0[i - LEGACY_DEFORM_STORE];
             break;
 
         case DEFORM_FG_WATER:
-            for (int32 i = LEGACY_DEFORM_STORE; i < LEGACY_DEFORM_COUNT; ++i)
-                bgDeformationData1[i] = bgDeformationData1[i - LEGACY_DEFORM_STORE];
+            for (int32 i = LEGACY_DEFORM_STORE; i < LEGACY_DEFORM_COUNT; ++i) bgDeformationData1[i] = bgDeformationData1[i - LEGACY_DEFORM_STORE];
             break;
 
         case DEFORM_BG:
-            for (int32 i = LEGACY_DEFORM_STORE; i < LEGACY_DEFORM_COUNT; ++i)
-                bgDeformationData2[i] = bgDeformationData2[i - LEGACY_DEFORM_STORE];
+            for (int32 i = LEGACY_DEFORM_STORE; i < LEGACY_DEFORM_COUNT; ++i) bgDeformationData2[i] = bgDeformationData2[i - LEGACY_DEFORM_STORE];
             break;
 
         case DEFORM_BG_WATER:
-            for (int32 i = LEGACY_DEFORM_STORE; i < LEGACY_DEFORM_COUNT; ++i)
-                bgDeformationData3[i] = bgDeformationData3[i - LEGACY_DEFORM_STORE];
+            for (int32 i = LEGACY_DEFORM_STORE; i < LEGACY_DEFORM_COUNT; ++i) bgDeformationData3[i] = bgDeformationData3[i - LEGACY_DEFORM_STORE];
             break;
 
         default: break;

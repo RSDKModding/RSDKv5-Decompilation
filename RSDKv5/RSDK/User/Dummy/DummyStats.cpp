@@ -1,5 +1,5 @@
 #if RETRO_REV02
-#define VOID_TO_INT(x)   (int32)(size_t)(x)
+#define VOID_TO_INT(x) (int32)(size_t)(x)
 #define voidToFloat(x) *(float *)&(x)
 
 void DummyStats::TryTrackStat(StatInfo *stat)

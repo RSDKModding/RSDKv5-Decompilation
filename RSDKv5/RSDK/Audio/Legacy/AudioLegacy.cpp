@@ -9,7 +9,7 @@ int32 RSDK::Legacy::bgmVolume         = 0;
 int32 RSDK::Legacy::musicCurrentTrack = 0;
 int32 RSDK::Legacy::musicChannel      = 0;
 
-float RSDK::Legacy::v4::musicRatio        = 0.0f;
+float RSDK::Legacy::v4::musicRatio = 0.0f;
 
 RSDK::Legacy::TrackInfo RSDK::Legacy::musicTracks[LEGACY_TRACK_COUNT];
 
@@ -141,7 +141,7 @@ void RSDK::Legacy::v3::SetSfxName(const char *sfxName, int32 sfxID, bool32 globa
 
     int32 sfxNamePos = 0;
     int32 sfxPtrPos  = 0;
-    uint8 mode      = 0;
+    uint8 mode       = 0;
     while (sfxName[sfxNamePos]) {
         if (sfxName[sfxNamePos] == '.' && mode == 1)
             mode = 2;

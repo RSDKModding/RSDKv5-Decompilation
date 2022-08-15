@@ -517,7 +517,8 @@ inline InputDevice *InputDeviceFromID(uint32 deviceID)
 inline int32 GetAvaliableInputDevice()
 {
     for (int32 i = 0; i < inputDeviceCount; ++i) {
-        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled && !inputDeviceList[i]->isAssigned && inputDeviceList[i]->anyPress) {
+        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled && !inputDeviceList[i]->isAssigned
+            && inputDeviceList[i]->anyPress) {
             return inputDeviceList[i]->id;
         }
     }
@@ -544,7 +545,8 @@ inline int32 GetFilteredInputDeviceID(bool32 confirmOnly, bool32 unassignedOnly,
 
     if (inputDeviceCount) {
         for (int32 i = 0; i < inputDeviceCount; ++i) {
-            if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
+            if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
+                && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
                 if (inputDeviceList[i]->inactiveTimer[confirmOnly] < mostRecentTime) {
                     mostRecentTime = inputDeviceList[i]->inactiveTimer[confirmOnly];
                     if (inputDeviceList[i]->inactiveTimer[confirmOnly] <= maxTime)
@@ -562,7 +564,8 @@ inline int32 GetFilteredInputDeviceID(bool32 confirmOnly, bool32 unassignedOnly,
         return mostRecentID;
 
     for (int32 i = 0; i < inputDeviceCount; ++i) {
-        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
+        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
+            && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
             return inputDeviceList[i]->id;
         }
     }
@@ -582,7 +585,8 @@ inline int32 GetFilteredInputDeviceID(uint32 deviceID)
 
     if (inputDeviceCount) {
         for (int32 i = 0; i < inputDeviceCount; ++i) {
-            if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
+            if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
+                && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
 
                 if (deviceID && inputDeviceList[i]->id == deviceID)
                     continue;
@@ -604,7 +608,8 @@ inline int32 GetFilteredInputDeviceID(uint32 deviceID)
         return mostRecentID;
 
     for (int32 i = 0; i < inputDeviceCount; ++i) {
-        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
+        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
+            && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
             return inputDeviceList[i]->id;
         }
     }
@@ -694,8 +699,8 @@ inline void AssignInputSlotToDevice(uint8 inputSlot, uint32 deviceID)
                 for (int32 i = 0; i < inputDeviceCount; ++i) {
                     if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID) {
                         inputDeviceList[i]->isAssigned = true;
-                        inputSlots[slotID]          = deviceID;
-                        inputSlotDevices[slotID]    = inputDeviceList[i];
+                        inputSlots[slotID]             = deviceID;
+                        inputSlotDevices[slotID]       = inputDeviceList[i];
                         break;
                     }
                 }

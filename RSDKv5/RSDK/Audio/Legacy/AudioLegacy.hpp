@@ -47,6 +47,6 @@ extern char sfxNames[SFX_COUNT][0x40];
 void SwapMusicTrack(const char *filePath, uint8 trackID, uint32 loopPoint, uint32 ratio);
 
 void SetSfxName(const char *sfxName, int32 sfxID);
-}
+} // namespace v4
 
-}
+} // namespace Legacy

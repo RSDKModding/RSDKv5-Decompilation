@@ -69,7 +69,7 @@ bool32 RSDK::Legacy::v3::LoadGameConfig(const char *filepath)
         }
 
         // Read ahead and get scene count
-        int32 storedPos         = info.readPos;
+        int32 storedPos = info.readPos;
 
         int32 totalSceneCount   = 0;
         sceneInfo.categoryCount = STAGELIST_MAX;
@@ -316,12 +316,11 @@ enum RetroEngineCallbacks {
 
 void RSDK::Legacy::v3::RetroEngineCallback(int32 callbackID)
 {
-
     // Sonic Origins Params
-    int notifyParam1 = GetGlobalVariableByName("game.callbackParam0");
-    // int notifyParam2 = GetGlobalVariableByName("game.callbackParam1");
-    // int notifyParam3 = GetGlobalVariableByName("game.callbackParam2");
-    // int notifyParam4 = GetGlobalVariableByName("game.callbackParam3");
+    int32 notifyParam1 = GetGlobalVariableByName("game.callbackParam0");
+    // int32 notifyParam2 = GetGlobalVariableByName("game.callbackParam1");
+    // int32 notifyParam3 = GetGlobalVariableByName("game.callbackParam2");
+    // int32 notifyParam4 = GetGlobalVariableByName("game.callbackParam3");
 
     switch (callbackID) {
         default: PrintLog(PRINT_NORMAL, "Callback: Unknown (%d)", callbackID); break;
@@ -460,7 +459,6 @@ void RSDK::Legacy::v3::RetroEngineCallback(int32 callbackID)
 #endif
     }
 }
-
 
 #if RETRO_USE_MOD_LOADER
 void RSDK::Legacy::v3::LoadXMLVariables()

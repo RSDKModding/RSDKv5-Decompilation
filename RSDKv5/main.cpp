@@ -66,7 +66,6 @@ void android_main(struct android_app *ap)
     RSDK_main(0, NULL, (void *)RSDK::LinkGameLogic);
 
     Paddleboat_destroy(jni->env);
-
 }
 #else
 int32 main(int32 argc, char *argv[]) { return RSDK_main(argc, argv, (void *)RSDK::LinkGameLogic); }

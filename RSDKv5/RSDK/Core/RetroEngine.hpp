@@ -147,7 +147,7 @@ enum GameRegions {
 #endif
 
 #ifndef SCREEN_YSIZE
-#define SCREEN_YSIZE   (240)
+#define SCREEN_YSIZE (240)
 #endif
 
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
@@ -173,7 +173,7 @@ enum GameRegions {
 #define RETRO_AUDIODEVICE_XAUDIO (0)
 #define RETRO_AUDIODEVICE_NX     (0)
 // CUSTOM
-#define RETRO_AUDIODEVICE_SDL2   (0)
+#define RETRO_AUDIODEVICE_SDL2 (0)
 #define RETRO_AUDIODEVICE_OBOE (0)
 
 // ============================
@@ -551,7 +551,7 @@ struct RetroEngine {
     const char *gameHapticSetting;
 
 #if !RETRO_USE_ORIGINAL_CODE
-    int gameReleaseID       = 0;
+    int32 gameReleaseID     = 0;
     const char *releaseType = "USE_STANDALONE";
 #endif
 #endif

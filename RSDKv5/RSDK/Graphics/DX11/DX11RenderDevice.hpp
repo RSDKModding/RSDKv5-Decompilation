@@ -1,4 +1,4 @@
-const auto _wapiShowCursor = ShowCursor;
+const auto _wapiShowCursor   = ShowCursor;
 const auto _wapiGetCursorPos = GetCursorPos;
 
 class RenderDevice : public RenderDeviceBase

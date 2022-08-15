@@ -412,7 +412,7 @@ inline int32 Uncompress(uint8 **cBuffer, int32 cSize, uint8 **buffer, int32 size
 
     int32 result = uncompress(*buffer, &destLen, *cBuffer, cLen);
     (void)result;
-    
+
     return (int32)destLen;
 }
 

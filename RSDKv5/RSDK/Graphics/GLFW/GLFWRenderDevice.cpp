@@ -416,7 +416,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = 54;
 #else
-            startVert   = 18;
+            startVert = 18;
 #endif
             glBindTexture(GL_TEXTURE_2D, imageTexture);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -432,7 +432,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[0];
 #else
-            startVert   = 6;
+            startVert = 6;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[0]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);
@@ -440,7 +440,7 @@ void RenderDevice::FlipScreen()
 #if RETRO_REV02
             startVert = startVertex_2P[1];
 #else
-            startVert   = 12;
+            startVert = 12;
 #endif
             glBindTexture(GL_TEXTURE_2D, screenTextures[1]);
             glDrawArrays(GL_TRIANGLES, startVert, 6);

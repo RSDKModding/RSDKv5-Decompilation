@@ -137,6 +137,6 @@ inline void RotatePalette(uint8 startIndex, uint8 endIndex, bool right)
 }
 
 void SetLimitedFade(uint8 paletteID, uint8 R, uint8 G, uint8 B, uint16 blendAmount, int32 startIndex, int32 endIndex);
-}
+} // namespace v3
 
 } // namespace Legacy

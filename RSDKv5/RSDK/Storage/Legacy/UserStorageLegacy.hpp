@@ -26,7 +26,7 @@ extern GlobalVariable globalVariables[LEGACY_GLOBALVAR_COUNT];
 extern int32 saveRAM[LEGACY_SAVEDATA_SIZE];
 
 int32 GetGlobalVariableByName(const char *name);
-void SetGlobalVariableByName(const char *name, int value);
+void SetGlobalVariableByName(const char *name, int32 value);
 int32 GetGlobalVariableID(const char *name);
 
 #define AddNativeFunction(name, funcPtr)                                                                                                             \
@@ -57,7 +57,6 @@ void HapticEffect(int32 *id, int32 *unknown1, int32 *unknown2, int32 *unknown3);
 
 void NotifyCallback(int32 *callback, int32 *param1, int32 *param2, int32 *param3);
 
-}
-
+} // namespace v4
 
 } // namespace Legacy

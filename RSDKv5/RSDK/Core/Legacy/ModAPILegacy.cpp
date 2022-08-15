@@ -6,7 +6,6 @@ char RSDK::Legacy::modScriptPaths[OBJECT_COUNT][0x40];
 uint8 RSDK::Legacy::modScriptFlags[OBJECT_COUNT];
 uint8 RSDK::Legacy::modObjCount = 0;
 
-
 int32 RSDK::Legacy::v4::OpenModMenu()
 {
     OpenDevMenu();

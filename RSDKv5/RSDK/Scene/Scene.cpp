@@ -1163,7 +1163,7 @@ void RSDK::SetScene(const char *categoryName, const char *sceneName)
 }
 
 void RSDK::CopyTileLayer(uint16 dstLayerID, int32 dstStartX, int32 dstStartY, uint16 srcLayerID, int32 srcStartX, int32 srcStartY, int32 countX,
-                          int32 countY)
+                         int32 countY)
 {
     if (dstLayerID < LAYER_COUNT && srcLayerID < LAYER_COUNT) {
         TileLayer *dstLayer = &tileLayers[dstLayerID];

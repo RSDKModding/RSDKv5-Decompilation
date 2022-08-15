@@ -10,7 +10,7 @@ namespace v4
 bool32 loadGlobalScripts = false; // stored here so I can use it later
 int32 globalObjCount     = 0;
 
-} // namespace v3
+} // namespace v4
 } // namespace Legacy
 } // namespace RSDK
 #endif
@@ -23,9 +23,9 @@ void RSDK::Legacy::v4::InitFirstStage(void)
     fadeMode = 0;
     ClearGraphicsData();
     ClearAnimationData();
-    activePalette     = fullPalette[0];
-    stageMode         = STAGEMODE_LOAD;
-    gameMode          = ENGINE_MAINGAME;
+    activePalette = fullPalette[0];
+    stageMode     = STAGEMODE_LOAD;
+    gameMode      = ENGINE_MAINGAME;
 }
 
 void RSDK::Legacy::v4::ProcessStage(void)
@@ -39,24 +39,24 @@ void RSDK::Legacy::v4::ProcessStage(void)
             SetActivePalette(0, 0, 256);
             gameMenu[0].visibleRowOffset = 0;
             gameMenu[1].visibleRowOffset = 0;
-            videoSettings.dimLimit = (5 * 60) * videoSettings.refreshRate;
+            videoSettings.dimLimit       = (5 * 60) * videoSettings.refreshRate;
             fadeMode                     = 0;
             InitCameras();
-            cameraShift                  = 0;
-            cameraLockedY                = 0;
-            xScrollOffset                = 0;
-            yScrollOffset                = 0;
-            cameraShakeX                 = 0;
-            cameraShakeY                 = 0;
-            vertexCount                  = 0;
-            faceCount                    = 0;
-            frameCounter                 = 0;
-            pauseEnabled                 = false;
-            timeEnabled                  = false;
-            stageMilliseconds            = 0;
-            stageSeconds                 = 0;
-            stageMinutes                 = 0;
-            stageMode                    = STAGEMODE_NORMAL;
+            cameraShift       = 0;
+            cameraLockedY     = 0;
+            xScrollOffset     = 0;
+            yScrollOffset     = 0;
+            cameraShakeX      = 0;
+            cameraShakeY      = 0;
+            vertexCount       = 0;
+            faceCount         = 0;
+            frameCounter      = 0;
+            pauseEnabled      = false;
+            timeEnabled       = false;
+            stageMilliseconds = 0;
+            stageSeconds      = 0;
+            stageMinutes      = 0;
+            stageMode         = STAGEMODE_NORMAL;
 
 #if RETRO_USE_MOD_LOADER
             RefreshModFolders();
@@ -141,7 +141,6 @@ void RSDK::Legacy::v4::ProcessStage(void)
 
             currentScreen             = &screens[0];
             sceneInfo.currentScreenID = 0;
-
 
 #if !RETRO_USE_ORIGINAL_CODE
             DrawDebugOverlays();
@@ -367,7 +366,6 @@ void RSDK::Legacy::v4::ProcessStage(void)
     }
 }
 
-
 void RSDK::Legacy::v4::HandleCameras()
 {
     currentCamera = &cameras[sceneInfo.currentScreenID];
@@ -399,7 +397,7 @@ void RSDK::Legacy::v4::ProcessParallaxAutoScroll()
 
 void RSDK::Legacy::v4::LoadStageFiles()
 {
-    int32 scriptID     = 1;
+    int32 scriptID = 1;
     char strBuffer[0x100];
 
     FileInfo info;
@@ -492,7 +490,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
             globalObjCount = globalObjectCount;
             for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
                 SetObjectTypeName(modTypeNames[i], scriptID);
-            
+
                 ParseScriptFile(modScriptPaths[i], scriptID++);
                 if (gameMode == ENGINE_SCRIPTERROR)
                     return;
@@ -510,7 +508,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
                 SetPaletteEntry(-1, i, clr[0], clr[1], clr[2]);
             }
 
-            stageSFXCount = ReadInt8(&info); 
+            stageSFXCount = ReadInt8(&info);
             for (uint8 i = 0; i < stageSFXCount; ++i) {
                 ReadString(&info, strBuffer);
                 SetSfxName(strBuffer, i + globalSFXCount);
@@ -522,7 +520,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
                 RSDK::Legacy::LoadSfx(strBuffer, globalSFXCount + i, SCOPE_STAGE);
             }
 
-            uint8 stageObjectCount = ReadInt8(&info); 
+            uint8 stageObjectCount = ReadInt8(&info);
             for (uint8 i = 0; i < stageObjectCount; ++i) {
                 ReadString(&info, strBuffer);
 
@@ -585,7 +583,8 @@ void RSDK::Legacy::v4::LoadStageFiles()
         LoadStageBackground();
     }
     else {
-        PrintLog(PRINT_NORMAL, "Reloading Scene %s - %s", sceneInfo.listCategory[sceneInfo.activeCategory].name, sceneInfo.listData[sceneInfo.listPos].name);
+        PrintLog(PRINT_NORMAL, "Reloading Scene %s - %s", sceneInfo.listCategory[sceneInfo.activeCategory].name,
+                 sceneInfo.listData[sceneInfo.listPos].name);
     }
     LoadStageChunks();
 
@@ -615,7 +614,7 @@ void RSDK::Legacy::v4::LoadActLayout()
         int32 tCardWordLen = ReadInt8(&info);
         titleCardWord2     = tCardWordLen;
         for (int32 i = 0; i < tCardWordLen; ++i) {
-            titleCardText[i]  = ReadInt8(&info);
+            titleCardText[i] = ReadInt8(&info);
             if (titleCardText[i] == '-')
                 titleCardWord2 = (uint8)(i + 1);
         }
@@ -698,7 +697,7 @@ void RSDK::Legacy::v4::LoadActLayout()
                 object->state |= ReadInt8(&info) << 24;
             }
 
-            if (activeVars & 0x2) 
+            if (activeVars & 0x2)
                 object->direction = ReadInt8(&info);
 
             if (activeVars & 0x4) {
@@ -715,16 +714,16 @@ void RSDK::Legacy::v4::LoadActLayout()
                 object->rotation |= ReadInt8(&info) << 24;
             }
 
-            if (activeVars & 0x10) 
+            if (activeVars & 0x10)
                 object->drawOrder = ReadInt8(&info);
 
-            if (activeVars & 0x20) 
+            if (activeVars & 0x20)
                 object->priority = ReadInt8(&info);
 
-            if (activeVars & 0x40) 
+            if (activeVars & 0x40)
                 object->alpha = ReadInt8(&info);
 
-            if (activeVars & 0x80) 
+            if (activeVars & 0x80)
                 object->animation = ReadInt8(&info);
 
             if (activeVars & 0x100) {
@@ -734,10 +733,10 @@ void RSDK::Legacy::v4::LoadActLayout()
                 object->animationSpeed |= ReadInt8(&info) << 24;
             }
 
-            if (activeVars & 0x200) 
+            if (activeVars & 0x200)
                 object->frame = ReadInt8(&info);
 
-            if (activeVars & 0x400) 
+            if (activeVars & 0x400)
                 object->inkEffect = ReadInt8(&info);
 
             if (activeVars & 0x800) {
@@ -981,16 +980,16 @@ void RSDK::Legacy::v4::SetPlayerScreenPosition(Entity *target)
     }
 
     int32 centeredXBound1 = currentCamera->xpos + xPosDif;
-    currentCamera->xpos       = centeredXBound1;
+    currentCamera->xpos   = centeredXBound1;
     if (centeredXBound1 < SCREEN_CENTERX + curXBoundary1) {
-        currentCamera->xpos      = SCREEN_CENTERX + curXBoundary1;
-        centeredXBound1 = SCREEN_CENTERX + curXBoundary1;
+        currentCamera->xpos = SCREEN_CENTERX + curXBoundary1;
+        centeredXBound1     = SCREEN_CENTERX + curXBoundary1;
     }
 
     int32 centeredXBound2 = curXBoundary2 - SCREEN_CENTERX;
     if (centeredXBound2 < centeredXBound1) {
         currentCamera->xpos = centeredXBound2;
-        centeredXBound1 = centeredXBound2;
+        centeredXBound1     = centeredXBound2;
     }
 
     int32 yPosDif = 0;
@@ -1614,7 +1613,7 @@ void RSDK::Legacy::v4::SetPlayerHLockedScreenPosition(Entity *target)
         newCamY = curYBoundary1 + LEGACY_SCREEN_SCROLL_UP;
     currentCamera->ypos = newCamY;
     if (curYBoundary2 - (LEGACY_SCREEN_SCROLL_DOWN - 1) <= newCamY) {
-        newCamY    = curYBoundary2 - LEGACY_SCREEN_SCROLL_DOWN;
+        newCamY             = curYBoundary2 - LEGACY_SCREEN_SCROLL_DOWN;
         currentCamera->ypos = curYBoundary2 - LEGACY_SCREEN_SCROLL_DOWN;
     }
 
@@ -1827,17 +1826,17 @@ void RSDK::Legacy::v4::SetPlayerScreenPositionFixed(Entity *target)
 
     currentCamera->xpos = targetX;
     if (targetX < SCREEN_CENTERX + curXBoundary1) {
-        targetX    = SCREEN_CENTERX + curXBoundary1;
+        targetX             = SCREEN_CENTERX + curXBoundary1;
         currentCamera->xpos = SCREEN_CENTERX + curXBoundary1;
     }
     int32 boundX2 = curXBoundary2 - SCREEN_CENTERX;
     if (boundX2 < targetX) {
-        targetX    = boundX2;
+        targetX             = boundX2;
         currentCamera->xpos = boundX2;
     }
 
     if (targetY <= curYBoundary1 + 119) {
-        targetY    = curYBoundary1 + 120;
+        targetY             = curYBoundary1 + 120;
         currentCamera->ypos = curYBoundary1 + 120;
     }
     else {

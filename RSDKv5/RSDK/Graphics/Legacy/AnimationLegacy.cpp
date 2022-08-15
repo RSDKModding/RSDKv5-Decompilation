@@ -116,7 +116,7 @@ void RSDK::Legacy::v3::ProcessObjectAnimation(void *objScr, void *ent)
 {
     Legacy::v3::ObjectScript *objectScript = (Legacy::v3::ObjectScript *)objScr;
     Legacy::v3::Entity *entity             = (Legacy::v3::Entity *)ent;
-    Legacy::SpriteAnimation *sprAnim   = &Legacy::animationList[objectScript->animFile->aniListOffset + entity->animation];
+    Legacy::SpriteAnimation *sprAnim       = &Legacy::animationList[objectScript->animFile->aniListOffset + entity->animation];
 
     if (entity->animationSpeed <= 0) {
         entity->animationTimer += sprAnim->speed;

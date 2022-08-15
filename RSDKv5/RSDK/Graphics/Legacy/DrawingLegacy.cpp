@@ -26,7 +26,7 @@ void RSDK::Legacy::GenerateBlendLookupTable()
     }
 
     for (int32 i = 0; i < 0x10000; i++) {
-        int32 tintValue      = ((i & 0x1F) + ((i & 0x7E0) >> 6) + ((i & 0xF800) >> 11)) / 3 + 6;
+        int32 tintValue    = ((i & 0x1F) + ((i & 0x7E0) >> 6) + ((i & 0xF800) >> 11)) / 3 + 6;
         tintLookupTable[i] = 0x841 * MIN(tintValue, 0x1F);
     }
 }
@@ -1433,14 +1433,14 @@ void RSDK::Legacy::DrawScaledTintMask(int32 direction, int32 XPos, int32 YPos, i
     if (direction) {
         if (trueXPos < 0) {
             widthM1 -= trueXPos * -finalscaleX >> 11;
-            roundedXPos = (uint16)trueXPos * -(short)finalscaleX & 0x7FF;
+            roundedXPos = (uint16)trueXPos * -(int16)finalscaleX & 0x7FF;
             width += trueXPos;
             trueXPos = 0;
         }
     }
     else if (trueXPos < 0) {
         sprX += trueXPos * -finalscaleX >> 11;
-        roundedXPos = (uint16)trueXPos * -(short)finalscaleX & 0x7FF;
+        roundedXPos = (uint16)trueXPos * -(int16)finalscaleX & 0x7FF;
         width += trueXPos;
         trueXPos = 0;
     }
@@ -1450,7 +1450,7 @@ void RSDK::Legacy::DrawScaledTintMask(int32 direction, int32 XPos, int32 YPos, i
     }
     if (trueYPos < 0) {
         sprY += trueYPos * -finalscaleY >> 11;
-        roundedYPos = (uint16)trueYPos * -(short)finalscaleY & 0x7FF;
+        roundedYPos = (uint16)trueYPos * -(int16)finalscaleY & 0x7FF;
         height += trueYPos;
         trueYPos = 0;
     }
@@ -1703,14 +1703,14 @@ void RSDK::Legacy::DrawSpriteScaled(int32 direction, int32 XPos, int32 YPos, int
     if (direction) {
         if (trueXPos < 0) {
             widthM1 -= trueXPos * -finalscaleX >> 11;
-            roundedXPos = (uint16)trueXPos * -(short)finalscaleX & 0x7FF;
+            roundedXPos = (uint16)trueXPos * -(int16)finalscaleX & 0x7FF;
             width += trueXPos;
             trueXPos = 0;
         }
     }
     else if (trueXPos < 0) {
         sprX += trueXPos * -finalscaleX >> 11;
-        roundedXPos = (uint16)trueXPos * -(short)finalscaleX & 0x7FF;
+        roundedXPos = (uint16)trueXPos * -(int16)finalscaleX & 0x7FF;
         width += trueXPos;
         trueXPos = 0;
     }
@@ -1720,7 +1720,7 @@ void RSDK::Legacy::DrawSpriteScaled(int32 direction, int32 XPos, int32 YPos, int
     }
     if (trueYPos < 0) {
         sprY += trueYPos * -finalscaleY >> 11;
-        roundedYPos = (uint16)trueYPos * -(short)finalscaleY & 0x7FF;
+        roundedYPos = (uint16)trueYPos * -(int16)finalscaleY & 0x7FF;
         height += trueYPos;
         trueYPos = 0;
     }
