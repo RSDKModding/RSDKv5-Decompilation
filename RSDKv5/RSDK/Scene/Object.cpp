@@ -327,10 +327,10 @@ void RSDK::ProcessObjects()
         currentObjectID = o;
 #endif
 
-        ObjectClass *objInfo = &objectClassList[stageObjectIDs[o]];
-        if ((*objInfo->staticVars)->active == ACTIVE_ALWAYS || (*objInfo->staticVars)->active == ACTIVE_NORMAL) {
-            if (objInfo->staticUpdate)
-                objInfo->staticUpdate();
+        ObjectClass *classInfo = &objectClassList[stageObjectIDs[o]];
+        if ((*classInfo->staticVars)->active == ACTIVE_ALWAYS || (*classInfo->staticVars)->active == ACTIVE_NORMAL) {
+            if (classInfo->staticUpdate)
+                classInfo->staticUpdate();
         }
     }
 
@@ -486,10 +486,10 @@ void RSDK::ProcessPausedObjects()
         currentObjectID = o;
 #endif
 
-        ObjectClass *object = &objectClassList[stageObjectIDs[o]];
-        if ((*object->staticVars)->active == ACTIVE_ALWAYS || (*object->staticVars)->active == ACTIVE_PAUSED) {
-            if (object->staticUpdate)
-                object->staticUpdate();
+        ObjectClass *classInfo = &objectClassList[stageObjectIDs[o]];
+        if ((*classInfo->staticVars)->active == ACTIVE_ALWAYS || (*classInfo->staticVars)->active == ACTIVE_PAUSED) {
+            if (classInfo->staticUpdate)
+                classInfo->staticUpdate();
         }
     }
 
@@ -569,10 +569,10 @@ void RSDK::ProcessFrozenObjects()
         currentObjectID = o;
 #endif
 
-        ObjectClass *object = &objectClassList[stageObjectIDs[o]];
-        if ((*object->staticVars)->active == ACTIVE_ALWAYS || (*object->staticVars)->active == ACTIVE_PAUSED) {
-            if (object->staticUpdate)
-                object->staticUpdate();
+        ObjectClass *classInfo = &objectClassList[stageObjectIDs[o]];
+        if ((*classInfo->staticVars)->active == ACTIVE_ALWAYS || (*classInfo->staticVars)->active == ACTIVE_PAUSED) {
+            if (classInfo->staticUpdate)
+                classInfo->staticUpdate();
         }
     }
 
