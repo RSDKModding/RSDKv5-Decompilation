@@ -210,7 +210,7 @@ void RSDK::ApplyModChanges()
             Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
             strcpy(gameVerInfo.version, "Legacy v4 Mode");
 
-            sceneInfo.state  = ENGINESTATE_NONE; // i think this is fine ??? lmk if otherwise // rmg seal of approval
+            sceneInfo.state  = ENGINESTATE_NONE; // i think this is fine ??? lmk if otherwise // rmg seal of approval // WAIT THIS WAS ME
             Legacy::gameMode = Legacy::ENGINE_DEVMENU;
             break;
 
