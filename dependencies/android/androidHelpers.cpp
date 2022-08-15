@@ -360,7 +360,7 @@ bool AndroidKeyDownCallback(GameActivity *activity, const GameActivityKeyEvent *
                     sceneInfo.state ^= ENGINESTATE_STEPOVER;
 #endif
             }
-            break;
+            return true;
     }
     return false;
 }
