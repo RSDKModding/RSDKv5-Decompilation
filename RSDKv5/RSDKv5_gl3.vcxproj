@@ -23,6 +23,7 @@
     <ClCompile Include="..\dependencies\all\iniparser\iniparser.cpp" />
     <ClCompile Include="..\dependencies\all\miniz\miniz.c" />
     <ClCompile Include="..\dependencies\all\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="..\dependencies\gl3\glew\src\glew.c" />
     <ClCompile Include="RSDK\Audio\Audio.cpp" />
     <ClCompile Include="RSDK\Audio\XAudio\XAudioDevice.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
