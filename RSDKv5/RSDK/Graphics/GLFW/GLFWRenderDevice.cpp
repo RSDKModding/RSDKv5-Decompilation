@@ -217,6 +217,9 @@ bool RenderDevice::InitGraphicsAPI()
     }
 
     int32 maxPixHeight = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+    int32 screenWidth = 0;
+#endif
     for (int32 s = 0; s < SCREEN_COUNT; ++s) {
         if (videoSettings.pixHeight > maxPixHeight)
             maxPixHeight = videoSettings.pixHeight;
@@ -224,7 +227,11 @@ bool RenderDevice::InitGraphicsAPI()
         screens[s].size.y = videoSettings.pixHeight;
 
         float viewAspect  = viewSize.x / viewSize.y;
+#if !RETRO_USE_ORIGINAL_CODE
+        screenWidth = (int32)((viewAspect * videoSettings.pixHeight) + 3) & 0xFFFFFFFC;
+#else
         int32 screenWidth = (int32)((viewAspect * videoSettings.pixHeight) + 3) & 0xFFFFFFFC;
+#endif
         if (screenWidth < videoSettings.pixWidth)
             screenWidth = videoSettings.pixWidth;
 
@@ -263,7 +270,11 @@ bool RenderDevice::InitGraphicsAPI()
         viewportSize.x = (pixAspect * viewSize.y);
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
+    if (screenWidth <= 512 && maxPixHeight <= 256) {
+#else
     if (maxPixHeight <= 256) {
+#endif
         textureSize.x = 512.0;
         textureSize.y = 256.0;
     }
