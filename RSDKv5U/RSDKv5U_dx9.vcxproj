@@ -1009,14 +1009,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;libtheora_static.lib;d3d9.lib;d3dcompiler.lib;XInput.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <When Condition=" '$(VCPKG)'!='Y' ">
-      <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\$(Configuration)\SDL2.dll" "$(OutDir)" </Command>
-      </PostBuildEvent>
-      <PostBuildEvent>
-        <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
-      </PostBuildEvent>
-    </When>
     <PostBuildEvent>
       <Command>
       </Command>
@@ -1040,14 +1032,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;libtheora_static.lib;d3d9.lib;d3dcompiler.lib;XInput.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <When Condition=" '$(VCPKG)'!='Y' ">
-      <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\$(Configuration)\SDL2.dll" "$(OutDir)" </Command>
-      </PostBuildEvent>
-      <PostBuildEvent>
-        <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
-      </PostBuildEvent>
-    </When>
     <PostBuildEvent>
       <Command>
       </Command>
@@ -1075,14 +1059,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;libtheora_static.lib;d3d9.lib;d3dcompiler.lib;XInput.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <When Condition=" '$(VCPKG)'!='Y' ">
-      <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\$(Configuration)\SDL2.dll" "$(OutDir)" </Command>
-      </PostBuildEvent>
-      <PostBuildEvent>
-        <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
-      </PostBuildEvent>
-    </When>
     <PostBuildEvent>
       <Command>
       </Command>
@@ -1110,14 +1086,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;libtheora_static.lib;d3d9.lib;d3dcompiler.lib;XInput.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <When Condition=" '$(VCPKG)'!='Y' ">
-      <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\$(Configuration)\SDL2.dll" "$(OutDir)" </Command>
-      </PostBuildEvent>
-      <PostBuildEvent>
-        <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
-      </PostBuildEvent>
-    </When>
     <PostBuildEvent>
       <Command>
       </Command>

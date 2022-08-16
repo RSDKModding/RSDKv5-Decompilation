@@ -28,6 +28,8 @@ static void initNxLink()
 
 #if RETRO_STANDALONE
 
+#if RETRO_PLATFORM == RETRO_WIN && !RETRO_RENDERDEVICE_SDL2
+
 #if RETRO_RENDERDEVICE_DIRECTX9 || RETRO_RENDERDEVICE_DIRECTX11
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nShowCmd)
 {
@@ -37,6 +39,13 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     return RSDK_main(1, &lpCmdLine, RSDK::LinkGameLogic);
 }
+#else
+INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nShowCmd)
+{
+    return RSDK_main(1, &lpCmdLine, RSDK::LinkGameLogic);
+}
+#endif
+
 #elif RETRO_PLATFORM == RETRO_ANDROID
 extern "C" {
 void android_main(struct android_app *app);
