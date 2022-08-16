@@ -254,9 +254,6 @@
     <ClCompile Include="..\RSDKv5\RSDK\Input\Steam\SteamInputDevice.cpp">
       <Filter>Source Files\RSDK\Input\Steam</Filter>
     </ClCompile>
-    <ClCompile Include="..\dependencies\gl3\glew\src\glew.c">
-      <Filter>Source Files\Dependencies\glew</Filter>
-    </ClCompile>
     <ClCompile Include="..\RSDKv5\RSDK\Input\GLFW\GLFWInputDevice.cpp">
       <Filter>Source Files\RSDK\Input\GLFW</Filter>
     </ClCompile>
