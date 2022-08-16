@@ -546,7 +546,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/gl3/glfw/lib/;$(SolutionDir)dependencies/gl3/glew/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;glfw3.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -569,7 +569,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/gl3/glfw/lib/;$(SolutionDir)dependencies/gl3/glew/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;glfw3.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -596,7 +596,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/gl3/glfw/lib/;$(SolutionDir)dependencies/gl3/glew/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;glfw3.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -623,7 +623,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/gl3/glfw/lib/;$(SolutionDir)dependencies/gl3/glew/lib/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;glfw3.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
