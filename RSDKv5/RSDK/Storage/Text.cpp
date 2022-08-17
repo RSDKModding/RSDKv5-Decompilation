@@ -41,6 +41,9 @@ unsigned *calcKs(unsigned *k)
     return k;
 }
 
+unsigned kspace[64];
+unsigned *k = calcKs(kspace);
+
 // ROtate v Left by amt bits
 unsigned rol(unsigned v, int16 amt)
 {
@@ -51,7 +54,6 @@ unsigned rol(unsigned v, int16 amt)
 unsigned *md5(const char *msg, int32 mlen)
 {
     static digest h0 = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
-    //    static Digest h0 = { 0x01234567, 0x89ABCDEF, 0xFEDCBA98, 0x76543210 };
     static DgstFctn ff[] = { &f0, &f1, &f2, &f3 };
     static int16 M[]     = { 1, 5, 3, 7 };
     static int16 O[]     = { 0, 1, 5, 0 };
@@ -60,10 +62,8 @@ unsigned *md5(const char *msg, int32 mlen)
     static int16 rot2[]  = { 4, 11, 16, 23 };
     static int16 rot3[]  = { 6, 10, 15, 21 };
     static int16 *rots[] = { rot0, rot1, rot2, rot3 };
-    static unsigned kspace[64];
-    static unsigned *k;
 
-    static digest h;
+    digest h;
     digest abcd;
     DgstFctn fctn;
     int16 m, o, g;
@@ -131,43 +131,14 @@ unsigned *md5(const char *msg, int32 mlen)
     return h;
 }
 
-#if RETRO_REV0U
-int32 RSDK::FindStringToken(const char *string, const char *token, uint8 stopID)
-{
-    int32 tokenCharID  = 0;
-    bool32 tokenMatch  = true;
-    int32 stringCharID = 0;
-    int32 foundTokenID = 0;
-
-    while (string[stringCharID]) {
-        tokenCharID = 0;
-        tokenMatch  = true;
-        while (token[tokenCharID]) {
-            if (!string[tokenCharID + stringCharID])
-                return -1;
-
-            if (string[tokenCharID + stringCharID] != token[tokenCharID])
-                tokenMatch = false;
-
-            ++tokenCharID;
-        }
-        if (tokenMatch && ++foundTokenID == stopID)
-            return stringCharID;
-
-        ++stringCharID;
-    }
-    return -1;
-}
-#endif
-
 using namespace RSDK;
 
 char RSDK::textBuffer[0x400];
 // Buffer is expected to be at least 16 bytes long
-void RSDK::GenerateHashMD5(uint32 *buffer, int32 len)
+void RSDK::GenerateHashMD5(uint32 *buffer, char *textBuffer, int32 textBufferLen)
 {
     uint8 *buf  = (uint8 *)buffer;
-    unsigned *d = md5(textBuffer, len);
+    unsigned *d = md5(textBuffer, textBufferLen);
     WBunion u;
 
     for (int32 i = 0; i < 4; ++i) {
@@ -535,3 +506,32 @@ bool32 RSDK::SplitStringList(String *splitStrings, String *stringList, int32 sta
 
     return hasSplitString;
 }
+
+#if RETRO_REV0U
+int32 RSDK::FindStringToken(const char *string, const char *token, uint8 stopID)
+{
+    int32 tokenCharID  = 0;
+    bool32 tokenMatch  = true;
+    int32 stringCharID = 0;
+    int32 foundTokenID = 0;
+
+    while (string[stringCharID]) {
+        tokenCharID = 0;
+        tokenMatch  = true;
+        while (token[tokenCharID]) {
+            if (!string[tokenCharID + stringCharID])
+                return -1;
+
+            if (string[tokenCharID + stringCharID] != token[tokenCharID])
+                tokenMatch = false;
+
+            ++tokenCharID;
+        }
+        if (tokenMatch && ++foundTokenID == stopID)
+            return stringCharID;
+
+        ++stringCharID;
+    }
+    return -1;
+}
+#endif

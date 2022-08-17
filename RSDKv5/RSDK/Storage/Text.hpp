@@ -132,15 +132,18 @@ inline void StringUpperCase(char *dest, const char *src)
 }
 
 extern char textBuffer[0x400];
-void GenerateHashMD5(uint32 *buffer, int32 len);
+void GenerateHashMD5(uint32 *buffer, char *textBuffer, int32 textBufferLen);
 void GenerateHashCRC(uint32 *id, char *inputString);
 
 #define RETRO_HASH_MD5(name) uint32 name[4]
 #define HASH_SIZE_MD5        (4 * sizeof(uint32))
 #define HASH_MATCH_MD5(a, b) (memcmp(a, b, HASH_SIZE_MD5) == 0)
+// this is NOT thread-safe!
 #define GEN_HASH_MD5(text, hash)                                                                                                                     \
     strcpy(textBuffer, text);                                                                                                                        \
-    GenerateHashMD5(hash, (int32)strlen(textBuffer))
+    GenerateHashMD5(hash, textBuffer, (int32)strlen(textBuffer))
+// this one is but assumes buffer has already been setup
+#define GEN_HASH_MD5_BUFFER(buffer, hash) GenerateHashMD5(hash, buffer, (int32)strlen(buffer))
 #define HASH_COPY_MD5(dst, src) memcpy(dst, src, HASH_SIZE_MD5)
 #define HASH_CLEAR_MD5(hash)    MEM_ZERO(hash)
 

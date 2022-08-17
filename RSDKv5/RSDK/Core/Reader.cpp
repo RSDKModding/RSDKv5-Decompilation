@@ -186,9 +186,10 @@ inline bool ends_with(std::string const &value, std::string const &ending)
 
 bool32 RSDK::OpenDataFile(FileInfo *info, const char *filename)
 {
-    StringLowerCase(textBuffer, filename);
+    char hashBuffer[0x400];
+    StringLowerCase(hashBuffer, filename);
     RETRO_HASH_MD5(hash);
-    GEN_HASH_MD5(textBuffer, hash);
+    GEN_HASH_MD5_BUFFER(hashBuffer, hash);
 
     for (int32 f = 0; f < dataFileListCount; ++f) {
         RSDKFileInfo *file = &dataFileList[f];
@@ -200,7 +201,7 @@ bool32 RSDK::OpenDataFile(FileInfo *info, const char *filename)
         if (!file->useFileBuffer) {
             info->file = fOpen(dataPacks[file->packID].name, "rb");
             if (!info->file) {
-                PrintLog(PRINT_NORMAL, "File not found: %s", filename);
+                PrintLog(PRINT_NORMAL, "File not found (Unable to open datapack): %s", filename);
                 return false;
             }
 
@@ -234,7 +235,11 @@ bool32 RSDK::OpenDataFile(FileInfo *info, const char *filename)
         return true;
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
+    PrintLog(PRINT_NORMAL, "Data File not found: %s", filename);
+#else
     PrintLog(PRINT_NORMAL, "File not found: %s", filename);
+#endif
     return false;
 }
 
@@ -328,10 +333,11 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
 void RSDK::GenerateELoadKeys(FileInfo *info, const char *key1, int32 key2)
 {
     uint8 hash[0x10];
+    char hashBuffer[0x400];
 
-    // StringA
-    StringUpperCase(textBuffer, key1);
-    GEN_HASH_MD5(textBuffer, (uint32 *)hash);
+    // KeyA
+    StringUpperCase(hashBuffer, key1);
+    GEN_HASH_MD5_BUFFER(hashBuffer, (uint32 *)hash);
 
     for (int32 y = 0; y < 0x10; y += 4) {
         info->encryptionKeyA[y + 3] = hash[y + 0];
@@ -340,9 +346,9 @@ void RSDK::GenerateELoadKeys(FileInfo *info, const char *key1, int32 key2)
         info->encryptionKeyA[y + 0] = hash[y + 3];
     }
 
-    // StringB
-    sprintf_s(textBuffer, (int32)sizeof(textBuffer), "%d", key2);
-    GEN_HASH_MD5(textBuffer, (uint32 *)hash);
+    // KeyB
+    sprintf_s(hashBuffer, (int32)sizeof(hashBuffer), "%d", key2);
+    GEN_HASH_MD5_BUFFER(hashBuffer, (uint32 *)hash);
 
     for (int32 y = 0; y < 0x10; y += 4) {
         info->encryptionKeyB[y + 3] = hash[y + 0];
