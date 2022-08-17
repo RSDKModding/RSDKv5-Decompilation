@@ -1220,7 +1220,7 @@ void RSDK::InitGameLink()
                 if (RSDKRevision) {
                     canLink = *RSDKRevision == RETRO_REVISION;
                     if (!canLink)
-                        PrintLog(PRINT_POPUP, "ERROR: Game Logic RSDK Revision doesn't match Engine RSDK Revision!");
+                        PrintLog(PRINT_NORMAL, "ERROR: Game Logic RSDK Revision doesn't match Engine RSDK Revision!");
                 }
 #endif
 
@@ -1233,10 +1233,16 @@ void RSDK::InitGameLink()
 #endif
                     linked = true;
                 }
+                else if (canLink && !linkGameLogic) {
+                    PrintLog(PRINT_ERROR, "ERROR: Failed to find 'LinkGameLogicDLL' -> %s", Link::GetError());
+                }
+            }
+            else {
+                PrintLog(PRINT_ERROR, "ERROR: Failed to open game logic file -> %s", Link::GetError());
             }
 
             if (!linked)
-                PrintLog(PRINT_POPUP, "Failed to link game logic!");
+                PrintLog(PRINT_NORMAL, "ERROR: Failed to link game logic!");
         }
         else {
 #if RETRO_REV02

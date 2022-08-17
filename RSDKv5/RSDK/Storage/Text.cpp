@@ -51,7 +51,7 @@ unsigned rol(unsigned v, int16 amt)
     return ((v >> (32 - amt)) & msk1) | ((v << amt) & ~msk1);
 }
 
-unsigned *md5(const char *msg, int32 mlen)
+unsigned *md5(unsigned *h, const char *msg, int32 mlen)
 {
     static digest h0 = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
     static DgstFctn ff[] = { &f0, &f1, &f2, &f3 };
@@ -63,7 +63,6 @@ unsigned *md5(const char *msg, int32 mlen)
     static int16 rot3[]  = { 6, 10, 15, 21 };
     static int16 *rots[] = { rot0, rot1, rot2, rot3 };
 
-    digest h;
     digest abcd;
     DgstFctn fctn;
     int16 m, o, g;
@@ -137,8 +136,9 @@ char RSDK::textBuffer[0x400];
 // Buffer is expected to be at least 16 bytes long
 void RSDK::GenerateHashMD5(uint32 *buffer, char *textBuffer, int32 textBufferLen)
 {
+    digest h; // storage var
     uint8 *buf  = (uint8 *)buffer;
-    unsigned *d = md5(textBuffer, textBufferLen);
+    unsigned *d = md5(h, textBuffer, textBufferLen);
     WBunion u;
 
     for (int32 i = 0; i < 4; ++i) {
