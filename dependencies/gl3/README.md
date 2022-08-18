@@ -14,7 +14,7 @@ Once completed, it is **heavily recommended that you grab the Shaders folder in 
 
 * GLAD: **ONLY USED FOR SWITCH**
   * Because devkitPro does not have a GLEW port, GLAD is used in-place of it.
-  * Install using `dkp-pacman -Ss switch-glad`.
+  * Install using `dkp-pacman -S switch-glad`.
 
 * GLFW: https://www.glfw.org/download.html 
   * If on Windows: 
