@@ -1321,6 +1321,8 @@ void RSDK::DevMenu_InputOptionsMenu()
             devMenu.state        = DevMenu_KeyMappingsMenu;
             devMenu.scrollPos    = 0;
             changedVideoSettings = true;
+
+            controller[CONT_P1 + devMenu.selection].keyUp.keyMap = KEYMAP_AUTO_MAPPING;
         }
     }
 
@@ -1351,7 +1353,7 @@ void RSDK::DevMenu_KeyMappingsMenu()
     dy += 44;
     DrawRectangle(currentScreen->center.x - 128, dy - 8, 0x100, 0x48, 0x80, 0xFF, INK_NONE, true);
 
-    int32 controllerID = devMenu.selection + 1;
+    int32 controllerID = CONT_P1 + devMenu.selection;
     switch (devMenu.scrollPos) {
         case 0:
             DrawDevString("Press Key For UP", currentScreen->center.x, dy, ALIGN_CENTER, 0xF0F080);
