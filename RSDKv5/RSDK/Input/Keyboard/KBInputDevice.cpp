@@ -711,7 +711,7 @@ RSDK::SKU::InputDeviceKeyboard *RSDK::SKU::InitKeyboardDevice(uint32 id)
 void RSDK::SKU::InputDeviceKeyboard::UpdateInput()
 {
     if (!this->controllerID) {
-        Vector2 cursorPos;
+        Vector2 cursorPos{};
 
         // ORIGINAL CODE: CANNOT BE UNDEFINED
         if (RenderDevice::GetCursorPos(&cursorPos)) {
@@ -722,7 +722,7 @@ void RSDK::SKU::InputDeviceKeyboard::UpdateInput()
             touchInfo.y[0] = (cursorPos.y - videoSettings.viewportY) * videoSettings.viewportH;
 
             if (touchInfo.x[0] == prevX && touchInfo.y[0] == prevY) {
-                if (this->mouseHideTimer < 120 + 1) {
+                if (this->mouseHideTimer <= 120) {
                     if (++this->mouseHideTimer == 120) {
                         RenderDevice::ShowCursor(false);
                     }

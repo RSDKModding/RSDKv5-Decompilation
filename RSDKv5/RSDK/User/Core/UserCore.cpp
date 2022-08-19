@@ -409,7 +409,7 @@ void RSDK::LoadSettingsINI()
         gamePadCount = 0;
         while (true) {
             char buffer[0x30];
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:name", gamePadCount + 1);
+            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:name", CONT_P1 + gamePadCount);
             if (strcmp(iniparser_getstring(ini, buffer, ";unknown;"), ";unknown;") != 0) {
                 gamePadCount++;
             }
@@ -418,25 +418,30 @@ void RSDK::LoadSettingsINI()
             }
         }
 
+#if !RETRO_USE_ORIGINAL_CODE
+        // using standard allocation here due to mod loader trickery
+        gamePadMappings = new GamePadMappings[gamePadCount];
+#else
         AllocateStorage((void **)&gamePadMappings, sizeof(GamePadMappings) * gamePadCount, DATASET_STG, true);
+#endif
 
-        for (int32 i = CONT_P1; i <= gamePadCount; ++i) {
+        for (int32 i = 0; i < gamePadCount; ++i) {
             char buffer[0x30];
             char mappings[0x100];
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:name", i);
+            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:name", CONT_P1 + i);
             sprintf_s(gamePadMappings[i].name, (int32)sizeof(gamePadMappings[i].name), "%s", iniparser_getstring(ini, buffer, 0));
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:type", i);
+            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:type", CONT_P1 + i);
             gamePadMappings[i].type = iniparser_getint(ini, buffer, 0);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:vendorID", i);
+            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:vendorID", CONT_P1 + i);
             gamePadMappings[i].vendorID = iniparser_getint(ini, buffer, 0);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:productID", i);
+            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:productID", CONT_P1 + i);
             gamePadMappings[i].productID = iniparser_getint(ini, buffer, 0);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:mappingTypes", i);
+            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:mappingTypes", CONT_P1 + i);
             sprintf_s(mappings, (int32)sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
 
             char *tok = strtok(mappings, ", ");
@@ -445,7 +450,7 @@ void RSDK::LoadSettingsINI()
                 tok                                       = strtok(0, " ,.-");
             }
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:offsets", i);
+            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:offsets", CONT_P1 + i);
             sprintf_s(mappings, (int32)sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
 
             tok = strtok(mappings, ", ");
@@ -454,13 +459,13 @@ void RSDK::LoadSettingsINI()
                 tok                                  = strtok(0, " ,.-");
             }
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:maskVals", i);
+            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:maskVals", CONT_P1 + i);
             sprintf_s(mappings, (int32)sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
             tok = strtok(mappings, ", ");
             for (int32 b = 0; tok; ++b) {
                 int32 mask = 1;
                 for (int32 m = 0; m < 18; ++m) {
-                    if (strcmp(buttonNames[i], tok) == 0) {
+                    if (strcmp(buttonNames[m], tok) == 0) {
                         gamePadMappings[i].buttons[b].maskVal = mask;
                         break;
                     }
@@ -545,6 +550,13 @@ void RSDK::LoadSettingsINI()
 
 void RSDK::SaveSettingsINI(bool32 writeToFile)
 {
+#if !RETRO_USE_ORIGINAL_CODE
+    if (gamePadCount && gamePadMappings)
+        free(gamePadMappings);
+    gamePadMappings = NULL;
+    gamePadCount    = 0;
+#endif
+
     // only done on windows and "dev", consoles use "options.bin"
 #if RETRO_REV02
     if (SKU::curSKU.platform != PLATFORM_PC && SKU::curSKU.platform != PLATFORM_DEV)

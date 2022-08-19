@@ -55,7 +55,7 @@ public:
 
     inline static bool GetCursorPos(Vector2 *pos)
     {
-        tagPOINT cursorPos;
+        POINT cursorPos{};
         _wapiGetCursorPos(&cursorPos);
         ScreenToClient(windowHandle, &cursorPos);
         pos->x = cursorPos.x;

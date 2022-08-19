@@ -214,7 +214,8 @@ void RSDK::SKU::InitXInputAPI()
         }
 
         XINPUT_STATE pState;
-        if (XInputGetState(i, &pState)) {
+        int32 deviceState = XInputGetState(i, &pState);
+        if (deviceState != ERROR_SUCCESS) {
             if (device)
                 RemoveInputDevice(device);
         }
