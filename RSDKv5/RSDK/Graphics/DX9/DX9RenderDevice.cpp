@@ -1384,7 +1384,8 @@ LRESULT CALLBACK RenderDevice::WindowEventCallback(HWND hRecipient, UINT message
 
                 if (AudioDevice::audioFocus == 1) {
                     AudioDevice::audioFocus = 0;
-                    AudioDevice::sourceVoice->Start(0, 0);
+                    if (AudioDevice::sourceVoice)
+                        AudioDevice::sourceVoice->Start(0, 0);
                 }
 
                 GetDisplays();
@@ -1402,7 +1403,8 @@ LRESULT CALLBACK RenderDevice::WindowEventCallback(HWND hRecipient, UINT message
 
                 if (!AudioDevice::audioFocus) {
                     AudioDevice::audioFocus = 1;
-                    AudioDevice::sourceVoice->Stop(0, 0);
+                    if (AudioDevice::sourceVoice)
+                        AudioDevice::sourceVoice->Stop(0, 0);
                 }
 
                 videoSettings.windowState = WINDOWSTATE_INACTIVE;
