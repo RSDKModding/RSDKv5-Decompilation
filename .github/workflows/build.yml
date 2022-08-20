@@ -30,6 +30,7 @@ jobs:
       - name: Build RSDKv5 + U
         run: |
           make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 rsdk-clean
           make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
       - name: Move artifacts
         run: |
@@ -59,6 +60,7 @@ jobs:
       - name: Build RSDKv5 + U
         run: |
           make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 rsdk-clean
           make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
       - name: Move artifacts
         run: |
@@ -83,10 +85,12 @@ jobs:
       - name: Build RSDKv5 + U GL3
         run: |
           make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 rsdk-clean
           make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
       - name: Build RSDKv5 + U SDL2
         run: |
           make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 AUTOBUILD=1
+          make -j8 rsdk-clean
           make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 RSDK_REVISION=3 AUTOBUILD=1
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0
