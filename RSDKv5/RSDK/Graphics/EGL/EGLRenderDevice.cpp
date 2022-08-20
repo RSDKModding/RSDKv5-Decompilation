@@ -11,19 +11,22 @@
 #include <chrono>
 
 #if RETRO_PLATFORM == RETRO_SWITCH
-#define _GLVERSION "#version 330 core\n"
-const char *_glPrecision = "";
+#define _GLVERSION "#version 330 core\n#define in_V in\n#define in_F in\n"
+
+#define _glVPrecision ""
+#define _glFPrecision ""
 
 #define _YOFF 16
 #define _UOFF 8
 #define _VOFF 0
 #elif RETRO_PLATFORM == RETRO_ANDROID
-#define _GLVERSION "#version 300 es\n"
+#define _GLVERSION "#version 100\n#extension GL_OES_standard_derivatives : enable\n#define in_V attribute\n#define out varying\n#define in_F varying\n"
 
 #define GL_BGRA                     GL_RGBA
 #define GL_UNSIGNED_INT_8_8_8_8_REV GL_UNSIGNED_BYTE
 
-char _glPrecision[30]; // len("precision mediump float;\n") -> 25
+char _glVPrecision[30]; // len("precision mediump float;\n") -> 25
+char _glFPrecision[30]; // len("precision mediump float;\n") -> 25
 
 #define _YOFF 0
 #define _UOFF 8
@@ -173,21 +176,32 @@ bool RenderDevice::SetupRendering()
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     // clang-format off
-    static const EGLint contextAttributeList[] = { 
+    static const EGLint attributeListList[1][7] = { {
         EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
         EGL_CONTEXT_MAJOR_VERSION,       4, 
         EGL_CONTEXT_MINOR_VERSION,       3,
         EGL_NONE 
-    };
+    } };
+    static const int32 listCount = 1;
+    int32 i = 0;
     // clang-format on
 #elif RETRO_PLATFORM == RETRO_ANDROID
-    static const EGLint contextAttributeList[] = { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE };
+    static const EGLint attributeListList[3][5] = { { EGL_CONTEXT_MAJOR_VERSION, 2, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE },
+                                                 { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE },
+                                                 { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 1, EGL_NONE } };
+    static const int32 listCount             = 3;
+    int32 i                                  = 0;
 #endif
 
-    context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttributeList);
-    if (!context) {
+    context = eglCreateContext(display, config, EGL_NO_CONTEXT, attributeListList[i]);
+    while (!context) {
         PrintLog(PRINT_NORMAL, "[EGL] Context creation failed: %d", eglGetError());
-        return false;
+        if (++i < listCount) {
+            PrintLog(PRINT_NORMAL, "[EGL] Trying next context...");
+            context = eglCreateContext(display, config, EGL_NO_CONTEXT, attributeListList[i]);
+        }
+        else
+            return false;
     }
 
     eglMakeCurrent(display, surface, surface, context);
@@ -231,11 +245,19 @@ bool RenderDevice::InitGraphicsAPI()
     }
 #else
     GLint range[2], precision;
+
+    glGetShaderPrecisionFormat(GL_VERTEX_SHADER, GL_HIGH_FLOAT, range, &precision);
+    if (!precision)
+        strcpy(_glVPrecision, "precision mediump float;\n");
+    else
+        strcpy(_glVPrecision, "precision highp float;\n");
+
     glGetShaderPrecisionFormat(GL_FRAGMENT_SHADER, GL_HIGH_FLOAT, range, &precision);
     if (!precision)
-        strcpy(_glPrecision, "precision mediump float;\n");
+        strcpy(_glFPrecision, "precision mediump float;\n");
     else
-        strcpy(_glPrecision, "precision highp float;\n");
+        strcpy(_glFPrecision, "precision highp float;\n");
+
 #endif
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
@@ -716,7 +738,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         fileData[info.fileSize] = 0;
         CloseFile(&info);
 
-        const GLchar *glchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, (const GLchar *)fileData };
+        const GLchar *glchar[] = { _GLVERSION, _GLDEFINE, _glVPrecision, (const GLchar *)fileData };
         vert                   = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vert, 4, glchar, NULL);
         glCompileShader(vert);
@@ -733,7 +755,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         fileData[info.fileSize] = 0;
         CloseFile(&info);
 
-        const GLchar *glchar[] = { _GLVERSION, _GLDEFINE, _glPrecision, (const GLchar *)fileData };
+        const GLchar *glchar[] = { _GLVERSION, _GLDEFINE, _glFPrecision, (const GLchar *)fileData };
         frag                   = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(frag, 4, glchar, NULL);
         glCompileShader(frag);

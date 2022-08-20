@@ -1,26 +1,25 @@
 // =======================
 // VARIABLES
 // =======================
-in vec2 ex_UV;
-in vec4 ex_color;
-out vec4 out_color;
+in_F vec2 ex_UV;
+in_F vec4 ex_color;
 
 uniform sampler2D texDiffuse; // screen display texture
 
 uniform vec2 pixelSize;   // internal game resolution (usually 424x240 or smth)
 uniform vec2 textureSize; // size of the internal framebuffer texture
 uniform vec2 viewSize;    // window viewport size
-#if defined(RETRO_REV02)  // if RETRO_REV02 is defined it assumes the engine is plus/rev02 RSDKv5, else it assumes pre-plus/Rev01 RSDKv5
-uniform float screenDim; // screen dimming percent
+#if RETRO_REV02           // if RETRO_REV02 is defined it assumes the engine is plus/rev02 RSDKv5, else it assumes pre-plus/Rev01 RSDKv5
+uniform float screenDim;  // screen dimming percent
 #endif
 
 
 // =======================
 // DEFINITIONS
 // =======================
-#define RSDK_PI     3.14159                 // PI
-#define viewSizeHD  720                     // how tall viewSize.y has to be before it simulates the dimming effect
-#define intencity   vec3(1.1, 0.9, 0.9)   // how much to "dim" the screen when simulating a CRT effect
+#define RSDK_PI     3.14159             // PI
+#define viewSizeHD  720.0               // how tall viewSize.y has to be before it simulates the dimming effect
+#define intencity   vec3(1.1, 0.9, 0.9) // how much to "dim" the screen when simulating a CRT effect
 
 void main()
 {
@@ -60,9 +59,9 @@ void main()
     blendedColor.r  = scanlineIntencity.a * texColor.r;
     blendedColor.gb = colorMod.xy * texColor.gb;
 
-    out_color.rgb    = viewSize.y >= viewSizeHD ? (scanlineIntencity.rgb * blendedColor.rgb) : blendedColor.rgb;
+    gl_FragColor.rgb    = viewSize.y >= viewSizeHD ? (scanlineIntencity.rgb * blendedColor.rgb) : blendedColor.rgb;
 
-#if defined(RETRO_REV02) 
-	out_color.rgb *= screenDim;
+#if RETRO_REV02 
+	gl_FragColor.rgb *= screenDim;
 #endif
 }

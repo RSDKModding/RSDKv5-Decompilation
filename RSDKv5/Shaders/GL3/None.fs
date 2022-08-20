@@ -1,34 +1,50 @@
 // =======================
 // VARIABLES
 // =======================
-in vec2 ex_UV;
-in vec4 ex_color;
-out vec4 out_color;
+#if GL_ES
+vec2 round(vec2 inp) {
+    vec2 outp;
+    outp.x = fract(inp.x) < 0.5 ? floor(inp.x) : ceil(inp.x);
+    outp.y = fract(inp.y) < 0.5 ? floor(inp.y) : ceil(inp.y);
+    return outp;
+}
+#else
+#define GL_OES_standard_derivatives (1)
+#endif
+
+in_F vec2 ex_UV;
+in_F vec4 ex_color;
 
 uniform sampler2D texDiffuse; // screen display texture
 
 uniform vec2 pixelSize;   // internal game resolution (usually 424x240 or smth)
 uniform vec2 textureSize; // size of the internal framebuffer texture
 uniform vec2 viewSize;    // window viewport size
-#if defined(RETRO_REV02)  // if RETRO_REV02 is defined it assumes the engine is plus/rev02 RSDKv5, else it assumes pre-plus/Rev01 RSDKv5
+#if RETRO_REV02  // if RETRO_REV02 is defined it assumes the engine is plus/rev02 RSDKv5, else it assumes pre-plus/Rev01 RSDKv5
 uniform float screenDim; // screen dimming percent
 #endif
 
 void main()
 {
-    out_color = vec4(ex_UV, 0, 1);
+#ifndef GL_OES_standard_derivatives
+    // shader doesn't support derivatives :sob:
+    // just show as is; there will be shimmering/will be very blurry
+    gl_FragColor = texture2D(texDiffuse, ex_UV);
+#else
+    gl_FragColor = vec4(ex_UV, 0, 1);
     //return;
     vec2 viewScale;
     viewScale.x = fract((1.0 / pixelSize.x) * viewSize.x) - 0.01;
     viewScale.y = fract((1.0 / pixelSize.y) * viewSize.y) - 0.01;
 
     // if viewSize is an integer scale of pixelSize (within a small margin of error)
-    if (viewScale.x < 0 && viewScale.y < 0) {
+
+    if (viewScale.x < 0.0 && viewScale.y < 0.0) {
         // just get the pixel at this fragment with no filtering
-#if defined(RETRO_REV02) || true
-        out_color = texture2D(texDiffuse, ex_UV) * screenDim;
+#if RETRO_REV02
+        gl_FragColor = texture2D(texDiffuse, ex_UV) * screenDim;
 #else
-        out_color = texture2D(texDiffuse, ex_UV);
+        gl_FragColor = texture2D(texDiffuse, ex_UV);
 #endif
         return;
     }
@@ -59,13 +75,14 @@ void main()
     blend.z = (blendFactor.z * blendFactor.x) / strength;
     blend.w = (blendFactor.w * blendFactor.y) / strength;
 
-    out_color = 
-        blend.x * texture2D(texDiffuse, texPos.xy) + 
-        blend.y * texture2D(texDiffuse, texPos.wz) + 
-        blend.z * texture2D(texDiffuse, texPos.xz) +
-        blend.w * texture2D(texDiffuse, texPos.wy); 
-    
-#if defined(RETRO_REV02) 
-    out_color.rgb *= screenDim;
+    gl_FragColor = 
+        texture2D(texDiffuse, texPos.xy) * blend.x + 
+        texture2D(texDiffuse, texPos.wz) * blend.y + 
+        texture2D(texDiffuse, texPos.xz) * blend.z +
+        texture2D(texDiffuse, texPos.wy) * blend.w; 
+#endif
+
+#if RETRO_REV02 
+    gl_FragColor.rgb *= screenDim;
 #endif
 }
