@@ -1,3 +1,5 @@
+#include "windows.h"
+#include "winuser.h"
 
 using namespace RSDK;
 
@@ -135,6 +137,7 @@ int32 winAPIToSDLMappings(int32 mapping)
         case VK_F22: return SDL_SCANCODE_F22;
         case VK_F23: return SDL_SCANCODE_F23;
         case VK_F24: return SDL_SCANCODE_F24;
+#if _WIN32_WINNT >= 0x0604
         case VK_NAVIGATION_VIEW: return SDL_SCANCODE_UNKNOWN;
         case VK_NAVIGATION_MENU: return SDL_SCANCODE_UNKNOWN;
         case VK_NAVIGATION_UP: return SDL_SCANCODE_UNKNOWN;
@@ -143,6 +146,7 @@ int32 winAPIToSDLMappings(int32 mapping)
         case VK_NAVIGATION_RIGHT: return SDL_SCANCODE_UNKNOWN;
         case VK_NAVIGATION_ACCEPT: return SDL_SCANCODE_UNKNOWN;
         case VK_NAVIGATION_CANCEL: return SDL_SCANCODE_UNKNOWN;
+#endif
         case VK_NUMLOCK: return SDL_SCANCODE_UNKNOWN;
         case VK_SCROLL: return SDL_SCANCODE_UNKNOWN;
         case VK_OEM_NEC_EQUAL: return SDL_SCANCODE_UNKNOWN;
@@ -181,6 +185,7 @@ int32 winAPIToSDLMappings(int32 mapping)
         case VK_OEM_PERIOD: return SDL_SCANCODE_UNKNOWN;
         case VK_OEM_2: return SDL_SCANCODE_UNKNOWN;
         case VK_OEM_3: return SDL_SCANCODE_UNKNOWN;
+#if _WIN32_WINNT >= 0x0604
         case VK_GAMEPAD_A: return SDL_SCANCODE_UNKNOWN;
         case VK_GAMEPAD_B: return SDL_SCANCODE_UNKNOWN;
         case VK_GAMEPAD_X: return SDL_SCANCODE_UNKNOWN;
@@ -205,6 +210,7 @@ int32 winAPIToSDLMappings(int32 mapping)
         case VK_GAMEPAD_RIGHT_THUMBSTICK_DOWN: return SDL_SCANCODE_UNKNOWN;
         case VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT: return SDL_SCANCODE_UNKNOWN;
         case VK_GAMEPAD_RIGHT_THUMBSTICK_LEFT: return SDL_SCANCODE_UNKNOWN;
+#endif
         case VK_OEM_4: return SDL_SCANCODE_UNKNOWN;
         case VK_OEM_5: return SDL_SCANCODE_UNKNOWN;
         case VK_OEM_6: return SDL_SCANCODE_UNKNOWN;
