@@ -290,7 +290,8 @@ void RSDK::LoadStringList(String *stringList, const char *filePath, uint32 charS
         if (header == 0xFEFF) {
             // UTF-16
             InitStringList(stringList, (info.fileSize >> 1) - 1);
-            ReadBytes(&info, stringList->chars, stringList->size * sizeof(uint16));
+            for (int16 i = 0; i < stringList->size; ++i)
+                stringList->chars[i] = ReadInt16(&info);
             stringList->length = stringList->size;
         }
         else {

@@ -153,7 +153,7 @@ void RSDK::LoadStaticVariables(uint8 *classPtr, uint32 *hash, int32 readOffset)
                     case SVAR_UINT8:
                     case SVAR_INT8:
                         if (info.readPos + (count * sizeof(uint8)) <= info.fileSize && &classPtr[dataPos]) {
-                            for (int32 i = 0; i < count * sizeof(uint8); i += sizeof(uint8)) ReadBytes(&info, &classPtr[dataPos + i], sizeof(uint8));
+                            for (int32 i = 0; i < count * sizeof(uint8); i += sizeof(uint8)) *(uint8*)&classPtr[dataPos + i] = ReadInt8(&info);
                         }
                         else {
                             info.readPos += count * sizeof(uint8);
@@ -167,7 +167,7 @@ void RSDK::LoadStaticVariables(uint8 *classPtr, uint32 *hash, int32 readOffset)
                         ALIGN_TO(int16);
 
                         if (info.readPos + (count * sizeof(int16)) <= info.fileSize && &classPtr[dataPos]) {
-                            for (int32 i = 0; i < count * sizeof(int16); i += sizeof(int16)) ReadBytes(&info, &classPtr[dataPos + i], sizeof(int16));
+                            for (int32 i = 0; i < count * sizeof(int16); i += sizeof(int16)) *(int16*)&classPtr[dataPos + i] = ReadInt16(&info);
                         }
                         else {
                             info.readPos += count * sizeof(int16);
@@ -182,7 +182,7 @@ void RSDK::LoadStaticVariables(uint8 *classPtr, uint32 *hash, int32 readOffset)
                         ALIGN_TO(int32);
 
                         if (info.readPos + (count * sizeof(int32)) <= info.fileSize && &classPtr[dataPos]) {
-                            for (int32 i = 0; i < count * sizeof(int32); i += sizeof(int32)) ReadBytes(&info, &classPtr[dataPos + i], sizeof(int32));
+                            for (int32 i = 0; i < count * sizeof(int32); i += sizeof(int32)) *(int32*)&classPtr[dataPos + i] = ReadInt32(&info, false);
                         }
                         else {
                             info.readPos += count * sizeof(int32);
@@ -197,7 +197,7 @@ void RSDK::LoadStaticVariables(uint8 *classPtr, uint32 *hash, int32 readOffset)
 
                         if (info.readPos + (count * sizeof(bool32)) <= info.fileSize && &classPtr[dataPos]) {
                             for (int32 i = 0; i < count * sizeof(bool32); i += sizeof(bool32))
-                                ReadBytes(&info, &classPtr[dataPos + i], sizeof(bool32));
+                                *(bool32*)&classPtr[dataPos + i] = ReadInt32(&info, false);
                         }
                         else {
                             info.readPos += count * sizeof(bool32);
