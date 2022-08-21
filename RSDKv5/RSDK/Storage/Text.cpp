@@ -4,146 +4,48 @@
 #include "Legacy/TextLegacy.cpp"
 #endif
 
-// From here: https://rosettacode.org/wiki/MD5#C
-
-#include <stdlib.h>
-#include <stdio.h>
+#include <stddef.h>
 #include <string.h>
-#include <math.h>
 
-typedef union uwb {
-    unsigned w;
-    unsigned char b[4];
-} WBunion;
-
-typedef unsigned digest[4];
-
-unsigned f0(unsigned abcd[]) { return (abcd[1] & abcd[2]) | (~abcd[1] & abcd[3]); }
-
-unsigned f1(unsigned abcd[]) { return (abcd[3] & abcd[1]) | (~abcd[3] & abcd[2]); }
-
-unsigned f2(unsigned abcd[]) { return abcd[1] ^ abcd[2] ^ abcd[3]; }
-
-unsigned f3(unsigned abcd[]) { return abcd[2] ^ (abcd[1] | ~abcd[3]); }
-
-typedef unsigned (*DgstFctn)(unsigned a[]);
-
-unsigned *calcKs(unsigned *k)
-{
-    double s, pwr;
-    int32 i;
-
-    pwr = pow(2, 32);
-    for (i = 0; i < 64; i++) {
-        s    = fabs(sin(1 + i));
-        k[i] = (unsigned)(s * pwr);
-    }
-    return k;
-}
-
-unsigned kspace[64];
-unsigned *k = calcKs(kspace);
-
-// ROtate v Left by amt bits
-unsigned rol(unsigned v, int16 amt)
-{
-    unsigned msk1 = (1 << amt) - 1;
-    return ((v >> (32 - amt)) & msk1) | ((v << amt) & ~msk1);
-}
-
-unsigned *md5(unsigned *h, const char *msg, int32 mlen)
-{
-    static digest h0 = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
-    static DgstFctn ff[] = { &f0, &f1, &f2, &f3 };
-    static int16 M[]     = { 1, 5, 3, 7 };
-    static int16 O[]     = { 0, 1, 5, 0 };
-    static int16 rot0[]  = { 7, 12, 17, 22 };
-    static int16 rot1[]  = { 5, 9, 14, 20 };
-    static int16 rot2[]  = { 4, 11, 16, 23 };
-    static int16 rot3[]  = { 6, 10, 15, 21 };
-    static int16 *rots[] = { rot0, rot1, rot2, rot3 };
-
-    digest abcd;
-    DgstFctn fctn;
-    int16 m, o, g;
-    unsigned f;
-    int16 *rotn;
-    union {
-        unsigned w[16];
-        char b[64];
-    } mm;
-    int32 os = 0;
-    int32 grp, grps, q, p;
-    unsigned char *msg2;
-
-    if (k == NULL)
-        k = calcKs(kspace);
-
-    for (q = 0; q < 4; q++) h[q] = h0[q]; // initialize
-
-    {
-        grps = 1 + (mlen + 8) / 64;
-        msg2 = (unsigned char *)malloc(64 * grps);
-        memcpy(msg2, msg, mlen);
-        msg2[mlen] = (unsigned char)0x80;
-        q          = mlen + 1;
-        while (q < 64 * grps) {
-            msg2[q] = 0;
-            q++;
-        }
-        {
-            //            unsigned char t;
-            WBunion u;
-            u.w = 8 * mlen;
-            //            t = u.b[0]; u.b[0] = u.b[3]; u.b[3] = t;
-            //            t = u.b[1]; u.b[1] = u.b[2]; u.b[2] = t;
-            q -= 8;
-            memcpy(msg2 + q, &u.w, 4);
-        }
-    }
-
-    for (grp = 0; grp < grps; grp++) {
-        memcpy(mm.b, msg2 + os, 64);
-        for (q = 0; q < 4; q++) abcd[q] = h[q];
-        for (p = 0; p < 4; p++) {
-            fctn = ff[p];
-            rotn = rots[p];
-            m    = M[p];
-            o    = O[p];
-            for (q = 0; q < 16; q++) {
-                g = (m * q + o) % 16;
-                f = abcd[1] + rol(abcd[0] + fctn(abcd) + k[q + 16 * p] + mm.w[g], rotn[q % 4]);
-
-                abcd[0] = abcd[3];
-                abcd[3] = abcd[2];
-                abcd[2] = abcd[1];
-                abcd[1] = f;
-            }
-        }
-        for (p = 0; p < 4; p++) h[p] += abcd[p];
-        os += 64;
-    }
-
-    if (msg2)
-        free(msg2);
-
-    return h;
-}
+#define CLOWNMD5_IMPLEMENTATION
+#define CLOWNMD5_STATIC
+#include "clownmd5.h"
 
 using namespace RSDK;
 
 char RSDK::textBuffer[0x400];
 // Buffer is expected to be at least 16 bytes long
-void RSDK::GenerateHashMD5(uint32 *buffer, char *textBuffer, int32 textBufferLen)
+void RSDK::GenerateHashMD5(uint32 *buffer, const char *text)
 {
-    digest h; // storage var
-    uint8 *buf  = (uint8 *)buffer;
-    unsigned *d = md5(h, textBuffer, textBufferLen);
-    WBunion u;
+    ClownMD5_State state;
+    ClownMD5_Init(&state);
 
-    for (int32 i = 0; i < 4; ++i) {
-        u.w = d[i];
-        for (int32 c = 0; c < 4; ++c) buf[(i << 2) + c] = u.b[c];
+    size_t length = strlen(text);
+
+    for (;;)
+    {
+        if (length > 64)
+        {
+            ClownMD5_PushData(&state, (const unsigned char*)text);
+        }
+        else
+        {
+            unsigned char final_block[64];
+            memcpy(final_block, text, length);
+
+            ClownMD5_PushFinalData(&state, final_block, length * 8, NULL);
+
+            // Cheat by pulling the hash in word form from the state.
+            buffer[0] = state.A;
+            buffer[1] = state.B;
+            buffer[2] = state.C;
+            buffer[3] = state.D;
+
+            break;
+        }
+
+        text += 64;
+        length -= 64;
     }
 }
 

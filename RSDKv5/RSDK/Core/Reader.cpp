@@ -189,7 +189,7 @@ bool32 RSDK::OpenDataFile(FileInfo *info, const char *filename)
     char hashBuffer[0x400];
     StringLowerCase(hashBuffer, filename);
     RETRO_HASH_MD5(hash);
-    GEN_HASH_MD5_BUFFER(hashBuffer, hash);
+    GEN_HASH_MD5(hashBuffer, hash);
 
     for (int32 f = 0; f < dataFileListCount; ++f) {
         RSDKFileInfo *file = &dataFileList[f];
@@ -332,30 +332,26 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
 
 void RSDK::GenerateELoadKeys(FileInfo *info, const char *key1, int32 key2)
 {
-    uint8 hash[0x10];
+    RETRO_HASH_MD5(hash);
     char hashBuffer[0x400];
 
     // KeyA
     StringUpperCase(hashBuffer, key1);
-    GEN_HASH_MD5_BUFFER(hashBuffer, (uint32 *)hash);
+    GEN_HASH_MD5(hashBuffer, hash);
 
-    for (int32 y = 0; y < 0x10; y += 4) {
-        info->encryptionKeyA[y + 3] = hash[y + 0];
-        info->encryptionKeyA[y + 2] = hash[y + 1];
-        info->encryptionKeyA[y + 1] = hash[y + 2];
-        info->encryptionKeyA[y + 0] = hash[y + 3];
-    }
+    // Split the hash into bytes.
+    for (unsigned int i = 0; i < 4; ++i)
+        for (unsigned int j = 0; j < 4; ++j)
+            info->encryptionKeyA[i * 4 + j] = (hash[i] >> (8 * (j ^ 3))) & 0xFF;
 
     // KeyB
     sprintf_s(hashBuffer, (int32)sizeof(hashBuffer), "%d", key2);
-    GEN_HASH_MD5_BUFFER(hashBuffer, (uint32 *)hash);
+    GEN_HASH_MD5(hashBuffer, hash);
 
-    for (int32 y = 0; y < 0x10; y += 4) {
-        info->encryptionKeyB[y + 3] = hash[y + 0];
-        info->encryptionKeyB[y + 2] = hash[y + 1];
-        info->encryptionKeyB[y + 1] = hash[y + 2];
-        info->encryptionKeyB[y + 0] = hash[y + 3];
-    }
+    // Split the hash into bytes.
+    for (unsigned int i = 0; i < 4; ++i)
+        for (unsigned int j = 0; j < 4; ++j)
+            info->encryptionKeyB[i * 4 + j] = (hash[i] >> (8 * (j ^ 3))) & 0xFF;
 }
 
 void RSDK::DecryptBytes(FileInfo *info, void *buffer, size_t size)
