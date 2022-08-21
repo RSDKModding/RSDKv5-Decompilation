@@ -415,29 +415,12 @@ enum GameRegions {
 #include <GLFW/glfw3.h>
 #endif
 
-#if RETRO_RENDERDEVICE_SDL2
-#ifdef USING_VCPKG
-#include <SDL2/SDL.h>
-#else
-#include <SDL.h>
-#endif // ! USING_VCPKG
-#endif // ! RETRO_RENDERDEVICE_SDL2
-
-#include <theora/theoradec.h>
-
 #endif // ! RETRO_WIN
 
 #if RETRO_PLATFORM == RETRO_OSX
 
-#if RETRO_RENDERDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2
-#include <SDL2/SDL.h>
-#endif
-
-#include <theora/theoradec.h>
-
 #include "cocoaHelpers.hpp"
 #elif RETRO_PLATFORM == RETRO_iOS
-#include <SDL2/SDL.h>
 
 #include "cocoaHelpers.hpp"
 #elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_SWITCH
@@ -450,12 +433,6 @@ enum GameRegions {
 #include <EGL/egl.h> // EGL library
 #include <EGL/eglext.h> // EGL extensions
 #endif
-
-#if RETRO_RENDERDEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2
-#include <SDL2/SDL.h>
-#endif // ! RETRO_RENDERDEVICE_SDL2
-
-#include <theora/theoradec.h>
 
 #if RETRO_PLATFORM == RETRO_SWITCH
 #define PrintConsole _PrintConsole
@@ -471,10 +448,17 @@ enum GameRegions {
 #endif
 
 #include <androidHelpers.hpp>
-#include <theora/theoradec.h>
 
 #undef RETRO_USING_MOUSE
 #endif
+
+#if RETRO_RENDERDEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2
+// This is the way of including SDL that is recommended by the devs themselves:
+// https://wiki.libsdl.org/FAQDevelopment#do_i_include_sdl.h_or_sdlsdl.h
+#include "SDL.h"
+#endif
+
+#include <theora/theoradec.h>
 
 // ============================
 // ENGINE INCLUDES
