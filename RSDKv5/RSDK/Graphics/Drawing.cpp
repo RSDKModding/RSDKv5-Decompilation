@@ -3906,14 +3906,14 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
 
     switch (inkEffect) {
         case INK_NONE:
-            for (; clipY1 < currentScreen->clipBound_Y2; ++scanline) {
+            for (; clipY1 < currentScreen->clipBound_Y2; ++clipY1) {
                 uint16 *activePalette = fullPalette[*lineBuffer++];
                 int32 lx              = scanline->position.x;
                 int32 ly              = scanline->position.y;
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
+                    uint8 palIndex = pixels[((FROM_FIXED(ly) & height) << lineSize) + (FROM_FIXED(lx) & width)];
                     if (palIndex)
                         *frameBuffer = activePalette[palIndex];
 
@@ -3921,19 +3921,19 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                     ly += dy;
                     ++frameBuffer;
                 }
-                ++clipY1;
+                ++scanline;
             }
             break;
 
         case INK_BLEND:
-            for (; clipY1 < currentScreen->clipBound_Y2; ++scanline) {
+            for (; clipY1 < currentScreen->clipBound_Y2; ++clipY1) {
                 uint16 *activePalette = fullPalette[*lineBuffer++];
                 int32 lx              = scanline->position.x;
                 int32 ly              = scanline->position.y;
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
+                    uint8 palIndex = pixels[((FROM_FIXED(ly) & height) << lineSize) + (FROM_FIXED(lx) & width)];
                     if (palIndex)
                         setPixelBlend(activePalette[palIndex], *frameBuffer);
 
@@ -3941,7 +3941,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                     ly += dy;
                     ++frameBuffer;
                 }
-                ++clipY1;
+                ++scanline;
             }
             break;
 
@@ -3949,14 +3949,14 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
             uint16 *fbufferBlend = &blendLookupTable[0x20 * (0xFF - alpha)];
             uint16 *pixelBlend   = &blendLookupTable[0x20 * alpha];
 
-            for (; clipY1 < currentScreen->clipBound_Y2; ++scanline) {
+            for (; clipY1 < currentScreen->clipBound_Y2; ++clipY1) {
                 uint16 *activePalette = fullPalette[*lineBuffer++];
                 int32 lx              = scanline->position.x;
                 int32 ly              = scanline->position.y;
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
+                    uint8 palIndex = pixels[((FROM_FIXED(ly) & height) << lineSize) + (FROM_FIXED(lx) & width)];
                     if (palIndex) {
                         setPixelAlpha(activePalette[palIndex], *frameBuffer, alpha);
                     }
@@ -3965,21 +3965,22 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                     ly += dy;
                     ++frameBuffer;
                 }
-                ++clipY1;
+                ++scanline;
             }
             break;
         }
 
         case INK_ADD: {
             uint16 *blendTablePtr = &blendLookupTable[0x20 * alpha];
-            for (; clipY1 < currentScreen->clipBound_Y2; ++scanline) {
+
+            for (; clipY1 < currentScreen->clipBound_Y2; ++clipY1) {
                 uint16 *activePalette = fullPalette[*lineBuffer++];
                 int32 lx              = scanline->position.x;
                 int32 ly              = scanline->position.y;
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
+                    uint8 palIndex = pixels[((FROM_FIXED(ly) & height) << lineSize) + (FROM_FIXED(lx) & width)];
                     if (palIndex) {
                         setPixelAdditive(activePalette[palIndex], *frameBuffer);
                     }
@@ -3988,21 +3989,22 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                     ly += dy;
                     ++frameBuffer;
                 }
-                ++clipY1;
+                ++scanline;
             }
             break;
         }
 
         case INK_SUB: {
             uint16 *subBlendTable = &subtractLookupTable[0x20 * alpha];
-            for (; clipY1 < currentScreen->clipBound_Y2; ++scanline) {
+
+            for (; clipY1 < currentScreen->clipBound_Y2; ++clipY1) {
                 uint16 *activePalette = fullPalette[*lineBuffer++];
                 int32 lx              = scanline->position.x;
                 int32 ly              = scanline->position.y;
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
+                    uint8 palIndex = pixels[((FROM_FIXED(ly) & height) << lineSize) + (FROM_FIXED(lx) & width)];
                     if (palIndex) {
                         setPixelSubtractive(activePalette[palIndex], *frameBuffer);
                     }
@@ -4010,45 +4012,45 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                     ly += dy;
                     ++frameBuffer;
                 }
-                ++clipY1;
+                ++scanline;
             }
             break;
         }
 
         case INK_TINT:
-            for (; clipY1 < currentScreen->clipBound_Y2; ++scanline) {
+            for (; clipY1 < currentScreen->clipBound_Y2; ++clipY1) {
                 int32 lx = scanline->position.x;
                 int32 ly = scanline->position.y;
                 int32 dx = scanline->deform.x;
                 int32 dy = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
+                    uint8 palIndex = pixels[((FROM_FIXED(ly) & height) << lineSize) + (FROM_FIXED(lx) & width)];
                     if (palIndex)
                         *frameBuffer = tintLookupTable[*frameBuffer];
                     lx += dx;
                     ly += dy;
                     ++frameBuffer;
                 }
-                ++clipY1;
+                ++scanline;
             }
             break;
 
         case INK_MASKED:
-            for (; clipY1 < currentScreen->clipBound_Y2; ++scanline) {
+            for (; clipY1 < currentScreen->clipBound_Y2; ++clipY1) {
                 uint16 *activePalette = fullPalette[*lineBuffer++];
                 int32 lx              = scanline->position.x;
                 int32 ly              = scanline->position.y;
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
+                    uint8 palIndex = pixels[((FROM_FIXED(ly) & height) << lineSize) + (FROM_FIXED(lx) & width)];
                     if (palIndex && *frameBuffer == maskColor)
                         *frameBuffer = activePalette[palIndex];
                     lx += dx;
                     ly += dy;
                     ++frameBuffer;
                 }
-                ++clipY1;
+                ++scanline;
             }
             break;
 
@@ -4060,14 +4062,14 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
                 int32 dx              = scanline->deform.x;
                 int32 dy              = scanline->deform.y;
                 for (int32 i = 0; i < currentScreen->pitch; ++i) {
-                    uint8 palIndex = pixels[((height & FROM_FIXED(ly)) << lineSize) + (width & FROM_FIXED(lx))];
+                    uint8 palIndex = pixels[((FROM_FIXED(ly) & height) << lineSize) + (FROM_FIXED(lx) & width)];
                     if (palIndex && *frameBuffer != maskColor)
                         *frameBuffer = activePalette[palIndex];
                     lx += dx;
                     ly += dy;
                     ++frameBuffer;
                 }
-                ++clipY1;
+                ++scanline;
             }
             break;
     }
