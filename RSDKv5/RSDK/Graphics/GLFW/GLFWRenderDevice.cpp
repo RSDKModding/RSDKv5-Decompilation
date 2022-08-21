@@ -1,4 +1,4 @@
-#define _GLVERSION "#version 130\n"
+#define _GLVERSION "#version 130\n#define in_V in\n#define in_F in\n"
 
 #if RETRO_REV02
 #define _GLDEFINE "#define RETRO_REV02 (1)\n"
@@ -7,9 +7,9 @@
 #endif
 
 const GLchar *backupVertex = R"aa(
-in vec3 in_pos;
-in vec4 in_color;
-in vec2 in_UV;
+in_V vec3 in_pos;
+in_V vec4 in_color;
+in_V vec2 in_UV;
 out vec4 ex_color;
 out vec2 ex_UV;
 
@@ -22,15 +22,14 @@ void main()
 )aa";
 
 const GLchar *backupFragment = R"aa(
-in vec2 ex_UV;
-in vec4 ex_color;
-out vec4 out_color;
+in_F vec2 ex_UV;
+in_F vec4 ex_color;
 
 uniform sampler2D texDiffuse;
 
 void main()
 {
-    out_color = texture(texDiffuse, ex_UV);
+    gl_FragColor = texture(texDiffuse, ex_UV);
 }
 )aa";
 

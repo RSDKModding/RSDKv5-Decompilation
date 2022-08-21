@@ -26,7 +26,7 @@ uniform float screenDim; // screen dimming percent
 
 void main()
 {
-#ifndef GL_OES_standard_derivatives
+#if !GL_OES_standard_derivatives
     // shader doesn't support derivatives :sob:
     // just show as is; there will be shimmering/will be very blurry
     gl_FragColor = texture2D(texDiffuse, ex_UV);

@@ -32,6 +32,7 @@ cmake/
 # safety
 *.rsdk
 Sonic Mania/Static/*
+mods/
 
 #OSX files
 *.DS_Store
