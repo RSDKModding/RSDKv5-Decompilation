@@ -97,9 +97,14 @@ static const char *openModes[3] = { "rb", "wb", "rb+" };
 
 inline bool32 CheckBigEndian()
 {
+    // If we can determine this at compile-time instead of run-time, then do so.
+#ifdef __WIIU__
+    return true;
+#else
     uint32 x = 1;
     uint8 *c = (uint8 *)&x;
     return ((int32)*c) == 0;
+#endif
 }
 
 inline void InitFileInfo(FileInfo *info)

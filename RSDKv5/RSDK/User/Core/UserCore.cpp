@@ -89,7 +89,7 @@ void RSDK::SKU::InitUserCore()
     gameVerInfo.platform = PLATFORM_PS4;
 #elif RETRO_PLATFORM == RETRO_XB1
     gameVerInfo.platform = PLATFORM_XB1;
-#elif RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_ANDROID
+#elif RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WIIU
     gameVerInfo.platform = PLATFORM_SWITCH;
 #else
     // default to PC (or dev if dev stuff is enabled)

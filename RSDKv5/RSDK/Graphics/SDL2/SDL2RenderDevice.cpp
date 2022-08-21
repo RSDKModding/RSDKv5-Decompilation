@@ -38,7 +38,7 @@ bool RenderDevice::Init()
 
     videoSettings.windowWidth = ((float)SCREEN_YSIZE * h / w);
 
-#elif RETRO_PLATFORM == RETRO_SWITCH
+#elif RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_WIIU
     videoSettings.windowed     = false;
     videoSettings.windowWidth  = 1920;
     videoSettings.windowHeight = 1080;

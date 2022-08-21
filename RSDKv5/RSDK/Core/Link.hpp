@@ -399,7 +399,7 @@ void LinkGameLogic(GameInfo info);
 // ORIGINAL CLASS
 
 // Windows.h already included by master header
-#if !(RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_SWITCH)
+#if !(RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_WIIU)
 #include <dlfcn.h>
 #endif
 
@@ -429,7 +429,7 @@ public:
     {
         // BE WARNED: this is ifdef hell
         // still better than the mess we had before
-#if RETRO_PLATFORM == RETRO_SWITCH
+#if RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_WIIU
         return NULL;
 #else
         std::string prepath = path;
@@ -481,12 +481,12 @@ public:
         }
 #endif // ! RETRO_ARCHITECTURE
         return ret;
-#endif // ! RETRO_PLATFORM == SWITCH
+#endif // ! RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_WIIU
     }
 
     static inline void Close(Handle handle)
     {
-#if RETRO_PLATFORM == RETRO_SWITCH
+#if RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_WIIU
         return;
 #else
         if (handle)
@@ -500,7 +500,7 @@ public:
 
     static inline void *GetSymbol(Handle handle, const char *symbol)
     {
-#if RETRO_PLATFORM == RETRO_SWITCH
+#if RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_WIIU
         return NULL;
 #else
         if (!handle)
@@ -515,7 +515,7 @@ public:
 
     static inline char *GetError()
     {
-#if RETRO_PLATFORM == RETRO_SWITCH
+#if RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_WIIU
         return NULL;
 #else
 #if RETRO_PLATFORM == RETRO_WIN

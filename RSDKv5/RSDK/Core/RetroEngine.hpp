@@ -86,6 +86,7 @@ enum GameRegions {
 #define RETRO_iOS     (6)
 #define RETRO_ANDROID (7)
 #define RETRO_UWP     (8)
+#define RETRO_WIIU    (9)
 
 // ============================
 // PLATFORMS (used mostly in legacy but could come in handy here)
@@ -95,7 +96,14 @@ enum GameRegions {
 
 #define sprintf_s(x, _, ...) sprintf(x, __VA_ARGS__)
 
-#if defined _WIN32
+#if defined __WIIU__
+#define RETRO_PLATFORM   (RETRO_WIIU)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
+
+#undef sprintf_s
+#define sprintf_s(x, _, ...) snprintf(x, _, __VA_ARGS__)
+
+#elif defined _WIN32
 #undef sprintf_s
 
 #if defined WINAPI_FAMILY
@@ -380,6 +388,24 @@ enum GameRegions {
 #undef RETRO_INPUTDEVICE_SDL2
 #define RETRO_INPUTDEVICE_SDL2 (1)
 
+#elif RETRO_PLATFORM == RETRO_WIIU
+
+#ifdef RSDK_USE_SDL2
+#undef RETRO_RENDERDEVICE_SDL2
+#define RETRO_RENDERDEVICE_SDL2 (1)
+#undef RETRO_AUDIODEVICE_SDL2
+#define RETRO_AUDIODEVICE_SDL2 (1)
+#undef RETRO_INPUTDEVICE_SDL2
+#define RETRO_INPUTDEVICE_SDL2 (1)
+#else
+
+#error RSDK_USE_SDL2 must be defined.
+#endif //! RSDK_USE_SDL2
+
+#undef RETRO_INPUTDEVICE_KEYBOARD
+#define RETRO_INPUTDEVICE_KEYBOARD (0)
+#undef RETRO_USING_MOUSE
+
 #endif
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP
@@ -423,6 +449,7 @@ enum GameRegions {
 #elif RETRO_PLATFORM == RETRO_iOS
 
 #include "cocoaHelpers.hpp"
+
 #elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_SWITCH
 
 #if RETRO_RENDERDEVICE_GLFW

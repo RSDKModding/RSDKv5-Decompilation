@@ -1,0 +1,44 @@
+pkgname=ppc-libtheora
+pkgver=1.2.0alpha1
+pkgrel=1
+pkgdesc='Free and open video compression codec from the Xiph.org Foundation'
+arch=('any')
+url='https://www.theora.org/'
+license=(Xiph.org)
+options=(!strip libtool staticlibs)
+source=("https://ftp.osuosl.org/pub/xiph/releases/theora/libtheora-${pkgver}.tar.gz" "config.sub" "config.guess")
+sha256sums=(
+ '538305e6efa484ba740616b521f0d8c4428a0a995193c5e6af9b20f488f3c497'
+ '72e02ea93447038f8ced24f296b31e0f397bbcc6b32abdcf9b38c80f153433fd'
+ 'fbc2337aa59a204f5d74743b82c8be7aab8b39853b4e54a888008f70430c4305'
+)
+
+makedepends=('ppc-pkg-config' 'dkp-toolchain-vars')
+depends=('ppc-libogg' 'ppc-libvorbis' 'ppc-libpng')
+groups=('ppc-portlibs')
+build() {
+  cd libtheora-$pkgver
+
+  source /opt/devkitpro/ppcvars.sh
+
+  cp $srcdir/config.sub $srcdir/config.guess .
+
+  ./configure --prefix="${PORTLIBS_PREFIX}" --host=powerpc-eabi \
+    --disable-shared --enable-static \
+    --disable-encode --disable-examples
+
+  make
+}
+
+package() {
+  cd libtheora-$pkgver
+
+  source /opt/devkitpro/ppcvars.sh
+
+  make DESTDIR="$pkgdir" install
+
+  install -Dm644 COPYING "$pkgdir"${PORTLIBS_PREFIX}/licenses/$pkgname/COPYING
+
+  # remove useless documentation
+  rm -r "$pkgdir"${PORTLIBS_PREFIX}/share/doc
+}
