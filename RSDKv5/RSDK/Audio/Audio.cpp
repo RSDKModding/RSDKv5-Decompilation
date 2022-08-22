@@ -4,7 +4,9 @@
 #include "Legacy/AudioLegacy.cpp"
 #endif
 
+#define STB_VORBIS_NO_PUSHDATA_API
 #define STB_VORBIS_NO_STDIO
+#define STB_VORBIS_NO_INTEGER_CONVERSION
 #include "stb_vorbis/stb_vorbis.c"
 
 stb_vorbis *vorbisInfo = NULL;
