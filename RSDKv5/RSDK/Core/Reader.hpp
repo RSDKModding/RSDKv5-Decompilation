@@ -5,6 +5,7 @@
 #define FileIO                                          SDL_RWops
 #define fOpen(path, mode)                               SDL_RWFromFile(path, mode)
 #define fRead(buffer, elementSize, elementCount, file)  SDL_RWread(file, buffer, elementSize, elementCount)
+#define fGetC(file)                                     SDL_ReadU8(file)
 #define fSeek(file, offset, whence)                     SDL_RWseek(file, offset, whence)
 #define fTell(file)                                     SDL_RWtell(file)
 #define fClose(file)                                    SDL_RWclose(file)
@@ -13,6 +14,7 @@
 #define FileIO                                          FILE
 #define fOpen(path, mode)                               fopen(path, mode)
 #define fRead(buffer, elementSize, elementCount, file)  fread(buffer, elementSize, elementCount, file)
+#define fGetC(file)                                     fgetc(file)
 #define fSeek(file, offset, whence)                     fseek(file, offset, whence)
 #define fTell(file)                                     ftell(file)
 #define fClose(file)                                    fclose(file)
@@ -94,18 +96,6 @@ bool32 OpenDataFile(FileInfo *info, const char *filename);
 enum FileModes { FMODE_NONE, FMODE_RB, FMODE_WB, FMODE_RB_PLUS };
 
 static const char *openModes[3] = { "rb", "wb", "rb+" };
-
-inline bool32 CheckBigEndian()
-{
-    // If we can determine this at compile-time instead of run-time, then do so.
-#ifdef __WIIU__
-    return true;
-#else
-    uint32 x = 1;
-    uint8 *c = (uint8 *)&x;
-    return ((int32)*c) == 0;
-#endif
-}
 
 inline void InitFileInfo(FileInfo *info)
 {
@@ -192,211 +182,88 @@ inline size_t ReadBytes(FileInfo *info, void *data, int32 count)
 inline uint8 ReadInt8(FileInfo *info)
 {
     int8 result      = 0;
-    size_t bytesRead = 0;
 
     if (info->usingFileBuffer) {
-        bytesRead = MIN(sizeof(int8), info->fileSize - info->readPos);
-        if (bytesRead) {
-            result = info->fileBuffer[0];
-            info->fileBuffer += sizeof(int8);
-        }
+        if (info->fileSize != info->readPos)
+            result = *info->fileBuffer++;
     }
     else {
-        bytesRead = fRead(&result, 1, sizeof(int8), info->file);
+        result = fGetC(info->file);
     }
 
     if (info->encrypted)
-        DecryptBytes(info, &result, bytesRead);
+        DecryptBytes(info, &result, 1);
 
-    info->readPos += bytesRead;
+    ++info->readPos;
     return result;
 }
 
 inline int16 ReadInt16(FileInfo *info)
 {
-    union {
-        uint16 result;
-        uint8 b[sizeof(result)];
-    } buffer;
-    memset(&buffer, 0, sizeof(buffer));
+    const unsigned int byte1 = ReadInt8(info);
+    const unsigned int byte2 = ReadInt8(info);
 
-    size_t bytesRead = 0;
-
-    if (info->usingFileBuffer) {
-        bytesRead = MIN(sizeof(buffer), info->fileSize - info->readPos);
-        if (bytesRead >= sizeof(buffer)) {
-            memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
-
-            info->fileBuffer += sizeof(buffer);
-        }
-    }
-    else {
-        bytesRead = fRead(buffer.b, 1, sizeof(int16), info->file);
-    }
-
-    if (info->encrypted)
-        DecryptBytes(info, buffer.b, bytesRead);
-
-    // if we're on a big endian machine, swap the byte order
-    // this is done AFTER reading & decrypting since they expect little endian order on all systems
-    if (CheckBigEndian()) {
-        uint8 bytes[sizeof(buffer)];
-        memcpy(bytes, &buffer, sizeof(buffer));
-
-        int32 max = sizeof(buffer) - 1;
-        for (int32 i = 0; i < sizeof(buffer) / 2; ++i) {
-            uint8 store    = bytes[i];
-            bytes[i]       = bytes[max - i];
-            bytes[max - i] = store;
-        }
-        memcpy(&buffer, bytes, sizeof(buffer));
-    }
-
-    info->readPos += bytesRead;
-    return buffer.result;
+    return (byte1 << (8 * 0)) |
+           (byte2 << (8 * 1));
 }
 
 inline int32 ReadInt32(FileInfo *info, bool32 swapEndian)
 {
-    union {
-        uint32 result;
-        uint8 b[sizeof(result)];
-    } buffer;
-    memset(&buffer, 0, sizeof(buffer));
+    const unsigned long byte1 = ReadInt8(info);
+    const unsigned long byte2 = ReadInt8(info);
+    const unsigned long byte3 = ReadInt8(info);
+    const unsigned long byte4 = ReadInt8(info);
 
-    size_t bytesRead = 0;
-
-    if (info->usingFileBuffer) {
-        bytesRead = MIN(sizeof(buffer), info->fileSize - info->readPos);
-        if (bytesRead >= sizeof(buffer)) {
-            memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
-
-            info->fileBuffer += sizeof(buffer);
-        }
-    }
-    else {
-        bytesRead = fRead(buffer.b, 1, sizeof(int32), info->file);
-    }
-
-    if (info->encrypted)
-        DecryptBytes(info, buffer.b, bytesRead);
-
-    if (swapEndian) {
-        uint8 bytes[sizeof(buffer)];
-        memcpy(bytes, &buffer, sizeof(buffer));
-
-        int32 max = sizeof(buffer) - 1;
-        for (int32 i = 0; i < sizeof(buffer) / 2; ++i) {
-            uint8 store    = bytes[i];
-            bytes[i]       = bytes[max - i];
-            bytes[max - i] = store;
-        }
-        memcpy(&buffer, bytes, sizeof(buffer));
-    }
-
-    // if we're on a big endian machine, swap the byte order
-    // this is done AFTER reading & decrypting since they expect little endian order on all systems
-    if (CheckBigEndian()) {
-        uint8 bytes[sizeof(buffer)];
-        memcpy(bytes, &buffer, sizeof(buffer));
-
-        int32 max = sizeof(buffer) - 1;
-        for (int32 i = 0; i < sizeof(buffer) / 2; ++i) {
-            uint8 store    = bytes[i];
-            bytes[i]       = bytes[max - i];
-            bytes[max - i] = store;
-        }
-        memcpy(&buffer, bytes, sizeof(buffer));
-    }
-
-    info->readPos += bytesRead;
-    return buffer.result;
+    if (swapEndian)
+        return (byte1 << (8 * 3)) |
+               (byte2 << (8 * 2)) |
+               (byte3 << (8 * 1)) |
+               (byte4 << (8 * 0));
+    else
+        return (byte1 << (8 * 0)) |
+               (byte2 << (8 * 1)) |
+               (byte3 << (8 * 2)) |
+               (byte4 << (8 * 3));
 }
+
 inline int64 ReadInt64(FileInfo *info)
 {
-    union {
-        uint64 result;
-        uint8 b[sizeof(result)];
-    } buffer;
-    memset(&buffer, 0, sizeof(buffer));
+    const unsigned long long byte1 = ReadInt8(info);
+    const unsigned long long byte2 = ReadInt8(info);
+    const unsigned long long byte3 = ReadInt8(info);
+    const unsigned long long byte4 = ReadInt8(info);
+    const unsigned long long byte5 = ReadInt8(info);
+    const unsigned long long byte6 = ReadInt8(info);
+    const unsigned long long byte7 = ReadInt8(info);
+    const unsigned long long byte8 = ReadInt8(info);
 
-    size_t bytesRead = 0;
-
-    if (info->usingFileBuffer) {
-        bytesRead = MIN(sizeof(buffer), info->fileSize - info->readPos);
-        if (bytesRead >= sizeof(buffer)) {
-            memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
-
-            info->fileBuffer += sizeof(buffer);
-        }
-    }
-    else {
-        bytesRead = fRead(buffer.b, 1, sizeof(int64), info->file);
-    }
-
-    if (info->encrypted)
-        DecryptBytes(info, buffer.b, bytesRead);
-
-    // if we're on a big endian machine, swap the byte order
-    // this is done AFTER reading & decrypting since they expect little endian order on all systems
-    if (CheckBigEndian()) {
-        uint8 bytes[sizeof(buffer)];
-        memcpy(bytes, &buffer, sizeof(buffer));
-
-        int32 max = sizeof(buffer) - 1;
-        for (int32 i = 0; i < sizeof(buffer) / 2; ++i) {
-            uint8 store    = bytes[i];
-            bytes[i]       = bytes[max - i];
-            bytes[max - i] = store;
-        }
-        memcpy(&buffer, bytes, sizeof(buffer));
-    }
-
-    info->readPos += bytesRead;
-    return buffer.result;
+    return (byte1 << (8 * 0)) |
+           (byte2 << (8 * 1)) |
+           (byte3 << (8 * 2)) |
+           (byte4 << (8 * 3)) |
+           (byte5 << (8 * 4)) |
+           (byte6 << (8 * 5)) |
+           (byte7 << (8 * 6)) |
+           (byte8 << (8 * 7));
 }
 
 inline float ReadSingle(FileInfo *info)
 {
     union {
         float result;
-        uint8 b[sizeof(result)];
+	uint32 w;
     } buffer;
-    memset(&buffer, 0, sizeof(buffer));
 
-    size_t bytesRead = 0;
+    const unsigned long byte1 = ReadInt8(info);
+    const unsigned long byte2 = ReadInt8(info);
+    const unsigned long byte3 = ReadInt8(info);
+    const unsigned long byte4 = ReadInt8(info);
 
-    if (info->usingFileBuffer) {
-        bytesRead = MIN(sizeof(buffer), info->fileSize - info->readPos);
-        if (bytesRead >= sizeof(buffer)) {
-            memcpy(buffer.b, info->fileBuffer, sizeof(buffer));
+    buffer.w = (byte1 << (8 * 0)) |
+               (byte2 << (8 * 1)) |
+               (byte3 << (8 * 2)) |
+               (byte4 << (8 * 3));
 
-            info->fileBuffer += sizeof(buffer);
-        }
-    }
-    else {
-        bytesRead = fRead(buffer.b, 1, sizeof(float), info->file);
-    }
-
-    if (info->encrypted)
-        DecryptBytes(info, buffer.b, bytesRead);
-
-    // if we're on a big endian machine, swap the byte order
-    // this is done AFTER reading & decrypting since they expect little endian order on all systems
-    if (CheckBigEndian()) {
-        uint8 bytes[sizeof(buffer)];
-        memcpy(bytes, &buffer, sizeof(buffer));
-
-        int32 max = sizeof(buffer) - 1;
-        for (int32 i = 0; i < sizeof(buffer) / 2; ++i) {
-            uint8 store    = bytes[i];
-            bytes[i]       = bytes[max - i];
-            bytes[max - i] = store;
-        }
-        memcpy(&buffer, bytes, sizeof(buffer));
-    }
-
-    info->readPos += bytesRead;
     return buffer.result;
 }
 
