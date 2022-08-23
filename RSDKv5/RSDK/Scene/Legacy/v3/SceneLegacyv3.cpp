@@ -205,6 +205,12 @@ void RSDK::Legacy::v3::HandleCameras()
     }
 }
 
+void RSDK::Legacy::v3::ProcessParallaxAutoScroll()
+{
+    for (int32 i = 0; i < hParallax.entryCount; ++i) hParallax.scrollPos[i] += hParallax.scrollSpeed[i];
+    for (int32 i = 0; i < vParallax.entryCount; ++i) vParallax.scrollPos[i] += vParallax.scrollSpeed[i];
+}
+
 void RSDK::Legacy::v3::LoadStageFiles()
 {
     int32 scriptID = 1;
