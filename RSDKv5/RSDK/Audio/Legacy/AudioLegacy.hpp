@@ -23,7 +23,7 @@ extern TrackInfo musicTracks[LEGACY_TRACK_COUNT];
 void SetMusicTrack(const char *filePath, uint8 trackID, bool32 loop, uint32 loopPoint);
 int32 PlayMusic(int32 trackID);
 inline void StopMusic() { StopChannel(musicChannel); }
-void SetMusicVolume(uint32 volume);
+void SetMusicVolume(int32 volume);
 
 // helper func to ensure compatibility with how v3/v4 expects it (no plays var and slot is set manually)
 void LoadSfx(char *filename, uint8 slot, uint8 scope);

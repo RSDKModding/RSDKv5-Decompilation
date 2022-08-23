@@ -52,9 +52,9 @@ int32 RSDK::Legacy::PlayMusic(int32 trackID)
     return musicChannel;
 }
 
-void RSDK::Legacy::SetMusicVolume(uint32 volume)
+void RSDK::Legacy::SetMusicVolume(int32 volume)
 {
-    musicVolume = MIN(volume, 100);
+    musicVolume = CLAMP(volume, 0, 100);
     SetChannelAttributes(musicChannel, musicVolume * 0.01, 0.0, 1.0);
 }
 
