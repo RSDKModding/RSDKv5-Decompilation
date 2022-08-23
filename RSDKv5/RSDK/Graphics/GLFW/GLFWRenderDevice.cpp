@@ -982,9 +982,17 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                     SKU::ClearKeyState(key);
 #endif
                     break;
+
 #if !RETRO_REV02 && RETRO_INPUTDEVICE_KEYBOARD
-                case GLFW_KEY_ESCAPE: RSDK::SKU::specialKeyStates[0] = false; break;
-                case GLFW_KEY_ENTER: RSDK::SKU::specialKeyStates[1] = false; break;
+                case GLFW_KEY_ESCAPE:
+                    RSDK::SKU::specialKeyStates[0] = false;
+                    SKU::ClearKeyState(key);
+                    break;
+
+                case GLFW_KEY_ENTER:
+                    RSDK::SKU::specialKeyStates[1] = false;
+                    SKU::ClearKeyState(key);
+                    break;
 #endif
                 case GLFW_KEY_BACKSPACE: engine.gameSpeed = 1; break;
             }
@@ -1012,8 +1020,7 @@ void RenderDevice::ProcessMouseEvent(GLFWwindow *, int32 button, int32 action, i
             switch (button) {
                 case GLFW_MOUSE_BUTTON_LEFT: touchInfo.down[0] = true; touchInfo.count = 1;
 #if !RETRO_REV02
-                    if (RSDK::SKU::buttonDownCount > 0)
-                        RSDK::SKU::buttonDownCount--;
+                    RSDK::SKU::buttonDownCount++;
 #endif
                     break;
 
@@ -1031,8 +1038,7 @@ void RenderDevice::ProcessMouseEvent(GLFWwindow *, int32 button, int32 action, i
             switch (button) {
                 case GLFW_MOUSE_BUTTON_LEFT: touchInfo.down[0] = false; touchInfo.count = 0;
 #if !RETRO_REV02
-                    if (RSDK::SKU::buttonDownCount > 0)
-                        RSDK::SKU::buttonDownCount--;
+                    RSDK::SKU::buttonDownCount--;
 #endif
                     break;
 
