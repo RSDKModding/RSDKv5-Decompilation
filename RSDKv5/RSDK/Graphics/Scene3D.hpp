@@ -144,8 +144,8 @@ void MatrixRotateXYZ(Matrix *matrix, int16 rotationX, int16 rotationY, int16 rot
 void MatrixInverse(Matrix *dest, Matrix *matrix);
 inline void MatrixCopy(Matrix *matDst, Matrix *matSrc) { memcpy(matDst, matSrc, sizeof(Matrix)); }
 
-uint16 LoadMesh(const char *filepath, Scopes scope);
-uint16 Create3DScene(const char *name, uint16 faceCnt, Scopes scope);
+uint16 LoadMesh(const char *filepath, int32 scope);
+uint16 Create3DScene(const char *name, uint16 faceCnt, int32 scope);
 inline void Prepare3DScene(uint16 sceneID)
 {
     if (sceneID < SCENE3D_COUNT) {
@@ -161,7 +161,7 @@ inline void Prepare3DScene(uint16 sceneID)
     }
 }
 
-inline void SetMeshAnimation(uint16 model, Animator *animator, int16 speed, uint8 loopIndex, bool32 forceApply, uint16 frameID)
+inline void SetMeshAnimation(uint16 model, Animator *animator, int16 speed, uint8 loopIndex, bool32 forceApply, int16 frameID)
 {
     if (model >= MODEL_COUNT) {
         if (animator)

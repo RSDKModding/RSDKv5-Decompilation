@@ -376,7 +376,7 @@ void RSDK::MatrixInverse(Matrix *dest, Matrix *matrix)
     for (int32 i = 0; i < 0x10; ++i) dest->values[i / 4][i % 4] = (int32)inv[i];
 }
 
-uint16 RSDK::LoadMesh(const char *filename, Scopes scope)
+uint16 RSDK::LoadMesh(const char *filename, int32 scope)
 {
     char fullFilePath[0x100];
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Meshes/%s", filename);
@@ -464,7 +464,7 @@ uint16 RSDK::LoadMesh(const char *filename, Scopes scope)
     }
     return -1;
 }
-uint16 RSDK::Create3DScene(const char *name, uint16 vertexLimit, Scopes scope)
+uint16 RSDK::Create3DScene(const char *name, uint16 vertexLimit, int32 scope)
 {
     RETRO_HASH_MD5(hash);
     GEN_HASH_MD5(name, hash);

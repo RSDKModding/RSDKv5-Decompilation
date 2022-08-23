@@ -160,7 +160,7 @@ void RSDK::AddViewableVariable(const char *name, void *value, int32 type, int32 
 #endif
 
 #if !RETRO_REV02
-void RSDK::PrintMessage(void *msg, int32 type)
+void RSDK::PrintMessage(void *msg, uint8 type)
 {
     useEndLine = false;
 
