@@ -27,9 +27,8 @@ void SetMusicVolume(int32 volume);
 
 // helper func to ensure compatibility with how v3/v4 expects it (no plays var and slot is set manually)
 void LoadSfx(char *filename, uint8 slot, uint8 scope);
-inline void PlaySfx(int32 sfxID, bool32 loop) { RSDK::PlaySfx(sfxID, loop, 0xFF); }
+inline int32 PlaySfx(int32 sfxID, bool32 loop) { return RSDK::PlaySfx(sfxID, loop, 0xFF); }
 inline void StopSfx(int32 sfxID) { RSDK::StopSfx(sfxID); }
-void SetSfxAttributes(int32 sfxID, int32 loop, int8 pan);
 
 namespace v3
 {
@@ -37,6 +36,7 @@ extern char globalSfxNames[SFX_COUNT][0x40];
 extern char stageSfxNames[SFX_COUNT][0x40];
 
 void SetSfxName(const char *sfxName, int32 sfxID, bool32 global);
+void SetSfxAttributes(int32 channelID, int32 loop, int8 pan);
 } // namespace v3
 
 namespace v4
@@ -45,6 +45,7 @@ extern float musicRatio;
 extern char sfxNames[SFX_COUNT][0x40];
 
 void SwapMusicTrack(const char *filePath, uint8 trackID, uint32 loopPoint, uint32 ratio);
+void SetSfxAttributes(int32 sfxID, int32 loop, int8 pan);
 
 void SetSfxName(const char *sfxName, int32 sfxID);
 } // namespace v4

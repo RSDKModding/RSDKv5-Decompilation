@@ -106,14 +106,15 @@ void RSDK::Legacy::LoadSfx(char *filename, uint8 slot, uint8 scope)
     }
 }
 
-void RSDK::Legacy::SetSfxAttributes(int32 sfxID, int32 loop, int8 pan)
+void RSDK::Legacy::v3::SetSfxAttributes(int32 channelID, int32 loop, int8 pan)
 {
-    for (int32 c = 0; c < CHANNEL_COUNT; ++c) {
-        if (channels[c].soundID == sfxID && channels[c].state == CHANNEL_SFX) {
-            RSDK::SetChannelAttributes(c, 1.0, pan / 100.0f, 1.0);
-            if (loop != -1)
-                channels[c].loop = loop ? 0 : -1;
-        }
+    if (channelID < 0 || channelID > CHANNEL_COUNT)
+        return;
+
+    if (channels[channelID].state == CHANNEL_SFX) {
+        RSDK::SetChannelAttributes(channelID, 1.0, pan / 100.0f, 1.0);
+        if (loop != -1)
+            channels[channelID].loop = loop ? 0 : -1;
     }
 }
 
@@ -129,6 +130,17 @@ void RSDK::Legacy::v4::SetSfxName(const char *sfxName, int32 sfxID)
     sfxNames[sfxID][soundNameID] = 0;
 
     PrintLog(PRINT_NORMAL, "Set SFX (%d) name to: %s", sfxID, sfxName);
+}
+
+void RSDK::Legacy::v4::SetSfxAttributes(int32 sfxID, int32 loop, int8 pan)
+{
+    for (int32 c = 0; c < CHANNEL_COUNT; ++c) {
+        if (channels[c].soundID == sfxID && channels[c].state == CHANNEL_SFX) {
+            RSDK::SetChannelAttributes(c, 1.0, pan / 100.0f, 1.0);
+            if (loop != -1)
+                channels[c].loop = loop ? 0 : -1;
+        }
+    }
 }
 
 #if RETRO_USE_MOD_LOADER

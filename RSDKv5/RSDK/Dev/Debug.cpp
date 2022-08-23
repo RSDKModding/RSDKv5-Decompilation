@@ -438,17 +438,7 @@ void RSDK::DevMenu_MainMenu()
 #endif
         switch (devMenu.selection) {
             case 0:
-#if RETRO_REV0U
-                switch (engine.version) {
-                    default:
-                    case 5: sceneInfo.state = devMenu.sceneState; break;
-
-                    case 4:
-                    case 3: RSDK::Legacy::gameMode = devMenu.sceneState; break;
-                }
-#else
-                sceneInfo.state = devMenu.sceneState;
-#endif
+                CloseDevMenu();
                 break;
 
             case 1:

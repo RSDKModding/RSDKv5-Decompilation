@@ -3495,10 +3495,12 @@ void RSDK::Legacy::v3::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 opcodeSize = 0;
                 StopSfx(scriptEng.operands[0]);
                 break;
-            case FUNC_SETSFXATTRIBUTES:
-                opcodeSize = 0;
-                SetSfxAttributes(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
+            case FUNC_SETSFXATTRIBUTES: {
+                opcodeSize      = 0;
+                int32 channelID = PlaySfx(scriptEng.operands[0], false);
+                SetSfxAttributes(channelID, scriptEng.operands[1], scriptEng.operands[2]);
                 break;
+            }
             case FUNC_OBJECTTILECOLLISION:
                 opcodeSize = 0;
                 switch (scriptEng.operands[0]) {
