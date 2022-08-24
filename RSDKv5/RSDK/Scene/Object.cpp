@@ -518,28 +518,6 @@ void RSDK::ProcessPausedObjects()
     }
 
 #if RETRO_USE_MOD_LOADER
-    RunModCallbacks(MODCB_ONSTATICUPDATE, INT_TO_VOID(ENGINESTATE_PAUSED));
-#endif
-
-    for (int32 i = 0; i < TYPEGROUP_COUNT; ++i) typeGroups[i].entryCount = 0;
-
-    sceneInfo.entitySlot = 0;
-    for (int32 e = 0; e < ENTITY_COUNT; ++e) {
-        sceneInfo.entity = &objectEntityList[e];
-
-        if (sceneInfo.entity->inRange && sceneInfo.entity->interaction) {
-            typeGroups[GROUP_ALL].entries[typeGroups[GROUP_ALL].entryCount++] = e; // All active entities
-
-            typeGroups[sceneInfo.entity->classID].entries[typeGroups[sceneInfo.entity->classID].entryCount++] = e; // type-based groups
-
-            if (sceneInfo.entity->group >= TYPE_COUNT)
-                typeGroups[sceneInfo.entity->group].entries[typeGroups[sceneInfo.entity->group].entryCount++] = e; // extra groups
-        }
-
-        sceneInfo.entitySlot++;
-    }
-
-#if RETRO_USE_MOD_LOADER
     RunModCallbacks(MODCB_ONUPDATE, INT_TO_VOID(ENGINESTATE_PAUSED));
 #endif
 
@@ -692,25 +670,20 @@ void RSDK::ProcessFrozenObjects()
     sceneInfo.entitySlot = 0;
     for (int32 e = 0; e < ENTITY_COUNT; ++e) {
         sceneInfo.entity = &objectEntityList[e];
-        if (sceneInfo.entity->inRange && sceneInfo.entity->interaction) {
-            typeGroups[GROUP_ALL].entries[typeGroups[GROUP_ALL].entryCount++] = e; // All active entities
-
-            typeGroups[sceneInfo.entity->classID].entries[typeGroups[sceneInfo.entity->classID].entryCount++] = e; // type-based groups
-
-            if (sceneInfo.entity->group >= TYPE_COUNT)
-                typeGroups[sceneInfo.entity->group].entries[typeGroups[sceneInfo.entity->group].entryCount++] = e; // extra groups
-        }
-        sceneInfo.entitySlot++;
-    }
-
-    sceneInfo.entitySlot = 0;
-    for (int32 e = 0; e < ENTITY_COUNT; ++e) {
-        sceneInfo.entity = &objectEntityList[e];
 
         if (sceneInfo.entity->inRange) {
             if (sceneInfo.entity->active == ACTIVE_ALWAYS || sceneInfo.entity->active == ACTIVE_PAUSED) {
                 if (objectClassList[stageObjectIDs[sceneInfo.entity->classID]].lateUpdate)
                     objectClassList[stageObjectIDs[sceneInfo.entity->classID]].lateUpdate();
+            }
+
+            if (sceneInfo.entity->interaction) {
+                typeGroups[GROUP_ALL].entries[typeGroups[GROUP_ALL].entryCount++] = e; // All active entities
+
+                typeGroups[sceneInfo.entity->classID].entries[typeGroups[sceneInfo.entity->classID].entryCount++] = e; // type-based groups
+
+                if (sceneInfo.entity->group >= TYPE_COUNT)
+                    typeGroups[sceneInfo.entity->group].entries[typeGroups[sceneInfo.entity->group].entryCount++] = e; // extra groups
             }
         }
 
@@ -724,7 +697,7 @@ void RSDK::ProcessFrozenObjects()
 }
 void RSDK::ProcessObjectDrawLists()
 {
-    if (sceneInfo.state && sceneInfo.state != (ENGINESTATE_LOAD | ENGINESTATE_STEPOVER)) {
+    if (sceneInfo.state != ENGINESTATE_LOAD && sceneInfo.state != (ENGINESTATE_LOAD | ENGINESTATE_STEPOVER)) {
         for (int32 s = 0; s < videoSettings.screenCount; ++s) {
             currentScreen             = &screens[s];
             sceneInfo.currentScreenID = s;

@@ -193,8 +193,8 @@ struct ForeachStackInfo {
 };
 
 struct TypeGroupList {
-    int32 entryCount;
     uint16 entries[ENTITY_COUNT];
+    int32 entryCount;
 };
 
 extern ObjectClass objectClassList[OBJECT_COUNT];
