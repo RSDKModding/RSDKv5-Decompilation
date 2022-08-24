@@ -1081,6 +1081,10 @@ void RenderDevice::ProcessEvent(MSG Msg)
                         changedVideoSettings = false;
                         handledMsg           = true;
                     }
+
+#if !RETRO_REV02 && RETRO_INPUTDEVICE_KEYBOARD
+                    RSDK::SKU::specialKeyStates[1] = true;
+#endif
                     break;
 
                 case VK_F4: // alt + f4
@@ -1154,6 +1158,10 @@ void RenderDevice::ProcessEvent(MSG Msg)
                         SKU::UpdateKeyState(activeButtons);
 #endif
                     }
+
+#if !RETRO_REV02 && RETRO_INPUTDEVICE_KEYBOARD
+                    RSDK::SKU::specialKeyStates[0] = true;
+#endif
                     break;
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -1300,6 +1308,18 @@ void RenderDevice::ProcessEvent(MSG Msg)
 #endif
                     break;
 
+#if !RETRO_REV02 && RETRO_INPUTDEVICE_KEYBOARD
+                case VK_ESCAPE:
+                    RSDK::SKU::specialKeyStates[0] = false;
+                    SKU::ClearKeyState(activeButtons);
+                    break;
+
+                case VK_RETURN:
+                    RSDK::SKU::specialKeyStates[1] = false;
+                    SKU::ClearKeyState(activeButtons);
+                    break;
+#endif
+
                 case VK_BACK:
                     engine.gameSpeed = 1;
 
@@ -1310,22 +1330,39 @@ void RenderDevice::ProcessEvent(MSG Msg)
             break;
         }
 
-        case WM_LBUTTONDOWN:
-            touchInfo.down[0] = 1;
-            touchInfo.count   = 1;
+        case WM_LBUTTONDOWN: touchInfo.down[0] = 1; touchInfo.count = 1;
+
+#if !RETRO_REV02
+            RSDK::SKU::buttonDownCount++;
+#endif
 
             handledMsg = true;
             break;
 
-        case WM_LBUTTONUP:
-            touchInfo.down[0] = 0;
-            touchInfo.count   = 0;
+        case WM_LBUTTONUP: touchInfo.down[0] = 0; touchInfo.count = 0;
+
+#if !RETRO_REV02
+            RSDK::SKU::buttonDownCount--;
+#endif
 
             handledMsg = true;
             break;
 
-        case WM_MBUTTONDOWN:
-        case WM_RBUTTONDOWN: handledMsg = true; break;
+        case WM_MBUTTONDOWN: handledMsg = true; break;
+
+        case WM_RBUTTONDOWN: handledMsg = true;
+#if !RETRO_REV02 && RETRO_INPUTDEVICE_KEYBOARD
+            RSDK::SKU::specialKeyStates[3] = true;
+            RSDK::SKU::buttonDownCount++;
+#endif
+            break;
+
+        case WM_RBUTTONUP: handledMsg = true;
+#if !RETRO_REV02 && RETRO_INPUTDEVICE_KEYBOARD
+            RSDK::SKU::specialKeyStates[3] = false;
+            RSDK::SKU::buttonDownCount--;
+#endif
+            break;
     }
 
     if (!handledMsg)

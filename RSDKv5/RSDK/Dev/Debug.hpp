@@ -35,7 +35,7 @@ enum PrintMessageTypes {
     MESSAGE_FLOAT,
 };
 
-void PrintMessage(void *msg, int32 type);
+void PrintMessage(void *msg, uint8 type);
 #endif
 
 #if RETRO_REV02

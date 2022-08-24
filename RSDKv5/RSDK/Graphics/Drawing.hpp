@@ -386,7 +386,7 @@ void DrawSpriteFlipped(int32 x, int32 y, int32 width, int32 height, int32 sprX, 
 void DrawSpriteRotozoom(int32 x, int32 y, int32 pivotX, int32 pivotY, int32 width, int32 height, int32 sprX, int32 sprY, int32 scaleX, int32 scaleY,
                         int32 direction, int16 Rotation, int32 inkEffect, int32 alpha, int32 sheetID);
 
-void DrawDeformedSprite(uint16 spriteIndex, int32 inkEffect, int32 alpha);
+void DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha);
 
 void DrawTile(uint16 *tileInfo, int32 countX, int32 countY, Vector2 *position, Vector2 *offset, bool32 screenRelative);
 void DrawAniTile(uint16 sheetID, uint16 tileIndex, uint16 srcX, uint16 srcY, uint16 width, uint16 height);

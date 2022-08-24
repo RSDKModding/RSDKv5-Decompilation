@@ -922,8 +922,8 @@ bool32 RSDK::SKU::SetUserDBValue(uint16 tableID, uint32 rowID, int32 type, char 
 }
 
 // UserDB Misc
-int32 RSDK::SKU::GetUserDBRowsChanged(uint16 tableID) { return userDBStorage->userDB[tableID].rowsChanged; }
-void RSDK::SKU::GetUserDBRowCreationTime(uint16 tableID, int32 rowID, char *buf, size_t size, char *format)
+bool32 RSDK::SKU::GetUserDBRowsChanged(uint16 tableID) { return userDBStorage->userDB[tableID].rowsChanged; }
+void RSDK::SKU::GetUserDBRowCreationTime(uint16 tableID, uint16 rowID, char *buf, size_t size, char *format)
 {
     if (tableID != (uint16)-1 && rowID != (uint16)-1) {
         UserDB *userDB = &userDBStorage->userDB[tableID];

@@ -182,6 +182,84 @@ void RSDK::Legacy::v3::ProcessStage()
                 ResumeSound();
             }
             break;
+
+        case STAGEMODE_NORMAL + STAGEMODE_STEPOVER:
+            if (fadeMode > 0)
+                fadeMode--;
+
+            lastXSize = -1;
+            lastYSize = -1;
+
+            ProcessInput();
+
+            if (controller[CONT_ANY].keyC.press || engine.frameStep) {
+#if !RETRO_USE_ORIGINAL_CODE
+                if (!engine.frameStep) {
+                    for (int32 c = CONT_ANY; c <= CONT_P1; ++c) controller[c].keyC.press = false;
+                }
+                engine.frameStep = false;
+#else
+                for (int32 c = CONT_ANY; c <= CONT_P1; ++c) controller[c].keyC.press = false;
+#endif
+
+                ProcessSceneTimer();
+
+                ProcessObjects();
+                HandleCameras();
+
+                DrawStageGFX();
+                ProcessParallaxAutoScroll();
+
+#if !RETRO_USE_ORIGINAL_CODE
+                engine.frameStep = false;
+#endif
+            }
+
+            if (pauseEnabled && controller[CONT_ANY].keyStart.press) {
+                stageMode -= STAGEMODE_STEPOVER;
+                ResumeSound();
+            }
+            break;
+
+        case STAGEMODE_PAUSED + STAGEMODE_STEPOVER:
+            if (fadeMode > 0)
+                fadeMode--;
+
+            lastXSize = -1;
+            lastYSize = -1;
+
+            ProcessInput();
+
+            if (controller[CONT_ANY].keyC.press || engine.frameStep) {
+#if !RETRO_USE_ORIGINAL_CODE
+                if (!engine.frameStep) {
+                    for (int32 c = CONT_ANY; c <= CONT_P1; ++c) controller[c].keyC.press = false;
+                }
+                engine.frameStep = false;
+#else
+                for (int32 c = CONT_ANY; c <= CONT_P1; ++c) controller[c].keyC.press = false;
+#endif
+
+                ProcessPausedObjects();
+
+                DrawObjectList(0);
+                DrawObjectList(1);
+                DrawObjectList(2);
+                DrawObjectList(3);
+                DrawObjectList(4);
+                DrawObjectList(5);
+                DrawObjectList(6);
+
+#if !RETRO_USE_ORIGINAL_CODE
+                DrawDebugOverlays();
+#endif
+            }
+
+            if (pauseEnabled && controller[CONT_ANY].keyStart.press) {
+                stageMode -= STAGEMODE_STEPOVER;
+                ResumeSound();
+            }
+            break;
     }
 }
 
@@ -203,6 +281,12 @@ void RSDK::Legacy::v3::HandleCameras()
     else {
         SetPlayerLockedScreenPosition(&playerList[currentCamera->target]);
     }
+}
+
+void RSDK::Legacy::v3::ProcessParallaxAutoScroll()
+{
+    for (int32 i = 0; i < hParallax.entryCount; ++i) hParallax.scrollPos[i] += hParallax.scrollSpeed[i];
+    for (int32 i = 0; i < vParallax.entryCount; ++i) vParallax.scrollPos[i] += vParallax.scrollSpeed[i];
 }
 
 void RSDK::Legacy::v3::LoadStageFiles()
