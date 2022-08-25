@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.24.1)
 
 option(RSDKv5_WIIU_SKIP_PKGCONFIG "Wii U pkg-config doesn't work right now on Windows, so use this to skip it until it's fixed." OFF)
+option(RSDKv5_AUTOBUILD "Disable Plus DLC in Sonic Mania." OFF)
 
 project(RSDKv5 LANGUAGES C CXX)
 
@@ -65,4 +66,10 @@ else()
 
 	pkg_check_modules(theora REQUIRED IMPORTED_TARGET theora)
 	target_link_libraries(RSDKv5 PRIVATE PkgConfig::theora)
+endif()
+
+if(RSDKv5_AUTOBUILD)
+	target_compile_definitions(RSDKv5 PRIVATE
+		RSDK_AUTOBUILD
+	)
 endif()
