@@ -5107,8 +5107,8 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
 
                 // Mission Mode stuff
                 if (!scriptEng.checkResult) {
-                    int32 targetLength  = strlen(sceneInfo.listData[sceneInfo.listPos].folder);
-                    int32 currentLength = strlen(scriptText);
+                    int32 targetLength  = (int32)strlen(sceneInfo.listData[sceneInfo.listPos].folder);
+                    int32 currentLength = (int32)strlen(scriptText);
                     if (targetLength > currentLength) {
                         scriptEng.checkResult = StrComp(&sceneInfo.listData[sceneInfo.listPos].folder[targetLength - currentLength], scriptText);
                     }

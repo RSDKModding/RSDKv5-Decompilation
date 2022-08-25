@@ -500,7 +500,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
 
         InitFileInfo(&info);
         if (LoadStageFile("StageConfig.bin", &info)) {
-            uint8 fileBuffer = ReadInt8(&info); // Load Globals
+            ReadInt8(&info); // Load Globals
 
             uint8 clr[3];
             for (int32 i = 0x60; i < 0x80; ++i) {
@@ -838,7 +838,6 @@ void RSDK::Legacy::v4::LoadStageBackground()
 
             // Read Line Scroll
             uint8 buf[3];
-            int32 pos = 0;
             while (true) {
                 buf[0] = ReadInt8(&info);
 

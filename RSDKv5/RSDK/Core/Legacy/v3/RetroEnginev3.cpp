@@ -736,7 +736,6 @@ void RSDK::Legacy::v3::LoadXMLPlayers()
 int32 RSDK::Legacy::v3::LoadXMLStages(int32 mode, int32 gcStageCount)
 {
     FileInfo info;
-    int32 listCount  = 0;
     int32 stageCount = 0;
 
     for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {

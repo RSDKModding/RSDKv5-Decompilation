@@ -465,7 +465,7 @@ void RSDK::Legacy::v4::LoadXMLObjects()
 void RSDK::Legacy::v4::LoadXMLSoundFX()
 {
     FileInfo info;
-    FileInfo infoStore;
+    
     for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
         SetActiveMod(m);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
@@ -563,7 +563,6 @@ void RSDK::Legacy::v4::LoadXMLPlayers()
 int32 RSDK::Legacy::v4::LoadXMLStages(int32 mode, int32 gcStageCount)
 {
     FileInfo info;
-    int32 listCount  = 0;
     int32 stageCount = 0;
 
     for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {

@@ -1252,7 +1252,7 @@ void RSDK::ProcessDebugCommands()
 
 #if RETRO_REV0U
     int32 state          = engine.version == 5 ? sceneInfo.state : Legacy::stageMode;
-    const int32 stepOver = engine.version == 5 ? ENGINESTATE_STEPOVER : Legacy::STAGEMODE_STEPOVER;
+    const int32 stepOver = engine.version == 5 ? (int32)ENGINESTATE_STEPOVER : (int32)Legacy::STAGEMODE_STEPOVER;
 #else
     uint8 state = sceneInfo.state;
     const uint8 stepOver = ENGINESTATE_STEPOVER;
