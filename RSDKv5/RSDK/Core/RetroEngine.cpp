@@ -126,7 +126,9 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
             }
             else if (engine.focusState) {
                 engine.focusState = 0;
-                ResumeSound();
+                if(sceneInfo.state != ENGINESTATE_DEVMENU){
+                    ResumeSound();
+                }
             }
 #endif
 
