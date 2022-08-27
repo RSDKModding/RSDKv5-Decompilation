@@ -550,13 +550,6 @@ void RSDK::LoadSettingsINI()
 
 void RSDK::SaveSettingsINI(bool32 writeToFile)
 {
-#if !RETRO_USE_ORIGINAL_CODE
-    if (gamePadCount && gamePadMappings)
-        free(gamePadMappings);
-    gamePadMappings = NULL;
-    gamePadCount    = 0;
-#endif
-
     // only done on windows and "dev", consoles use "options.bin"
 #if RETRO_REV02
     if (SKU::curSKU.platform != PLATFORM_PC && SKU::curSKU.platform != PLATFORM_DEV)
@@ -726,4 +719,11 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
         iniparser_freedict(ini);
         fClose(file);
     }
+
+#if !RETRO_USE_ORIGINAL_CODE
+    if (gamePadCount && gamePadMappings)
+        delete[] gamePadMappings;
+    gamePadMappings = NULL;
+    gamePadCount    = 0;
+#endif
 }
