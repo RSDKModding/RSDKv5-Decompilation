@@ -1080,8 +1080,8 @@ bool32 RSDK::GetAllEntities(uint16 classID, Entity **entity)
         foreachStackPtr->id = 0;
     }
 
-    for (Entity *nextEntity = &objectEntityList[foreachStackPtr->id]; foreachStackPtr->id < ENTITY_COUNT;
-         ++foreachStackPtr->id, nextEntity = &objectEntityList[foreachStackPtr->id]) {
+    for (; foreachStackPtr->id < ENTITY_COUNT; ++foreachStackPtr->id) {
+        Entity *nextEntity = &objectEntityList[foreachStackPtr->id];
         if (nextEntity->classID == classID) {
             *entity = nextEntity;
             return true;
