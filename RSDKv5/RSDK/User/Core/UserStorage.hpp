@@ -20,6 +20,8 @@ namespace SKU
 // This is the base struct, it serves as the base for any API-specific stats
 // This struct should never be removed
 struct UserStorage {
+    virtual ~UserStorage() = default;
+
     virtual void FrameInit()
     {
         if (!saveStatus) {

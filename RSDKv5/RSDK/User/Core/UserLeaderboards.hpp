@@ -93,6 +93,8 @@ struct UserLeaderboards {
         entryInfo.parent   = this;
     }
 
+    virtual ~UserLeaderboards() = default;
+
     virtual void StageLoad()
     {
         this->currentLeaderboard = NULL;
