@@ -215,6 +215,7 @@ inline void SetSpecularIntensity(uint16 sceneID, uint8 x, uint8 y, uint8 z)
 }
 void AddModelToScene(uint16 modelFrames, uint16 sceneIndex, uint8 drawMode, Matrix *matWorld, Matrix *matView, color color);
 void AddMeshFrameToScene(uint16 modelFrames, uint16 sceneIndex, Animator *animator, uint8 drawMode, Matrix *matWorld, Matrix *matView, color color);
+void Sort3DDrawList(Scene3D *scn, int32 first, int32 last);
 void Draw3DScene(uint16 sceneID);
 
 inline void Clear3DScenes()

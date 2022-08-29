@@ -816,6 +816,44 @@ void RSDK::AddMeshFrameToScene(uint16 modelFrames, uint16 sceneIndex, Animator *
         }
     }
 }
+
+void RSDK::Sort3DDrawList(Scene3D *scn, int32 first, int32 last)
+{
+    if (first < last) {
+        int32 pivot = first;
+        int32 i     = first;
+        int32 j     = last;
+
+        while (i < j) {
+            while (scn->faceBuffer[i].depth <= scn->faceBuffer[pivot].depth && i < last) i++;
+            while (scn->faceBuffer[j].depth > scn->faceBuffer[pivot].depth) j--;
+
+            if (i < j) {
+                int32 indexTemp = scn->faceBuffer[i].index;
+                int32 depthTemp = scn->faceBuffer[i].depth;
+
+                scn->faceBuffer[i].index = scn->faceBuffer[j].index;
+                scn->faceBuffer[i].depth = scn->faceBuffer[j].depth;
+
+                scn->faceBuffer[j].index = indexTemp;
+                scn->faceBuffer[j].depth = depthTemp;
+            }
+        }
+
+        int32 index = scn->faceBuffer[pivot].index;
+        int32 depth = scn->faceBuffer[pivot].depth;
+
+        scn->faceBuffer[pivot].index = scn->faceBuffer[j].index;
+        scn->faceBuffer[pivot].depth = scn->faceBuffer[j].depth;
+
+        scn->faceBuffer[j].index = index;
+        scn->faceBuffer[j].depth = depth;
+
+        Sort3DDrawList(scn, first, j - 1);
+        Sort3DDrawList(scn, j + 1, last);
+    }
+}
+
 void RSDK::Draw3DScene(uint16 sceneID)
 {
     if (sceneID < SCENE3D_COUNT) {
@@ -824,56 +862,39 @@ void RSDK::Draw3DScene(uint16 sceneID)
 
         Scene3DVertex *vertices = scn->vertices;
 
-        // setup face depth
+        // setup face buffer
         int32 vertIndex = 0;
         for (int32 i = 0; i < scn->faceCount; ++i) {
             scn->faceBuffer[i].depth = 0;
-            switch (scn->faceVertCounts[i]) {
-                default: break;
-                case 1:
-                    scn->faceBuffer[i].depth = vertices->z;
-                    vertices++;
-                    break;
 
-                case 2:
-                    scn->faceBuffer[i].depth = vertices[0].z >> 1;
-                    scn->faceBuffer[i].depth += vertices[1].z >> 1;
-                    vertices += 2;
-                    break;
-
-                case 3:
-                    scn->faceBuffer[i].depth = vertices[0].z >> 1;
-                    scn->faceBuffer[i].depth += vertices[1].z >> 1;
-                    scn->faceBuffer[i].depth += vertices[2].z >> 1;
-                    vertices += 3;
-                    break;
-
-                case 4:
-                    scn->faceBuffer[i].depth = vertices[0].z >> 2;
-                    scn->faceBuffer[i].depth += vertices[1].z >> 2;
-                    scn->faceBuffer[i].depth += vertices[2].z >> 2;
-                    scn->faceBuffer[i].depth += vertices[3].z >> 2;
-                    vertices += 4;
-                    break;
+            if (scn->faceVertCounts[i] == 4) {
+                scn->faceBuffer[i].depth = vertices[0].z >> 2;
+                scn->faceBuffer[i].depth += vertices[1].z >> 2;
+                scn->faceBuffer[i].depth += vertices[2].z >> 2;
+                scn->faceBuffer[i].depth += vertices[3].z >> 2;
+                vertices += 4;
+            }
+            else if (scn->faceVertCounts[i] == 3) {
+                scn->faceBuffer[i].depth = vertices[0].z >> 1;
+                scn->faceBuffer[i].depth += vertices[1].z >> 1;
+                scn->faceBuffer[i].depth += vertices[2].z >> 1;
+                vertices += 3;
+            }
+            else if (scn->faceVertCounts[i] == 2) {
+                scn->faceBuffer[i].depth = vertices[0].z >> 1;
+                scn->faceBuffer[i].depth += vertices[1].z >> 1;
+                vertices += 2;
+            }
+            else {
+                scn->faceBuffer[i].depth = vertices->z;
+                vertices++;
             }
 
             scn->faceBuffer[i].index = vertIndex;
             vertIndex += scn->faceVertCounts[i];
         }
 
-        // sort vertices by depth
-        for (int32 i = 0; i < scn->faceCount; ++i) {
-            for (int32 j = scn->faceCount - 1; j > i; --j) {
-                if (scn->faceBuffer[j].depth > scn->faceBuffer[j - 1].depth) {
-                    int32 index                  = scn->faceBuffer[j].index;
-                    int32 depth                  = scn->faceBuffer[j].depth;
-                    scn->faceBuffer[j].index     = scn->faceBuffer[j - 1].index;
-                    scn->faceBuffer[j].depth     = scn->faceBuffer[j - 1].depth;
-                    scn->faceBuffer[j - 1].index = index;
-                    scn->faceBuffer[j - 1].depth = depth;
-                }
-            }
-        }
+        Sort3DDrawList(scn, 0, scn->faceCount - 1);
 
         uint8 *vertCnt = scn->faceVertCounts;
         Vector2 vertPos[4];
