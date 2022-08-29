@@ -41,5 +41,6 @@ struct InputDeviceSDL : InputDevice {
 InputDeviceSDL *InitSDL2InputDevice(uint32 id, uint8 controllerID);
 
 void InitSDL2InputAPI();
+void ReleaseSDL2InputAPI();
 
 } // namespace SKU

@@ -1338,9 +1338,17 @@ void RSDK::InitCoreAPI()
 #ifdef __SWITCH__
     // initNxLink();
 #endif
+
+#if RETRO_RENDERDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2
+    SDL_Init(0);
+#endif
 }
 void RSDK::ReleaseCoreAPI()
 {
+#if RETRO_RENDERDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2
+    SDL_Quit();
+#endif
+
 #ifdef __SWITCH__
     // socketExit();
 #endif
