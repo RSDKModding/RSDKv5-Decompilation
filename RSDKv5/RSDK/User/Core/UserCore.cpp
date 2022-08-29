@@ -117,7 +117,7 @@ void RSDK::SKU::InitUserCore()
     RegisterAchievement("ACH_FBZ", "Window Shopping", "Let the wind take you through");
     RegisterAchievement("ACH_PGZ", "Crate Expectations", "Wreak havoc at the propaganda factory");
     RegisterAchievement("ACH_SSZ", "King of Speed", "Get through Stardust Speedway Zone as quickly as possible");
-    RegisterAchievement("ACH_HCZ", "Boat Enthusiast", "Try pushing a barrel to see how far it goes");
+    RegisterAchievement("ACH_HCZ", "Boat Enthusiast", "We really like boats");
     RegisterAchievement("ACH_MSZ", "The Password is \"Special Stage\"", "Try pushing a barrel to see how far it goes");
     RegisterAchievement("ACH_OOZ", "Secret Sub", "You might have to submerge to find it");
     RegisterAchievement("ACH_LRZ", "Without a Trace", "Barrel through the lava, don't let anything stop you");
