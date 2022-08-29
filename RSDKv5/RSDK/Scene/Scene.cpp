@@ -66,6 +66,20 @@ void RSDK::LoadSceneFolder()
         sceneInfo.filter = sceneInfo.listData[sceneInfo.listPos].filter;
         PrintLog(PRINT_NORMAL, "Reloading Scene \"%s - %s\" with filter %d", list->name, sceneInfo.listData[sceneInfo.listPos].name,
                  sceneInfo.listData[sceneInfo.listPos].filter);
+
+#if RETRO_USE_MOD_LOADER
+        // reload object hooks
+        for (int32 h = 0; h < (int32)objectHookList.size(); ++h) {
+            for (int32 i = 0; i < objectClassCount; ++i) {
+                if (HASH_MATCH_MD5(objectClassList[i].hash, objectHookList[h].hash)) {
+                    if (objectHookList[h].staticVars && objectClassList[i].staticVars)
+                        *objectHookList[h].staticVars = *objectClassList[i].staticVars;
+                    break;
+                }
+            }
+        }
+#endif
+
         return;
     }
 #endif
@@ -75,6 +89,19 @@ void RSDK::LoadSceneFolder()
         // Reload
         ClearUnusedStorage(DATASET_STG);
         PrintLog(PRINT_NORMAL, "Reloading Scene \"%s - %s\"", list->name, sceneInfo.listData[sceneInfo.listPos].name);
+
+#if RETRO_USE_MOD_LOADER
+        // reload object hooks
+        for (int32 h = 0; h < (int32)objectHookList.size(); ++h) {
+            for (int32 i = 0; i < objectClassCount; ++i) {
+                if (HASH_MATCH_MD5(objectClassList[i].hash, objectHookList[h].hash)) {
+                    if (objectHookList[h].staticVars && objectClassList[i].staticVars)
+                        *objectHookList[h].staticVars = *objectClassList[i].staticVars;
+                    break;
+                }
+            }
+        }
+#endif
         return;
     }
 #endif

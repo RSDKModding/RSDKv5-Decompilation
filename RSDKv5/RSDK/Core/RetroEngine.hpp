@@ -539,6 +539,9 @@ struct RetroEngine {
 
     uint8 focusState = 0;
     uint8 inFocus    = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+    uint8 focusPausedChannel[CHANNEL_COUNT];
+#endif
 
     bool32 initialized = false;
     bool32 hardPause   = false;

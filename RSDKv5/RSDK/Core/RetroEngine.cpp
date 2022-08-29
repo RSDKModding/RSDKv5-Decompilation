@@ -116,17 +116,38 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #if !RETRO_USE_ORIGINAL_CODE
             if (customSettings.disableFocusPause)
                 engine.focusState = 0;
-            else
+            else if (SKU::userCore->CheckFocusLost()) {
+#else
+            if (SKU::userCore->CheckFocusLost()) {
 #endif
-                if (SKU::userCore->CheckFocusLost()) {
                 if (!(engine.focusState & 1)) {
                     engine.focusState = 1;
+
+#if !RETRO_USE_ORIGINAL_CODE
+                    for (int32 c = 0; c < CHANNEL_COUNT; ++c) {
+                        engine.focusPausedChannel[c] = false;
+                        if (!(channels[c].state & CHANNEL_PAUSED)) {
+                            PauseChannel(c);
+                            engine.focusPausedChannel[c] = true;
+                        }
+                    }
+#else
                     PauseSound();
+#endif
                 }
             }
             else if (engine.focusState) {
                 engine.focusState = 0;
+
+#if !RETRO_USE_ORIGINAL_CODE
+                for (int32 c = 0; c < CHANNEL_COUNT; ++c) {
+                    if (engine.focusPausedChannel[c]) 
+                        ResumeChannel(c);
+                    engine.focusPausedChannel[c] = false;
+                }
+#else
                 ResumeSound();
+#endif
             }
 #endif
 
