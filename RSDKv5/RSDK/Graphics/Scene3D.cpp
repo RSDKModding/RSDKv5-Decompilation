@@ -820,36 +820,25 @@ void RSDK::AddMeshFrameToScene(uint16 modelFrames, uint16 sceneIndex, Animator *
 void RSDK::Sort3DDrawList(Scene3D *scn, int32 first, int32 last)
 {
     if (first < last) {
-        int32 pivot = first;
-        int32 i     = first;
-        int32 j     = last;
+        int32 i = first;
+        int32 j = last;
+
+        int32 index = scn->faceBuffer[i].index;
+        int32 depth = scn->faceBuffer[i].depth;
 
         while (i < j) {
-            while (scn->faceBuffer[i].depth <= scn->faceBuffer[pivot].depth && i < last) i++;
-            while (scn->faceBuffer[j].depth > scn->faceBuffer[pivot].depth) j--;
+            while (scn->faceBuffer[j].depth <= depth && i < j) j--;
+            scn->faceBuffer[i].index = scn->faceBuffer[j].index;
+            scn->faceBuffer[i].depth = scn->faceBuffer[j].depth;
 
-            if (i < j) {
-                int32 indexTemp = scn->faceBuffer[i].index;
-                int32 depthTemp = scn->faceBuffer[i].depth;
-
-                scn->faceBuffer[i].index = scn->faceBuffer[j].index;
-                scn->faceBuffer[i].depth = scn->faceBuffer[j].depth;
-
-                scn->faceBuffer[j].index = indexTemp;
-                scn->faceBuffer[j].depth = depthTemp;
-            }
+            while (scn->faceBuffer[i].depth >= depth && i < j) i++;
+            scn->faceBuffer[j].index = scn->faceBuffer[i].index;
+            scn->faceBuffer[j].depth = scn->faceBuffer[i].depth;
         }
+        scn->faceBuffer[i].index = index;
+        scn->faceBuffer[i].depth = depth;
 
-        int32 index = scn->faceBuffer[pivot].index;
-        int32 depth = scn->faceBuffer[pivot].depth;
-
-        scn->faceBuffer[pivot].index = scn->faceBuffer[j].index;
-        scn->faceBuffer[pivot].depth = scn->faceBuffer[j].depth;
-
-        scn->faceBuffer[j].index = index;
-        scn->faceBuffer[j].depth = depth;
-
-        Sort3DDrawList(scn, first, j - 1);
+        Sort3DDrawList(scn, first, i - 1);
         Sort3DDrawList(scn, j + 1, last);
     }
 }
