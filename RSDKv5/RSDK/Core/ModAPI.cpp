@@ -474,7 +474,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
 
         info->forceVersion = iniparser_getint(ini, ":ForceVersion", 0);
         if (!info->forceVersion) {
-            info->targetVersion = iniparser_getint(ini, ":TargetVersion", -1);
+            info->targetVersion = iniparser_getint(ini, ":TargetVersion", 5);
             if (info->targetVersion != -1 && ENGINE_VERSION) {
                 if (info->targetVersion < 3 || info->targetVersion > 5) {
                     PrintLog(PRINT_NORMAL, "[MOD] Invalid target version. Should be 3, 4, or 5");
