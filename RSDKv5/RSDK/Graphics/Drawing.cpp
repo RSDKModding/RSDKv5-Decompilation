@@ -4176,14 +4176,14 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
                             switch ((tile >> 10) & 3) {
                                 case FLIP_NONE:
                                     DrawSpriteRotozoom(x + (tx * TILE_SIZE), y + (ty * TILE_SIZE), pivotX, pivotY, TILE_SIZE, TILE_SIZE, 0,
-                                                       TILE_SIZE * (tile & 0x3FF), sceneInfo.entity->scale.x, sceneInfo.entity->scale.y, FLIP_X, 0,
-                                                       sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, 0);
+                                                       TILE_SIZE * (tile & 0x3FF), sceneInfo.entity->scale.x, sceneInfo.entity->scale.y, FLIP_NONE,
+                                                       0x000, sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, 0);
                                     break;
 
                                 case FLIP_X:
                                     DrawSpriteRotozoom(x + (tx * TILE_SIZE), y + (ty * TILE_SIZE), pivotX, pivotY, TILE_SIZE, TILE_SIZE, 0,
-                                                       TILE_SIZE * (tile & 0x3FF), sceneInfo.entity->scale.x, sceneInfo.entity->scale.y, FLIP_X, 0,
-                                                       sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, 0);
+                                                       TILE_SIZE * (tile & 0x3FF), sceneInfo.entity->scale.x, sceneInfo.entity->scale.y, FLIP_X,
+                                                       0x000, sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, 0);
                                     break;
 
                                 case FLIP_Y:
@@ -4221,7 +4221,7 @@ void RSDK::DrawTile(uint16 *tiles, int32 countX, int32 countY, Vector2 *position
                             switch ((tile >> 10) & 3) {
                                 case FLIP_NONE:
                                     DrawSpriteRotozoom(x + (tx * TILE_SIZE), y + (ty * TILE_SIZE), pivotX, pivotY, TILE_SIZE, TILE_SIZE, 0,
-                                                       TILE_SIZE * (tile & 0x3FF), sceneInfo.entity->scale.x, sceneInfo.entity->scale.y, FLIP_X,
+                                                       TILE_SIZE * (tile & 0x3FF), sceneInfo.entity->scale.x, sceneInfo.entity->scale.y, FLIP_NONE,
                                                        sceneInfo.entity->rotation, sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, 0);
                                     break;
 
