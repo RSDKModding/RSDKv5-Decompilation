@@ -133,6 +133,8 @@ void RSDK::InitInputDevices()
 #endif
 }
 
+void RSDK::ReleaseInputDevices() {}
+
 void RSDK::ClearInput()
 {
     for (int32 i = 0; i <= PLAYER_COUNT; ++i) {

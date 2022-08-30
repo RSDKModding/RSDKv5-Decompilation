@@ -510,6 +510,8 @@ void ClearInput();
 void ProcessInput();
 // used to process various events on input devices, switch uses it to controller connects/disconnects/changes
 void ProcessInputDevices();
+// Releases the input devices & closes the backend APIs powering em
+void ReleaseInputDevices();
 
 void RemoveInputDevice(InputDevice *targetDevice);
 

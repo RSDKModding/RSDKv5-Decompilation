@@ -307,6 +307,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 
     // Shutdown
 
+    ReleaseInputDevices();
     AudioDevice::Release();
     RenderDevice::Release(false);
     SaveSettingsINI(false);
