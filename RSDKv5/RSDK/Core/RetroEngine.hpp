@@ -626,6 +626,17 @@ inline void RegisterGlobalVariables(void **globals, int32 size)
 }
 #endif
 
+// Some misc API stuff that needs a home
+
+// Used to Init API stuff that should be done regardless of Render/Audio/Input device APIs
+void InitCoreAPI();
+void ReleaseCoreAPI();
+
+void InitConsole();
+void ReleaseConsole();
+
+void SendQuitMsg();
+
 #if RETRO_REV0U
 #include "Legacy/RetroEngineLegacy.hpp"
 #endif
