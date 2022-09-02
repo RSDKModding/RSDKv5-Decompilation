@@ -310,7 +310,7 @@ void RSDK::UnloadMods()
 
     // Clear storage
     dataStorage[DATASET_STG].usedStorage = 0;
-    ClearUnusedStorage(DATASET_MUS);
+    DefragmentAndGarbageCollectStorage(DATASET_MUS);
     dataStorage[DATASET_SFX].usedStorage = 0;
     dataStorage[DATASET_STR].usedStorage = 0;
     dataStorage[DATASET_TMP].usedStorage = 0;

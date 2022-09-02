@@ -56,38 +56,17 @@ void RSDK::AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet,
     if ((uint32)dataSet < DATASET_MAX && size > 0) {
         DataStorage *storage = &dataStorage[dataSet];
 
-        int32 aligned = size & -(int32)sizeof(void *);
-        if (aligned < size)
-            size = aligned + sizeof(void *);
+        // Align allocation to prevent unaligned memory accesses later on
+        if (size % alignof(max_align_t) != 0)
+            size = size - (size % alignof(max_align_t)) + alignof(max_align_t);
 
         if (storage->entryCount < STORAGE_ENTRY_COUNT) {
-            if (size + sizeof(int32) * storage->usedStorage >= storage->storageLimit) {
-                ClearUnusedStorage(dataSet);
+            // If we've run out of room, then perform defragmentation and garbage-collection
+            if (size + sizeof(int32) * storage->usedStorage >= storage->storageLimit)
+                DefragmentAndGarbageCollectStorage(dataSet);
 
-                if (size + sizeof(int32) * storage->usedStorage >= storage->storageLimit) {
-                    if (storage->entryCount >= STORAGE_ENTRY_COUNT)
-                        CleanEmptyStorage(dataSet);
-
-                    if (*data && clear)
-                        memset(*data, 0, size);
-                }
-                else {
-                    DataStorageHeader *entry = (DataStorageHeader *)&storage->memoryTable[storage->usedStorage];
-
-                    entry->active     = true;
-                    entry->setID      = dataSet;
-                    entry->dataOffset = storage->usedStorage + STORAGE_HEADER_SIZE;
-                    entry->dataSize   = size;
-
-                    storage->usedStorage += STORAGE_HEADER_SIZE;
-                    *data = &storage->memoryTable[storage->usedStorage];
-                    storage->usedStorage += size / sizeof(int32);
-
-                    storage->dataEntries[storage->entryCount]    = data;
-                    storage->storageEntries[storage->entryCount] = *data;
-                }
-            }
-            else {
+            // If there is room, then perform allocation
+            if (size + sizeof(int32) * storage->usedStorage < storage->storageLimit) {
                 DataStorageHeader *entry = (DataStorageHeader *)&storage->memoryTable[storage->usedStorage];
 
                 entry->active     = true;
@@ -101,14 +80,17 @@ void RSDK::AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet,
 
                 storage->dataEntries[storage->entryCount]    = data;
                 storage->storageEntries[storage->entryCount] = *data;
+
+                ++storage->entryCount;
+
+                // If there are too many storage entries, then perform garbage collection
+                if (storage->entryCount >= STORAGE_ENTRY_COUNT)
+                    GarbageCollectStorage(dataSet);
+
+                // Clear the allocated memory if requested
+                if (clear)
+                    memset(*data, 0, size);
             }
-
-            ++storage->entryCount;
-            if (storage->entryCount >= STORAGE_ENTRY_COUNT)
-                CleanEmptyStorage(dataSet);
-
-            if (*data && clear)
-                memset(*data, 0, size);
         }
     }
 }
@@ -152,11 +134,12 @@ void RSDK::RemoveStorageEntry(void **dataPtr)
     }
 }
 
-void RSDK::ClearUnusedStorage(StorageDataSets set)
+// This defragments the storage, leaving all empty space at the end.
+void RSDK::DefragmentAndGarbageCollectStorage(StorageDataSets set)
 {
     ++dataStorage[set].clearCount;
 
-    CleanEmptyStorage(set);
+    GarbageCollectStorage(set);
 
     if (dataStorage[set].usedStorage) {
         int32 curStorageSize = 0;
@@ -253,12 +236,12 @@ void RSDK::CopyStorage(int32 **src, int32 **dst)
             dataStorage[setID].storageEntries[dataStorage[setID].entryCount] = *src;
 
             if (dataStorage[setID].entryCount >= STORAGE_ENTRY_COUNT)
-                CleanEmptyStorage((StorageDataSets)setID);
+                GarbageCollectStorage((StorageDataSets)setID);
         }
     }
 }
 
-void RSDK::CleanEmptyStorage(StorageDataSets set)
+void RSDK::GarbageCollectStorage(StorageDataSets set)
 {
     if ((uint32)set < DATASET_MAX) {
         DataStorage *storage = &dataStorage[set];

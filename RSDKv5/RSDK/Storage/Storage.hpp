@@ -114,10 +114,10 @@ bool32 InitStorage();
 void ReleaseStorage();
 
 void AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet, bool32 clear);
-void ClearUnusedStorage(StorageDataSets set);
+void DefragmentAndGarbageCollectStorage(StorageDataSets set);
 void RemoveStorageEntry(void **dataPtr);
 void CopyStorage(int32 **src, int32 **dst);
-void CleanEmptyStorage(StorageDataSets dataSet);
+void GarbageCollectStorage(StorageDataSets dataSet);
 
 #if RETRO_REV0U
 #include "Legacy/UserStorageLegacy.hpp"

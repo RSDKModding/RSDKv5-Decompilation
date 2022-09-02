@@ -62,7 +62,7 @@ void RSDK::LoadSceneFolder()
 #if RETRO_REV02
     if (strcmp(currentSceneFolder, sceneInfo.listData[sceneInfo.listPos].folder) == 0 && !forceHardReset) {
         // Reload
-        ClearUnusedStorage(DATASET_STG);
+        DefragmentAndGarbageCollectStorage(DATASET_STG);
         sceneInfo.filter = sceneInfo.listData[sceneInfo.listPos].filter;
         PrintLog(PRINT_NORMAL, "Reloading Scene \"%s - %s\" with filter %d", list->name, sceneInfo.listData[sceneInfo.listPos].name,
                  sceneInfo.listData[sceneInfo.listPos].filter);
@@ -87,7 +87,7 @@ void RSDK::LoadSceneFolder()
 #if !RETRO_REV02
     if (strcmp(currentSceneFolder, sceneInfo.listData[sceneInfo.listPos].folder) == 0) {
         // Reload
-        ClearUnusedStorage(DATASET_STG);
+        DefragmentAndGarbageCollectStorage(DATASET_STG);
         PrintLog(PRINT_NORMAL, "Reloading Scene \"%s - %s\"", list->name, sceneInfo.listData[sceneInfo.listPos].name);
 
 #if RETRO_USE_MOD_LOADER
@@ -128,8 +128,8 @@ void RSDK::LoadSceneFolder()
     }
 
     // Clear stage storage
-    ClearUnusedStorage(DATASET_STG);
-    ClearUnusedStorage(DATASET_SFX);
+    DefragmentAndGarbageCollectStorage(DATASET_STG);
+    DefragmentAndGarbageCollectStorage(DATASET_SFX);
 
     for (int32 s = 0; s < SCREEN_COUNT; ++s) {
         screens[s].position.x = 0;
