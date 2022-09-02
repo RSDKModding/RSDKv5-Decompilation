@@ -835,9 +835,10 @@ void RSDK::AddPublicFunction(const char *functionName, void *functionPtr)
 void *RSDK::GetPublicFunction(const char *id, const char *functionName)
 {
     if (!id) {
-        for (auto &f : gamePublicFuncs)
+        for (auto &f : gamePublicFuncs) {
             if (f.name == functionName)
                 return f.ptr;
+        }
 
         return NULL;
     }
@@ -847,9 +848,10 @@ void *RSDK::GetPublicFunction(const char *id, const char *functionName)
 
     for (ModInfo &m : modList) {
         if (m.active && m.id == id) {
-            for (auto &f : m.functionList)
+            for (auto &f : m.functionList) {
                 if (f.name == functionName)
                     return f.ptr;
+            }
 
             return NULL;
         }
@@ -861,9 +863,10 @@ void *RSDK::GetPublicFunction(const char *id, const char *functionName)
 void RSDK::GetModPath(const char *id, String *result)
 {
     int32 m;
-    for (m = 0; m < modList.size(); ++m)
+    for (m = 0; m < modList.size(); ++m) {
         if (modList[m].active && modList[m].id == id)
             break;
+    }
 
     if (m == modList.size())
         return;
@@ -876,9 +879,10 @@ void RSDK::GetModPath(const char *id, String *result)
 std::string GetModPath_i(const char *id)
 {
     int32 m;
-    for (m = 0; m < modList.size(); ++m)
+    for (m = 0; m < modList.size(); ++m) {
         if (modList[m].active && modList[m].id == id)
             break;
+    }
 
     if (m == modList.size())
         return std::string();
@@ -1197,7 +1201,7 @@ void RSDK::SetSettingsString(const char *key, String *val)
 void RSDK::SaveSettings()
 {
     using namespace std;
-    if (!currentMod || !currentMod->settings.size())
+    if (!currentMod || !currentMod->settings.size() || !currentMod->active)
         return;
 
     FileIO *file = fOpen((GetModPath_i(currentMod->id.c_str()) + "/modSettings.ini").c_str(), "w");
