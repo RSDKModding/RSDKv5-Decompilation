@@ -13,7 +13,7 @@ bool32 RSDK::InitStorage()
     // storage limit (in ints)
     dataStorage[DATASET_STG].storageLimit = 24 * 0x100000; // 24MB
     dataStorage[DATASET_MUS].storageLimit = 8 * 0x100000;  // 8MB
-    dataStorage[DATASET_SFX].storageLimit = 64 * 0x100000; // 64MB // 32 * 0x100000; // 32 MB
+    dataStorage[DATASET_SFX].storageLimit = 32 * 0x100000; // 32 MB
     dataStorage[DATASET_STR].storageLimit = 1 * 0x100000;  // 1MB
     dataStorage[DATASET_TMP].storageLimit = 8 * 0x100000;  // 8MB
 
@@ -56,8 +56,9 @@ void RSDK::AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet,
     if ((uint32)dataSet < DATASET_MAX && size > 0) {
         DataStorage *storage = &dataStorage[dataSet];
 
-        if ((size & -4) < size)
-            size = (size & -4) + sizeof(int32);
+        int32 aligned = size & -(int32)sizeof(void *);
+        if (aligned < size)
+            size = aligned + sizeof(void *);
 
         if (storage->entryCount < STORAGE_ENTRY_COUNT) {
             if (size + sizeof(int32) * storage->usedStorage >= storage->storageLimit) {
