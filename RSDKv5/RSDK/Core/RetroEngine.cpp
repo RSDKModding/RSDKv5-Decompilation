@@ -1327,6 +1327,31 @@ void RSDK::ProcessDebugCommands()
 #endif
 }
 
+#ifdef __SWITCH__
+#include <switch.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/errno.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+static int32 s_nxlinkSock = -1;
+
+static void initNxLink()
+{
+    if (R_FAILED(socketInitializeDefault()))
+        return;
+
+    s_nxlinkSock = nxlinkStdio();
+    if (s_nxlinkSock >= 0)
+        printf("printf output now goes to nxlink server\n");
+    else
+        socketExit();
+}
+#endif
+
 void RSDK::InitCoreAPI()
 {
 #if RETRO_RENDERDEVICE_DIRECTX9 || RETRO_RENDERDEVICE_DIRECTX11
@@ -1338,9 +1363,17 @@ void RSDK::InitCoreAPI()
 #ifdef __SWITCH__
     // initNxLink();
 #endif
+
+#if RETRO_RENDERDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2
+    SDL_Init(0);
+#endif
 }
 void RSDK::ReleaseCoreAPI()
 {
+#if RETRO_RENDERDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2
+    SDL_Quit();
+#endif
+
 #ifdef __SWITCH__
     // socketExit();
 #endif

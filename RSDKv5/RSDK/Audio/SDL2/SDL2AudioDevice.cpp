@@ -46,7 +46,7 @@ void AudioDevice::Release()
     UnlockAudioDevice();
 
     SDL_CloseAudioDevice(AudioDevice::device);
-    SDL_Quit();
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 void AudioDevice::ProcessAudioMixing(void *stream, int32 length)

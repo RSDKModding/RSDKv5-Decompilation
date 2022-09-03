@@ -264,3 +264,8 @@ void RSDK::SKU::InitSDL2InputAPI()
         }
     }
 }
+
+void RSDK::SKU::ReleaseSDL2InputAPI()
+{
+	SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
+}
