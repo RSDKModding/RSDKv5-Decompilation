@@ -425,31 +425,15 @@ public:
 #endif
 #endif
 
-    static inline Handle Open(std::string path)
-    {
-        // BE WARNED: this is ifdef hell
-        // still better than the mess we had before
 #if RETRO_PLATFORM == RETRO_SWITCH
-        return NULL;
+    // do nothing for switch
+    static inline Handle Open(std::string path) { return NULL; }
 #else
-        std::string prepath = path;
-        // if doesn't end with extention
-        if (path.length() <= strlen(extention) || path.compare(path.length() - strlen(extention), strlen(extention), std::string(extention))) {
-#if RETRO_ARCHITECTURE
-            path += "_" RETRO_ARCHITECTURE;
-#endif // ! RETRO_ARCHITECTURE
-            path += extention;
-        }
-#if RETRO_ARCHITECTURE
-        else {
-            path = path.substr(0, path.size() - strlen(extention));
-            path += extention;
-            path += "_" RETRO_ARCHITECTURE;
-        }
-#endif // ! RETRO_ARCHITECTURE
-
+    static inline Handle PlatformLoadLibrary(std::string path)
+    {
+        Handle ret;
 #if RETRO_PLATFORM == RETRO_WIN
-        Handle ret = (Handle)LoadLibraryA(path.c_str());
+        ret = (Handle)LoadLibraryA(path.c_str());
 #else
 #if RETRO_PLATFORM == RETRO_ANDROID
         // path should only load local libs
@@ -457,32 +441,43 @@ public:
             path = path.substr(path.find_last_of('/') + 1);
         path = "lib" + path;
 #endif // ! RETRO_PLATFORM == ANDROID
-        Handle ret = (Handle)dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
-#endif // ! RETRO_PLATFORM == WIN
-
-#if RETRO_ARCHITECTURE
+        ret  = (Handle)dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
+        // try loading the library globally on linux
         if (!ret) {
-            path = prepath;
-            if (path.length() <= strlen(extention) || path.compare(path.length() - strlen(extention), strlen(extention), std::string(extention))) {
-                path += extention;
-            }
-
-#if RETRO_PLATFORM == RETRO_WIN
-            ret = (Handle)LoadLibraryA(path.c_str());
-#else
-#if RETRO_PLATFORM == RETRO_ANDROID
-            // path should only load local libs
             if (path.find_last_of('/') != std::string::npos)
                 path = path.substr(path.find_last_of('/') + 1);
-            path = "lib" + path;
-#endif // ! RETRO_PLATFORM == ANDROID
             ret = (Handle)dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
-#endif // ! RETRO_PLATFORM == WIN
         }
+#endif // ! RETRO_PLATFORM == WIN
+        return ret;
+    }
+
+    static inline Handle Open(std::string path)
+    {
+        std::string original_path = path;
+
+        // if it ends with extension
+        if (path.length() >= strlen(extention) && 0 == path.compare(path.length() - strlen(extention), strlen(extention), extention)) {
+            // remove it!
+            path = path.substr(0, path.size() - strlen(extention));
+        }
+
+#if RETRO_ARCHITECTURE
+        path += "_" RETRO_ARCHITECTURE;
+#endif // ! RETRO_ARCHITECTURE
+
+        // put it again!
+        path += extention;
+
+        Handle ret = PlatformLoadLibrary(path);
+
+#if RETRO_ARCHITECTURE
+        if (!ret)
+            ret = PlatformLoadLibrary(original_path);
 #endif // ! RETRO_ARCHITECTURE
         return ret;
-#endif // ! RETRO_PLATFORM == SWITCH
     }
+#endif // ! RETRO_PLATFORM == SWITCH
 
     static inline void Close(Handle handle)
     {
@@ -519,7 +514,7 @@ public:
         return NULL;
 #else
 #if RETRO_PLATFORM == RETRO_WIN
-        return (char*)GetLastErrorAsString();
+        return (char *)GetLastErrorAsString();
 #else
         return dlerror();
 #endif
@@ -558,7 +553,7 @@ private:
         return textBuffer;
     }
 #else
-    static inline char *GetLastErrorAsString() { return (char*)""; }
+    static inline char *GetLastErrorAsString() { return (char *)""; }
 #endif
 #endif
 };
