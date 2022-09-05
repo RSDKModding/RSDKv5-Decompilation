@@ -240,7 +240,7 @@ ifeq ($(RSDK_ONLY),0)
 $(GAME_PATH): $(GAME_PRELINK) $(GAME_OBJECTS)
 	@echo linking game...
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $(GAME_LDFLAGS) $(GAME_OBJECTS) $(GAME_LIBS) -o $@ 
- 	$(STRIP) $@
+	$(STRIP) $@
 	@echo done linking game
 endif # RSDK_ONLY
 endif # STATICGAME
