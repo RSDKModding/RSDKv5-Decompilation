@@ -4770,11 +4770,11 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                 break;
             case FUNC_PAUSEMUSIC:
                 opcodeSize = 0;
-                // PauseSound();
+                PauseChannel(musicChannel);
                 break;
             case FUNC_RESUMEMUSIC:
                 opcodeSize = 0;
-                // ResumeSound();
+                ResumeChannel(musicChannel);
                 break;
             case FUNC_SWAPMUSICTRACK:
                 opcodeSize = 0;
