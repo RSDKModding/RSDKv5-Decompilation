@@ -1187,7 +1187,16 @@ void RenderDevice::ProcessEvent(MSG Msg)
                             sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd - 1;
                         }
 
+#if RETRO_REV0U
+                        switch (engine.version) {
+                            default: break;
+                            case 5: LoadScene(); break;
+                            case 4:
+                            case 3: RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD; break;
+                        }
+#else
                         LoadScene();
+#endif
 
                         handledMsg = true;
                     }
@@ -1204,7 +1213,18 @@ void RenderDevice::ProcessEvent(MSG Msg)
                             sceneInfo.listPos = sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart;
                         }
 
+#if RETRO_REV0U
+                        switch (engine.version) {
+                            default: break;
+                            case 5: LoadScene();
+                                break;
+                            case 4:
+                            case 3: RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD; break;
+                        }
+#else
                         LoadScene();
+#endif
+
 
                         handledMsg = true;
                     }
@@ -1223,7 +1243,17 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F5:
                     if (engine.devMenu) {
                         // Quick-Reload
+
+#if RETRO_REV0U
+                        switch (engine.version) {
+                            default: break;
+                            case 5: LoadScene(); break;
+                            case 4:
+                            case 3: RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD; break;
+                        }
+#else
                         LoadScene();
+#endif
 
                         handledMsg = true;
                     }
