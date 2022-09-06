@@ -1013,7 +1013,8 @@ bool RenderDevice::ProcessEvents()
         if (!isRunning)
             return false;
     }
-    return true;
+
+    return isRunning;
 }
 
 void RenderDevice::SetupImageTexture(int32 width, int32 height, uint8 *imagePixels)
