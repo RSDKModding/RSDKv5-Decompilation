@@ -184,6 +184,10 @@ void RSDK::SKU::InitHIDDevices()
         int32 rawInputListSize = GetRawInputDeviceList(pRawInputDeviceList, &puiNumDevices, sizeof(tagRAWINPUTDEVICELIST));
         if (rawInputListSize == -1) {
             PrintLog(PRINT_NORMAL, "Wrong Device Count.");
+#if RETRO_PLATFORM == RETRO_WIN && !RETRO_USE_ORIGINAL_CODE
+            // cheating here since Link::GetError returns windows GetError as a string :]
+            PrintLog(PRINT_NORMAL, "Device Error: %s", Link::GetError());
+#endif
         }
         else {
             RID_DEVICE_INFO deviceInfo;
