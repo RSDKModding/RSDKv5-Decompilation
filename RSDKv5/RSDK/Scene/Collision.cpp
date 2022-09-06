@@ -2429,9 +2429,8 @@ void RSDK::FloorCollision(CollisionSensor *sensor)
                             int32 ty = cy + mask;
 #endif
                             if (mask < 0xFF) {
-                                step = -TILE_SIZE;
-
 #if RETRO_REV0U
+                                step = -TILE_SIZE;
                                 if (colY < collidePos) {
                                     collideAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].floorAngle;
                                     collidePos   = ty;
@@ -2559,9 +2558,8 @@ void RSDK::RoofCollision(CollisionSensor *sensor)
                             int32 ty = cy + mask;
 #endif
                             if (mask < 0xFF) {
-                                step = TILE_SIZE;
-
 #if RETRO_REV0U
+                                step = TILE_SIZE;
                                 if (colY > collidePos) {
                                     collideAngle = tileInfo[collisionEntity->collisionPlane][tile & 0xFFF].roofAngle;
                                     collidePos   = ty;

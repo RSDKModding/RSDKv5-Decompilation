@@ -5,7 +5,7 @@ namespace Legacy
 namespace v4
 {
 
-enum CollisionSidess {
+enum CollisionSides {
     CSIDE_FLOOR = 0,
     CSIDE_LWALL = 1,
     CSIDE_RWALL = 2,
