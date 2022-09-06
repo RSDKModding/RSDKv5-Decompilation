@@ -336,9 +336,6 @@ void RSDK::DevMenu_MainMenu()
 #endif
     }
     y += 20;
-#if RETRO_USE_MOD_LOADER
-    y += 2 * selectionCount;
-#endif
 
     // Storage box
 
