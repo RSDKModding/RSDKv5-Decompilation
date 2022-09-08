@@ -205,7 +205,8 @@ inline std::vector<ModInfo *> ActiveMods()
 void ScanModFolder(ModInfo *info);
 inline void RefreshModFolders()
 {
-    for (int32 m = 0; m < ActiveMods().size(); ++m) {
+    int32 activeModCount = (int32)ActiveMods().size();
+    for (int32 m = 0; m < activeModCount; ++m) {
         ScanModFolder(&modList[m]);
     }
 }

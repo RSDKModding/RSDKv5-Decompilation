@@ -37,8 +37,9 @@ void RSDK::DetectEngineVersion()
     }
 
     // check if we have any mods with gameconfigs
-    int32 m = 0;
-    for (; m < ActiveMods().size(); ++m) {
+    int32 m              = 0;
+    int32 activeModCount = (int32)ActiveMods().size();
+    for (m = 0; m < activeModCount; ++m) {
         SetActiveMod(m);
 
         FileInfo checkInfo;

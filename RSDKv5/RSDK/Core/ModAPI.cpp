@@ -165,7 +165,8 @@ void RSDK::LoadModSettings()
     modSettings.forceScripts    = false;
 #endif
 
-    for (int32 i = (int32)ActiveMods().size() - 1; i >= 0; --i) {
+    int32 activeModCount = (int32)ActiveMods().size();
+    for (int32 i = activeModCount - 1; i >= 0; --i) {
         ModInfo *mod = &modList[i];
 
         if (mod->redirectSaveRAM) {

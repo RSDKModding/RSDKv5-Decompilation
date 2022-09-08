@@ -699,8 +699,10 @@ void RSDK::LoadXMLObjects()
 {
     FileInfo info;
 
-    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
+    int32 activeModCount = (int32)ActiveMods().size();
+    for (int32 m = 0; m < activeModCount; ++m) {
         SetActiveMod(m);
+
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
@@ -751,7 +753,9 @@ void RSDK::LoadXMLObjects()
 void RSDK::LoadXMLSoundFX()
 {
     FileInfo info;
-    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
+
+    int32 activeModCount = (int32)ActiveMods().size();
+    for (int32 m = 0; m < activeModCount; ++m) {
         SetActiveMod(m);
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
@@ -803,7 +807,8 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
     int32 listCount  = 0;
     int32 stageCount = 0;
 
-    for (int32 m = 0; m < (int32)ActiveMods().size(); ++m) {
+    int32 activeModCount = (int32)ActiveMods().size();
+    for (int32 m = 0; m < activeModCount; ++m) {
         SetActiveMod(m);
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
@@ -1219,7 +1224,8 @@ void RSDK::InitGameLink()
 #if RETRO_USE_MOD_LOADER
     }
 
-    for (int32 m = 0; m < ActiveMods().size(); ++m) {
+    int32 activeModCount = (int32)ActiveMods().size();
+    for (int32 m = 0; m < activeModCount; ++m) {
         currentMod = &modList[m];
         for (modLinkSTD linkModLogic : modList[m].linkModLogic) {
             if (!linkModLogic(&info, modList[m].id.c_str())) {
