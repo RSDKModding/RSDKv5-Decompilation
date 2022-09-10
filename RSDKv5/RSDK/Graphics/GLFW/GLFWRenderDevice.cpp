@@ -698,6 +698,8 @@ void RenderDevice::RefreshWindow()
 
     if (!InitGraphicsAPI() || !InitShaders())
         return;
+
+    videoSettings.windowState = WINDOWSTATE_ACTIVE;
 }
 
 void RenderDevice::GetWindowSize(int32 *width, int32 *height) { glfwGetWindowSize(window, width, height); }
