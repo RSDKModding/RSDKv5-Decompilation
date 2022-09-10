@@ -1453,7 +1453,6 @@ LRESULT CALLBACK RenderDevice::WindowEventCallback(HWND hRecipient, UINT message
                 deviceNotif = 0;
             }
 
-            PrintLog(PRINT_NORMAL, "Quit event!!!");
             isRunning = false;
             forceExit = true;
             break;

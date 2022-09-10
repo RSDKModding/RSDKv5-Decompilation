@@ -171,8 +171,8 @@ int32 RSDK::PlayStream(const char *filename, uint32 slot, int32 startPos, uint32
     return slot;
 }
 
-#define WAV_SIG_HEADER 0x46464952 // RIFF
-#define WAV_SIG_DATA   0x61746164 // data
+#define WAV_SIG_HEADER (0x46464952) // RIFF
+#define WAV_SIG_DATA   (0x61746164) // data
 
 void RSDK::ReadSfx(char *filename, uint8 id, uint8 plays, uint8 scope, uint32 *size, uint32 *format, uint16 *channels, uint32 *freq)
 {
@@ -183,11 +183,11 @@ void RSDK::ReadSfx(char *filename, uint8 id, uint8 plays, uint8 scope, uint32 *s
         uint32 signature = ReadInt32(&info, false);
 
         if (signature == WAV_SIG_HEADER) {
-            ReadInt32(&info, false); // chunk size
-            ReadInt32(&info, false); // WAVE
-            ReadInt32(&info, false); // FMT
-            int32 sizeing = ReadInt32(&info, false); // chunk size
-            ReadInt16(&info);        // audio format
+            ReadInt32(&info, false);                   // chunk size
+            ReadInt32(&info, false);                   // WAVE
+            ReadInt32(&info, false);                   // FMT
+            int32 chunkSize = ReadInt32(&info, false); // chunk size
+            ReadInt16(&info);                          // audio format
             *channels = ReadInt16(&info);
             *freq     = ReadInt32(&info, false);
             ReadInt32(&info, false); // bytes per sec
@@ -198,7 +198,7 @@ void RSDK::ReadSfx(char *filename, uint8 id, uint8 plays, uint8 scope, uint32 *s
             uint16 sampleBits = ReadInt16(&info);
 
             // Original code added to help fix some issues
-            Seek_Set(&info, 20 + sizeing);
+            Seek_Set(&info, 20 + chunkSize);
 
             int32 loop        = 0;
             while (true) {
