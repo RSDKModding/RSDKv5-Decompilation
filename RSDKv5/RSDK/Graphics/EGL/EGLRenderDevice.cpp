@@ -496,8 +496,10 @@ bool RenderDevice::ProcessEvents()
         if (source)
             source->process(app, source);
 
-        if (app->destroyRequested)
+        if (app->destroyRequested) {
+            isRunning = false;
             return false;
+        }
     }
 
     if (videoSettings.windowState == WINDOWSTATE_INACTIVE) {

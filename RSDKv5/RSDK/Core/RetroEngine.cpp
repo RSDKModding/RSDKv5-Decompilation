@@ -79,7 +79,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
     RenderDevice::InitFPSCap();
 
     while (RenderDevice::isRunning) {
-        RenderDevice::isRunning = RenderDevice::ProcessEvents();
+        RenderDevice::ProcessEvents();
 
         if (!RenderDevice::isRunning)
             break;

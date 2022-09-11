@@ -169,7 +169,7 @@ VideoSettings RSDK::videoSettingsBackup;
 int32 RSDK::userShaderCount = 0;
 #endif
 
-bool32 RenderDeviceBase::isRunning         = true;
+bool32 RenderDeviceBase::isRunning         = false;
 int32 RenderDeviceBase::windowRefreshDelay = 0;
 
 #if RETRO_REV02

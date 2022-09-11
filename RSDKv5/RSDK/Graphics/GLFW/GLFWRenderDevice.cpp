@@ -390,7 +390,9 @@ void RenderDevice::CopyFrameBuffer()
 bool RenderDevice::ProcessEvents()
 {
     glfwPollEvents();
-    return !glfwWindowShouldClose(window);
+    if (glfwWindowShouldClose(window))
+        isRunning = false;
+    return false;
 }
 
 void RenderDevice::FlipScreen()
