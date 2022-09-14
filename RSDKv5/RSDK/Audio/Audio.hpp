@@ -69,7 +69,7 @@ void UpdateStreamBuffer(ChannelInfo *channel);
 void LoadStream(ChannelInfo *channel);
 int32 PlayStream(const char *filename, uint32 slot, int32 startPos, uint32 loopPoint, bool32 loadASync);
 
-void ReadSfx(char *filename, uint8 id, uint8 plays, uint8 scope, uint32 *size, uint32 *format, uint16 *channels, uint32 *freq);
+void LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope);
 void LoadSfx(char *filePath, uint8 plays, uint8 scope);
 
 } // namespace RSDK
