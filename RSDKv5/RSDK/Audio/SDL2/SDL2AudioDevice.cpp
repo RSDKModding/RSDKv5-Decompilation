@@ -68,13 +68,6 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
             case CHANNEL_SFX: {
                 SAMPLE_FORMAT *sfxBuffer = &channel->samplePtr[channel->bufferPos];
 
-                // somehow it can get here and not have any data to play, causing a crash. This should fix that
-                if (!channel->samplePtr) {
-                    channel->state   = CHANNEL_IDLE;
-                    channel->soundID = -1;
-                    continue;
-                }
-
                 float volL = channel->volume, volR = channel->volume;
                 if (channel->pan < 0.0)
                     volL = (1.0 + channel->pan) * channel->volume;
@@ -110,13 +103,6 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
                             channel->bufferPos += channel->loop;
 
                             sfxBuffer = &channel->samplePtr[channel->bufferPos];
-
-                            // somehow it can get here and not have any data to play, causing a crash. This should fix that
-                            if (!channel->samplePtr) {
-                                channel->state   = CHANNEL_IDLE;
-                                channel->soundID = -1;
-                                break;
-                            }
                         }
                     }
                 }
@@ -126,13 +112,6 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
 
             case CHANNEL_STREAM: {
                 SAMPLE_FORMAT *streamBuffer = &channel->samplePtr[channel->bufferPos];
-
-                // somehow it can get here and not have any data to play, causing a crash. This should fix that
-                if (!channel->samplePtr) {
-                    channel->state   = CHANNEL_IDLE;
-                    channel->soundID = -1;
-                    continue;
-                }
 
                 float volL = channel->volume, volR = channel->volume;
                 if (channel->pan < 0.0)
@@ -161,13 +140,6 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
                         channel->bufferPos -= channel->sampleLength;
 
                         streamBuffer = &channel->samplePtr[channel->bufferPos];
-
-                        // somehow it can get here and not have any data to play, causing a crash. This should fix that
-                        if (!channel->samplePtr) {
-                            channel->state   = CHANNEL_IDLE;
-                            channel->soundID = -1;
-                            break;
-                        }
 
                         UpdateStreamBuffer(channel);
                     }
