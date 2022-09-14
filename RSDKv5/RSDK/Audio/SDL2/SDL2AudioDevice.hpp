@@ -1,11 +1,13 @@
-#define LockAudioDevice()   SDL_LockAudio()
-#define UnlockAudioDevice() SDL_UnlockAudio()
+#define LockAudioDevice() SDL_LockAudioDevice(AudioDevice::device)
+#define UnlockAudioDevice() SDL_UnlockAudioDevice(AudioDevice::device)
 
 namespace RSDK
 {
 class AudioDevice : public AudioDeviceBase
 {
 public:
+    static SDL_AudioDeviceID device;
+
     static bool32 Init();
     static void Release();
 
@@ -22,7 +24,6 @@ public:
     }
 
 private:
-    static SDL_AudioDeviceID device;
     static SDL_AudioSpec deviceSpec;
 
     static uint8 contextInitialized;
