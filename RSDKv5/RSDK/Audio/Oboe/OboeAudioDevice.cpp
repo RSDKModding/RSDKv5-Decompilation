@@ -91,15 +91,16 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
                 uint32 speedPercent       = 0;
                 SAMPLE_FORMAT *curStreamF = streamF;
                 while (curStreamF < streamEndF && streamF < streamEndF) {
-                    SAMPLE_FORMAT sample = (sfxBuffer[1] - *sfxBuffer) * speedMixAmounts[speedPercent >> 6] + *sfxBuffer;
+                    // Perform linear interpolation.
+                    SAMPLE_FORMAT sample = (sfxBuffer[1] - sfxBuffer[0]) * speedMixAmounts[speedPercent >> 6] + sfxBuffer[0];
 
                     speedPercent += channel->speed;
                     sfxBuffer += speedPercent >> 16;
                     channel->bufferPos += speedPercent >> 16;
                     speedPercent &= 0xFFFF;
 
-                    curStreamF[0] += sample * panR;
-                    curStreamF[1] += sample * panL;
+                    curStreamF[0] += sample * panL;
+                    curStreamF[1] += sample * panR;
                     curStreamF += 2;
 
                     if (channel->bufferPos >= channel->sampleLength) {
@@ -143,8 +144,8 @@ void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
                     int32 next = speedPercent >> 16;
                     speedPercent &= 0xFFFF;
 
-                    curStreamF[0] += panR * *streamBuffer;
-                    curStreamF[1] += panL * streamBuffer[next];
+                    curStreamF[0] += panL * streamBuffer[0];
+                    curStreamF[1] += panR * streamBuffer[1];
                     curStreamF += 2;
 
                     streamBuffer += next * 2;
