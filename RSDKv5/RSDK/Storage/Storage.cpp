@@ -150,7 +150,7 @@ void RSDK::AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet,
                 GarbageCollectStorage(dataSet);
 
             // Clear the allocated memory if requested.
-            if (*data != NULL && clear)
+            if (*data != NULL && clear == (bool32)true)
                 memset(*data, 0, size);
         }
     }
