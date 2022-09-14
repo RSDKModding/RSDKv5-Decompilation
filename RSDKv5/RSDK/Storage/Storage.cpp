@@ -4,25 +4,46 @@
 #include "Legacy/UserStorageLegacy.cpp"
 #endif
 
+// Macro to access the header variables of a block of memory.
+// Note that this is pointless if the pointer is already pointing directly at the header rather than the memory after it.
+#define HEADER(memory, header_value) memory[-HEADER_SIZE + header_value]
+
 using namespace RSDK;
+
+// Every block of allocated memory is prefixed with a header that consists of the following four longwords.
+enum
+{
+    // Whether the block of memory is actually allocated or not.
+    HEADER_ACTIVE,
+    // Which 'data set' this block of memory belongs to.
+    HEADER_SET_ID,
+    // The offset in the buffer which the block of memory begins at.
+    HEADER_DATA_OFFSET,
+    // How long the block of memory is (measured in 'uint32's).
+    HEADER_DATA_LENGTH,
+    // This is not part of the header: it's just a bit of enum magic to calculate the size of the header.
+    HEADER_SIZE
+};
 
 DataStorage RSDK::dataStorage[DATASET_MAX];
 
 bool32 RSDK::InitStorage()
 {
-    // storage limit (in ints)
-    dataStorage[DATASET_STG].storageLimit = 24 * 0x100000; // 24MB
-    dataStorage[DATASET_MUS].storageLimit = 8 * 0x100000;  // 8MB
-    dataStorage[DATASET_SFX].storageLimit = 32 * 0x100000; // 32 MB
-    dataStorage[DATASET_STR].storageLimit = 1 * 0x100000;  // 1MB
-    dataStorage[DATASET_TMP].storageLimit = 8 * 0x100000;  // 8MB
+    // Storage limits.
+    dataStorage[DATASET_STG].storageLimit = 24 * 1024 * 1024; // 24MB
+    dataStorage[DATASET_MUS].storageLimit =  8 * 1024 * 1024; //  8MB
+    dataStorage[DATASET_SFX].storageLimit = 32 * 1024 * 1024; // 32MB
+    dataStorage[DATASET_STR].storageLimit =  2 * 1024 * 1024; //  2MB
+    dataStorage[DATASET_TMP].storageLimit =  8 * 1024 * 1024; //  8MB
 
     for (int32 s = 0; s < DATASET_MAX; ++s) {
-        dataStorage[s].memoryTable = (int32 *)malloc(dataStorage[s].storageLimit);
-
         dataStorage[s].usedStorage = 0;
         dataStorage[s].entryCount  = 0;
         dataStorage[s].clearCount  = 0;
+        dataStorage[s].memoryTable = (uint32 *)malloc(dataStorage[s].storageLimit);
+
+        if (dataStorage[s].memoryTable == NULL)
+            return false;
     }
 
     return true;
@@ -31,83 +52,104 @@ bool32 RSDK::InitStorage()
 void RSDK::ReleaseStorage()
 {
     for (int32 s = 0; s < DATASET_MAX; ++s) {
-        if (dataStorage[s].memoryTable)
+        if (dataStorage[s].memoryTable != NULL)
             free(dataStorage[s].memoryTable);
 
-        dataStorage[s].memoryTable = NULL;
         dataStorage[s].usedStorage = 0;
         dataStorage[s].entryCount  = 0;
         dataStorage[s].clearCount  = 0;
     }
 
+    // This code was in earlier versions of the decompilation,
+    // but it doesn't seem to exist in the latest Steam version's EXE.
+    /*
     for (int32 p = 0; p < dataPackCount; ++p) {
         if (dataPacks[p].fileBuffer)
             free(dataPacks[p].fileBuffer);
 
         dataPacks[p].fileBuffer = NULL;
     }
+    */
 }
 
 void RSDK::AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet, bool32 clear)
 {
-    int32 **data = (int32 **)dataPtr;
+    uint32 **data = (uint32 **)dataPtr;
     *data        = NULL;
 
-    if ((uint32)dataSet < DATASET_MAX && size > 0) {
-        DataStorage *storage = &dataStorage[dataSet];
+    if ((uint32)dataSet < DATASET_MAX) {
+        // Align allocation to prevent unaligned memory accesses later on.
+        const uint32 size_aligned = size & -sizeof(void*);
 
-        int32 aligned = size & -(int32)sizeof(void *);
-        if (aligned < size)
-            size = aligned + sizeof(void *);
+        if (size_aligned < size)
+            size = size_aligned + sizeof(void*);
 
-        if (storage->entryCount < STORAGE_ENTRY_COUNT) {
-            if (size + sizeof(int32) * storage->usedStorage >= storage->storageLimit) {
-                ClearUnusedStorage(dataSet);
+        if (dataStorage[dataSet].entryCount < STORAGE_ENTRY_COUNT) {
+            DataStorage *storage = &dataStorage[dataSet];
 
-                if (size + sizeof(int32) * storage->usedStorage >= storage->storageLimit) {
-                    if (storage->entryCount >= STORAGE_ENTRY_COUNT)
-                        CleanEmptyStorage(dataSet);
+            if (storage->usedStorage * sizeof(uint32) + size < storage->storageLimit) {
+                    // HEADER_ACTIVE
+                    storage->memoryTable[storage->usedStorage] = true;
+                    ++storage->usedStorage;
 
-                    if (*data && clear)
-                        memset(*data, 0, size);
-                }
-                else {
-                    DataStorageHeader *entry = (DataStorageHeader *)&storage->memoryTable[storage->usedStorage];
+                    // HEADER_SET_ID
+                    storage->memoryTable[storage->usedStorage] = dataSet;
+                    ++storage->usedStorage;
 
-                    entry->active     = true;
-                    entry->setID      = dataSet;
-                    entry->dataOffset = storage->usedStorage + STORAGE_HEADER_SIZE;
-                    entry->dataSize   = size;
+                    // HEADER_DATA_OFFSET
+                    storage->memoryTable[storage->usedStorage] = storage->usedStorage + HEADER_SIZE - HEADER_DATA_OFFSET;
+                    ++storage->usedStorage;
 
-                    storage->usedStorage += STORAGE_HEADER_SIZE;
+                    // HEADER_DATA_LENGTH
+                    storage->memoryTable[storage->usedStorage] = size;
+                    ++storage->usedStorage;
+
                     *data = &storage->memoryTable[storage->usedStorage];
-                    storage->usedStorage += size / sizeof(int32);
+                    storage->usedStorage += size / sizeof(uint32);
 
-                    storage->dataEntries[storage->entryCount]    = data;
-                    storage->storageEntries[storage->entryCount] = *data;
+                    dataStorage[dataSet].dataEntries[storage->entryCount]    = data;
+                    dataStorage[dataSet].storageEntries[storage->entryCount] = *data;
+
+                    ++storage->entryCount;
+            } else {
+                // We've run out of room, so perform defragmentation and garbage-collection.
+                DefragmentAndGarbageCollectStorage(dataSet);
+
+                // If there is now room, then perform allocation.
+		// Yes, this really is a massive chunk of duplicate code.
+                if (storage->usedStorage * sizeof(uint32) + size < storage->storageLimit) {
+                    // HEADER_ACTIVE
+                    storage->memoryTable[storage->usedStorage] = true;
+                    ++storage->usedStorage;
+
+                    // HEADER_SET_ID
+                    storage->memoryTable[storage->usedStorage] = dataSet;
+                    ++storage->usedStorage;
+
+                    // HEADER_DATA_OFFSET
+                    storage->memoryTable[storage->usedStorage] = storage->usedStorage + HEADER_SIZE - HEADER_DATA_OFFSET;
+                    ++storage->usedStorage;
+
+                    // HEADER_DATA_LENGTH
+                    storage->memoryTable[storage->usedStorage] = size;
+                    ++storage->usedStorage;
+
+                    *data = &storage->memoryTable[storage->usedStorage];
+                    storage->usedStorage += size / sizeof(uint32);
+
+                    dataStorage[dataSet].dataEntries[storage->entryCount]    = data;
+                    dataStorage[dataSet].storageEntries[storage->entryCount] = *data;
+
+                    ++storage->entryCount;
                 }
             }
-            else {
-                DataStorageHeader *entry = (DataStorageHeader *)&storage->memoryTable[storage->usedStorage];
 
-                entry->active     = true;
-                entry->setID      = dataSet;
-                entry->dataOffset = storage->usedStorage + STORAGE_HEADER_SIZE;
-                entry->dataSize   = size;
-
-                storage->usedStorage += STORAGE_HEADER_SIZE;
-                *data = &storage->memoryTable[storage->usedStorage];
-                storage->usedStorage += size / sizeof(int32);
-
-                storage->dataEntries[storage->entryCount]    = data;
-                storage->storageEntries[storage->entryCount] = *data;
-            }
-
-            ++storage->entryCount;
+            // If there are too many storage entries, then perform garbage collection.
             if (storage->entryCount >= STORAGE_ENTRY_COUNT)
-                CleanEmptyStorage(dataSet);
+                GarbageCollectStorage(dataSet);
 
-            if (*data && clear)
+            // Clear the allocated memory if requested.
+            if (*data != NULL && clear == true)
                 memset(*data, 0, size);
         }
     }
@@ -115,182 +157,167 @@ void RSDK::AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet,
 
 void RSDK::RemoveStorageEntry(void **dataPtr)
 {
-    if (dataPtr) {
-        if (*dataPtr) {
-            int32 **data = (int32 **)dataPtr;
+    if (dataPtr != NULL && *dataPtr != NULL) {
+        uint32 *data = *(uint32 **)dataPtr;
 
-            DataStorageHeader *entry = (DataStorageHeader *)(*data - STORAGE_HEADER_SIZE);
-            int32 set                = entry->setID;
-
-            for (int32 e = 0; e < dataStorage[set].entryCount; ++e) {
-                if (data == dataStorage[set].dataEntries[e])
-                    dataStorage[set].dataEntries[e] = NULL;
+        for (int32 set = HEADER(data, HEADER_SET_ID), e = 0; e < dataStorage[set].entryCount; set = HEADER(data, HEADER_SET_ID), ++e) {
+            if (*dataPtr == *dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]) {
+                *dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e] = NULL;
+                dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e] = NULL;
             }
-
-            int32 newEntryCount = 0;
-            for (int32 entryID = 0; entryID < dataStorage[set].entryCount; ++entryID) {
-                if (dataStorage[set].dataEntries[entryID]) {
-                    if (entryID != newEntryCount) {
-                        dataStorage[set].dataEntries[newEntryCount]    = dataStorage[set].dataEntries[entryID];
-                        dataStorage[set].storageEntries[newEntryCount] = dataStorage[set].storageEntries[entryID];
-                        dataStorage[set].dataEntries[entryID]          = NULL;
-                        dataStorage[set].storageEntries[entryID]       = NULL;
-                    }
-
-                    newEntryCount++;
-                }
-            }
-            dataStorage[set].entryCount = newEntryCount;
-
-            for (int32 e = dataStorage[set].entryCount; e < STORAGE_ENTRY_COUNT; ++e) {
-                dataStorage[set].dataEntries[e]    = NULL;
-                dataStorage[set].storageEntries[e] = NULL;
-            }
-
-            entry->active = false;
         }
+
+        uint32 newEntryCount = 0;
+        for (uint32 set = HEADER(data, HEADER_SET_ID), entryID = 0; entryID < dataStorage[set].entryCount; set = HEADER(data, HEADER_SET_ID), ++entryID) {
+            if (dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[entryID]) {
+                if (entryID != newEntryCount) {
+                    dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[newEntryCount]    = dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[entryID];
+                    dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[entryID]          = NULL;
+                    dataStorage[HEADER(data, HEADER_SET_ID)].storageEntries[newEntryCount] = dataStorage[HEADER(data, HEADER_SET_ID)].storageEntries[entryID];
+                    dataStorage[HEADER(data, HEADER_SET_ID)].storageEntries[entryID]       = NULL;
+                }
+
+                ++newEntryCount;
+            }
+        }
+
+        dataStorage[HEADER(data, HEADER_SET_ID)].entryCount = newEntryCount;
+
+        for (uint32 e = newEntryCount; e < STORAGE_ENTRY_COUNT; ++e) {
+            dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]    = NULL;
+            dataStorage[HEADER(data, HEADER_SET_ID)].storageEntries[e] = NULL;
+        }
+
+        HEADER(data, HEADER_ACTIVE) = false;
     }
 }
 
-void RSDK::ClearUnusedStorage(StorageDataSets set)
+// This defragments the storage, leaving all empty space at the end.
+void RSDK::DefragmentAndGarbageCollectStorage(StorageDataSets set)
 {
+    uint32 processedStorage = 0;
+    uint32 unusedStorage = 0;
+
+    uint32 *defragmentDestination = dataStorage[set].memoryTable;
+    uint32 *currentHeader = dataStorage[set].memoryTable;
+
     ++dataStorage[set].clearCount;
 
-    CleanEmptyStorage(set);
+    // Perform garbage-collection. This deallocates all memory allocations that are no longer being used.
+    GarbageCollectStorage(set);
 
-    if (dataStorage[set].usedStorage) {
-        int32 curStorageSize = 0;
-        int32 newStorageSize = 0;
-        int32 usedStorage    = 0;
+    // This performs defragmentation. It works by removing 'gaps' between the various blocks of allocated memory,
+    // grouping them all together at the start of the buffer while all the empty space goes at the end.
+    // Avoiding fragmentation is important, as fragmentation can cause allocations to fail despite there being
+    // enough free memory because that free memory isn't contiguous.
+    while (processedStorage < dataStorage[set].usedStorage) {
+        uint32 *dataPtr = &dataStorage[set].memoryTable[currentHeader[HEADER_DATA_OFFSET]];
+        uint32 size     = (currentHeader[HEADER_DATA_LENGTH] / sizeof(uint32)) + HEADER_SIZE;
 
-        int32 *curMemTablePtr = dataStorage[set].memoryTable;
-        int32 *newMemTablePtr = dataStorage[set].memoryTable;
+        // Check if this block of memory is currently allocated.
+        currentHeader[HEADER_ACTIVE] = false;
 
-        for (int32 memPos = 0; memPos < dataStorage[set].usedStorage;) {
-            DataStorageHeader *curEntry = (DataStorageHeader *)curMemTablePtr;
+        for (int32 e = 0; e < dataStorage[set].entryCount; ++e)
+            if (dataPtr == dataStorage[set].storageEntries[e])
+                currentHeader[HEADER_ACTIVE] = true;
 
-            int32 size       = ((uint32)curEntry->dataSize >> 2) + STORAGE_HEADER_SIZE;
-            curEntry->active = false;
+        if (currentHeader[HEADER_ACTIVE]) {
+            // This memory is being used.
+            processedStorage += size;
 
-            int32 *dataPtr = &dataStorage[set].memoryTable[curEntry->dataOffset];
-
-            bool32 noCopy = true;
-            if (dataStorage[set].entryCount) {
-                for (int32 e = 0; e < dataStorage[set].entryCount; ++e) {
-                    if (dataPtr == dataStorage[set].storageEntries[e])
-                        curEntry->active = true;
-                }
-
-                if (curEntry->active) {
-                    noCopy = false;
-
-                    curStorageSize += size;
-                    memPos = curStorageSize;
-
-                    if (curMemTablePtr <= newMemTablePtr) {
-                        newMemTablePtr += size;
-                        curMemTablePtr += size;
-                    }
-                    else {
-                        for (; size; --size) {
-                            *newMemTablePtr++ = *curMemTablePtr++;
-                        }
-                    }
-
-                    usedStorage = newStorageSize;
-                }
+            if (currentHeader > defragmentDestination) {
+                // This memory has a gap before it, so move it backwards into that free space.
+                for (uint32 i = 0; i < size; ++i)
+                    *defragmentDestination++ = *currentHeader++;
+            } else {
+                // This memory doesn't have a gap before it, so we don't need to move it - just skip it instead.
+                defragmentDestination += size;
+                currentHeader += size;
             }
-
-            if (noCopy) {
-                curMemTablePtr += size;
-                newStorageSize += size;
-                curStorageSize += size;
-
-                memPos      = curStorageSize;
-                usedStorage = newStorageSize;
-            }
+        } else {
+            // This memory is not being used, so skip it.
+            currentHeader += size;
+            processedStorage += size;
+            unusedStorage += size;
         }
+    }
 
-        if (usedStorage) {
-            bool32 noEntriesRemoved = dataStorage[set].usedStorage != usedStorage;
-            dataStorage[set].usedStorage -= usedStorage;
+    // If defragmentation occurred, then we need to update every single
+    // pointer to allocated memory to point to their new locations in the buffer.
+    if (unusedStorage != 0) {
+        dataStorage[set].usedStorage -= unusedStorage;
 
-            int32 *memory = dataStorage[set].memoryTable;
-            if (noEntriesRemoved) {
-                for (int32 memPos = 0; memPos < dataStorage[set].usedStorage;) {
-                    DataStorageHeader *entry = (DataStorageHeader *)memory;
+        uint32 *currentHeader = dataStorage[set].memoryTable;
 
-                    int32 *dataPtr = &dataStorage[set].memoryTable[entry->dataOffset];
-                    int32 size     = ((uint32)entry->dataSize >> 2) + STORAGE_HEADER_SIZE; // size (in int32s)
+        uint32 dataOffset = 0;
+        while (dataOffset < dataStorage[set].usedStorage) {
+            uint32 *dataPtr = &dataStorage[set].memoryTable[currentHeader[HEADER_DATA_OFFSET]];
+            uint32 size     = (currentHeader[HEADER_DATA_LENGTH] / sizeof(uint32)) + HEADER_SIZE; // size (in int32s)
 
-                    for (int32 c = 0; c < dataStorage[set].entryCount; ++c) {
-                        if (dataPtr == dataStorage[set].storageEntries[c]) {
-                            *dataStorage[set].dataEntries[c]   = memory + STORAGE_HEADER_SIZE;
-                            dataStorage[set].storageEntries[c] = memory + STORAGE_HEADER_SIZE;
-                        }
-                    }
+            // Find every single pointer to this memory allocation and update them with its new address.
+            for (int32 c = 0; c < dataStorage[set].entryCount; ++c)
+                if (dataPtr == dataStorage[set].storageEntries[c])
+                    dataStorage[set].storageEntries[c] = *dataStorage[set].dataEntries[c] = currentHeader + HEADER_SIZE;
 
-                    entry->dataOffset = memPos + STORAGE_HEADER_SIZE;
-                    memPos += size;
-                    memory += size;
-                }
-            }
+            // Update the offset in the allocation's header too.
+            currentHeader[HEADER_DATA_OFFSET] = dataOffset + HEADER_SIZE;
+
+            // Advance to the next memory allocation.
+            currentHeader += size;
+            dataOffset += size;
         }
     }
 }
 
-void RSDK::CopyStorage(int32 **src, int32 **dst)
+void RSDK::CopyStorage(uint32 **src, uint32 **dst)
 {
-    if (src) {
-        int32 *dstPtr = *dst;
-        *src          = *dst;
+    if (dst != NULL) {
+        uint32 *dstPtr = *dst;
+        *src           = *dst;
 
-        DataStorageHeader *entry = (DataStorageHeader *)(dstPtr - 4);
-        int32 setID              = entry->setID;
+        if (dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount < STORAGE_ENTRY_COUNT) {
+            dataStorage[HEADER(dstPtr, HEADER_SET_ID)].dataEntries[dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount]    = src;
+            dataStorage[HEADER(dstPtr, HEADER_SET_ID)].storageEntries[dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount] = *src;
 
-        if (dataStorage[setID].entryCount < STORAGE_ENTRY_COUNT) {
-            dataStorage[setID].dataEntries[dataStorage[setID].entryCount]    = src;
-            dataStorage[setID].storageEntries[dataStorage[setID].entryCount] = *src;
+            ++dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount;
 
-            if (dataStorage[setID].entryCount >= STORAGE_ENTRY_COUNT)
-                CleanEmptyStorage((StorageDataSets)setID);
+            if (dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount >= STORAGE_ENTRY_COUNT)
+                GarbageCollectStorage((StorageDataSets)HEADER(dstPtr, HEADER_SET_ID));
         }
     }
 }
 
-void RSDK::CleanEmptyStorage(StorageDataSets set)
+void RSDK::GarbageCollectStorage(StorageDataSets set)
 {
     if ((uint32)set < DATASET_MAX) {
-        DataStorage *storage = &dataStorage[set];
-
-        for (int32 e = 0; e < storage->entryCount; ++e) {
+        for (uint32 e = 0; e < dataStorage[set].entryCount; ++e) {
             // So what's happening here is the engine is checking to see if the storage entry
             // (which is the pointer to the "memoryTable" offset that is allocated for this entry)
             // matches what the actual variable that allocated the storage is currently pointing to.
             // if they don't match, the storage entry is considered invalid and marked for removal.
 
-            if (storage->dataEntries[e] && *storage->dataEntries[e] != storage->storageEntries[e])
-                storage->dataEntries[e] = NULL;
+            if (dataStorage[set].dataEntries[e] != NULL && *dataStorage[set].dataEntries[e] != dataStorage[set].storageEntries[e])
+                dataStorage[set].dataEntries[e] = NULL;
         }
 
-        int32 newEntryCount = 0;
-        for (int32 entryID = 0; entryID < storage->entryCount; ++entryID) {
-            if (storage->dataEntries[entryID]) {
+        uint32 newEntryCount = 0;
+        for (uint32 entryID = 0; entryID < dataStorage[set].entryCount; ++entryID) {
+            if (dataStorage[set].dataEntries[entryID]) {
                 if (entryID != newEntryCount) {
-                    storage->dataEntries[newEntryCount]    = storage->dataEntries[entryID];
-                    storage->storageEntries[newEntryCount] = storage->storageEntries[entryID];
-                    storage->dataEntries[entryID]          = NULL;
-                    storage->storageEntries[entryID]       = NULL;
+                    dataStorage[set].dataEntries[newEntryCount]    = dataStorage[set].dataEntries[entryID];
+                    dataStorage[set].dataEntries[entryID]          = NULL;
+                    dataStorage[set].storageEntries[newEntryCount] = dataStorage[set].storageEntries[entryID];
+                    dataStorage[set].storageEntries[entryID]       = NULL;
                 }
 
-                newEntryCount++;
+                ++newEntryCount;
             }
         }
-        storage->entryCount = newEntryCount;
+        dataStorage[set].entryCount = newEntryCount;
 
-        for (int32 e = storage->entryCount; e < STORAGE_ENTRY_COUNT; ++e) {
-            storage->dataEntries[e]    = NULL;
-            storage->storageEntries[e] = NULL;
+        for (int32 e = dataStorage[set].entryCount; e < STORAGE_ENTRY_COUNT; ++e) {
+            dataStorage[set].dataEntries[e]    = NULL;
+            dataStorage[set].storageEntries[e] = NULL;
         }
     }
 }

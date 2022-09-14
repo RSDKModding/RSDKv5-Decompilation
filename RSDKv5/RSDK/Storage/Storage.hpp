@@ -4,7 +4,6 @@
 namespace RSDK
 {
 #define STORAGE_ENTRY_COUNT (0x1000)
-#define STORAGE_HEADER_SIZE (sizeof(DataStorageHeader) / sizeof(int32))
 
 enum StorageDataSets {
     DATASET_STG = 0,
@@ -16,21 +15,13 @@ enum StorageDataSets {
 };
 
 struct DataStorage {
-    int32 *memoryTable;
+    uint32 *memoryTable;
     uint32 usedStorage;
     uint32 storageLimit;
-    int32 **dataEntries[STORAGE_ENTRY_COUNT];   // pointer to the actual variable
-    int32 *storageEntries[STORAGE_ENTRY_COUNT]; // pointer to the storage in "memoryTable"
+    uint32 **dataEntries[STORAGE_ENTRY_COUNT];   // pointer to the actual variable
+    uint32 *storageEntries[STORAGE_ENTRY_COUNT]; // pointer to the storage in "memoryTable"
     uint32 entryCount;
     uint32 clearCount;
-};
-
-struct DataStorageHeader {
-    bool32 active;
-    int32 setID;
-    int32 dataOffset;
-    int32 dataSize;
-    // there are "dataSize" int32's following this header, but they are omitted from the struct cuz they don't need to be here
 };
 
 template <typename T> class List
@@ -114,10 +105,10 @@ bool32 InitStorage();
 void ReleaseStorage();
 
 void AllocateStorage(void **dataPtr, uint32 size, StorageDataSets dataSet, bool32 clear);
-void ClearUnusedStorage(StorageDataSets set);
+void DefragmentAndGarbageCollectStorage(StorageDataSets set);
 void RemoveStorageEntry(void **dataPtr);
-void CopyStorage(int32 **src, int32 **dst);
-void CleanEmptyStorage(StorageDataSets dataSet);
+void CopyStorage(uint32 **src, uint32 **dst);
+void GarbageCollectStorage(StorageDataSets dataSet);
 
 #if RETRO_REV0U
 #include "Legacy/UserStorageLegacy.hpp"
