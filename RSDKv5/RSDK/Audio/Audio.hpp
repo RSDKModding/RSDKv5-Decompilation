@@ -102,7 +102,9 @@ inline uint16 GetSfx(const char *sfxName)
 int32 PlaySfx(uint16 sfx, uint32 loopPoint, uint32 priority);
 inline void StopSfx(int32 sfx)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     LockAudioDevice();
+#endif
 
     for (int32 i = 0; i < CHANNEL_COUNT; ++i) {
         if (channels[i].soundID == sfx) {
@@ -112,13 +114,17 @@ inline void StopSfx(int32 sfx)
         }
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
     UnlockAudioDevice();
+#endif
 }
 
 #if RETRO_REV0U
 inline void StopAllSfx()
 {
+#if !RETRO_USE_ORIGINAL_CODE
     LockAudioDevice();
+#endif
 
     for (int32 i = 0; i < CHANNEL_COUNT; ++i) {
         if (channels[i].state == CHANNEL_SFX) {
@@ -128,7 +134,9 @@ inline void StopAllSfx()
         }
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
     UnlockAudioDevice();
+#endif
 }
 #endif
 

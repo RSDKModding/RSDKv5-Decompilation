@@ -299,7 +299,7 @@ void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
                 ReadInt32(&info, false);                   // chunk size
                 ReadInt32(&info, false);                   // WAVE
                 ReadInt32(&info, false);                   // FMT
-#if !RETRO_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE
                 int32 chunkSize = ReadInt32(&info, false); // chunk size
 #else
                 ReadInt32(&info, false);                   // chunk size
@@ -314,7 +314,7 @@ void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
                 Seek_Set(&info, 34);
                 uint16 sampleBits = ReadInt16(&info);
 
-#if !RETRO_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE
                 // Original code added to help fix some issues
                 Seek_Set(&info, 20 + chunkSize);
 #endif
@@ -333,7 +333,7 @@ void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
                             // There's a bug here: `sfxList[id].scope` is not reset to `SCOPE_NONE`,
                             // meaning that the game will consider the SFX valid and allow it to be played.
                             // This can cause a crash because the SFX is incomplete.
-#if !RETRO_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE
                             PrintLog(PRINT_ERROR, "Unable to read sfx: %s", filename);
 #endif
                             return;
@@ -368,20 +368,20 @@ void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
                     }
                 }
             }
-#if !RETRO_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE
             else {
                 PrintLog(PRINT_ERROR, "Invalid header in sfx: %s", filename);
             }
 #endif
         }
-#if !RETRO_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE
         else {
             // what the
             PrintLog(PRINT_ERROR, "Could not find header in sfx: %s", filename);
         }
 #endif
     }
-#if !RETRO_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE
     else {
         PrintLog(PRINT_ERROR, "Unable to open sfx: %s", filename);
     }
