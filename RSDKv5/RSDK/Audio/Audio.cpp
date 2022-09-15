@@ -42,6 +42,107 @@ uint8 AudioDeviceBase::audioFocus               = 0;
 int32 AudioDeviceBase::mixBufferID = 0;
 float AudioDeviceBase::mixBuffer[3][MIX_BUFFER_SIZE];
 
+void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
+{
+    SAMPLE_FORMAT *streamF    = (SAMPLE_FORMAT *)stream;
+    SAMPLE_FORMAT *streamEndF = ((SAMPLE_FORMAT *)stream) + length;
+
+    memset(stream, 0, length * sizeof(SAMPLE_FORMAT));
+
+    for (int32 c = 0; c < CHANNEL_COUNT; ++c) {
+        ChannelInfo *channel = &channels[c];
+
+        switch (channel->state) {
+            default:
+            case CHANNEL_IDLE: break;
+
+            case CHANNEL_SFX: {
+                SAMPLE_FORMAT *sfxBuffer = &channel->samplePtr[channel->bufferPos];
+
+                float volL = channel->volume, volR = channel->volume;
+                if (channel->pan < 0.0)
+                    volL = (1.0 + channel->pan) * channel->volume;
+                else
+                    volR = (1.0 - channel->pan) * channel->volume;
+
+                float panL = volL * engine.soundFXVolume;
+                float panR = volR * engine.soundFXVolume;
+
+                uint32 speedPercent       = 0;
+                SAMPLE_FORMAT *curStreamF = streamF;
+                while (curStreamF < streamEndF && streamF < streamEndF) {
+                    // Perform linear interpolation.
+                    SAMPLE_FORMAT sample = (sfxBuffer[1] - sfxBuffer[0]) * speedMixAmounts[speedPercent >> 6] + sfxBuffer[0];
+
+                    speedPercent += channel->speed;
+                    sfxBuffer += FROM_FIXED(speedPercent);
+                    channel->bufferPos += FROM_FIXED(speedPercent);
+                    speedPercent &= 0xFFFF;
+
+                    curStreamF[0] += sample * panL;
+                    curStreamF[1] += sample * panR;
+                    curStreamF += 2;
+
+                    if (channel->bufferPos >= channel->sampleLength) {
+                        if (channel->loop == 0xFFFFFFFF) {
+                            channel->state   = CHANNEL_IDLE;
+                            channel->soundID = -1;
+                            break;
+                        }
+                        else {
+                            channel->bufferPos -= channel->sampleLength;
+                            channel->bufferPos += channel->loop;
+
+                            sfxBuffer = &channel->samplePtr[channel->bufferPos];
+                        }
+                    }
+                }
+
+                break;
+            }
+
+            case CHANNEL_STREAM: {
+                SAMPLE_FORMAT *streamBuffer = &channel->samplePtr[channel->bufferPos];
+
+                float volL = channel->volume, volR = channel->volume;
+                if (channel->pan < 0.0)
+                    volL = (1.0 + channel->pan) * channel->volume;
+                else
+                    volR = (1.0 - channel->pan) * channel->volume;
+
+                float panL = volL * engine.streamVolume;
+                float panR = volR * engine.streamVolume;
+
+                uint32 speedPercent       = 0;
+                SAMPLE_FORMAT *curStreamF = streamF;
+                while (curStreamF < streamEndF && streamF < streamEndF) {
+                    speedPercent += channel->speed;
+                    int32 next = FROM_FIXED(speedPercent);
+                    speedPercent &= 0xFFFF;
+
+                    curStreamF[0] += panL * streamBuffer[0];
+                    curStreamF[1] += panR * streamBuffer[1];
+                    curStreamF += 2;
+
+                    streamBuffer += next * 2;
+                    channel->bufferPos += next * 2;
+
+                    if (channel->bufferPos >= channel->sampleLength) {
+                        channel->bufferPos -= channel->sampleLength;
+
+                        streamBuffer = &channel->samplePtr[channel->bufferPos];
+
+                        UpdateStreamBuffer(channel);
+                    }
+                }
+                break;
+            }
+
+            case CHANNEL_LOADING_STREAM: break;
+        }
+    }
+}
+
 void RSDK::UpdateStreamBuffer(ChannelInfo *channel)
 {
     int32 bufferRemaining = 0x800;
@@ -174,117 +275,136 @@ int32 RSDK::PlayStream(const char *filename, uint32 slot, int32 startPos, uint32
 #define WAV_SIG_HEADER (0x46464952) // RIFF
 #define WAV_SIG_DATA   (0x61746164) // data
 
-void RSDK::ReadSfx(char *filename, uint8 id, uint8 plays, uint8 scope, uint32 *size, uint32 *format, uint16 *channels, uint32 *freq)
+void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
 {
     FileInfo info;
     InitFileInfo(&info);
 
-    if (LoadFile(&info, filename, FMODE_RB)) {
-        uint32 signature = ReadInt32(&info, false);
-
-        if (signature == WAV_SIG_HEADER) {
-            ReadInt32(&info, false);                   // chunk size
-            ReadInt32(&info, false);                   // WAVE
-            ReadInt32(&info, false);                   // FMT
-            int32 chunkSize = ReadInt32(&info, false); // chunk size
-            ReadInt16(&info);                          // audio format
-            *channels = ReadInt16(&info);
-            *freq     = ReadInt32(&info, false);
-            ReadInt32(&info, false); // bytes per sec
-            ReadInt16(&info);        // block align
-            *format = ReadInt16(&info);
-
-            Seek_Set(&info, 34);
-            uint16 sampleBits = ReadInt16(&info);
-
-            // Original code added to help fix some issues
-            Seek_Set(&info, 20 + chunkSize);
-
-            int32 loop        = 0;
-            while (true) {
-                signature = ReadInt32(&info, false);
-                if (signature == WAV_SIG_DATA)
-                    break;
-
-                loop += 4;
-                if (loop >= 0x40) {
-                    if (loop != 0x100) {
-                        CloseFile(&info);
-                        PrintLog(PRINT_ERROR, "Unable to read sfx: %s", filename);
-                        return;
-                    }
-                    else {
-                        break;
-                    }
-                }
-            }
-
-            uint32 length = ReadInt32(&info, false);
-            *size         = length;
-            if (sampleBits == 16)
-                length >>= 1;
-
-            AllocateStorage((void **)&sfxList[id].buffer, sizeof(float) * length, DATASET_SFX, false);
-            sfxList[id].length = length;
-
-            float *buffer = (float *)sfxList[id].buffer;
-            if (sampleBits == 8) {
-                for (int32 s = 0; s < length; ++s) {
-                    int32 sample = ReadInt8(&info);
-                    *buffer++    = (sample - 128) * 0.0078125; // 0.0078125 == 128.0
-                }
-            }
-            else {
-                for (int32 s = 0; s < length; ++s) {
-                    int32 sample = ReadInt16(&info);
-                    if (sample > 0x7FFF)
-                        sample = (sample & 0x7FFF) - 0x8000;
-                    *buffer++ = (sample * 0.000030518) * 0.75; // 0.000030518 == 32,767.5 
-                }
-            }
-        }
-
-        CloseFile(&info);
-    }
-    else {
-        PrintLog(PRINT_ERROR, "Unable to open sfx: %s", filename);
-    }
-}
-
-void RSDK::LoadSfx(char *filename, uint8 plays, uint8 scope)
-{
     char fullFilePath[0x80];
     sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/SoundFX/%s", filename);
 
     RETRO_HASH_MD5(hash);
     GEN_HASH_MD5(filename, hash);
 
-    uint16 id = -1;
-    for (id = 0; id < SFX_COUNT; ++id) {
-        if (sfxList[id].scope == SCOPE_NONE)
-            break;
+    if (LoadFile(&info, fullFilePath, FMODE_RB)) {
+        HASH_COPY_MD5(sfxList[slot].hash, hash);
+        sfxList[slot].scope              = scope;
+        sfxList[slot].maxConcurrentPlays = plays;
+
+        uint8 type = fullFilePath[strlen(fullFilePath) - 1];
+        if (type == 'v' || type == 'V') { // A very loose way of checking that we're trying to load a '.wav' file.
+            uint32 signature = ReadInt32(&info, false);
+
+            if (signature == WAV_SIG_HEADER) {
+                ReadInt32(&info, false);                   // chunk size
+                ReadInt32(&info, false);                   // WAVE
+                ReadInt32(&info, false);                   // FMT
+#if !RETRO_ORIGINAL_CODE
+                int32 chunkSize = ReadInt32(&info, false); // chunk size
+#else
+                ReadInt32(&info, false);                   // chunk size
+#endif
+                ReadInt16(&info);                          // audio format
+                ReadInt16(&info);                          // channels
+                ReadInt32(&info, false);                   // sample rate
+                ReadInt32(&info, false);                   // bytes per sec
+                ReadInt16(&info);                          // block align
+                ReadInt16(&info);                          // format
+
+                Seek_Set(&info, 34);
+                uint16 sampleBits = ReadInt16(&info);
+
+#if !RETRO_ORIGINAL_CODE
+                // Original code added to help fix some issues
+                Seek_Set(&info, 20 + chunkSize);
+#endif
+
+                // Find the data header
+                int32 loop        = 0;
+                while (true) {
+                    signature = ReadInt32(&info, false);
+                    if (signature == WAV_SIG_DATA)
+                        break;
+
+                    loop += 4;
+                    if (loop >= 0x40) {
+                        if (loop != 0x100) {
+                            CloseFile(&info);
+                            // There's a bug here: `sfxList[id].scope` is not reset to `SCOPE_NONE`,
+                            // meaning that the game will consider the SFX valid and allow it to be played.
+                            // This can cause a crash because the SFX is incomplete.
+#if !RETRO_ORIGINAL_CODE
+                            PrintLog(PRINT_ERROR, "Unable to read sfx: %s", filename);
+#endif
+                            return;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+
+                uint32 length = ReadInt32(&info, false);
+                if (sampleBits == 16)
+                    length /= 2;
+
+                AllocateStorage((void **)&sfxList[slot].buffer, sizeof(float) * length, DATASET_SFX, false);
+                sfxList[slot].length = length;
+
+                // Convert the sample data to F32 format
+                float *buffer = (float *)sfxList[slot].buffer;
+                if (sampleBits == 8) {
+                    for (int32 s = 0; s < length; ++s) {
+                        int32 sample = ReadInt8(&info);
+                        *buffer++    = (sample - 128) * 0.0078125; // 0.0078125 == 128.0
+                    }
+                }
+                else {
+                    for (int32 s = 0; s < length; ++s) {
+                        int32 sample = ReadInt16(&info);
+                        if (sample > 0x7FFF)
+                            sample = (sample & 0x7FFF) - 0x8000;
+                        *buffer++ = (sample * 0.000030518) * 0.75; // 0.000030518 == 32,767.5
+                    }
+                }
+            }
+#if !RETRO_ORIGINAL_CODE
+            else {
+                PrintLog(PRINT_ERROR, "Invalid header in sfx: %s", filename);
+            }
+#endif
+        }
+#if !RETRO_ORIGINAL_CODE
+        else {
+            // what the
+            PrintLog(PRINT_ERROR, "Could not find header in sfx: %s", filename);
+        }
+#endif
     }
-
-    if (id >= SFX_COUNT)
-        return;
-
-    uint8 type = fullFilePath[strlen(fullFilePath) - 3];
-    if (type == 'w' || type == 'W') {
-        GEN_HASH_MD5(filename, sfxList[id].hash);
-        sfxList[id].scope              = scope;
-        sfxList[id].maxConcurrentPlays = plays;
-
-        uint16 channels = 0;
-        uint32 freq     = 0;
-        uint32 format   = 0;
-        uint32 size     = 0;
-        ReadSfx(fullFilePath, id, plays, scope, &size, &format, &channels, &freq);
-    }
+#if !RETRO_ORIGINAL_CODE
     else {
-        // what the
-        PrintLog(PRINT_ERROR, "Sfx format not supported!");
+        PrintLog(PRINT_ERROR, "Unable to open sfx: %s", filename);
     }
+#endif
+
+    CloseFile(&info);
 }
+
+void RSDK::LoadSfx(char *filename, uint8 plays, uint8 scope)
+{
+    // Find an empty sound slot.
+    uint16 id = -1;
+    for (uint32 i = 0; i < SFX_COUNT; ++i) {
+        if (sfxList[i].scope == SCOPE_NONE) {
+            id = i;
+            break;
+        }
+    }
+
+    if (id != -1)
+        LoadSfxToSlot(filename, id, plays, scope);
+}
+
 int32 RSDK::PlaySfx(uint16 sfx, uint32 loopPoint, uint32 priority)
 {
     if (sfx >= SFX_COUNT || !sfxList[sfx].scope)

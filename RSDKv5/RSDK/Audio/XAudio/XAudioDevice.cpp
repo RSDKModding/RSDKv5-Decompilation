@@ -102,124 +102,6 @@ void AudioDevice::Release()
     DeleteCriticalSection(&AudioDevice::criticalSection);
 }
 
-void AudioDevice::ProcessAudioMixing(void *stream, int32 length)
-{
-    SAMPLE_FORMAT *streamF    = (SAMPLE_FORMAT *)stream;
-    SAMPLE_FORMAT *streamEndF = ((SAMPLE_FORMAT *)stream) + length;
-
-    memset(stream, 0, length * sizeof(SAMPLE_FORMAT));
-
-    LockAudioDevice();
-
-    for (int32 c = 0; c < CHANNEL_COUNT; ++c) {
-        ChannelInfo *channel = &channels[c];
-
-        switch (channel->state) {
-            default:
-            case CHANNEL_IDLE: break;
-
-            case CHANNEL_SFX: {
-                SAMPLE_FORMAT *sfxBuffer = &channel->samplePtr[channel->bufferPos];
-
-                // somehow it can get here and not have any data to play, causing a crash. This should fix that
-                if (!sfxBuffer) {
-                    channel->state   = CHANNEL_IDLE;
-                    channel->soundID = -1;
-                    continue;
-                }
-
-                float volL = channel->volume, volR = channel->volume;
-                if (channel->pan < 0.0)
-                    volL = (1.0 + channel->pan) * channel->volume;
-                else
-                    volR = (1.0 - channel->pan) * channel->volume;
-
-                float panL = volL * engine.soundFXVolume;
-                float panR = volR * engine.soundFXVolume;
-
-                uint32 speedPercent       = 0;
-                SAMPLE_FORMAT *curStreamF = streamF;
-                while (curStreamF < streamEndF && streamF < streamEndF) {
-                    SAMPLE_FORMAT sample = (sfxBuffer[1] - *sfxBuffer) * speedMixAmounts[speedPercent >> 6] + *sfxBuffer;
-
-                    speedPercent += channel->speed;
-                    sfxBuffer += FROM_FIXED(speedPercent);
-                    channel->bufferPos += FROM_FIXED(speedPercent);
-                    speedPercent &= 0xFFFF;
-
-                    curStreamF[0] += sample * panR;
-                    curStreamF[1] += sample * panL;
-                    curStreamF += 2;
-
-                    if (channel->bufferPos >= channel->sampleLength) {
-                        if (channel->loop == 0xFFFFFFFF) {
-                            channel->state   = CHANNEL_IDLE;
-                            channel->soundID = -1;
-                            break;
-                        }
-                        else {
-                            channel->bufferPos -= channel->sampleLength;
-                            channel->bufferPos += channel->loop;
-
-                            sfxBuffer = &channel->samplePtr[channel->bufferPos];
-                        }
-                    }
-                }
-
-                break;
-            }
-
-            case CHANNEL_STREAM: {
-                SAMPLE_FORMAT *streamBuffer = &channel->samplePtr[channel->bufferPos];
-
-                // somehow it can get here and not have any data to play, causing a crash. This should fix that
-                if (!streamBuffer) {
-                    channel->state   = CHANNEL_IDLE;
-                    channel->soundID = -1;
-                    continue;
-                }
-
-                float volL = channel->volume, volR = channel->volume;
-                if (channel->pan < 0.0)
-                    volL = (1.0 + channel->pan) * channel->volume;
-                else
-                    volR = (1.0 - channel->pan) * channel->volume;
-
-                float panL = volL * engine.streamVolume;
-                float panR = volR * engine.streamVolume;
-
-                uint32 speedPercent       = 0;
-                SAMPLE_FORMAT *curStreamF = streamF;
-                while (curStreamF < streamEndF && streamF < streamEndF) {
-                    speedPercent += channel->speed;
-                    int32 next = FROM_FIXED(speedPercent);
-                    speedPercent &= 0xFFFF;
-
-                    curStreamF[0] += panR * *streamBuffer;
-                    curStreamF[1] += panL * streamBuffer[next];
-                    curStreamF += 2;
-
-                    streamBuffer += next * 2;
-                    channel->bufferPos += next * 2;
-
-                    if (channel->bufferPos >= channel->sampleLength) {
-                        channel->bufferPos -= channel->sampleLength;
-
-                        streamBuffer = &channel->samplePtr[channel->bufferPos];
-
-                        UpdateStreamBuffer(channel);
-                    }
-                }
-                break;
-            }
-
-            case CHANNEL_LOADING_STREAM: break;
-        }
-    }
-
-    UnlockAudioDevice();
-}
-
 void AudioDevice::FrameInit()
 {
     if (audioState > 2 && --audioState == 2) {
@@ -321,7 +203,9 @@ void AudioDeviceCallback::OnBufferEnd(void *pBufferContext)
     if (state.BuffersQueued < 2) {
         void *mixBuffer = AudioDevice::mixBuffer[AudioDevice::mixBufferID];
 
+        LockAudioDevice();
         AudioDevice::ProcessAudioMixing(mixBuffer, MIX_BUFFER_SIZE);
+        UnlockAudioDevice();
 
         XAUDIO2_BUFFER buffer;
         memset(&buffer, 0, sizeof(buffer));
