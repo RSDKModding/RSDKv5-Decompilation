@@ -1038,10 +1038,8 @@ void RSDK::Legacy::v4::ProcessPathGrip(Entity *entity)
         sensors[0].collided = false;
         sensors[1].collided = false;
         sensors[2].collided = false;
-#if !RETRO_REV00
         sensors[5].collided = false;
         sensors[6].collided = false;
-#endif
         sensors[4].xpos += cosValue256;
         sensors[4].ypos += sinValue256;
         int32 tileDistance = -1;
@@ -1076,13 +1074,11 @@ void RSDK::Legacy::v4::ProcessPathGrip(Entity *entity)
                     FindFloorPosition(entity, &sensors[i], sensors[i].ypos >> 16);
                 }
 
-#if !RETRO_REV00
                 for (int32 i = 5; i < 7; i++) {
                     sensors[i].xpos += cosValue256;
                     sensors[i].ypos += sinValue256;
                     FindFloorPosition(entity, &sensors[i], sensors[i].ypos >> 16);
                 }
-#endif
 
                 tileDistance = -1;
                 for (int32 i = 0; i < 3; i++) {
@@ -1298,10 +1294,9 @@ void RSDK::Legacy::v4::ProcessPathGrip(Entity *entity)
                 entity->floorSensors[0] = sensors[0].collided;
                 entity->floorSensors[1] = sensors[1].collided;
                 entity->floorSensors[2] = sensors[2].collided;
-#if RETRO_REV00
                 entity->floorSensors[3] = sensors[5].collided;
                 entity->floorSensors[4] = sensors[6].collided;
-#endif
+
                 if (!sensors[3].collided) {
                     entity->pushing = 0;
                     entity->xpos    = sensors[4].xpos;
@@ -1518,18 +1513,15 @@ void RSDK::Legacy::v4::SetPathGripSensors(Entity *player)
             sensors[1].ypos = sensors[0].ypos;
             sensors[2].ypos = sensors[0].ypos;
             sensors[3].ypos = sensors[4].ypos + 0x40000;
-#if !RETRO_REV00
             sensors[5].ypos = sensors[0].ypos;
             sensors[6].ypos = sensors[0].ypos;
-#endif
 
             sensors[0].xpos = sensors[4].xpos + ((playerHitbox->left[1] - 1) << 16);
             sensors[1].xpos = sensors[4].xpos;
             sensors[2].xpos = sensors[4].xpos + (playerHitbox->right[1] << 16);
-#if !RETRO_REV00
             sensors[5].xpos = sensors[4].xpos + (playerHitbox->left[1] << 15);
             sensors[6].xpos = sensors[4].xpos + (playerHitbox->right[1] << 15);
-#endif
+
             if (player->speed > 0) {
                 sensors[3].xpos = sensors[4].xpos + ((collisionRight + 1) << 16);
             }
