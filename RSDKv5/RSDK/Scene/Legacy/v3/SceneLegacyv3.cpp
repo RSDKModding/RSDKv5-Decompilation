@@ -248,6 +248,7 @@ void RSDK::Legacy::v3::ProcessStage()
                 DrawObjectList(3);
                 DrawObjectList(4);
                 DrawObjectList(5);
+                DrawObjectList(7); // ???
                 DrawObjectList(6);
 
 #if !RETRO_USE_ORIGINAL_CODE
