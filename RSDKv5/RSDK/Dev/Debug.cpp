@@ -93,9 +93,7 @@ void RSDK::PrintLog(int32 mode, const char *message, ...)
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
-        char pathBuffer[0x100];
-        sprintf_s(pathBuffer, (int32)sizeof(pathBuffer), BASE_PATH "log.txt");
-        FileIO *file = fOpen(pathBuffer, "a");
+        FileIO *file = fOpen(BASE_PATH "log.txt", "a");
         if (file) {
             fWrite(&outputString, 1, strlen(outputString), file);
             fClose(file);
