@@ -38,7 +38,7 @@ struct InputDeviceSDL : InputDevice {
     bool32 swapABXY;
 };
 
-InputDeviceSDL *InitSDL2InputDevice(uint32 id, uint8 controllerID);
+InputDeviceSDL *InitSDL2InputDevice(uint32 id, SDL_GameController *game_controller);
 
 void InitSDL2InputAPI();
 void ReleaseSDL2InputAPI();

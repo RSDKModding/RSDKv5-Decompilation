@@ -715,12 +715,17 @@ void RenderDevice::ProcessEvent(SDL_Event event)
             break;
 
         case SDL_CONTROLLERDEVICEADDED: {
-            uint32 id;
-            char idBuffer[0x20];
-            sprintf_s(idBuffer, (int32)sizeof(idBuffer), "%s%d", "SDLDevice", event.cdevice.which);
-            GenerateHashCRC(&id, idBuffer);
+            SDL_GameController *game_controller = SDL_GameControllerOpen(event.cdevice.which);
 
-            SKU::InitSDL2InputDevice(id, event.cdevice.which);
+            if (game_controller != NULL) {
+                uint32 id;
+                char idBuffer[0x20];
+                sprintf_s(idBuffer, (int32)sizeof(idBuffer), "%s%d", "SDLDevice", SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(game_controller)));
+                GenerateHashCRC(&id, idBuffer);
+
+                SKU::InitSDL2InputDevice(id, game_controller);
+            }
+
             break;
         }
 

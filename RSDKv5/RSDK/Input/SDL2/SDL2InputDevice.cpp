@@ -182,7 +182,7 @@ void RSDK::SKU::InputDeviceSDL::CloseDevice()
     this->controllerPtr = NULL;
 }
 
-RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, uint8 controllerID)
+RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, SDL_GameController *game_controller)
 {
     if (inputDeviceCount >= INPUTDEVICE_COUNT)
         return NULL;
@@ -197,23 +197,25 @@ RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, uint8 contr
 
     InputDeviceSDL *device = (InputDeviceSDL *)inputDeviceList[inputDeviceCount];
 
-    device->controllerPtr = SDL_GameControllerOpen(controllerID);
-
-    const char *name = SDL_GameControllerName(device->controllerPtr);
+    device->controllerPtr = game_controller;
 
     device->swapABXY     = false;
     uint8 controllerType = DEVICE_XBOX;
 
-    if (strstr(name, "Xbox"))
-        controllerType = DEVICE_XBOX;
-    else if (strstr(name, "PS4") || strstr(name, "PS5"))
-        controllerType = DEVICE_PS4;
-    else if (strstr(name, "Nintendo") || strstr(name, "Switch") || strstr(name, "Wii U")) {
-        controllerType   = DEVICE_SWITCH_PRO;
-        device->swapABXY = true;
+    const char *name = SDL_GameControllerName(device->controllerPtr);
+
+    if (name != NULL) {
+        if (strstr(name, "Xbox"))
+            controllerType = DEVICE_XBOX;
+        else if (strstr(name, "PS4") || strstr(name, "PS5"))
+            controllerType = DEVICE_PS4;
+        else if (strstr(name, "Nintendo") || strstr(name, "Switch") || strstr(name, "Wii U")) {
+            controllerType   = DEVICE_SWITCH_PRO;
+            device->swapABXY = true;
+        }
+        else if (strstr(name, "Saturn"))
+            controllerType = DEVICE_SATURN;
     }
-    else if (strstr(name, "Saturn"))
-        controllerType = DEVICE_SATURN;
 
     device->active      = true;
     device->disabled    = false;
