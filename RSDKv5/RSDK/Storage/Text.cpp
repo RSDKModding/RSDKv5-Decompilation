@@ -388,7 +388,12 @@ void RSDK::LoadStringList(String *stringList, const char *filePath, uint32 charS
         if (header == 0xFEFF) {
             // UTF-16
             InitStringList(stringList, (info.fileSize >> 1) - 1);
+#if !RETRO_USE_ORIGINAL_CODE
+            for (int32 c = 0; c < stringList->size; ++c) stringList->chars[c] = ReadInt16(&info);
+#else
+            // This only works as intended on little-endian CPUs.
             ReadBytes(&info, stringList->chars, stringList->size * sizeof(uint16));
+#endif
             stringList->length = stringList->size;
         }
         else {
