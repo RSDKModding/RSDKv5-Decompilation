@@ -98,12 +98,24 @@ unsigned *md5(unsigned *h, const char *msg, int32 mlen)
             //            t = u.b[0]; u.b[0] = u.b[3]; u.b[3] = t;
             //            t = u.b[1]; u.b[1] = u.b[2]; u.b[2] = t;
             q -= 8;
+#if !RETRO_USE_ORIGINAL_CODE
+            for (p = 0; p < 4; ++p) msg2[q + p] = (u.w >> (8 * p)) & 0xFF;
+#else
+            // This only works as intended on little-endian CPUs.
             memcpy(msg2 + q, &u.w, 4);
+#endif
         }
     }
 
     for (grp = 0; grp < grps; grp++) {
+#if !RETRO_USE_ORIGINAL_CODE
+        memset(&mm, 0, sizeof(mm));
+        for (p = 0; p < 64; ++p)
+                mm.w[p / 4] |= msg2[os + p] << (8 * (p % 4));
+#else
+        // This only works as intended on little-endian CPUs.
         memcpy(mm.b, msg2 + os, 64);
+#endif
         for (q = 0; q < 4; q++) abcd[q] = h[q];
         for (p = 0; p < 4; p++) {
             fctn = ff[p];
