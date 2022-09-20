@@ -333,11 +333,24 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
 
 void RSDK::GenerateELoadKeys(FileInfo *info, const char *key1, int32 key2)
 {
+    // This function splits hashes into bytes by casting their integers to byte arrays,
+    // which only works as intended on little-endian CPUs.
+#if !RETRO_USE_ORIGINAL_CODE
+    RETRO_HASH_MD5(hash);
+#else
     uint8 hash[0x10];
+#endif
     char hashBuffer[0x400];
 
     // KeyA
     StringUpperCase(hashBuffer, key1);
+#if !RETRO_USE_ORIGINAL_CODE
+    GEN_HASH_MD5_BUFFER(hashBuffer, hash);
+
+    for (int32 i = 0; i < 4; ++i)
+        for (int32 j = 0; j < 4; ++j)
+            info->encryptionKeyA[i * 4 + j] = (hash[i] >> (8 * (j ^ 3))) & 0xFF;
+#else
     GEN_HASH_MD5_BUFFER(hashBuffer, (uint32 *)hash);
 
     for (int32 y = 0; y < 0x10; y += 4) {
@@ -346,9 +359,17 @@ void RSDK::GenerateELoadKeys(FileInfo *info, const char *key1, int32 key2)
         info->encryptionKeyA[y + 1] = hash[y + 2];
         info->encryptionKeyA[y + 0] = hash[y + 3];
     }
+#endif
 
     // KeyB
     sprintf_s(hashBuffer, (int32)sizeof(hashBuffer), "%d", key2);
+#if !RETRO_USE_ORIGINAL_CODE
+    GEN_HASH_MD5_BUFFER(hashBuffer, hash);
+
+    for (int32 i = 0; i < 4; ++i)
+        for (int32 j = 0; j < 4; ++j)
+            info->encryptionKeyB[i * 4 + j] = (hash[i] >> (8 * (j ^ 3))) & 0xFF;
+#else
     GEN_HASH_MD5_BUFFER(hashBuffer, (uint32 *)hash);
 
     for (int32 y = 0; y < 0x10; y += 4) {
@@ -357,6 +378,7 @@ void RSDK::GenerateELoadKeys(FileInfo *info, const char *key1, int32 key2)
         info->encryptionKeyB[y + 1] = hash[y + 2];
         info->encryptionKeyB[y + 0] = hash[y + 3];
     }
+#endif
 }
 
 void RSDK::DecryptBytes(FileInfo *info, void *buffer, size_t size)

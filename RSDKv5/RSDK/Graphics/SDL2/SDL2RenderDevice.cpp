@@ -723,7 +723,8 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                 sprintf_s(idBuffer, (int32)sizeof(idBuffer), "SDLDevice%d", SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(game_controller)));
                 GenerateHashCRC(&id, idBuffer);
 
-                SKU::InitSDL2InputDevice(id, game_controller);
+                if (SKU::InitSDL2InputDevice(id, game_controller) == NULL)
+                    SDL_GameControllerClose(game_controller);
             }
 
             break;
