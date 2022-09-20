@@ -453,9 +453,14 @@ enum GameRegions {
 #endif
 
 #if RETRO_RENDERDEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2
+#if RETRO_PLATFORM == RETRO_OSX
+// yeah, I dunno how you're meant to do the below with macOS frameworks so leaving this as is for rn :P
+#include <SDL2/SDL.h>
+#else
 // This is the way of including SDL that is recommended by the devs themselves:
 // https://wiki.libsdl.org/FAQDevelopment#do_i_include_sdl.h_or_sdlsdl.h
 #include "SDL.h"
+#endif
 #endif
 
 #include <theora/theoradec.h>

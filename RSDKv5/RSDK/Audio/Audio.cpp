@@ -401,7 +401,7 @@ void RSDK::LoadSfx(char *filename, uint8 plays, uint8 scope)
         }
     }
 
-    if (id != -1)
+    if (id != (uint16)-1)
         LoadSfxToSlot(filename, id, plays, scope);
 }
 
