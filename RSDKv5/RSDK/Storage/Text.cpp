@@ -53,7 +53,7 @@ unsigned rol(unsigned v, int16 amt)
 
 unsigned *md5(unsigned *h, const char *msg, int32 mlen)
 {
-    static digest h0 = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
+    static digest h0     = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
     static DgstFctn ff[] = { &f0, &f1, &f2, &f3 };
     static int16 M[]     = { 1, 5, 3, 7 };
     static int16 O[]     = { 0, 1, 5, 0 };
@@ -110,8 +110,7 @@ unsigned *md5(unsigned *h, const char *msg, int32 mlen)
     for (grp = 0; grp < grps; grp++) {
 #if !RETRO_USE_ORIGINAL_CODE
         memset(&mm, 0, sizeof(mm));
-        for (p = 0; p < 64; ++p)
-                mm.w[p / 4] |= msg2[os + p] << (8 * (p % 4));
+        for (p = 0; p < 64; ++p) mm.w[p / 4] |= msg2[os + p] << (8 * (p % 4));
 #else
         // This only works as intended on little-endian CPUs.
         memcpy(mm.b, msg2 + os, 64);

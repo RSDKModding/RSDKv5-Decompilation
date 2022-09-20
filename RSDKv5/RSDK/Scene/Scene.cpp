@@ -546,7 +546,7 @@ void RSDK::LoadSceneAssets()
                         case VAR_INT16:
                             if (varList[v].active)
 #if !RETRO_USE_ORIGINAL_CODE
-                                *(int16*)&entityBuffer[varList[v].offset] = ReadInt16(&info);
+                                *(int16 *)&entityBuffer[varList[v].offset] = ReadInt16(&info);
 #else
                                 // This only works as intended on little-endian CPUs.
                                 ReadBytes(&info, &entityBuffer[varList[v].offset], sizeof(int16));
@@ -559,7 +559,7 @@ void RSDK::LoadSceneAssets()
                         case VAR_INT32:
                             if (varList[v].active)
 #if !RETRO_USE_ORIGINAL_CODE
-                                *(int32*)&entityBuffer[varList[v].offset] = ReadInt32(&info, false);
+                                *(int32 *)&entityBuffer[varList[v].offset] = ReadInt32(&info, false);
 #else
                                 // This only works as intended on little-endian CPUs.
                                 ReadBytes(&info, &entityBuffer[varList[v].offset], sizeof(int32));
@@ -572,7 +572,7 @@ void RSDK::LoadSceneAssets()
                         case VAR_ENUM:
                             if (varList[v].active)
 #if !RETRO_USE_ORIGINAL_CODE
-                                *(int32*)&entityBuffer[varList[v].offset] = ReadInt32(&info, false);
+                                *(int32 *)&entityBuffer[varList[v].offset] = ReadInt32(&info, false);
 #else
                                 // This only works as intended on little-endian CPUs.
                                 ReadBytes(&info, &entityBuffer[varList[v].offset], sizeof(int32));
@@ -584,7 +584,7 @@ void RSDK::LoadSceneAssets()
                         case VAR_BOOL:
                             if (varList[v].active)
 #if !RETRO_USE_ORIGINAL_CODE
-                                *(bool32*)&entityBuffer[varList[v].offset] = (bool32)ReadInt32(&info, false);
+                                *(bool32 *)&entityBuffer[varList[v].offset] = (bool32)ReadInt32(&info, false);
 #else
                                 // This only works as intended on little-endian CPUs.
                                 ReadBytes(&info, &entityBuffer[varList[v].offset], sizeof(bool32));
@@ -609,8 +609,8 @@ void RSDK::LoadSceneAssets()
                         case VAR_VECTOR2:
                             if (varList[v].active) {
 #if !RETRO_USE_ORIGINAL_CODE
-                                *(int32*)&entityBuffer[varList[v].offset] = ReadInt32(&info, false);
-				*(int32*)&entityBuffer[varList[v].offset + sizeof(int32)] = ReadInt32(&info, false);
+                                *(int32 *)&entityBuffer[varList[v].offset]                 = ReadInt32(&info, false);
+                                *(int32 *)&entityBuffer[varList[v].offset + sizeof(int32)] = ReadInt32(&info, false);
 #else
                                 // This only works as intended on little-endian CPUs.
                                 ReadBytes(&info, &entityBuffer[varList[v].offset], sizeof(int32));
@@ -627,7 +627,7 @@ void RSDK::LoadSceneAssets()
                         case VAR_FLOAT:
                             if (varList[v].active)
 #if !RETRO_USE_ORIGINAL_CODE
-                                *(int32*)&entityBuffer[varList[v].offset] = ReadInt32(&info, false);
+                                *(float *)&entityBuffer[varList[v].offset] = ReadSingle(&info);
 #else
                                 // This only works as intended on little-endian CPUs.
                                 ReadBytes(&info, &entityBuffer[varList[v].offset], sizeof(float));
@@ -639,7 +639,7 @@ void RSDK::LoadSceneAssets()
                         case VAR_COLOR:
                             if (varList[v].active)
 #if !RETRO_USE_ORIGINAL_CODE
-                                *(int32*)&entityBuffer[varList[v].offset] = ReadInt32(&info, false);
+                                *(color *)&entityBuffer[varList[v].offset] = ReadInt32(&info, false);
 #else
                                 // This only works as intended on little-endian CPUs.
                                 ReadBytes(&info, &entityBuffer[varList[v].offset], sizeof(color));
