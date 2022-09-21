@@ -38,6 +38,7 @@ Currently, the only officially supported platforms are the ones listed above. Ho
 * ### [WebASM](https://github.com/heyjoeway/RSDKv5-Decompilation/tree/emscripten) by heyjoeway 
 * ### [New 3DS](https://github.com/SaturnSH2x2/RSDKv5-Decompilation/tree/3ds-main) by SaturnSH2x2
 * ### [Wii U](https://github.com/Radfordhound/RSDKv5-Decompilation) by Radfordhound
+* ### [Wii U](https://github.com/Clownacy/Sonic-Mania-Decompilation) by Clownacy
 * ### [Vita](https://github.com/SonicMastr/Sonic-Mania-Vita) by SonicMastr
 * #### and a [general optimization fork](https://github.com/smb123w64gb/RSDKv5-Decompilation) by smb123w64gb
 
