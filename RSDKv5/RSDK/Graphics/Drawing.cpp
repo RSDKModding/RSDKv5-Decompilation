@@ -241,15 +241,15 @@ void RSDK::RenderDeviceBase::ProcessDimming()
     // initialize dimLimit before ProcessStage(), maybe in RenderDevice::SetupRendering() or something
 
     if (videoSettings.dimTimer < videoSettings.dimLimit) {
-        if (videoSettings.dimPercent < 1.0) {
+        if (videoSettings.dimPercent < 1.0f) {
             videoSettings.dimPercent += 0.05f;
 
-            if (videoSettings.dimPercent > 1.0)
-                videoSettings.dimPercent = 1.0;
+            if (videoSettings.dimPercent > 1.0f)
+                videoSettings.dimPercent = 1.0f;
         }
     }
     else {
-        if (videoSettings.dimPercent > 0.25)
+        if (videoSettings.dimPercent > 0.25f)
             videoSettings.dimPercent *= 0.9f;
     }
 }
