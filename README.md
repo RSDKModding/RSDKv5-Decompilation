@@ -22,10 +22,10 @@ First, follow the steps in [the common dependency README](./dependencies/all/REA
 
 * ## Linux/Switch
   * Follow the [GL3 README](./dependencies/gl3/README.md) to setup the renderer's dependencies.
-  * **For Linux, SDL for audio** (or if you use the SDL2 backend) **will be required:**
-    * On Ubuntu: `sudo apt install libsdl2-dev`
-    * On Fedora: `sudo dnf install SDL2-devel`
-    * On Arch: `sudo pacman -S sdl2` 
+  * **For Linux: libtheora, libogg, and SDL for audio will be required:**
+    * On Ubuntu: `sudo apt install libsdl2-dev libtheora-dev`
+    * On Fedora: `sudo dnf install SDL2-devel libtheora-devel`
+    * On Arch: `sudo pacman -S sdl2 libtheora` 
   * Then, for both platforms, the makefile can be used by running `make`.
     * For Switch, pass `PLATFORM=Switch` to the `make` command to ensure you're building for Switch.
 
