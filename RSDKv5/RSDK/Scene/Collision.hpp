@@ -81,7 +81,9 @@ inline void SetupCollisionConfig(int32 minDistance, uint8 lowTolerance, uint8 hi
     wallAngleTolerance       = wallAngleTolerance;
     roofAngleTolerance       = roofAngleTolerance;
 }
+#endif
 
+#if RETRO_REV0U || RETRO_USE_MOD_LOADER
 void CopyCollisionMask(uint16 dst, uint16 src, uint8 cPlane, uint8 cMode);
 
 inline void GetCollisionInfo(CollisionMask **masks, TileInfo **tileInfo)

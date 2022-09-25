@@ -391,7 +391,7 @@ void DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha);
 void DrawTile(uint16 *tileInfo, int32 countX, int32 countY, Vector2 *position, Vector2 *offset, bool32 screenRelative);
 void DrawAniTile(uint16 sheetID, uint16 tileIndex, uint16 srcX, uint16 srcY, uint16 width, uint16 height);
 
-#if RETRO_REV0U
+#if RETRO_REV0U || RETRO_USE_MOD_LOADER
 inline void DrawDynamicAniTile(Animator *animator, uint16 tileIndex)
 {
     if (animator->frames) {

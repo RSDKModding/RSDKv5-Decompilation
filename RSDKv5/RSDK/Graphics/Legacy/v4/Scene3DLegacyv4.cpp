@@ -435,7 +435,7 @@ void RSDK::Legacy::v4::Draw3DScene(int32 spriteSheetID)
                     quad[3].u = vertexBuffer[face->a].u + vertexBuffer[face->c].u;
                     quad[3].v = vertexBuffer[face->a].v + vertexBuffer[face->c].v;
 
-                    DrawTexturedFace(quad, face->color);
+                    DrawTexturedFace(quad, spriteSheetID);
                 }
                 break;
             case FACE_FLAG_TEXTURED_C_BLEND:
@@ -460,7 +460,7 @@ void RSDK::Legacy::v4::Draw3DScene(int32 spriteSheetID)
                     quad[3].u = vertexBuffer[face->a].u + vertexBuffer[face->c].u;
                     quad[3].v = vertexBuffer[face->a].v + vertexBuffer[face->c].v;
 
-                    DrawTexturedFaceBlended(quad, face->color);
+                    DrawTexturedFaceBlended(quad, spriteSheetID);
                 }
                 break;
             case FACE_FLAG_3DSPRITE:

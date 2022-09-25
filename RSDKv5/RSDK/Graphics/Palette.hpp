@@ -72,6 +72,11 @@ inline void SetPaletteMask(uint32 color)
 
 #if RETRO_REV02
 inline void SetTintLookupTable(uint16 *lookupTable) { tintLookupTable = lookupTable; }
+
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 2
+inline uint16 *GetTintLookupTable() { return tintLookupTable; }
+#endif
+
 #else
 inline uint16 *GetTintLookupTable() { return tintLookupTable; }
 #endif

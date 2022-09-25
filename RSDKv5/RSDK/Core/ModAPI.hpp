@@ -88,6 +88,56 @@ enum ModFunctionTableIDs {
     ModTable_RegisterStateHook,
     ModTable_HandleRunState_HighPriority,
     ModTable_HandleRunState_LowPriority,
+
+#if RETRO_MOD_LOADER_VER >= 2
+    // Mod Settings (Part 2)
+    ModTable_ForeachSetting,
+    ModTable_ForeachSettingCategory, 
+
+    // Files
+    ModTable_ExcludeFile,
+    ModTable_ExcludeAllFiles,
+    ModTable_ReloadFile,
+    ModTable_ReloadAllFiles,
+
+    // Graphics
+    ModTable_GetSpriteAnimation,
+    ModTable_GetSpriteSurface,
+    ModTable_GetPaletteBank,
+    ModTable_GetActivePaletteBuffer,
+    ModTable_GetRGB32To16Buffer,
+    ModTable_GetBlendLookupTable,
+    ModTable_GetSubtractLookupTable,
+    ModTable_GetTintLookupTable,
+    ModTable_GetMaskColor,
+    ModTable_GetScanEdgeBuffer,
+    ModTable_GetCamera,
+    ModTable_GetShader,
+    ModTable_GetModel,
+    ModTable_GetScene3D,
+    ModTable_DrawDynamicAniTile,
+
+    // Audio
+    ModTable_GetSfx,
+    ModTable_GetChannel,
+
+    // Objects/Entities
+    ModTable_GetGroupEntities,
+
+    // Collision
+    ModTable_SetPathGripSensors,
+    ModTable_FloorCollision,
+    ModTable_LWallCollision,
+    ModTable_RoofCollision,
+    ModTable_RWallCollision,
+    ModTable_FindFloorPosition,
+    ModTable_FindLWallPosition,
+    ModTable_FindRoofPosition,
+    ModTable_FindRWallPosition,
+    ModTable_CopyCollisionMask,
+    ModTable_GetCollisionInfo,
+#endif
+
     ModTable_Count
 };
 
@@ -202,7 +252,7 @@ inline std::vector<ModInfo *> ActiveMods()
     return ret;
 }
 
-void ScanModFolder(ModInfo *info);
+bool32 ScanModFolder(ModInfo *info, const char *targetFile = nullptr);
 inline void RefreshModFolders()
 {
     int32 activeModCount = (int32)ActiveMods().size();
@@ -255,7 +305,7 @@ bool32 ForeachModID(String *id);
 void AddModCallback(int32 callbackID, ModCallback callback);
 void AddModCallback_STD(int32 callbackID, ModCallbackSTD callback);
 void AddPublicFunction(const char *functionName, void *functionPtr);
-void *GetPublicFunction(const char *folder, const char *functionName);
+void *GetPublicFunction(const char *id, const char *functionName);
 
 bool32 GetSettingsBool(const char *id, const char *key, bool32 fallback);
 int32 GetSettingsInteger(const char *id, const char *key, int32 fallback);
@@ -275,6 +325,10 @@ float GetConfigFloat(const char *key, float fallback);
 void GetConfigString(const char *key, String *result, const char *fallback);
 bool32 ForeachConfig(String *config);
 bool32 ForeachConfigCategory(String *category);
+#if RETRO_MOD_LOADER_VER >= 2
+bool32 ForeachSetting(const char *id, String *setting);
+bool32 ForeachSettingCategory(const char *id, String *category);
+#endif
 
 void Super(int32 objectID, ModSuper callback, void *data);
 
@@ -286,6 +340,94 @@ void StateMachineRun(void (*state)());
 bool32 HandleRunState_HighPriority(void *state);
 void HandleRunState_LowPriority(void *state, bool32 skipState);
 void RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority);
+
+
+#if RETRO_MOD_LOADER_VER >= 2
+
+// Files
+bool32 ExcludeFile(const char *id, const char *path);
+bool32 ExcludeAllFiles(const char *id);
+bool32 ReloadFile(const char *id, const char *path);
+bool32 ReloadAllFiles(const char *id);
+
+// Graphics
+inline void *GetSpriteAnimation(uint16 id)
+{
+    if (id >= SPRFILE_COUNT)
+        return NULL;
+    return &spriteAnimationList[id];
+}
+inline void *GetSpriteSurface(uint16 id)
+{
+    if (id >= SURFACE_COUNT)
+        return NULL;
+    return &gfxSurface[id];
+}
+inline uint16 *GetPaletteBank(uint8 id)
+{
+    if (id >= PALETTE_BANK_COUNT)
+        return NULL;
+    return fullPalette[id];
+}
+inline uint8 *GetActivePaletteBuffer() { return gfxLineBuffer; }
+inline void GetRGB32To16Buffer(uint16 **rgb32To16_R, uint16 **rgb32To16_G, uint16 **rgb32To16_B)
+{
+    if (rgb32To16_R)
+        *rgb32To16_R = RSDK::rgb32To16_R;
+
+    if (rgb32To16_G)
+        *rgb32To16_G = RSDK::rgb32To16_G;
+
+    if (rgb32To16_B)
+        *rgb32To16_B = RSDK::rgb32To16_B;
+}
+inline uint16 *GetBlendLookupTable() { return blendLookupTable; }
+inline uint16 *GetSubtractLookupTable() { return subtractLookupTable; }
+inline color GetMaskColor() { return maskColor; }
+inline void *GetScanEdgeBuffer() { return scanEdgeBuffer; }
+inline void *GetCamera(uint8 id)
+{
+    if (id >= CAMERA_COUNT)
+        return NULL;
+    return &cameras[id];
+}
+inline void *GetShader(uint8 id)
+{
+    if (id >= SHADER_COUNT)
+        return NULL;
+    return &shaderList[id];
+}
+inline void *GetModel(uint16 id)
+{
+    if (id >= MODEL_COUNT)
+        return NULL;
+    return &modelList[id];
+}
+inline void *GetScene3D(uint16 id)
+{
+    if (id >= SCENE3D_COUNT)
+        return NULL;
+    return &scene3DList[id];
+}
+
+// Audio
+inline void *GetSfxEntry(uint16 id)
+{
+    if (id >= SFX_COUNT)
+        return NULL;
+    return &sfxList[id];
+}
+inline void *GetChannel(uint8 id)
+{
+    if (id >= CHANNEL_COUNT)
+        return NULL;
+    return &channels[id];
+}
+
+// Objects/Entities
+bool32 GetGroupEntities(uint16 group, void **entity);
+#endif
+
 #endif
 
 #if RETRO_REV0U
