@@ -817,43 +817,18 @@ void RSDK::AddMeshFrameToScene(uint16 modelFrames, uint16 sceneIndex, Animator *
     }
 }
 
-void RSDK::Sort3DDrawList(Scene3D *scn, int32 first, int32 last)
-{
-    if (first < last) {
-        int32 i = first;
-        int32 j = last;
-
-        int32 index = scn->faceBuffer[i].index;
-        int32 depth = scn->faceBuffer[i].depth;
-
-        while (i < j) {
-            while (scn->faceBuffer[j].depth <= depth && i < j) j--;
-            scn->faceBuffer[i].index = scn->faceBuffer[j].index;
-            scn->faceBuffer[i].depth = scn->faceBuffer[j].depth;
-
-            while (scn->faceBuffer[i].depth >= depth && i < j) i++;
-            scn->faceBuffer[j].index = scn->faceBuffer[i].index;
-            scn->faceBuffer[j].depth = scn->faceBuffer[i].depth;
-        }
-        scn->faceBuffer[i].index = index;
-        scn->faceBuffer[i].depth = depth;
-
-        Sort3DDrawList(scn, first, i - 1);
-        Sort3DDrawList(scn, j + 1, last);
-    }
-}
-
 void RSDK::Draw3DScene(uint16 sceneID)
 {
     if (sceneID < SCENE3D_COUNT) {
         Entity *entity = sceneInfo.entity;
         Scene3D *scn   = &scene3DList[sceneID];
 
+        // Setup face buffer.
+        // Each face's depth is an average of the depth of its vertices.
         Scene3DVertex *vertices = scn->vertices;
         Scene3DFace *faceBuffer = scn->faceBuffer;
         uint8 *faceVertCounts = scn->faceVertCounts;
 
-        // setup face buffer
         int32 vertIndex = 0;
         for (int32 i = 0; i < scn->faceCount; ++i) {
             switch (*faceVertCounts) {
@@ -892,7 +867,28 @@ void RSDK::Draw3DScene(uint16 sceneID)
             ++faceVertCounts;
         }
 
-        Sort3DDrawList(scn, 0, scn->faceCount - 1);
+        // Sort the face buffer. This is needed so that the faces don't overlap each other incorrectly when they're rendered.
+        // This is an insertion sort, taken from here:
+        // https://web.archive.org/web/20110108233032/http://rosettacode.org/wiki/Sorting_algorithms/Insertion_sort#C
+
+        Scene3DFace *a = scn->faceBuffer;
+
+        int i, j;
+        Scene3DFace temp;
+
+        for(i=1; i<scn->faceCount; i++)
+        {
+            temp = a[i];
+            j = i-1;
+            while(j>=0 && a[j].depth < temp.depth)
+            {
+                a[j+1] = a[j];
+                j -= 1;
+            }
+            a[j+1] = temp;
+        }
+
+        // Finally, display the faces.
 
         uint8 *vertCnt = scn->faceVertCounts;
         Vector2 vertPos[4];
