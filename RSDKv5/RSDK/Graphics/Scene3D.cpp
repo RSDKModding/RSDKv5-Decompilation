@@ -850,37 +850,46 @@ void RSDK::Draw3DScene(uint16 sceneID)
         Scene3D *scn   = &scene3DList[sceneID];
 
         Scene3DVertex *vertices = scn->vertices;
+        Scene3DFace *faceBuffer = scn->faceBuffer;
+        uint8 *faceVertCounts = scn->faceVertCounts;
 
         // setup face buffer
         int32 vertIndex = 0;
         for (int32 i = 0; i < scn->faceCount; ++i) {
-            scn->faceBuffer[i].depth = 0;
+            switch (*faceVertCounts) {
+                default:
+                case 1:
+                    faceBuffer->depth = vertices[0].z;
+                    vertices += *faceVertCounts;
+                    break;
 
-            if (scn->faceVertCounts[i] == 4) {
-                scn->faceBuffer[i].depth = vertices[0].z >> 2;
-                scn->faceBuffer[i].depth += vertices[1].z >> 2;
-                scn->faceBuffer[i].depth += vertices[2].z >> 2;
-                scn->faceBuffer[i].depth += vertices[3].z >> 2;
-                vertices += 4;
-            }
-            else if (scn->faceVertCounts[i] == 3) {
-                scn->faceBuffer[i].depth = vertices[0].z >> 1;
-                scn->faceBuffer[i].depth += vertices[1].z >> 1;
-                scn->faceBuffer[i].depth += vertices[2].z >> 1;
-                vertices += 3;
-            }
-            else if (scn->faceVertCounts[i] == 2) {
-                scn->faceBuffer[i].depth = vertices[0].z >> 1;
-                scn->faceBuffer[i].depth += vertices[1].z >> 1;
-                vertices += 2;
-            }
-            else {
-                scn->faceBuffer[i].depth = vertices->z;
-                vertices++;
+                case 2:
+                    faceBuffer->depth = vertices[0].z >> 1;
+                    faceBuffer->depth += vertices[1].z >> 1;
+                    vertices += 2;
+                    break;
+
+                case 3:
+                    faceBuffer->depth = vertices[0].z >> 1;
+                    faceBuffer->depth = (faceBuffer->depth + (vertices[1].z >> 1)) >> 1;
+                    faceBuffer->depth += vertices[2].z >> 1;
+                    vertices += 3;
+                    break;
+
+                case 4:
+                    faceBuffer->depth = vertices[0].z >> 2;
+                    faceBuffer->depth += vertices[1].z >> 2;
+                    faceBuffer->depth += vertices[2].z >> 2;
+                    faceBuffer->depth += vertices[3].z >> 2;
+                    vertices += 4;
+                    break;
             }
 
-            scn->faceBuffer[i].index = vertIndex;
-            vertIndex += scn->faceVertCounts[i];
+            faceBuffer->index = vertIndex;
+            vertIndex += *faceVertCounts;
+
+            ++faceBuffer;
+            ++faceVertCounts;
         }
 
         Sort3DDrawList(scn, 0, scn->faceCount - 1);
