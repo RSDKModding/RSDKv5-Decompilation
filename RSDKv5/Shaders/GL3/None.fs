@@ -8,8 +8,6 @@ vec2 round(vec2 inp) {
     outp.y = fract(inp.y) < 0.5 ? floor(inp.y) : ceil(inp.y);
     return outp;
 }
-#else
-#define GL_OES_standard_derivatives (1)
 #endif
 
 in_F vec2 ex_UV;
