@@ -1345,25 +1345,19 @@ void RSDK::DrawCircle(int32 x, int32 y, int32 radius, uint32 color, int32 alpha,
         }
 
         int32 yRadiusBottom = y + radius;
-        int32 bottom        = currentScreen->clipBound_Y1;
+        int32 bottom        = yRadiusBottom + 1;
         int32 yRadiusTop    = y - radius;
-        int32 top = top = y - radius;
+        int32 top           = yRadiusTop;
 
-        if (y - radius >= bottom) {
-            top = y - radius;
-            if (top > currentScreen->clipBound_Y2)
-                top = currentScreen->clipBound_Y2;
-        }
-        else {
+        if (top < currentScreen->clipBound_Y1)
             top = currentScreen->clipBound_Y1;
-        }
+        else if (top > currentScreen->clipBound_Y2)
+            top = currentScreen->clipBound_Y2;
 
-        if (yRadiusBottom >= bottom) {
-            bottom = y + radius;
-            bottom++;
-            if (bottom > currentScreen->clipBound_Y2)
-                bottom = currentScreen->clipBound_Y2;
-        }
+        if (bottom < currentScreen->clipBound_Y1)
+            bottom = currentScreen->clipBound_Y1;
+        else if (bottom > currentScreen->clipBound_Y2)
+            bottom = currentScreen->clipBound_Y2;
 
         if (top != bottom) {
             for (int32 i = top; i < bottom; ++i) {
@@ -1375,20 +1369,16 @@ void RSDK::DrawCircle(int32 x, int32 y, int32 radius, uint32 color, int32 alpha,
             int32 xRad               = x - radius;
             int32 curY               = y;
             int32 curX               = x;
-            int32 startY             = yRadiusTop + 1;
-            ScanEdge *scanEdgeTop    = &scanEdgeBuffer[yRadiusTop];
-            ScanEdge *scanEdgeBottom = &scanEdgeBuffer[yRadiusBottom];
-            ScanEdge *scanEdge       = &scanEdgeBuffer[y];
             int32 dist               = x - y;
 
             for (int32 i = 0; i <= radius; ++i) {
                 int32 scanX = i + curX;
 
-                if (yRadiusBottom >= top && yRadiusBottom <= bottom && scanX > scanEdgeBottom->end)
-                    scanEdgeBottom->end = scanX;
+                if (yRadiusBottom >= top && yRadiusBottom <= bottom && scanX > scanEdgeBuffer[yRadiusBottom].end)
+                    scanEdgeBuffer[yRadiusBottom].end = scanX;
 
-                if (startY >= top && startY <= bottom && scanX > scanEdgeTop->end)
-                    scanEdgeTop->end = scanX;
+                if (yRadiusTop >= top && yRadiusTop <= bottom && scanX > scanEdgeBuffer[yRadiusTop].end)
+                    scanEdgeBuffer[yRadiusTop].end = scanX;
 
                 int32 scanY = i + y;
                 if (scanY >= top && scanY <= bottom) {
@@ -1397,14 +1387,14 @@ void RSDK::DrawCircle(int32 x, int32 y, int32 radius, uint32 color, int32 alpha,
                         edge->end = yRadiusBottom + dist;
                 }
 
-                if (curY >= top && curY <= bottom && yRadiusBottom + dist > scanEdge->end)
-                    scanEdge->end = yRadiusBottom + dist;
+                if (curY >= top && curY <= bottom && yRadiusBottom + dist > scanEdgeBuffer[curY].end)
+                    scanEdgeBuffer[curY].end = yRadiusBottom + dist;
 
-                if (yRadiusBottom >= top && yRadiusBottom <= bottom && x < scanEdgeBottom->start)
-                    scanEdgeBottom->start = x;
+                if (yRadiusBottom >= top && yRadiusBottom <= bottom && x < scanEdgeBuffer[yRadiusBottom].start)
+                    scanEdgeBuffer[yRadiusBottom].start = x;
 
-                if (startY >= top && startY <= bottom && x < scanEdgeTop->start)
-                    scanEdgeTop->start = x;
+                if (yRadiusTop >= top && yRadiusTop <= bottom && x < scanEdgeBuffer[yRadiusTop].start)
+                    scanEdgeBuffer[yRadiusTop].start = x;
 
                 if (scanY >= top && scanY <= bottom) {
                     ScanEdge *edge = &scanEdgeBuffer[scanY];
@@ -1412,15 +1402,13 @@ void RSDK::DrawCircle(int32 x, int32 y, int32 radius, uint32 color, int32 alpha,
                         edge->start = xRad;
                 }
 
-                if (curY >= top && curY <= bottom && xRad < scanEdge->start)
-                    scanEdge->start = xRad;
+                if (curY >= top && curY <= bottom && xRad < scanEdgeBuffer[curY].start)
+                    scanEdgeBuffer[curY].start = xRad;
 
                 if (r >= 0) {
                     --yRadiusBottom;
-                    --scanEdgeBottom;
-                    ++startY;
+                    ++yRadiusTop;
                     r += 4 * (i - radius) + 10;
-                    ++scanEdgeTop;
                     --radius;
                     ++xRad;
                 }
@@ -1428,7 +1416,6 @@ void RSDK::DrawCircle(int32 x, int32 y, int32 radius, uint32 color, int32 alpha,
                     r += 4 * i + 6;
                 }
                 --curY;
-                --scanEdge;
                 --x;
             }
 
