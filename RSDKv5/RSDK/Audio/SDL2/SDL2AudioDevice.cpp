@@ -20,7 +20,7 @@ bool32 AudioDevice::Init()
     want.callback = AudioCallback;
 
     audioState = false;
-    if ((device = SDL_OpenAudioDevice(nullptr, 0, &want, &deviceSpec, 0)) > 0) {
+    if ((device = SDL_OpenAudioDevice(nullptr, 0, &want, &deviceSpec, SDL_AUDIO_ALLOW_SAMPLES_CHANGE)) > 0) {
         SDL_PauseAudioDevice(device, SDL_FALSE);
         audioState = true;
     }
