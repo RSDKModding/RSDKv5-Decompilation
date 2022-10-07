@@ -145,10 +145,10 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
 
 void RSDK::UpdateStreamBuffer(ChannelInfo *channel)
 {
-    int32 bufferRemaining = 0x800;
+    int32 bufferRemaining = MIX_BUFFER_SIZE;
     float *buffer         = channel->samplePtr;
 
-    for (int32 s = 0; s < 0x800;) {
+    for (int32 s = 0; s < MIX_BUFFER_SIZE;) {
         int32 samples = stb_vorbis_get_samples_float_interleaved(vorbisInfo, 2, buffer, bufferRemaining) * 2;
         if (!samples) {
             if (channel->loop == 1 && stb_vorbis_seek_frame(vorbisInfo, streamLoopPoint)) {
@@ -165,10 +165,10 @@ void RSDK::UpdateStreamBuffer(ChannelInfo *channel)
 
         s += samples;
         buffer += samples;
-        bufferRemaining = 0x800 - s;
+        bufferRemaining = MIX_BUFFER_SIZE - s;
     }
 
-    for (int32 i = 0; i < 0x800; i += 4) {
+    for (int32 i = 0; i < MIX_BUFFER_SIZE; i += 4) {
         float *sampleBuffer = &channel->samplePtr[i];
 
         sampleBuffer[0] = sampleBuffer[0] * 0.5;
