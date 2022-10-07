@@ -920,7 +920,7 @@ uint16 RSDK::FindObject(const char *name)
             return o;
     }
 
-    return 0;
+    return TYPE_DEFAULTOBJECT;
 }
 
 int32 RSDK::GetEntityCount(uint16 classID, bool32 isActive)

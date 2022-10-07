@@ -184,6 +184,7 @@ struct ModInfo {
     int32 targetVersion;
     int32 forceVersion;
     std::map<std::string, std::string> fileMap;
+    std::vector<std::string> excludedFiles;
     std::vector<ModPublicFunctionInfo> functionList;
     std::vector<Link::Handle> modLogicHandles;
     std::vector<modLinkSTD> linkModLogic;

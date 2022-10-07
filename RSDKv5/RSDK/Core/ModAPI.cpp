@@ -515,6 +515,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
     PrintLog(PRINT_NORMAL, "[MOD] Trying to load mod %s...", folder.c_str());
 
     info->fileMap.clear();
+    info->excludedFiles.clear();
     info->modLogicHandles.clear();
     info->name             = "";
     info->desc             = "";
@@ -1784,14 +1785,12 @@ bool32 RSDK::ExcludeFile(const char *id, const char *path)
         return false;
 
     char pathLower[0x100];
-    memset(pathLower, 0, sizeof(char) * 0x100);
-    for (int32 c = 0; c < strlen(path); ++c) {
-        pathLower[c] = tolower(path[c]);
-    }
+    memset(pathLower, 0, sizeof(pathLower));
+    for (int32 c = 0; c < strlen(path); ++c) pathLower[c] = tolower(path[c]);
 
-    std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
-    if (iter != modList[m].fileMap.cend()) {
-        modList[m].fileMap.erase(iter);
+    auto &excludeList = modList[m].excludedFiles;
+    if (std::find(excludeList.begin(), excludeList.end(), pathLower) == excludeList.end()) {
+        excludeList.push_back(std::string(pathLower));
 
         return true;
     }
@@ -1815,6 +1814,11 @@ bool32 RSDK::ExcludeAllFiles(const char *id)
     if (m == modList.size())
         return false;
 
+    auto &excludeList = modList[m].excludedFiles;
+    for (auto file : modList[m].fileMap) {
+        excludeList.push_back(file.first);
+    }
+
     modList[m].fileMap.clear();
 
     return true;
@@ -1835,6 +1839,17 @@ bool32 RSDK::ReloadFile(const char *id, const char *path)
 
     if (m == modList.size())
         return false;
+
+    char pathLower[0x100];
+    memset(pathLower, 0, sizeof(pathLower));
+    for (int32 c = 0; c < strlen(path); ++c) pathLower[c] = tolower(path[c]);
+
+    auto &excludeList = modList[m].excludedFiles;
+    if (std::find(excludeList.begin(), excludeList.end(), pathLower) != excludeList.end()) {
+        excludeList.erase(std::remove(excludeList.begin(), excludeList.end(), pathLower), excludeList.end());
+
+        return true;
+    }
 
     ScanModFolder(&modList[m], path);
 
@@ -1857,6 +1872,7 @@ bool32 RSDK::ReloadAllFiles(const char *id)
     if (m == modList.size())
         return false;
 
+    modList[m].excludedFiles.clear();
     ScanModFolder(&modList[m]);
 
     return true;
