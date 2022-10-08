@@ -232,7 +232,7 @@ void RSDK::LoadStream(ChannelInfo *channel)
 
         if (streamBufferSize > 0) {
             vorbisAlloc.alloc_buffer_length_in_bytes = 0x80000;
-            AllocateStorage((void **)&vorbisAlloc, 0x80000, DATASET_MUS, false);
+            AllocateStorage((void **)&vorbisAlloc.alloc_buffer, 0x80000, DATASET_MUS, false);
 
             vorbisInfo = stb_vorbis_open_memory(streamBuffer, streamBufferSize, NULL, &vorbisAlloc);
             if (vorbisInfo) {
