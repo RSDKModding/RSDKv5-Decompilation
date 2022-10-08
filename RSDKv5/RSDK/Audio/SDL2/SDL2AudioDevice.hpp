@@ -27,7 +27,6 @@ private:
     static uint8 contextInitialized;
 
     static void InitAudioChannels();
-    static void InitMixBuffer() {}
 
     static void AudioCallback(void *data, uint8 *stream, int32 len);
 };

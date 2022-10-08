@@ -39,8 +39,18 @@ uint8 AudioDeviceBase::initializedAudioChannels = false;
 uint8 AudioDeviceBase::audioState               = 0;
 uint8 AudioDeviceBase::audioFocus               = 0;
 
-int32 AudioDeviceBase::mixBufferID = 0;
-float AudioDeviceBase::mixBuffer[3][MIX_BUFFER_SIZE];
+void AudioDeviceBase::Release()
+{
+    // as far as I know, this isn't in the original which means it'd memleak right?
+#if !RETRO_USE_ORIGINAL_CODE
+    if (vorbisInfo) {
+        vorbis_deinit(vorbisInfo);
+        if (!vorbisInfo->alloc.alloc_buffer)
+            free(vorbisInfo);
+    }
+    vorbisInfo = NULL;
+#endif
+}
 
 void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
 {
@@ -141,6 +151,27 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
             case CHANNEL_LOADING_STREAM: break;
         }
     }
+}
+
+void AudioDeviceBase::InitAudioChannels()
+{
+    for (int32 i = 0; i < CHANNEL_COUNT; ++i) {
+        channels[i].soundID = -1;
+        channels[i].state   = CHANNEL_IDLE;
+    }
+
+    for (int32 i = 0; i < 0x400; i += 2) {
+        speedMixAmounts[i]     = (i + 0) * (1.0f / 1024.0f);
+        speedMixAmounts[i + 1] = (i + 1) * (1.0f / 1024.0f);
+    }
+
+    GEN_HASH_MD5("Stream Channel 0", sfxList[SFX_COUNT - 1].hash);
+    sfxList[SFX_COUNT - 1].scope              = SCOPE_GLOBAL;
+    sfxList[SFX_COUNT - 1].maxConcurrentPlays = 1;
+    sfxList[SFX_COUNT - 1].length             = MIX_BUFFER_SIZE;
+    AllocateStorage((void **)&sfxList[SFX_COUNT - 1].buffer, MIX_BUFFER_SIZE * sizeof(SAMPLE_FORMAT), DATASET_MUS, false);
+
+    initializedAudioChannels = true;
 }
 
 void RSDK::UpdateStreamBuffer(ChannelInfo *channel)
