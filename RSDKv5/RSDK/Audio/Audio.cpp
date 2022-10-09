@@ -74,9 +74,9 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
 
                 float volL = channel->volume, volR = channel->volume;
                 if (channel->pan < 0.0f)
-                    volL = (1.0f + channel->pan) * channel->volume;
+                    volR = (1.0f + channel->pan) * channel->volume;
                 else
-                    volR = (1.0f - channel->pan) * channel->volume;
+                    volL = (1.0f - channel->pan) * channel->volume;
 
                 float panL = volL * engine.soundFXVolume;
                 float panR = volR * engine.soundFXVolume;
@@ -119,9 +119,9 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
 
                 float volL = channel->volume, volR = channel->volume;
                 if (channel->pan < 0.0f)
-                    volL = (1.0f + channel->pan) * channel->volume;
+                    volR = (1.0f + channel->pan) * channel->volume;
                 else
-                    volR = (1.0f - channel->pan) * channel->volume;
+                    volL = (1.0f - channel->pan) * channel->volume;
 
                 float panL = volL * engine.streamVolume;
                 float panR = volR * engine.streamVolume;
