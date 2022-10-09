@@ -97,7 +97,7 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
                     curStreamF += 2;
 
                     if (channel->bufferPos >= channel->sampleLength) {
-                        if (channel->loop == -1) {
+                        if (channel->loop == (uint32)-1) {
                             channel->state   = CHANNEL_IDLE;
                             channel->soundID = -1;
                             break;
