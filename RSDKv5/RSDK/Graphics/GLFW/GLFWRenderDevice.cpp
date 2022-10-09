@@ -963,6 +963,11 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                     break;
 
 #if !RETRO_USE_ORIGINAL_CODE
+                case GLFW_KEY_F4:
+                    if (engine.devMenu)
+                        engine.showEntityInfo ^= 1;
+                    break;
+
                 case GLFW_KEY_F5:
                     if (engine.devMenu) {
                         // Quick-Reload
@@ -987,6 +992,11 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                 case GLFW_KEY_F7:
                     if (engine.devMenu && videoSettings.screenCount < SCREEN_COUNT)
                         videoSettings.screenCount++;
+                    break;
+
+                case GLFW_KEY_F8:
+                    if (engine.devMenu)
+                        engine.showUpdateRanges ^= 1;
                     break;
 
                 case GLFW_KEY_F9:

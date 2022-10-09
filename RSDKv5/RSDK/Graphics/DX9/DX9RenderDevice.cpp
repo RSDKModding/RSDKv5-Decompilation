@@ -1241,6 +1241,14 @@ void RenderDevice::ProcessEvent(MSG Msg)
                     break;
 
 #if !RETRO_USE_ORIGINAL_CODE
+                case VK_F4:
+                    if (engine.devMenu) {
+                        engine.showEntityInfo ^= 1;
+
+                        handledMsg = true;
+                    }
+                    break;
+
                 case VK_F5:
                     if (engine.devMenu) {
                         // Quick-Reload
@@ -1271,6 +1279,14 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F7:
                     if (engine.devMenu && videoSettings.screenCount < SCREEN_COUNT) {
                         videoSettings.screenCount++;
+
+                        handledMsg = true;
+                    }
+                    break;
+
+                case VK_F8:
+                    if (engine.devMenu) {
+                        engine.showUpdateRanges ^= 1;
 
                         handledMsg = true;
                     }

@@ -87,6 +87,10 @@ void RSDK::RegisterObject(Object **staticVars, const char *name, uint32 entityCl
         classInfo->staticLoad = staticLoad;
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
+        classInfo->name = name;
+#endif
+
         ++objectClassCount;
     }
 }
@@ -820,6 +824,95 @@ void RSDK::ProcessObjectDrawLists()
             }
 
 #if !RETRO_USE_ORIGINAL_CODE
+            if (engine.showUpdateRanges) {
+                for (int32 l = 0; l < DRAWGROUP_COUNT; ++l) {
+                    if (engine.drawGroupVisible[l]) {
+                        DrawList *list = &drawGroups[l];
+                        for (int32 i = 0; i < list->entityCount; ++i) {
+                            Entity *entity     = &objectEntityList[list->entries[i]];
+
+                            if (entity->visible || (engine.showUpdateRanges & 2)) {
+                                switch (entity->active) {
+                                    default:
+                                    case ACTIVE_DISABLED:
+                                    case ACTIVE_NEVER: break;
+
+                                    case ACTIVE_ALWAYS:
+                                    case ACTIVE_NORMAL: 
+                                    case ACTIVE_PAUSED:
+                                        DrawRectangle(entity->position.x, entity->position.y, TO_FIXED(1), TO_FIXED(1), 0x0000FF, 0xFF, INK_NONE,
+                                                      false);
+                                        break;
+
+                                    case ACTIVE_BOUNDS:
+                                        DrawLine(entity->position.x - entity->updateRange.x, entity->position.y - entity->updateRange.y,
+                                                 entity->position.x + entity->updateRange.x, entity->position.y - entity->updateRange.y, 0x0000FF,
+                                                 0xFF, INK_NONE, false);
+
+                                        DrawLine(entity->position.x - entity->updateRange.x, entity->position.y + entity->updateRange.y,
+                                                 entity->position.x + entity->updateRange.x, entity->position.y + entity->updateRange.y, 0x0000FF,
+                                                 0xFF, INK_NONE, false);
+
+                                        DrawLine(entity->position.x - entity->updateRange.x, entity->position.y - entity->updateRange.y,
+                                                 entity->position.x - entity->updateRange.x, entity->position.y + entity->updateRange.y, 0x0000FF,
+                                                 0xFF, INK_NONE, false);
+
+                                        DrawLine(entity->position.x + entity->updateRange.x, entity->position.y - entity->updateRange.y,
+                                                 entity->position.x + entity->updateRange.x, entity->position.y + entity->updateRange.y, 0x0000FF,
+                                                 0xFF, INK_NONE, false);
+                                        break;
+
+                                    case ACTIVE_XBOUNDS:
+                                        DrawLine(entity->position.x - entity->updateRange.x, TO_FIXED(currentScreen->position.y),
+                                                 entity->position.x - entity->updateRange.x,
+                                                 TO_FIXED(currentScreen->position.y + currentScreen->size.y), 0x0000FF, 0xFF, INK_NONE, false);
+
+                                        DrawLine(entity->position.x + entity->updateRange.x, TO_FIXED(currentScreen->position.y),
+                                                 entity->position.x + entity->updateRange.x,
+                                                 TO_FIXED(currentScreen->position.y + currentScreen->size.y), 0x0000FF, 0xFF, INK_NONE, false);
+                                        break;
+
+                                    case ACTIVE_YBOUNDS:
+                                        DrawLine(TO_FIXED(currentScreen->position.x), entity->position.y - entity->updateRange.y,
+                                                 TO_FIXED(currentScreen->position.x + currentScreen->size.x),
+                                                 entity->position.y - entity->updateRange.y, 0x0000FF, 0xFF, INK_NONE, false);
+
+                                        DrawLine(TO_FIXED(currentScreen->position.x), entity->position.y + entity->updateRange.y,
+                                                 TO_FIXED(currentScreen->position.x + currentScreen->size.x),
+                                                 entity->position.y + entity->updateRange.y, 0x0000FF, 0xFF, INK_NONE, false);
+                                        break;
+
+                                    case ACTIVE_RBOUNDS:
+                                        DrawCircleOutline(entity->position.x, entity->position.y, FROM_FIXED(entity->updateRange.x),
+                                                          FROM_FIXED(entity->updateRange.x) + 1, 0x0000FF, 0xFF, INK_NONE, false);
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (engine.showEntityInfo) {
+                for (int32 l = 0; l < DRAWGROUP_COUNT; ++l) {
+                    if (engine.drawGroupVisible[l]) {
+                        DrawList *list = &drawGroups[l];
+                        for (int32 i = 0; i < list->entityCount; ++i) {
+                            Entity *entity = &objectEntityList[list->entries[i]];
+
+                            if (entity->visible || (engine.showEntityInfo & 2)) {
+                                char buffer[0x100];
+                                sprintf_s(buffer, "%s\nx: %g\ny: %g", objectClassList[stageObjectIDs[entity->classID]].name,
+                                          entity->position.x / 65536.0f, entity->position.y / 65536.0f);
+
+                                DrawDevString(buffer, FROM_FIXED(entity->position.x) - currentScreen->position.x,
+                                              FROM_FIXED(entity->position.y) - currentScreen->position.y, ALIGN_LEFT, 0xF0F0F0);
+                            }
+                        }
+                    }
+                }
+            }
+
             if (showHitboxes) {
                 for (int32 i = 0; i < debugHitboxCount; ++i) {
                     DebugHitboxInfo *info = &debugHitboxList[i];

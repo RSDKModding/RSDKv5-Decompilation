@@ -554,6 +554,8 @@ struct RetroEngine {
     int32 fastForwardSpeed    = 8;
     bool32 frameStep          = false;
     bool32 showPaletteOverlay = false;
+    uint8 showUpdateRanges    = 0;
+    uint8 showEntityInfo      = 0;
     bool32 drawGroupVisible[DRAWGROUP_COUNT];
 
     // Image/Video support

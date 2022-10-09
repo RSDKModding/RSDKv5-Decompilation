@@ -179,6 +179,10 @@ struct ObjectClass {
 #if RETRO_USE_MOD_LOADER
     ObjectClass *inherited;
 #endif
+
+#if !RETRO_USE_ORIGINAL_CODE
+    const char *name; // for debugging purposes
+#endif
 };
 
 struct EditableVarInfo {

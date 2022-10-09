@@ -327,6 +327,12 @@ void RSDK::ProcessEngine()
                 InitObjects();
 
 #if RETRO_REV02
+#if !RETRO_USE_ORIGINAL_CODE
+                AddViewableVariable("Show Hitboxes", &showHitboxes, VIEWVAR_BOOL, false, true);
+                AddViewableVariable("Show Palettes", &engine.showPaletteOverlay, VIEWVAR_BOOL, false, true);
+                AddViewableVariable("Show Obj Range", &engine.showUpdateRanges, VIEWVAR_UINT8, 0, 2);
+                AddViewableVariable("Show Obj Info", &engine.showEntityInfo, VIEWVAR_UINT8, 0, 2);
+#endif
                 SKU::userCore->StageLoad();
                 for (int32 v = 0; v < DRAWGROUP_COUNT; ++v)
                     AddViewableVariable(drawGroupNames[v], &engine.drawGroupVisible[v], VIEWVAR_BOOL, false, true);
@@ -406,6 +412,12 @@ void RSDK::ProcessEngine()
             InitObjects();
 
 #if RETRO_REV02
+#if !RETRO_USE_ORIGINAL_CODE
+            AddViewableVariable("Show Hitboxes", &showHitboxes, VIEWVAR_BOOL, false, true);
+            AddViewableVariable("Show Palettes", &engine.showPaletteOverlay, VIEWVAR_BOOL, false, true);
+            AddViewableVariable("Show Obj Range", &engine.showUpdateRanges, VIEWVAR_UINT8, 0, 2);
+            AddViewableVariable("Show Obj Info", &engine.showEntityInfo, VIEWVAR_UINT8, 0, 2);
+#endif
             SKU::userCore->StageLoad();
             for (int32 v = 0; v < DRAWGROUP_COUNT; ++v)
                 AddViewableVariable(drawGroupNames[v], &engine.drawGroupVisible[v], VIEWVAR_BOOL, false, true);
