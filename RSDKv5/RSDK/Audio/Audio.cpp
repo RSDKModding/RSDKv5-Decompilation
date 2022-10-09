@@ -44,13 +44,9 @@ uint8 AudioDeviceBase::audioFocus               = 0;
 
 void AudioDeviceBase::Release()
 {
-    // as far as I know, this isn't in the original which means it'd memleak right?
+    // This is missing, meaning that the garbage collector will never reclaim stb_vorbis's buffer.
 #if !RETRO_USE_ORIGINAL_CODE
-    if (vorbisInfo) {
-        vorbis_deinit(vorbisInfo);
-        if (!vorbisInfo->alloc.alloc_buffer)
-            free(vorbisInfo);
-    }
+    stb_vorbis_close(vorbisInfo);
     vorbisInfo = NULL;
 #endif
 }
@@ -211,11 +207,7 @@ void RSDK::LoadStream(ChannelInfo *channel)
     if (channel->state != CHANNEL_LOADING_STREAM)
         return;
 
-    if (vorbisInfo) {
-        vorbis_deinit(vorbisInfo);
-        if (!vorbisInfo->alloc.alloc_buffer)
-            free(vorbisInfo);
-    }
+    stb_vorbis_close(vorbisInfo);
 
     FileInfo info;
     InitFileInfo(&info);
