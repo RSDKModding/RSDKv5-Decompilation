@@ -34,11 +34,13 @@ bool32 AudioDevice::Init()
 
 void AudioDevice::Release()
 {
+    SDL_PauseAudioDevice(device, SDL_TRUE);
+
     LockAudioDevice();
     AudioDeviceBase::Release();
     UnlockAudioDevice();
 
-    SDL_CloseAudioDevice(AudioDevice::device);
+    SDL_CloseAudioDevice(device);
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
