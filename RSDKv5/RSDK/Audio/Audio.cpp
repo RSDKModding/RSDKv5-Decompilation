@@ -23,7 +23,10 @@ int32 streamBufferSize = 0;
 int32 streamStartPos   = 0;
 int32 streamLoopPoint  = 0;
 
-float speedMixAmounts[0x400];
+#define LINEAR_INTERPOLATION_LOOKUP_DIVISOR 0x40 // Determines the 'resolution' of the lookup table.
+#define LINEAR_INTERPOLATION_LOOKUP_LENGTH (TO_FIXED(1) / LINEAR_INTERPOLATION_LOOKUP_DIVISOR)
+
+float linearInterpolationLookup[LINEAR_INTERPOLATION_LOOKUP_LENGTH];
 
 #if RETRO_AUDIODEVICE_XAUDIO
 #include "XAudio/XAudioDevice.cpp"
@@ -70,10 +73,10 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
                 SAMPLE_FORMAT *sfxBuffer = &channel->samplePtr[channel->bufferPos];
 
                 float volL = channel->volume, volR = channel->volume;
-                if (channel->pan < 0.0)
-                    volL = (1.0 + channel->pan) * channel->volume;
+                if (channel->pan < 0.0f)
+                    volL = (1.0f + channel->pan) * channel->volume;
                 else
-                    volR = (1.0 - channel->pan) * channel->volume;
+                    volR = (1.0f - channel->pan) * channel->volume;
 
                 float panL = volL * engine.soundFXVolume;
                 float panR = volR * engine.soundFXVolume;
@@ -82,19 +85,19 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
                 SAMPLE_FORMAT *curStreamF = streamF;
                 while (curStreamF < streamEndF && streamF < streamEndF) {
                     // Perform linear interpolation.
-                    SAMPLE_FORMAT sample = (sfxBuffer[1] - sfxBuffer[0]) * speedMixAmounts[speedPercent >> 6] + sfxBuffer[0];
+                    SAMPLE_FORMAT sample = (sfxBuffer[1] - sfxBuffer[0]) * linearInterpolationLookup[speedPercent / LINEAR_INTERPOLATION_LOOKUP_DIVISOR] + sfxBuffer[0];
 
                     speedPercent += channel->speed;
                     sfxBuffer += FROM_FIXED(speedPercent);
                     channel->bufferPos += FROM_FIXED(speedPercent);
-                    speedPercent &= 0xFFFF;
+                    speedPercent %= TO_FIXED(1);
 
                     curStreamF[0] += sample * panL;
                     curStreamF[1] += sample * panR;
                     curStreamF += 2;
 
                     if (channel->bufferPos >= channel->sampleLength) {
-                        if (channel->loop == 0xFFFFFFFF) {
+                        if (channel->loop == -1) {
                             channel->state   = CHANNEL_IDLE;
                             channel->soundID = -1;
                             break;
@@ -115,10 +118,10 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
                 SAMPLE_FORMAT *streamBuffer = &channel->samplePtr[channel->bufferPos];
 
                 float volL = channel->volume, volR = channel->volume;
-                if (channel->pan < 0.0)
-                    volL = (1.0 + channel->pan) * channel->volume;
+                if (channel->pan < 0.0f)
+                    volL = (1.0f + channel->pan) * channel->volume;
                 else
-                    volR = (1.0 - channel->pan) * channel->volume;
+                    volR = (1.0f - channel->pan) * channel->volume;
 
                 float panL = volL * engine.streamVolume;
                 float panR = volR * engine.streamVolume;
@@ -128,10 +131,10 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
                 while (curStreamF < streamEndF && streamF < streamEndF) {
                     speedPercent += channel->speed;
                     int32 next = FROM_FIXED(speedPercent);
-                    speedPercent &= 0xFFFF;
+                    speedPercent %= TO_FIXED(1);
 
-                    curStreamF[0] += panL * streamBuffer[0];
-                    curStreamF[1] += panR * streamBuffer[1];
+                    curStreamF[0] += streamBuffer[0] * panL;
+                    curStreamF[1] += streamBuffer[1] * panR;
                     curStreamF += 2;
 
                     streamBuffer += next * 2;
@@ -160,10 +163,10 @@ void AudioDeviceBase::InitAudioChannels()
         channels[i].state   = CHANNEL_IDLE;
     }
 
-    for (int32 i = 0; i < 0x400; i += 2) {
-        speedMixAmounts[i]     = (i + 0) * (1.0f / 1024.0f);
-        speedMixAmounts[i + 1] = (i + 1) * (1.0f / 1024.0f);
-    }
+    // Compute a lookup table of floating-point linear interpolation delta scales,
+    // to speed-up the process of converting from fixed-point to floating-point.
+    for (int32 i = 0; i < LINEAR_INTERPOLATION_LOOKUP_LENGTH; ++i)
+        linearInterpolationLookup[i] = i / (float)LINEAR_INTERPOLATION_LOOKUP_LENGTH;
 
     GEN_HASH_MD5("Stream Channel 0", sfxList[SFX_COUNT - 1].hash);
     sfxList[SFX_COUNT - 1].scope              = SCOPE_GLOBAL;
@@ -199,14 +202,8 @@ void RSDK::UpdateStreamBuffer(ChannelInfo *channel)
         bufferRemaining = MIX_BUFFER_SIZE - s;
     }
 
-    for (int32 i = 0; i < MIX_BUFFER_SIZE; i += 4) {
-        float *sampleBuffer = &channel->samplePtr[i];
-
-        sampleBuffer[0] = sampleBuffer[0] * 0.5;
-        sampleBuffer[1] = sampleBuffer[1] * 0.5;
-        sampleBuffer[2] = sampleBuffer[2] * 0.5;
-        sampleBuffer[3] = sampleBuffer[3] * 0.5;
-    }
+    for (int32 i = 0; i < MIX_BUFFER_SIZE; ++i)
+        channel->samplePtr[i] *= 0.5f;
 }
 
 void RSDK::LoadStream(ChannelInfo *channel)
@@ -231,8 +228,8 @@ void RSDK::LoadStream(ChannelInfo *channel)
         CloseFile(&info);
 
         if (streamBufferSize > 0) {
-            vorbisAlloc.alloc_buffer_length_in_bytes = 0x80000;
-            AllocateStorage((void **)&vorbisAlloc.alloc_buffer, 0x80000, DATASET_MUS, false);
+            vorbisAlloc.alloc_buffer_length_in_bytes = 512 * 1024; // 512KiB
+            AllocateStorage((void **)&vorbisAlloc.alloc_buffer, 512 * 1024, DATASET_MUS, false);
 
             vorbisInfo = stb_vorbis_open_memory(streamBuffer, streamBufferSize, NULL, &vorbisAlloc);
             if (vorbisInfo) {
@@ -285,8 +282,8 @@ int32 RSDK::PlayStream(const char *filename, uint32 slot, int32 startPos, uint32
     channel->loop         = loopPoint != 0;
     channel->priority     = 0xFF;
     channel->state        = CHANNEL_LOADING_STREAM;
-    channel->pan          = 0.0;
-    channel->volume       = 1.0;
+    channel->pan          = 0.0f;
+    channel->volume       = 1.0f;
     channel->sampleLength = sfxList[SFX_COUNT - 1].length;
     channel->samplePtr    = sfxList[SFX_COUNT - 1].buffer;
     channel->bufferPos    = 0;
@@ -385,17 +382,23 @@ void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
                 // Convert the sample data to F32 format
                 float *buffer = (float *)sfxList[slot].buffer;
                 if (sampleBits == 8) {
+                    // 8-bit sample. Convert from U8 to S8, and then from S8 to F32.
                     for (int32 s = 0; s < length; ++s) {
                         int32 sample = ReadInt8(&info);
-                        *buffer++    = (sample - 128) * 0.0078125; // 0.0078125 == 128.0
+                        *buffer++    = (sample - 0x80) / (float)0x80;
                     }
                 }
                 else {
+                    // 16-bit sample. Convert from S16 to F32.
                     for (int32 s = 0; s < length; ++s) {
-                        int32 sample = ReadInt16(&info);
+                        // For some reason, the game performs sign-extension manually here.
+                        // Note that this is different from the 8-bit format's unsigned-to-signed conversion.
+                        int32 sample = (uint16)ReadInt16(&info);
+
                         if (sample > 0x7FFF)
                             sample = (sample & 0x7FFF) - 0x8000;
-                        *buffer++ = (sample * 0.000030518) * 0.75; // 0.000030518 == 32,767.5
+
+                        *buffer++ = (sample / (float)0x8000) * 0.75f;
                     }
                 }
             }
@@ -488,8 +491,8 @@ int32 RSDK::PlaySfx(uint16 sfx, uint32 loopPoint, uint32 priority)
     channels[slot].bufferPos    = 0;
     channels[slot].samplePtr    = sfxList[sfx].buffer;
     channels[slot].sampleLength = sfxList[sfx].length;
-    channels[slot].volume       = 1.0;
-    channels[slot].pan          = 0.0;
+    channels[slot].volume       = 1.0f;
+    channels[slot].pan          = 0.0f;
     channels[slot].speed        = TO_FIXED(1);
     channels[slot].soundID      = sfx;
     if (loopPoint >= 2)
@@ -507,17 +510,17 @@ int32 RSDK::PlaySfx(uint16 sfx, uint32 loopPoint, uint32 priority)
 void RSDK::SetChannelAttributes(uint8 channel, float volume, float panning, float speed)
 {
     if (channel < CHANNEL_COUNT) {
-        volume                   = fminf(4.0, volume);
-        volume                   = fmaxf(0.0, volume);
+        volume                   = fminf(4.0f, volume);
+        volume                   = fmaxf(0.0f, volume);
         channels[channel].volume = volume;
 
-        panning               = fminf(1.0, panning);
+        panning               = fminf(1.0f, panning);
         panning               = fmaxf(-1.0f, panning);
         channels[channel].pan = panning;
 
-        if (speed > 0.0)
-            channels[channel].speed = (int32)(speed * 65536.0f);
-        else if (speed == 1.0)
+        if (speed > 0.0f)
+            channels[channel].speed = (int32)(speed * TO_FIXED(1));
+        else if (speed == 1.0f)
             channels[channel].speed = TO_FIXED(1);
     }
 }
@@ -543,7 +546,7 @@ uint32 RSDK::GetChannelPos(uint32 channel)
 double RSDK::GetVideoStreamPos()
 {
     if (channels[0].state == CHANNEL_STREAM && AudioDevice::audioState && AudioDevice::initializedAudioChannels && vorbisInfo->current_loc_valid) {
-        return vorbisInfo->current_loc / (float)AUDIO_FREQUENCY;
+        return vorbisInfo->current_loc / (double)AUDIO_FREQUENCY;
     }
 
     return -1.0;

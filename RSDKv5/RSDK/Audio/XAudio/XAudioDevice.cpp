@@ -36,7 +36,7 @@ bool32 AudioDevice::Init()
                 format.nBlockAlign     = (format.nChannels * format.wBitsPerSample) / 8;
                 format.wFormatTag      = WAVE_FORMAT_IEEE_FLOAT;
                 format.nSamplesPerSec  = AUDIO_FREQUENCY;
-                format.nAvgBytesPerSec = 352800;
+                format.nAvgBytesPerSec = AUDIO_FREQUENCY * AUDIO_CHANNELS * sizeof(SAMPLE_FORMAT);
 
                 if (SUCCEEDED(audioContext->CreateSourceVoice(&sourceVoice, &format, 0, 2.0, &voiceCallback, NULL, NULL))) {
                     sourceVoice->Start(0, XAUDIO2_COMMIT_NOW);
