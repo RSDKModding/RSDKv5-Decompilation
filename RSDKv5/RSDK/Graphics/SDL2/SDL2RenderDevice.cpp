@@ -908,7 +908,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                     break;
 
 #if !RETRO_USE_ORIGINAL_CODE
-                case SDL_SCANCODE_F8:
+                case SDL_SCANCODE_F4:
                     if (engine.devMenu)
                         engine.showEntityInfo ^= 1;
                     break;
