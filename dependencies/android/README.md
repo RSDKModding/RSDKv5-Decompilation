@@ -16,7 +16,7 @@
       * Linux: `ln -s "[path]" "[name-of-symlink]"`
 * Open `[root]/android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 
-The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL shaders are required, or you will get a black screen.** See [the shaders README](../../RSDKv5/Shaders/README.md) for more details.
+The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL shaders are required, or you will get a black screen.** Read the Shaders section in [the GL3 README](../../RSDKv5/Shaders/README.md) for a guide on how to install them.
 
 
 ## Common build issues (Windows)
@@ -27,5 +27,7 @@ Your paths are too long. Try renaming the symbolic links to something shorter, o
 
 ## Known issues
 These issues will not be fixed here as they are minor, but feel free to have a look at them for yourself in a fork!
+
 ### Audio device doesn't disconnect properly
-The audio callback for the lost stream will continue to fire (AAudioDevice's AudioCallback,) so you only end up hearing half on the new stream. All examples I (RMG) looked at while porting didn't show any issues or workarounds for this. I tried to remedy by checking the stream's pointer, but that didn't fix anything.
+
+The audio callback for the lost stream will continue to fire (AAudioDevice's AudioCallback) so you only end up hearing half on the new stream. All examples I (RMG) looked at while porting didn't show any issues or workarounds for this. I tried to remedy by checking the stream's pointer, but that didn't fix anything.

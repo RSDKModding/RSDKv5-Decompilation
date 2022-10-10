@@ -14,24 +14,22 @@ We do not condone using this project as a means for piracy in any form. This pro
 * Added various other backends to windows aside from the usual DirectX 9 backends
 
 # How to Build
-First, follow the steps in [the common dependency README](./dependencies/all/README.md), then follow the steps for your platform of choice:
 
-* ### [Windows](./dependencies/windows/README.md)
+## Get the source code
 
-* ### [Mac](./dependencies/mac/README.md)
+* Clone the repo **recursively**, using:
+```git clone --recursive https://github.com/Rubberduckycooly/RSDKv5-Decompilation.git```
+or if you've already cloned the repo, run inside:
+```git submodule update --init```
 
-* ## Linux/Switch
-  * Follow the [GL3 README](./dependencies/gl3/README.md) to setup the renderer's dependencies.
-  * **For Linux: libtheora, libogg, and SDL for audio will be required:**
-    * On Ubuntu: `sudo apt install libsdl2-dev libtheora-dev`
-    * On Fedora: `sudo dnf install SDL2-devel libtheora-devel`
-    * On Arch: `sudo pacman -S sdl2 libtheora` 
-  * Then, for both platforms, the makefile can be used by running `make`.
-    * For Switch, pass `PLATFORM=Switch` to the `make` command to ensure you're building for Switch.
+## Follow the build steps
 
-* ### [Android](./dependencies/android/README.md)
+* [Windows](./dependencies/windows/README.md)
+* [Mac](./dependencies/mac/README.md)
+* [Linux/Switch](./dependencies/gl3/README.md)
+* [Android](./dependencies/android/README.md)
 
-### Other Platforms
+## Other Platforms
 Currently, the only officially supported platforms are the ones listed above. However, the backend is very modular, so the codebase is very multiplatform.
 
 **However,** since release, there have been a multitude of forks made by the community (keep in mind that many of these ports are still a WIP!:) 

@@ -28,13 +28,12 @@ To compile you can just use `make`. To customize the build you can set the follo
 
 Once completed, it is **heavily recommended** that you grab the Shaders folder in RSDKv5 and turn it into a mod. Otherwise, movies will not display properly and the filters from video settings won't work.
 
-To do this, create the following directory structure:
+To do this, create the following directory structure inside your mods directory:
 ```
-mods/
-| GLShaders/
-| | Data/
-| | | ...
-| | mod.ini
+GLShaders/
+| Data/
+| | ...
+| mod.ini
 ```
 
 Inside `mods/GLShaders/Data/` copy the `RSDKv5/Shaders` directory, and inside the mod.ini, paste this:
