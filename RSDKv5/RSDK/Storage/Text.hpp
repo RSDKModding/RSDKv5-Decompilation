@@ -171,7 +171,7 @@ inline void InitString(String *string, const char *text, uint32 textLength)
     }
 }
 
-void SetString(String *string, char *text);
+void SetString(String *string, const char *text);
 
 inline void CopyString(String *dst, String *src)
 {
@@ -207,7 +207,7 @@ inline void GetCString(char *destChars, String *string)
     cString[c] = 0;
 }
 
-void AppendText(String *string, char *appendText);
+void AppendText(String *string, const char *appendText);
 void AppendString(String *string, String *appendString);
 bool32 CompareStrings(String *string1, String *string2, bool32 exactMatch);
 

@@ -208,7 +208,7 @@ uint8 utf8CharSizes[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
                           1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
                           2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6 };
 
-void RSDK::SetString(String *string, char *text)
+void RSDK::SetString(String *string, const char *text)
 {
     if (!*text)
         return;
@@ -259,13 +259,13 @@ void RSDK::SetString(String *string, char *text)
     }
 }
 
-void RSDK::AppendText(String *string, char *appendString)
+void RSDK::AppendText(String *string, const char *appendString)
 {
     if (!*appendString)
         return;
 
     int32 len     = 0;
-    char *textBuf = appendString;
+    const char *textBuf = appendString;
     for (int32 pos = 0; *textBuf; ++len) pos += utf8CharSizes[*textBuf++ & 0xFF];
     if (!len)
         return;
