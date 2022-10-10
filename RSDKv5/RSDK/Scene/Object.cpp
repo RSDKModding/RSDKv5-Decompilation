@@ -902,7 +902,7 @@ void RSDK::ProcessObjectDrawLists()
 
                             if (entity->visible || (engine.showEntityInfo & 2)) {
                                 char buffer[0x100];
-                                sprintf_s(buffer, (int)sizeof(buffer), "%s\nx: %g\ny: %g", objectClassList[stageObjectIDs[entity->classID]].name,
+                                sprintf_s(buffer, sizeof(buffer), "%s\nx: %g\ny: %g", objectClassList[stageObjectIDs[entity->classID]].name,
                                           entity->position.x / 65536.0f, entity->position.y / 65536.0f);
 
                                 DrawDevString(buffer, FROM_FIXED(entity->position.x) - currentScreen->position.x,
