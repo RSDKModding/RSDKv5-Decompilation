@@ -721,7 +721,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
             if (game_controller != NULL) {
                 uint32 id;
                 char idBuffer[0x20];
-                sprintf_s(idBuffer, (int32)sizeof(idBuffer), "SDLDevice%d", SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(game_controller)));
+                sprintf_s(idBuffer, sizeof(idBuffer), "SDLDevice%d", SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(game_controller)));
                 GenerateHashCRC(&id, idBuffer);
 
                 if (SKU::InitSDL2InputDevice(id, game_controller) == NULL)
@@ -734,7 +734,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
         case SDL_CONTROLLERDEVICEREMOVED: {
             uint32 id;
             char idBuffer[0x20];
-            sprintf_s(idBuffer, (int32)sizeof(idBuffer), "SDLDevice%d", event.cdevice.which);
+            sprintf_s(idBuffer, sizeof(idBuffer), "SDLDevice%d", event.cdevice.which);
             GenerateHashCRC(&id, idBuffer);
 
             RemoveInputDevice(InputDeviceFromID(id));

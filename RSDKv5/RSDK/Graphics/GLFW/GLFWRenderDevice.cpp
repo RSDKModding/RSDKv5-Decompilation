@@ -600,12 +600,12 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 
     ShaderEntry *shader = &shaderList[shaderCount];
     shader->linear      = linear;
-    sprintf_s(shader->name, (int32)sizeof(shader->name), "%s", fileName);
+    sprintf_s(shader->name, sizeof(shader->name), "%s", fileName);
 
     GLint success;
     char infoLog[0x1000];
     GLuint vert, frag;
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Shaders/GL3/None.vs");
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Shaders/GL3/None.vs");
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint8 *fileData = NULL;
@@ -622,7 +622,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     else
         return;
 
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Shaders/GL3/%s.fs", fileName);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Shaders/GL3/%s.fs", fileName);
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint8 *fileData = NULL;
@@ -1133,7 +1133,7 @@ void RenderDevice::ProcessJoystickEvent(int32 ID, int32 event)
         return;
     uint32 hash;
     char idBuffer[0x20];
-    sprintf_s(idBuffer, (int32)sizeof(idBuffer), "%s%d", "GLFWDevice", ID);
+    sprintf_s(idBuffer, sizeof(idBuffer), "%s%d", "GLFWDevice", ID);
     GenerateHashCRC(&hash, idBuffer);
 
     if (event == GLFW_CONNECTED)

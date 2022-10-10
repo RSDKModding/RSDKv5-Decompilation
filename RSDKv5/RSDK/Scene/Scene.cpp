@@ -152,11 +152,11 @@ void RSDK::LoadSceneFolder()
     char fullFilePath[0x40];
 
     // Load TileConfig
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Stages/%s/TileConfig.bin", currentSceneFolder);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/TileConfig.bin", currentSceneFolder);
     LoadTileConfig(fullFilePath);
 
     // Load StageConfig
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Stages/%s/StageConfig.bin", currentSceneFolder);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.bin", currentSceneFolder);
 
     FileInfo info;
     InitFileInfo(&info);
@@ -261,7 +261,7 @@ void RSDK::LoadSceneFolder()
         CloseFile(&info);
     }
 
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Stages/%s/16x16Tiles.gif", currentSceneFolder);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/16x16Tiles.gif", currentSceneFolder);
     LoadStageGIF(fullFilePath);
 
 #if RETRO_USE_MOD_LOADER
@@ -282,7 +282,7 @@ void RSDK::LoadSceneAssets()
 
     SceneListEntry *sceneEntry = &sceneInfo.listData[sceneInfo.listPos];
     char fullFilePath[0x40];
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Stages/%s/Scene%s.bin", currentSceneFolder, sceneEntry->id);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/Scene%s.bin", currentSceneFolder, sceneEntry->id);
 
     dataStorage[DATASET_TMP].usedStorage = 0;
 

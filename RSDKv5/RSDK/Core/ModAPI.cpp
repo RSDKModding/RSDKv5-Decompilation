@@ -409,7 +409,7 @@ void RSDK::LoadMods(bool newOnly)
 
     using namespace std;
     char modBuf[0x100];
-    sprintf_s(modBuf, (int32)sizeof(modBuf), "%smods/", SKU::userFileDir);
+    sprintf_s(modBuf, sizeof(modBuf), "%smods/", SKU::userFileDir);
     fs::path modPath(modBuf);
 
     if (fs::exists(modPath) && fs::is_directory(modPath)) {
@@ -767,7 +767,7 @@ void RSDK::SaveMods()
 {
     ModInfo *cur = currentMod;
     char modBuf[0x100];
-    sprintf_s(modBuf, (int32)sizeof(modBuf), "%smods/", SKU::userFileDir);
+    sprintf_s(modBuf, sizeof(modBuf), "%smods/", SKU::userFileDir);
     fs::path modPath(modBuf);
 
     SortMods();
@@ -945,7 +945,7 @@ void RSDK::GetModPath(const char *id, String *result)
         return;
 
     char buf[0x200];
-    sprintf_s(buf, (int32)sizeof(buf), "%smods/%s", SKU::userFileDir, id);
+    sprintf_s(buf, sizeof(buf), "%smods/%s", SKU::userFileDir, id);
     InitString(result, buf, (int32)strlen(buf));
 }
 

@@ -221,7 +221,7 @@ void RSDK::SKU::PaddleboatStatusCallback(const int32 jid, const Paddleboat_Contr
 
     uint32 hash;
     char idBuffer[0x20];
-    sprintf_s(idBuffer, (int32)sizeof(idBuffer), "%s%d", "PDBDevice", jid);
+    sprintf_s(idBuffer, sizeof(idBuffer), "%s%d", "PDBDevice", jid);
     GenerateHashCRC(&hash, idBuffer);
 
     PrintLog(PRINT_NORMAL, "callback %d %s", status, idBuffer);

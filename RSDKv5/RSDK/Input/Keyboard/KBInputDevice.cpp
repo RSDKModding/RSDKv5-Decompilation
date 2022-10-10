@@ -792,7 +792,7 @@ void RSDK::SKU::InitKeyboardInputAPI()
 {
     char idBuffer[0x10];
     for (int32 i = 0; i < PLAYER_COUNT; ++i) {
-        sprintf_s(idBuffer, (int32)sizeof(idBuffer), "KBDevice%d", i);
+        sprintf_s(idBuffer, sizeof(idBuffer), "KBDevice%d", i);
         uint32 id = 0;
         GenerateHashCRC(&id, idBuffer);
 

@@ -28,7 +28,7 @@ bool32 RSDK::LoadVideo(const char *filename, double startDelay, bool32 (*skipCal
 #endif
 
     char fullFilePath[0x80];
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Video/%s", filename);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Video/%s", filename);
 
     InitFileInfo(&VideoManager::file);
     if (LoadFile(&VideoManager::file, fullFilePath, FMODE_RB)) {

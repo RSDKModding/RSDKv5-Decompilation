@@ -19,7 +19,7 @@ FileIO *fOpen(const char *path, const char *mode)
     int32 a = 0;
     if (!strncmp(path, SKU::userFileDir, strlen(SKU::userFileDir)))
         a = strlen(SKU::userFileDir);
-    sprintf_s(buffer, (int32)sizeof(buffer), "%s%s", SKU::userFileDir, path + a);
+    sprintf_s(buffer, sizeof(buffer), "%s%s", SKU::userFileDir, path + a);
 
     return fopen(buffer, mode);
 }
@@ -123,7 +123,7 @@ bool32 RSDK::LoadDataPack(const char *filePath, size_t fileOffset, bool32 useBuf
     FileInfo info;
 
     char dataPackPath[0x100];
-    sprintf_s(dataPackPath, (int32)sizeof(dataPackPath), "%s%s", SKU::userFileDir, filePath);
+    sprintf_s(dataPackPath, sizeof(dataPackPath), "%s%s", SKU::userFileDir, filePath);
 
     InitFileInfo(&info);
     info.externalFile = true;
@@ -260,8 +260,8 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
     bool32 addPath = false;
     if (modSettings.activeMod != -1) {
         char buf[0x100];
-        sprintf_s(buf, (int32)sizeof(buf), "%s", fullFilePath);
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%smods/%s/%s", SKU::userFileDir, modList[modSettings.activeMod].id.c_str(), buf);
+        sprintf_s(buf, sizeof(buf), "%s", fullFilePath);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%smods/%s/%s", SKU::userFileDir, modList[modSettings.activeMod].id.c_str(), buf);
         info->externalFile = true;
         addPath            = false;
     }
@@ -300,8 +300,8 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
 #if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     if (addPath) {
         char pathBuf[0x100];
-        sprintf_s(pathBuf, (int32)sizeof(pathBuf), "%s%s", SKU::userFileDir, fullFilePath);
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s", pathBuf);
+        sprintf_s(pathBuf, sizeof(pathBuf), "%s%s", SKU::userFileDir, fullFilePath);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%s", pathBuf);
     }
 #endif
 
@@ -364,7 +364,7 @@ void RSDK::GenerateELoadKeys(FileInfo *info, const char *key1, int32 key2)
 #endif
 
     // KeyB
-    sprintf_s(hashBuffer, (int32)sizeof(hashBuffer), "%d", key2);
+    sprintf_s(hashBuffer, sizeof(hashBuffer), "%d", key2);
 #if !RETRO_USE_ORIGINAL_CODE
     GEN_HASH_MD5_BUFFER(hashBuffer, hash);
 

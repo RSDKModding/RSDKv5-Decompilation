@@ -736,12 +736,12 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 
     ShaderEntry *shader = &shaderList[shaderCount];
     shader->linear      = linear;
-    sprintf_s(shader->name, (int32)sizeof(shader->name), "%s", fileName);
+    sprintf_s(shader->name, sizeof(shader->name), "%s", fileName);
 
     GLint success;
     char infoLog[0x1000];
     GLuint vert, frag;
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Shaders/GL3/None.vs");
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Shaders/GL3/None.vs");
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint8 *fileData = NULL;
@@ -758,7 +758,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     else
         return;
 
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Shaders/GL3/%s.fs", fileName);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Shaders/GL3/%s.fs", fileName);
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint8 *fileData = NULL;

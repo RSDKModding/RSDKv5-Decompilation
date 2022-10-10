@@ -155,7 +155,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 
     ShaderEntry *shader = &shaderList[shaderCount];
     shader->linear      = linear;
-    sprintf_s(shader->name, (int32)sizeof(shader->name), "%s", fileName);
+    sprintf_s(shader->name, sizeof(shader->name), "%s", fileName);
 
     const char *shaderFolder    = "Dummy"; // nothing should ever be in "Data/Shaders/Dummy" so it works out to never load anything
     const char *vertexShaderExt = "txt";
@@ -172,7 +172,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     GLint success;
     char infoLog[0x1000];
     GLuint vert, frag;
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Shaders/%s/%s.%s", shaderFolder, fileName, vertexShaderExt);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Shaders/%s/%s.%s", shaderFolder, fileName, vertexShaderExt);
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint8 *fileData = NULL;
@@ -184,7 +184,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     else
         return;
 
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Shaders/%s/%s.%s", shaderFolder, fileName, pixelShaderExt);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Shaders/%s/%s.%s", shaderFolder, fileName, pixelShaderExt);
     InitFileInfo(&info);
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint8 *fileData = NULL;
