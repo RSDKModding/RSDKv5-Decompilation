@@ -598,7 +598,7 @@ void RSDK::LoadSceneAssets()
                                 String *string = (String *)&entityBuffer[varList[v].offset];
                                 uint16 len     = ReadInt16(&info);
 
-                                InitString(string, (char *)"", len);
+                                InitString(string, "", len);
                                 for (string->length = 0; string->length < len; ++string->length) string->chars[string->length] = ReadInt16(&info);
                             }
                             else {
