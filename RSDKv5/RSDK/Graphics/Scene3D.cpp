@@ -379,7 +379,7 @@ void RSDK::MatrixInverse(Matrix *dest, Matrix *matrix)
 uint16 RSDK::LoadMesh(const char *filename, int32 scope)
 {
     char fullFilePath[0x100];
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Meshes/%s", filename);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Meshes/%s", filename);
 
     RETRO_HASH_MD5(hash);
     GEN_HASH_MD5(fullFilePath, hash);

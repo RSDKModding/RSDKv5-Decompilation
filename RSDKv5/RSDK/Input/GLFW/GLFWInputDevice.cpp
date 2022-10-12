@@ -184,7 +184,7 @@ void RSDK::SKU::InitGLFWInputAPI()
         if (glfwJoystickIsGamepad(i)) {
             uint32 hash;
             char idBuffer[0x20];
-            sprintf_s(idBuffer, (int32)sizeof(idBuffer), "%s%d", "GLFWDevice", i);
+            sprintf_s(idBuffer, sizeof(idBuffer), "%s%d", "GLFWDevice", i);
             GenerateHashCRC(&hash, idBuffer);
 
             SKU::InitGLFWInputDevice(hash, i);

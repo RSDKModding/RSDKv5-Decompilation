@@ -409,7 +409,7 @@ void RSDK::LoadMods(bool newOnly)
 
     using namespace std;
     char modBuf[0x100];
-    sprintf_s(modBuf, (int32)sizeof(modBuf), "%smods/", SKU::userFileDir);
+    sprintf_s(modBuf, sizeof(modBuf), "%smods/", SKU::userFileDir);
     fs::path modPath(modBuf);
 
     if (fs::exists(modPath) && fs::is_directory(modPath)) {
@@ -767,7 +767,7 @@ void RSDK::SaveMods()
 {
     ModInfo *cur = currentMod;
     char modBuf[0x100];
-    sprintf_s(modBuf, (int32)sizeof(modBuf), "%smods/", SKU::userFileDir);
+    sprintf_s(modBuf, sizeof(modBuf), "%smods/", SKU::userFileDir);
     fs::path modPath(modBuf);
 
     SortMods();
@@ -806,11 +806,11 @@ bool32 RSDK::LoadModInfo(const char *id, String *name, String *description, Stri
 {
     if (!id) { // NULL == "Internal" Logic
         if (name)
-            InitString(name, gameVerInfo.gameTitle, false);
+            InitString(name, gameVerInfo.gameTitle, 0);
         if (description)
-            InitString(description, gameVerInfo.gameSubtitle, false);
+            InitString(description, gameVerInfo.gameSubtitle, 0);
         if (version)
-            InitString(version, gameVerInfo.version, false);
+            InitString(version, gameVerInfo.version, 0);
         if (active)
             *active = true;
 
@@ -818,11 +818,11 @@ bool32 RSDK::LoadModInfo(const char *id, String *name, String *description, Stri
     }
     else if (!strlen(id) && currentMod) { // "" == Current Mod
         if (name)
-            InitString(name, (char *)currentMod->name.c_str(), false);
+            InitString(name, currentMod->name.c_str(), 0);
         if (description)
-            InitString(description, (char *)currentMod->desc.c_str(), false);
+            InitString(description, currentMod->desc.c_str(), 0);
         if (version)
-            InitString(version, (char *)currentMod->version.c_str(), false);
+            InitString(version, currentMod->version.c_str(), 0);
         if (active)
             *active = currentMod->active;
 
@@ -832,11 +832,11 @@ bool32 RSDK::LoadModInfo(const char *id, String *name, String *description, Stri
     for (int32 m = 0; m < modList.size(); ++m) {
         if (modList[m].id == id) {
             if (name)
-                InitString(name, (char *)modList[m].name.c_str(), false);
+                InitString(name, modList[m].name.c_str(), 0);
             if (description)
-                InitString(description, (char *)modList[m].desc.c_str(), false);
+                InitString(description, modList[m].desc.c_str(), 0);
             if (version)
-                InitString(version, (char *)modList[m].version.c_str(), false);
+                InitString(version, modList[m].version.c_str(), 0);
             if (active)
                 *active = modList[m].active;
 
@@ -882,7 +882,7 @@ bool32 RSDK::ForeachModID(String *id)
         return false;
     }
     string set = modList[foreachStackPtr->id].id;
-    InitString(id, (char *)set.c_str(), (int32)set.length());
+    InitString(id, set.c_str(), 0);
     return true;
 }
 
@@ -945,8 +945,8 @@ void RSDK::GetModPath(const char *id, String *result)
         return;
 
     char buf[0x200];
-    sprintf_s(buf, (int32)sizeof(buf), "%smods/%s", SKU::userFileDir, id);
-    InitString(result, buf, (int32)strlen(buf));
+    sprintf_s(buf, sizeof(buf), "%smods/%s", SKU::userFileDir, id);
+    InitString(result, buf, 0);
 }
 
 std::string GetModPath_i(const char *id)
@@ -1076,7 +1076,7 @@ void RSDK::GetSettingsString(const char *id, const char *key, String *result, co
     }
     else if (!strlen(id)) {
         if (!currentMod) {
-            InitString(result, (char *)fallback, (int32)strlen(fallback));
+            InitString(result, fallback, 0);
             return;
         }
 
@@ -1087,10 +1087,10 @@ void RSDK::GetSettingsString(const char *id, const char *key, String *result, co
     if (!v.length()) {
         if (currentMod->id == id)
             SetSettingsString(key, result);
-        InitString(result, (char *)fallback, (int32)strlen(fallback));
+        InitString(result, fallback, 0);
         return;
     }
-    InitString(result, (char *)v.c_str(), (int32)v.length());
+    InitString(result, v.c_str(), 0);
 }
 
 std::string GetNidConfigValue(const char *key)
@@ -1153,10 +1153,10 @@ void RSDK::GetConfigString(const char *key, String *result, const char *fallback
 {
     std::string v = GetNidConfigValue(key);
     if (!v.length()) {
-        InitString(result, (char *)fallback, (int32)strlen(fallback));
+        InitString(result, fallback, 0);
         return;
     }
-    InitString(result, (char *)v.c_str(), (int32)v.length());
+    InitString(result, v.c_str(), 0);
 }
 
 bool32 RSDK::ForeachConfigCategory(String *category)
@@ -1196,7 +1196,7 @@ bool32 RSDK::ForeachConfigCategory(String *category)
         foreachStackPtr--;
         return false;
     }
-    InitString(category, (char *)cat.c_str(), (int32)cat.length());
+    InitString(category, cat.c_str(), 0);
     return true;
 }
 
@@ -1243,7 +1243,7 @@ bool32 RSDK::ForeachConfig(String *config)
         return false;
     }
     string r = cat + ":" + key;
-    InitString(config, (char *)r.c_str(), (int32)r.length());
+    InitString(config, r.c_str(), 0);
     return true;
 }
 
@@ -1306,7 +1306,7 @@ bool32 RSDK::ForeachSettingCategory(const char *id, String *category)
         foreachStackPtr--;
         return false;
     }
-    InitString(category, (char *)cat.c_str(), (int32)cat.length());
+    InitString(category, cat.c_str(), 0);
     return true;
 }
 
@@ -1374,7 +1374,7 @@ bool32 RSDK::ForeachSetting(const char *id, String *setting)
         return false;
     }
     string r = cat + ":" + key;
-    InitString(setting, (char *)r.c_str(), (int32)r.length());
+    InitString(setting, r.c_str(), 0);
     return true;
 }
 #endif
@@ -1690,13 +1690,13 @@ void RSDK::GetAchievementInfo(uint32 id, String *name, String *description, Stri
         return;
 
     if (name)
-        InitString(name, (char *)achievementList[id].name.c_str(), 0);
+        InitString(name, achievementList[id].name.c_str(), 0);
 
     if (description)
-        InitString(description, (char *)achievementList[id].description.c_str(), 0);
+        InitString(description, achievementList[id].description.c_str(), 0);
 
     if (identifer)
-        InitString(identifer, (char *)achievementList[id].identifier.c_str(), 0);
+        InitString(identifer, achievementList[id].identifier.c_str(), 0);
 
     if (achieved)
         *achieved = achievementList[id].achieved;

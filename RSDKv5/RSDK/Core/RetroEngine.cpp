@@ -631,7 +631,7 @@ void RSDK::InitEngine()
 
             Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
             if (!useDataPack)
-                sprintf_s(gameVerInfo.gameTitle, (int32)sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
+                sprintf_s(gameVerInfo.gameTitle, sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
             strcpy(gameVerInfo.version, "Legacy v4 Mode");
 
             RSDK::GenerateBlendLookupTable();
@@ -672,7 +672,7 @@ void RSDK::InitEngine()
 
             Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
             if (!useDataPack)
-                sprintf_s(gameVerInfo.gameTitle, (int32)sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
+                sprintf_s(gameVerInfo.gameTitle, sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
             strcpy(gameVerInfo.version, "Legacy v3 Mode");
 
             RSDK::GenerateBlendLookupTable();
@@ -848,7 +848,7 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
                             if (nameAttr)
                                 lstName = nameAttr->Value();
 
-                            sprintf_s(list->name, (int32)sizeof(list->name), "%s", lstName);
+                            sprintf_s(list->name, sizeof(list->name), "%s", lstName);
                             GEN_HASH_MD5(list->name, list->hash);
 
                             list->sceneOffsetStart = gcStageCount;
@@ -883,10 +883,10 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
 
                                     SceneListEntry *scene = &sceneInfo.listData[gcStageCount];
 
-                                    sprintf_s(scene->name, (int32)sizeof(scene->name), "%s", stgName);
+                                    sprintf_s(scene->name, sizeof(scene->name), "%s", stgName);
                                     GEN_HASH_MD5(scene->name, scene->hash);
-                                    sprintf_s(scene->folder, (int32)sizeof(scene->folder), "%s", stgFolder);
-                                    sprintf_s(scene->id, (int32)sizeof(scene->id), "%s", stgID);
+                                    sprintf_s(scene->folder, sizeof(scene->folder), "%s", stgFolder);
+                                    sprintf_s(scene->id, sizeof(scene->id), "%s", stgID);
 
 #if RETRO_REV02
                                     scene->filter = stgFilter;
@@ -945,7 +945,7 @@ void RSDK::LoadGameConfig()
 
         ReadString(&info, gameVerInfo.gameTitle);
         if (!useDataPack)
-            sprintf_s(gameVerInfo.gameTitle, (int32)sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
+            sprintf_s(gameVerInfo.gameTitle, sizeof(gameVerInfo.gameTitle), "%s (Data Folder)", gameVerInfo.gameTitle);
         ReadString(&info, gameVerInfo.gameSubtitle);
         ReadString(&info, gameVerInfo.version);
 

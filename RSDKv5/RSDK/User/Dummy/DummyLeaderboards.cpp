@@ -41,12 +41,12 @@ void DummyLeaderboards::FillLeaderboardEntries(RSDK::SKU::LeaderboardLoadInfo *i
                 GetUsername(&entry->username);
             }
             else {
-                InitString(&entry->username, (char *)"", 0);
-                SetString(&entry->username, (char *)dummyNames[e % 100]);
+                InitString(&entry->username, "", 0);
+                SetString(&entry->username, dummyNames[e % 100]);
             }
 
             memset(&entry->userID, 0, sizeof(entry->userID));
-            InitString(&entry->userID, (char *)"DUMMY_USER_ID", 0);
+            InitString(&entry->userID, "DUMMY_USER_ID", 0);
         }
         else {
             entry->status     = STATUS_OK;
@@ -55,11 +55,11 @@ void DummyLeaderboards::FillLeaderboardEntries(RSDK::SKU::LeaderboardLoadInfo *i
             entry->isUser     = false;
 
             memset(&entry->username, 0, sizeof(entry->username));
-            InitString(&entry->username, (char *)"", 0);
-            SetString(&entry->username, (char *)dummyNames[e % 100]);
+            InitString(&entry->username, "", 0);
+            SetString(&entry->username, dummyNames[e % 100]);
 
             memset(&entry->userID, 0, sizeof(entry->userID));
-            InitString(&entry->userID, (char *)"DUMMY_USER_ID", 0);
+            InitString(&entry->userID, "DUMMY_USER_ID", 0);
         }
     }
 }

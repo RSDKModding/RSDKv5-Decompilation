@@ -30,7 +30,7 @@ uint16 RSDK::tintLookupTable[0x10000];
 void RSDK::LoadPalette(uint8 bankID, const char *filename, uint16 disabledRows)
 {
     char fullFilePath[0x80];
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Palettes/%s", filename);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Palettes/%s", filename);
 
     FileInfo info;
     InitFileInfo(&info);

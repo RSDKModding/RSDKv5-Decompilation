@@ -120,7 +120,7 @@ void RSDK::SKU::ProcessAchievements()
                     achievementsDrawn          = false;
                     achievements->RemoveLastAchievementID();
 
-                    InitString(&achievementStrings[0], (char *)achievementText.c_str(), 0);
+                    InitString(&achievementStrings[0], achievementText.c_str(), 0);
                     String buffer;
                     CopyString(&achievementStrings[1], achievements->GetAchievementName(&buffer, achievementID));
 
@@ -155,7 +155,7 @@ void RSDK::SKU::DrawAchievements()
         if (achievementsLoaded && achievementDrawReady && achievementID) {
             Vector2 drawPos;
 
-            InitString(&achievementStrings[0], (char *)achievementText.c_str(), 0);
+            InitString(&achievementStrings[0], achievementText.c_str(), 0);
             String buffer;
             CopyString(&achievementStrings[1], achievements->GetAchievementName(&buffer, achievementID));
 

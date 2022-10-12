@@ -283,7 +283,7 @@ void RSDK::LoadSettingsINI()
     bool32 useBuffer = !(platform == PLATFORM_PC || platform == PLATFORM_DEV);
 
     char pathBuffer[0x100];
-    sprintf_s(pathBuffer, (int32)sizeof(pathBuffer), "%sSettings.ini", SKU::userFileDir);
+    sprintf_s(pathBuffer, sizeof(pathBuffer), "%sSettings.ini", SKU::userFileDir);
 
     dictionary *ini = iniparser_load(pathBuffer);
 
@@ -325,8 +325,8 @@ void RSDK::LoadSettingsINI()
         engine.gameReleaseID = iniparser_getint(ini, "Game:gameType", 1);
 #endif
 
-        sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "%s", iniparser_getstring(ini, "Game:gameLogic", "Game"));
-        sprintf_s(customSettings.username, (int32)sizeof(customSettings.username), "%s", iniparser_getstring(ini, "Game:username", ""));
+        sprintf_s(gameLogicName, sizeof(gameLogicName), "%s", iniparser_getstring(ini, "Game:gameLogic", "Game"));
+        sprintf_s(customSettings.username, sizeof(customSettings.username), "%s", iniparser_getstring(ini, "Game:username", ""));
 
         if (customSettings.region >= 0) {
 #if RETRO_REV02
@@ -339,7 +339,7 @@ void RSDK::LoadSettingsINI()
         engine.confirmFlip = customSettings.confirmButtonFlip;
         engine.XYFlip      = customSettings.xyButtonFlip;
 #else
-        sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "Game");
+        sprintf_s(gameLogicName, sizeof(gameLogicName), "Game");
 #endif
 
         videoSettings.windowed       = iniparser_getboolean(ini, "Video:windowed", true);
@@ -369,47 +369,47 @@ void RSDK::LoadSettingsINI()
         for (int32 i = CONT_P1; i <= PLAYER_COUNT; ++i) {
             char buffer[0x30];
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:up", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:up", i);
             controller[i].keyUp.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_UP]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:down", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:down", i);
             controller[i].keyDown.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_DOWN]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:left", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:left", i);
             controller[i].keyLeft.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_LEFT]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:right", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:right", i);
             controller[i].keyRight.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_RIGHT]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonA", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:buttonA", i);
             controller[i].keyA.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_A]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonB", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:buttonB", i);
             controller[i].keyB.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_B]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonC", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:buttonC", i);
             controller[i].keyC.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_C]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonX", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:buttonX", i);
             controller[i].keyX.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_X]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonY", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:buttonY", i);
             controller[i].keyY.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_Y]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:buttonZ", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:buttonZ", i);
             controller[i].keyZ.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_Z]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:start", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:start", i);
             controller[i].keyStart.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_START]);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "Keyboard Map %d:select", i);
+            sprintf_s(buffer, sizeof(buffer), "Keyboard Map %d:select", i);
             controller[i].keySelect.keyMap = iniparser_getint(ini, buffer, defaultKeyMaps[i][KEY_SELECT]);
         }
 
         gamePadCount = 0;
         while (true) {
             char buffer[0x30];
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:name", CONT_P1 + gamePadCount);
+            sprintf_s(buffer, sizeof(buffer), "GamePad Map %d:name", CONT_P1 + gamePadCount);
             if (strcmp(iniparser_getstring(ini, buffer, ";unknown;"), ";unknown;") != 0) {
                 gamePadCount++;
             }
@@ -429,20 +429,20 @@ void RSDK::LoadSettingsINI()
             char buffer[0x30];
             char mappings[0x100];
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:name", CONT_P1 + i);
-            sprintf_s(gamePadMappings[i].name, (int32)sizeof(gamePadMappings[i].name), "%s", iniparser_getstring(ini, buffer, 0));
+            sprintf_s(buffer, sizeof(buffer), "GamePad Map %d:name", CONT_P1 + i);
+            sprintf_s(gamePadMappings[i].name, sizeof(gamePadMappings[i].name), "%s", iniparser_getstring(ini, buffer, 0));
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:type", CONT_P1 + i);
+            sprintf_s(buffer, sizeof(buffer), "GamePad Map %d:type", CONT_P1 + i);
             gamePadMappings[i].type = iniparser_getint(ini, buffer, 0);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:vendorID", CONT_P1 + i);
+            sprintf_s(buffer, sizeof(buffer), "GamePad Map %d:vendorID", CONT_P1 + i);
             gamePadMappings[i].vendorID = iniparser_getint(ini, buffer, 0);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:productID", CONT_P1 + i);
+            sprintf_s(buffer, sizeof(buffer), "GamePad Map %d:productID", CONT_P1 + i);
             gamePadMappings[i].productID = iniparser_getint(ini, buffer, 0);
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:mappingTypes", CONT_P1 + i);
-            sprintf_s(mappings, (int32)sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
+            sprintf_s(buffer, sizeof(buffer), "GamePad Map %d:mappingTypes", CONT_P1 + i);
+            sprintf_s(mappings, sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
 
             char *tok = strtok(mappings, ", ");
             for (int32 b = 0; tok; ++b) {
@@ -450,8 +450,8 @@ void RSDK::LoadSettingsINI()
                 tok                                       = strtok(0, " ,.-");
             }
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:offsets", CONT_P1 + i);
-            sprintf_s(mappings, (int32)sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
+            sprintf_s(buffer, sizeof(buffer), "GamePad Map %d:offsets", CONT_P1 + i);
+            sprintf_s(mappings, sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
 
             tok = strtok(mappings, ", ");
             for (int32 b = 0; tok; ++b) {
@@ -459,8 +459,8 @@ void RSDK::LoadSettingsINI()
                 tok                                  = strtok(0, " ,.-");
             }
 
-            sprintf_s(buffer, (int32)sizeof(buffer), "GamePad Map %d:maskVals", CONT_P1 + i);
-            sprintf_s(mappings, (int32)sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
+            sprintf_s(buffer, sizeof(buffer), "GamePad Map %d:maskVals", CONT_P1 + i);
+            sprintf_s(mappings, sizeof(mappings), "%s", iniparser_getstring(ini, buffer, 0));
             tok = strtok(mappings, ", ");
             for (int32 b = 0; tok; ++b) {
                 int32 mask = 1;
@@ -509,7 +509,7 @@ void RSDK::LoadSettingsINI()
         engine.gameReleaseID = 0;
 #endif
 
-        sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "Game");
+        sprintf_s(gameLogicName, sizeof(gameLogicName), "Game");
         customSettings.username[0] = 0;
 
         customSettings.maxPixWidth = DEFAULT_PIXWIDTH;
@@ -525,7 +525,7 @@ void RSDK::LoadSettingsINI()
         engine.confirmFlip = customSettings.confirmButtonFlip;
         engine.XYFlip      = customSettings.xyButtonFlip;
 #else
-        sprintf_s(gameLogicName, (int32)sizeof(gameLogicName), "Game");
+        sprintf_s(gameLogicName, sizeof(gameLogicName), "Game");
 #endif
 
         for (int32 i = CONT_P1; i <= PLAYER_COUNT; ++i) {
@@ -561,7 +561,7 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
 
     if (changedVideoSettings || writeToFile) {
         char pathBuffer[0x100];
-        sprintf_s(pathBuffer, (int32)sizeof(pathBuffer), "%sSettings.ini", SKU::userFileDir);
+        sprintf_s(pathBuffer, sizeof(pathBuffer), "%sSettings.ini", SKU::userFileDir);
 
         dictionary *ini = iniparser_load(pathBuffer);
         FileIO *file    = fOpen(pathBuffer, "wb");

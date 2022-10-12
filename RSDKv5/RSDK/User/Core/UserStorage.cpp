@@ -310,7 +310,7 @@ void RSDK::SKU::UserDB::Init(va_list list)
 
         columnTypes[cnt] = type;
         memset(columnNames[cnt], 0, 0x10);
-        sprintf_s(columnNames[cnt], (int32)sizeof(columnNames[cnt]), "%s", va_arg(list, const char *));
+        sprintf_s(columnNames[cnt], sizeof(columnNames[cnt]), "%s", va_arg(list, const char *));
         GenerateHashCRC(&columnUUIDs[cnt], columnNames[cnt]);
         ++cnt;
     }
@@ -341,7 +341,7 @@ bool32 RSDK::SKU::UserDB::Load(uint8 *buffer)
         columnTypes[c] = *buffer;
         buffer++;
 
-        sprintf_s(columnNames[c], (int32)sizeof(columnNames[c]), "%s", (char *)buffer);
+        sprintf_s(columnNames[c], sizeof(columnNames[c]), "%s", (char *)buffer);
         buffer += 0x10;
 
         GenerateHashCRC(&columnUUIDs[c], columnNames[c]);
@@ -402,7 +402,7 @@ void RSDK::SKU::UserDB::Save(int32 totalSize, uint8 *buffer)
         }
         if (size + 0x10 * sizeof(uint8) < totalSize) {
             memset(buffer, 0, 0x10 * sizeof(uint8));
-            sprintf_s((char *)buffer, (int32)sizeof(columnNames[c]), "%s", columnNames[c]);
+            sprintf_s((char *)buffer, sizeof(columnNames[c]), "%s", columnNames[c]);
             size += 0x10;
             buffer += 0x10;
         }
@@ -1032,11 +1032,11 @@ bool32 RSDK::SKU::LoadUserFile(const char *filename, void *buffer, uint32 bufSiz
     char fullFilePath[0x400];
 #if RETRO_USE_MOD_LOADER
     if (strlen(customUserFileDir))
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
     else
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", userFileDir, filename);
 #else
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", userFileDir, filename);
 #endif
     PrintLog(PRINT_NORMAL, "Attempting to load user file: %s", fullFilePath);
 
@@ -1073,11 +1073,11 @@ bool32 RSDK::SKU::SaveUserFile(const char *filename, void *buffer, uint32 bufSiz
     char fullFilePath[0x400];
 #if RETRO_USE_MOD_LOADER
     if (strlen(customUserFileDir))
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
     else
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", userFileDir, filename);
 #else
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", userFileDir, filename);
 #endif
     PrintLog(PRINT_NORMAL, "Attempting to save user file: %s", fullFilePath);
 
@@ -1107,11 +1107,11 @@ bool32 RSDK::SKU::DeleteUserFile(const char *filename)
     char fullFilePath[0x400];
 #if RETRO_USE_MOD_LOADER
     if (strlen(customUserFileDir))
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", customUserFileDir, filename);
     else
-        sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", userFileDir, filename);
 #else
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "%s%s", userFileDir, filename);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "%s%s", userFileDir, filename);
 #endif
     PrintLog(PRINT_NORMAL, "Attempting to delete user file: %s", fullFilePath);
     int32 status = remove(fullFilePath);
@@ -1152,7 +1152,7 @@ void RSDK::SKU::InitUserDirectory()
 #if RETRO_PLATFORM == RETRO_OSX
 
     char buffer[0x100];
-    sprintf_s(buffer, (int32)sizeof(buffer), "%s/RSDKv5/", getResourcesPath());
+    sprintf_s(buffer, sizeof(buffer), "%s/RSDKv5/", getResourcesPath());
     SKU::SetUserFileCallbacks(buffer, NULL, NULL);
 
 #elif RETRO_PLATFORM == RETRO_ANDROID

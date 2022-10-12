@@ -123,7 +123,7 @@ void RSDK::LoadStaticVariables(uint8 *classPtr, uint32 *hash, int32 readOffset)
     for (int32 i = 0; i < 32; i += 4) classHash[strPos++] = hexChars[(hash[2] >> i) & 0xF];
     for (int32 i = 0; i < 32; i += 4) classHash[strPos++] = hexChars[(hash[3] >> i) & 0xF];
 
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/Objects/Static/%s.bin", classHash);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Objects/Static/%s.bin", classHash);
 
     FileInfo info;
     InitFileInfo(&info);

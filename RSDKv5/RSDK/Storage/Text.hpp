@@ -19,8 +19,8 @@ extern GameVersionInfo gameVerInfo;
 
 struct String {
     uint16 *chars; // text
-    int16 length;  // string length
-    int16 size;    // total alloc length
+    uint16 length;  // string length
+    uint16 size;    // total alloc length
 };
 
 #if RETRO_REV0U
@@ -147,32 +147,31 @@ void GenerateHashCRC(uint32 *id, char *inputString);
 #define HASH_COPY_MD5(dst, src) memcpy(dst, src, HASH_SIZE_MD5)
 #define HASH_CLEAR_MD5(hash)    MEM_ZERO(hash)
 
-inline void InitString(String *string, char *text, uint32 textLength)
+inline void InitString(String *string, const char *text, uint32 textLength)
 {
-    if (text) {
-        string->chars = NULL;
+    string->length = 0;
+    string->size = 0;
 
+    if (text != NULL) {
         string->length = 0;
-        while (text[string->length]) string->length++;
+        while (text[string->length] != '\0') ++string->length;
 
-        if (textLength && textLength >= string->length)
+        if (textLength != 0 && textLength >= string->length)
             string->size = textLength;
         else
             string->size = string->length;
 
-        if (!string->size)
+        if (string->size == 0)
             string->size = 1;
 
         AllocateStorage((void **)&string->chars, sizeof(uint16) * string->size, DATASET_STR, false);
 
-        int32 pos = 0;
-        while (text[pos]) {
+        for (uint32 pos = 0; text[pos] != '\0'; ++pos)
             string->chars[pos] = text[pos];
-            ++pos;
-        }
     }
 }
-void SetString(String *string, char *text);
+
+void SetString(String *string, const char *text);
 
 inline void CopyString(String *dst, String *src)
 {
@@ -208,7 +207,7 @@ inline void GetCString(char *destChars, String *string)
     cString[c] = 0;
 }
 
-void AppendText(String *string, char *appendText);
+void AppendText(String *string, const char *appendText);
 void AppendString(String *string, String *appendString);
 bool32 CompareStrings(String *string1, String *string2, bool32 exactMatch);
 

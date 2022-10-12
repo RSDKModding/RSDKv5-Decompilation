@@ -281,7 +281,7 @@ int32 RSDK::PlayStream(const char *filename, uint32 slot, int32 startPos, uint32
     channel->bufferPos    = 0;
     channel->speed        = TO_FIXED(1);
 
-    sprintf_s(streamFilePath, (int32)sizeof(streamFilePath), "Data/Music/%s", filename);
+    sprintf_s(streamFilePath, sizeof(streamFilePath), "Data/Music/%s", filename);
     streamStartPos  = startPos;
     streamLoopPoint = loopPoint;
 
@@ -301,7 +301,7 @@ void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
     InitFileInfo(&info);
 
     char fullFilePath[0x80];
-    sprintf_s(fullFilePath, (int32)sizeof(fullFilePath), "Data/SoundFX/%s", filename);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/SoundFX/%s", filename);
 
     RETRO_HASH_MD5(hash);
     GEN_HASH_MD5(filename, hash);
