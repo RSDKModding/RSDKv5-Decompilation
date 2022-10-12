@@ -740,6 +740,8 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         ID3DBlob *errorBlob  = nullptr;
         HRESULT result = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "VSMain", "vs_3_0", flags, 0, &shaderBlob, &errorBlob);
 
+        RemoveStorageEntry((void**)&fileData);
+
         if (FAILED(result)) {
             if (errorBlob) {
                 PrintLog(PRINT_NORMAL, "ERROR COMPILING VERTEX SHADER: %s", (char *)errorBlob->GetBufferPointer());
@@ -749,7 +751,6 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
             if (shaderBlob)
                 shaderBlob->Release();
 
-            fileData = NULL;
             return;
         }
         else {
@@ -763,12 +764,10 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->vertexShaderObject = NULL;
                 }
 
-                fileData = NULL;
                 return;
             }
         }
 
-        fileData = NULL;
     }
     else {
 #endif
@@ -787,11 +786,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->vertexShaderObject = NULL;
                 }
 
-                fileData = NULL;
+                RemoveStorageEntry((void**)&fileData);
                 return;
             }
 
-            fileData = NULL;
+            RemoveStorageEntry((void**)&fileData);
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -822,6 +821,8 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         ID3DBlob *errorBlob  = nullptr;
         HRESULT result = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "PSMain", "ps_3_0", flags, 0, &shaderBlob, &errorBlob);
 
+        RemoveStorageEntry((void**)&fileData);
+
         if (FAILED(result)) {
             if (errorBlob) {
                 PrintLog(PRINT_NORMAL, "ERROR COMPILING PIXEL SHADER:\n%s", (char *)errorBlob->GetBufferPointer());
@@ -842,12 +843,9 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->vertexShaderObject = NULL;
                 }
 
-                fileData = NULL;
                 return;
             }
         }
-
-        fileData = NULL;
     }
     else {
 #endif
@@ -866,11 +864,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->pixelShaderObject = NULL;
                 }
 
-                fileData = NULL;
+                RemoveStorageEntry((void**)&fileData);
                 return;
             }
 
-            fileData = NULL;
+            RemoveStorageEntry((void**)&fileData);
         }
 
 #if !RETRO_USE_ORIGINAL_CODE

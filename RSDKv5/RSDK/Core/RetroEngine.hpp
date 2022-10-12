@@ -565,8 +565,8 @@ struct RetroEngine {
     bool32 (*skipCallback)() = NULL;
 
     bool32 streamsEnabled = true;
-    float streamVolume    = 1.0;
-    float soundFXVolume   = 1.0;
+    float streamVolume    = 1.0f;
+    float soundFXVolume   = 1.0f;
 };
 
 extern RetroEngine engine;

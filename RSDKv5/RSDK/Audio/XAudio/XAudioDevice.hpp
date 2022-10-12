@@ -40,6 +40,9 @@ struct AudioDevice : public AudioDeviceBase {
 
     static RTL_CRITICAL_SECTION criticalSection;
 
+    static int32 mixBufferID;
+    static SAMPLE_FORMAT mixBuffer[3][MIX_BUFFER_SIZE];
+
 private:
     static void InitAudioChannels();
     static void InitMixBuffer();
