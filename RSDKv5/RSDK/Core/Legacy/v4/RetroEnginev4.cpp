@@ -600,7 +600,7 @@ int32 RSDK::Legacy::v4::LoadXMLStages(int32 mode, int32 gcStageCount)
                 const char *categoryNames[]             = {
                     "Presentation",
                     "Regular",
-                    "Special"
+                    "Special",
                     "Bonus",
                 };
 
@@ -655,7 +655,6 @@ int32 RSDK::Legacy::v4::LoadXMLStages(int32 mode, int32 gcStageCount)
 
                         if (!mode) {
                             list->sceneOffsetEnd += list->sceneCount;
-                            sceneInfo.categoryCount++;
                         }
                     }
                 }
