@@ -163,10 +163,18 @@ void RSDK::RemoveStorageEntry(void **dataPtr)
 
         uint32 set = HEADER(data, HEADER_SET_ID);
         for (int32 e = 0; e < dataStorage[set].entryCount; ++e) {
+#if !RETRO_USE_ORIGINAL_CODE
+            // make sure dataEntries[e] isn't null. If it is null by some ungodly chance then it was prolly already freed or something idk
+            if (dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e] && *dataPtr == *dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]) {
+                *dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e] = NULL;
+                dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]  = NULL;
+            }
+#else
             if (*dataPtr == *dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]) {
                 *dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e] = NULL;
                 dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]  = NULL;
             }
+#endif
 
             set = HEADER(data, HEADER_SET_ID);
         }
@@ -266,8 +274,16 @@ void RSDK::DefragmentAndGarbageCollectStorage(StorageDataSets set)
 
             // Find every single pointer to this memory allocation and update them with its new address.
             for (int32 c = 0; c < dataStorage[set].entryCount; ++c)
+
+#if !RETRO_USE_ORIGINAL_CODE
+                // make sure dataEntries[e] isn't null. If it is null by some ungodly chance then it was prolly already freed or something idk
+                if (dataPtr == dataStorage[set].storageEntries[c] && dataStorage[set].dataEntries[c])
+                    dataStorage[set].storageEntries[c] = *dataStorage[set].dataEntries[c] = currentHeader + HEADER_SIZE;
+#else
                 if (dataPtr == dataStorage[set].storageEntries[c])
                     dataStorage[set].storageEntries[c] = *dataStorage[set].dataEntries[c] = currentHeader + HEADER_SIZE;
+#endif
+
 
             // Update the offset in the allocation's header too.
             currentHeader[HEADER_DATA_OFFSET] = dataOffset + HEADER_SIZE;
