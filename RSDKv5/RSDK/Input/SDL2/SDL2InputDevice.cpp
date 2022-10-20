@@ -235,6 +235,7 @@ RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, SDL_GameCon
 
 void RSDK::SKU::InitSDL2InputAPI()
 {
+    SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
     SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
 
     return;
