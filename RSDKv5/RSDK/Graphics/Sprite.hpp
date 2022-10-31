@@ -13,6 +13,9 @@ struct Image {
         palette = NULL;
         pixels  = NULL;
     }
+#if !RETRO_USE_ORIGINAL_CODE
+    ~Image() { RemoveStorageEntry((void **)&palette); }
+#endif
 
     virtual bool32 Load(const char *fileName, bool32 loadHeader) { return false; }
     virtual bool32 Load(String *fileName, bool32 loadHeader)
@@ -57,6 +60,9 @@ struct GifDecoder {
 
 struct ImageGIF : public Image {
     ImageGIF() { AllocateStorage((void **)&decoder, sizeof(GifDecoder), DATASET_TMP, true); }
+#if !RETRO_USE_ORIGINAL_CODE
+    ~ImageGIF() { RemoveStorageEntry((void **)&decoder); }
+#endif
 
     bool32 Load(const char *fileName, bool32 loadHeader);
 

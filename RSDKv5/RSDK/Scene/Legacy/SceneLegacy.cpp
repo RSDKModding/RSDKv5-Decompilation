@@ -314,8 +314,10 @@ void RSDK::Legacy::LoadStageGIFFile()
             SetPaletteEntry(-1, c, red, green, blue);
         }
 
+#if RETRO_USE_ORIGINAL_CODE
         tileset.palette = NULL;
         tileset.decoder = NULL;
+#endif
         tileset.pixels  = NULL;
 
         tileset.Close();

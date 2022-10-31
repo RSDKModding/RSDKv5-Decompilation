@@ -416,6 +416,7 @@ inline int32 Uncompress(uint8 **cBuffer, int32 cSize, uint8 **buffer, int32 size
     return (int32)destLen;
 }
 
+// The buffer passed in parameter is allocated here, so it's up to the caller to free it once it goes unused
 inline int32 ReadCompressed(FileInfo *info, uint8 **buffer)
 {
     if (!buffer)
