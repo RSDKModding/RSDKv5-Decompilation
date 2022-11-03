@@ -633,7 +633,7 @@ bool32 RSDK::ImagePNG::Load(const char *fileName, bool32 loadHeader)
 
                         // read this chunk into the chunk buffer storage (we're processing each IDAT section by itself
                         // this is a BAD idea!!! though it's kept here for reference as to how the original v5 works
-                        AllocateStorage(chunkSize, (void **)&chunkBuffer, DATASET_TMP, false);
+                        AllocateStorage((void **)&chunkBuffer, chunkSize, DATASET_TMP, false);
                         ReadBytes(&info, chunkBuffer, chunkSize);
 
                         // decode the scanlines into usable RGBA pixels
@@ -951,16 +951,20 @@ uint16 RSDK::LoadSpriteSheet(const char *filename, int32 scope)
         image.pixels = surface->pixels;
         image.Load(NULL, false);
 
+#if RETRO_USE_ORIGINAL_CODE
         image.palette = NULL;
         image.decoder = NULL;
+#endif
         image.Close();
 
         return id;
     }
     else {
+#if RETRO_USE_ORIGINAL_CODE
         image.palette = NULL;
-        image.pixels  = NULL;
         image.decoder = NULL;
+#endif
+        image.pixels  = NULL;
         image.Close();
         return -1;
     }
@@ -999,7 +1003,9 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double fadeSp
         sceneInfo.state           = ENGINESTATE_SHOWIMAGE;
         engine.imageFadeSpeed     = fadeSpeed / 60.0;
 
+#if RETRO_USE_ORIGINAL_CODE
         image.palette = NULL;
+#endif
         image.pixels  = NULL;
         image.Close();
         return true;
@@ -1025,14 +1031,18 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double fadeSp
         sceneInfo.state           = ENGINESTATE_SHOWIMAGE;
         engine.imageFadeSpeed     = fadeSpeed / 60.0;
 
+#if RETRO_USE_ORIGINAL_CODE
         image.palette = NULL;
+#endif
         image.pixels  = NULL;
         image.Close();
         return true;
     }
 #endif
     else {
+#if RETRO_USE_ORIGINAL_CODE
         image.palette = NULL;
+#endif
         image.pixels  = NULL;
         image.Close();
     }

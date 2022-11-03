@@ -420,6 +420,9 @@ void RSDK::LoadSceneAssets()
             uint8 *scrollIndexes = NULL;
             ReadCompressed(&info, (uint8 **)&scrollIndexes);
             memcpy(layer->lineScroll, scrollIndexes, TILE_SIZE * size * sizeof(uint8));
+#if !RETRO_USE_ORIGINAL_CODE
+            RemoveStorageEntry((void **)&scrollIndexes);
+#endif
             scrollIndexes = NULL;
 
             uint8 *tileLayout = NULL;
@@ -433,6 +436,9 @@ void RSDK::LoadSceneAssets()
                 }
             }
 
+#if !RETRO_USE_ORIGINAL_CODE
+            RemoveStorageEntry((void **)&tileLayout);
+#endif
             tileLayout = NULL;
         }
 
@@ -650,6 +656,11 @@ void RSDK::LoadSceneAssets()
                     }
                 }
             }
+
+#if !RETRO_USE_ORIGINAL_CODE
+            RemoveStorageEntry((void **)&varList);
+            varList = NULL;
+#endif
         }
 
 #if RETRO_REV02
@@ -680,9 +691,15 @@ void RSDK::LoadSceneAssets()
                 break;
         }
 
+#if !RETRO_USE_ORIGINAL_CODE
+        RemoveStorageEntry((void **)&tempEntityList);
+#endif
         tempEntityList = NULL;
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
+        RemoveStorageEntry((void **)&editableVarList);
+#endif
         editableVarList = NULL;
 
         CloseFile(&info);
@@ -921,6 +938,10 @@ void RSDK::LoadTileConfig(char *filepath)
             }
         }
 
+#if !RETRO_USE_ORIGINAL_CODE
+        RemoveStorageEntry((void **)&buffer);
+        buffer = NULL;
+#endif
         CloseFile(&info);
     }
 }
@@ -979,8 +1000,10 @@ void RSDK::LoadStageGIF(char *filepath)
             dstPixels += (TILE_SIZE * 2);
         }
 
+#if RETRO_USE_ORIGINAL_CODE
         tileset.palette = NULL;
         tileset.decoder = NULL;
+#endif
         tileset.pixels  = NULL;
     }
 }
