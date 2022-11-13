@@ -175,8 +175,8 @@ struct float2 {
 
 struct RenderVertex {
     float3 pos;
-    uint32 color;
     float2 tex;
+    uint32 color;
 };
 
 struct ShaderEntryBase {

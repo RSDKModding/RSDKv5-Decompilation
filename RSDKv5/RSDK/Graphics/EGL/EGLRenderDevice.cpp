@@ -41,16 +41,16 @@ char _glFPrecision[30]; // len("precision mediump float;\n") -> 25
 
 const GLchar *backupVertex = R"aa(
 in_V vec3 in_pos;
-in_V vec4 in_color;
 in_V vec2 in_UV;
-out vec4 ex_color;
+in_V vec4 in_color;
 out vec2 ex_UV;
+out vec4 ex_color;
 
 void main()
 {
     gl_Position = vec4(in_pos, 1.0);
-    ex_color    = in_color;
     ex_UV       = in_UV;
+    ex_color    = in_color;
 }
 )aa";
 
@@ -274,9 +274,9 @@ bool RenderDevice::InitGraphicsAPI()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), 0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, color));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, tex));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, tex));
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, color));
     glEnableVertexAttribArray(2);
 
 #if RETRO_PLATFORM == RETRO_SWITCH
@@ -707,8 +707,8 @@ bool RenderDevice::InitShaders()
         glDeleteShader(vert);
         glDeleteShader(frag);
         glBindAttribLocation(shader->programID, 0, "in_pos");
-        glBindAttribLocation(shader->programID, 1, "in_color");
-        glBindAttribLocation(shader->programID, 2, "in_UV");
+        glBindAttribLocation(shader->programID, 1, "in_UV");
+        glBindAttribLocation(shader->programID, 2, "in_color");
 
         glUseProgram(shader->programID);
 
@@ -788,8 +788,8 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     glDeleteShader(vert);
     glDeleteShader(frag);
     glBindAttribLocation(shader->programID, 0, "in_pos");
-    glBindAttribLocation(shader->programID, 1, "in_color");
-    glBindAttribLocation(shader->programID, 2, "in_UV");
+    glBindAttribLocation(shader->programID, 1, "in_UV");
+    glBindAttribLocation(shader->programID, 2, "in_color");
     shaderCount++;
 };
 

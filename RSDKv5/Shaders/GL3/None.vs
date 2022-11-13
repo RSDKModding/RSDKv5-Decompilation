@@ -1,6 +1,6 @@
 in_V vec3 in_pos;
-in_V vec4 in_color;
 in_V vec2 in_UV;
+in_V vec4 in_color;
 out vec4 ex_color;
 out vec2 ex_UV;
 
