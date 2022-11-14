@@ -274,10 +274,10 @@ bool RenderDevice::InitGraphicsAPI()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), 0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, color));
+    //glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, color));
+    //glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, tex));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, tex));
-    glEnableVertexAttribArray(2);
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     videoSettings.fsWidth  = 1920;
@@ -707,8 +707,8 @@ bool RenderDevice::InitShaders()
         glDeleteShader(vert);
         glDeleteShader(frag);
         glBindAttribLocation(shader->programID, 0, "in_pos");
-        glBindAttribLocation(shader->programID, 1, "in_color");
-        glBindAttribLocation(shader->programID, 2, "in_UV");
+        //glBindAttribLocation(shader->programID, 1, "in_color");
+        glBindAttribLocation(shader->programID, 1, "in_UV");
 
         glUseProgram(shader->programID);
 
@@ -788,8 +788,8 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     glDeleteShader(vert);
     glDeleteShader(frag);
     glBindAttribLocation(shader->programID, 0, "in_pos");
-    glBindAttribLocation(shader->programID, 1, "in_color");
-    glBindAttribLocation(shader->programID, 2, "in_UV");
+    //glBindAttribLocation(shader->programID, 1, "in_color");
+    glBindAttribLocation(shader->programID, , "in_UV");
     shaderCount++;
 };
 
