@@ -10,8 +10,9 @@ PROFILE		?= 0
 
 RSDK_ONLY   ?= 0
 
+RETRO_REVISION ?= 2
+RSDK_REVISION  ?= $(RETRO_REVISION)
 
-RSDK_REVISION ?= 2
 ifeq ($(RSDK_REVISION),3)
 RSDK_NAME    = RSDKv5U
 else
@@ -121,6 +122,10 @@ else
 endif
 
 DEFINES += -DRETRO_REVISION=$(RSDK_REVISION)
+
+ifeq ($(RSDK_REVISION),1) 
+DEFINES += -DMANIA_PREPLUS=1
+endif
 
 CFLAGS_ALL += $(CFLAGS) \
 			   -fsigned-char 
