@@ -789,7 +789,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     glDeleteShader(frag);
     glBindAttribLocation(shader->programID, 0, "in_pos");
     //glBindAttribLocation(shader->programID, 1, "in_color");
-    glBindAttribLocation(shader->programID, , "in_UV");
+    glBindAttribLocation(shader->programID, 1, "in_UV");
     shaderCount++;
 };
 
