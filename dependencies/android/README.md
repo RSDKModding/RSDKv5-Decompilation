@@ -16,7 +16,7 @@
       * Linux: `ln -s "[path]" "[name-of-symlink]"`
 * Open `[root]/android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 
-The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL shaders are required, or you will get a black screen.** Read the Shaders section in [the GL3 README](../../RSDKv5/Shaders/README.md) for a guide on how to install them.
+The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL shaders are required, or you will get a black screen.** Read the Shaders section in [the GL3 README](../gl3/README.md#shaders) for a guide on how to install them.
 
 
 ## Common build issues (Windows)
