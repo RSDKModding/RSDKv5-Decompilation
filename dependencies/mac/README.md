@@ -1,6 +1,4 @@
-# MAC SETUP
-
-* Clone the repo, then install the dependencies listed below, then build via the Xcode project.
+# Mac
 
 ## Dependencies:
 SDL2: https://www.libsdl.org/download-2.0.php
@@ -11,3 +9,7 @@ download the libogg .zip file and unzip it in "./libogg/", then build the librar
 
 libtheora: https://xiph.org/downloads/ (libtheora)
 download the libtheora .zip file and unzip it in "./libtheora/", then build the library as a framework, and include it in the xcode proj
+
+## Compiling 
+
+Open the Xcode project and build it from there.
