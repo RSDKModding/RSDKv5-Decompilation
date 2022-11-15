@@ -32,7 +32,7 @@
             android:icon="@mipmap/ic_launcher" 
             android:alwaysRetainTaskState="true" 
             android:launchMode="singleInstance" 
-            android:screenOrientation="landscape" 
+            android:screenOrientation="userLandscape" 
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize" 
             android:theme="@style/AppTheme">
 
