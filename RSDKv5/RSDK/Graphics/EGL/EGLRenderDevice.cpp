@@ -690,14 +690,14 @@ bool RenderDevice::InitShaders()
         shaderCount = 1;
 
         GLuint vert, frag;
-        const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, backupVertex };
+        const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, _glVPrecision, backupVertex };
         vert                  = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vert, 3, vchar, NULL);
+        glShaderSource(vert, 4, vchar, NULL);
         glCompileShader(vert);
 
-        const GLchar *fchar[] = { _GLVERSION, _GLDEFINE, backupFragment };
+        const GLchar *fchar[] = { _GLVERSION, _GLDEFINE, _glFPrecision, backupFragment };
         frag                  = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(frag, 3, fchar, NULL);
+        glShaderSource(frag, 4, fchar, NULL);
         glCompileShader(frag);
 
         shader->programID = glCreateProgram();
