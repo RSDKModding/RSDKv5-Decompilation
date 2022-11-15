@@ -194,6 +194,7 @@ void AndroidCommandCallback(android_app *app, int32 cmd)
                 engine.focusState |= 1;
 #endif
                 videoSettings.windowState = WINDOWSTATE_ACTIVE;
+                SwappyGL_setWindow(app->window);
             }
             break;
         case APP_CMD_STOP: Paddleboat_onStop(GetJNISetup()->env); break;

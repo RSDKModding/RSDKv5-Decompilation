@@ -36,6 +36,10 @@ void android_main(struct android_app *ap)
     JNISetup *jni = GetJNISetup();
     // we make sure we do it here so init can chill safely before any callbacks occur
     Paddleboat_init(jni->env, jni->thiz);
+    
+    SwappyGL_init(jni->env, jni->thiz);
+    SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+
     char buffer[0x200];
     jmethodID method = jni->env->GetMethodID(jni->clazz, "getBasePath", "()Ljava/lang/String;");
     auto ret         = jni->env->CallObjectMethod(jni->thiz, method);
@@ -50,6 +54,7 @@ void android_main(struct android_app *ap)
     RSDK_main(0, NULL, (void *)RSDK::LinkGameLogic);
 
     Paddleboat_destroy(jni->env);
+    SwappyGL_destroy();
 }
 #else
 int32 main(int32 argc, char *argv[]) { return RSDK_main(argc, argv, (void *)RSDK::LinkGameLogic); }

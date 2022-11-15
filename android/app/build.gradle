@@ -10,7 +10,7 @@ android {
         applicationId "com.decomp.rsdkv5"
         minSdkVersion 17
         //minSdkVersion 30 // if you're getting framerate issues, uncomment this
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
@@ -51,5 +51,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation "androidx.games:games-activity:1.1.0-beta03"
     implementation "androidx.games:games-controller:1.1.0-beta01"
-    implementation 'com.google.oboe:oboe:1.5.0'
+    implementation "androidx.games:games-frame-pacing:1.10.1"
+    implementation "com.google.oboe:oboe:1.6.1"
 }

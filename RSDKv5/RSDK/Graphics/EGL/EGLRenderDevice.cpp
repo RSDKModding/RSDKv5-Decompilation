@@ -607,9 +607,17 @@ void RenderDevice::FlipScreen()
 #endif
     }
 
+#if RETRO_PLATFORM != RETRO_ANDROID
     if (!eglSwapBuffers(display, surface)) {
         PrintLog(PRINT_NORMAL, "[EGL] Failed to swap buffers: %d", eglGetError());
     }
+#else
+    if (!SwappyGL_swap(display, surface)) {
+        if (SwappyGL_isEnabled()) {
+            PrintLog(PRINT_NORMAL, "[EGL] Failed to swap buffers: %d", eglGetError());
+        }
+    }
+#endif
 }
 
 void RenderDevice::Release(bool32 isRefresh)

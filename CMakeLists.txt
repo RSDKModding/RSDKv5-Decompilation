@@ -98,6 +98,7 @@ target_compile_options(RetroEngine PRIVATE -fexceptions -frtti -DRSDK_USE_GL3 -D
 
 find_package(games-controller REQUIRED CONFIG)
 find_package(game-activity REQUIRED CONFIG)
+find_package(games-frame-pacing REQUIRED CONFIG)
 find_package(oboe REQUIRED CONFIG)
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u GameActivity_onCreate")
@@ -114,6 +115,7 @@ target_link_libraries(
     jnigraphics
     games-controller::paddleboat_static
     game-activity::game-activity
+    games-frame-pacing::swappy_static
     oboe::oboe
     OpenSLES
 )
