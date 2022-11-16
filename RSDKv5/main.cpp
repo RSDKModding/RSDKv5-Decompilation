@@ -26,6 +26,8 @@ extern "C" {
 void android_main(struct android_app *app);
 }
 
+#include <swappy/swappyGL_extra.h>
+
 void android_main(struct android_app *ap)
 {
     app                                 = ap;
@@ -38,7 +40,8 @@ void android_main(struct android_app *ap)
     Paddleboat_init(jni->env, jni->thiz);
     
     SwappyGL_init(jni->env, jni->thiz);
-    SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+    SwappyGL_setSwapIntervalNS(1000000000L / RSDK::videoSettings.refreshRate);
+    SwappyGL_setAutoSwapInterval(false);
 
     char buffer[0x200];
     jmethodID method = jni->env->GetMethodID(jni->clazz, "getBasePath", "()Ljava/lang/String;");
