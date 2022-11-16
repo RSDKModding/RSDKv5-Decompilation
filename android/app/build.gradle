@@ -2,14 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     ndkVersion "24.0.8215888"
-    compileSdkVersion 32
+    compileSdkVersion 33
     buildFeatures {
         prefab true
     }
     defaultConfig {
         applicationId "com.decomp.rsdkv5"
         minSdkVersion 17
-        //minSdkVersion 30 // if you're getting framerate issues, uncomment this
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -47,10 +46,10 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.core:core:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation "androidx.games:games-activity:1.1.0-beta03"
-    implementation "androidx.games:games-controller:1.1.0-beta01"
+    implementation 'androidx.core:core:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation "androidx.games:games-activity:1.2.1"
+    implementation "androidx.games:games-controller:1.1.0"
     implementation "androidx.games:games-frame-pacing:1.10.1"
     implementation "com.google.oboe:oboe:1.6.1"
 }

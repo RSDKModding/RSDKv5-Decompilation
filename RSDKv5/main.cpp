@@ -46,8 +46,10 @@ void android_main(struct android_app *ap)
     char buffer[0x200];
     jmethodID method = jni->env->GetMethodID(jni->clazz, "getBasePath", "()Ljava/lang/String;");
     auto ret         = jni->env->CallObjectMethod(jni->thiz, method);
-    strcpy(buffer, jni->env->GetStringUTFChars((jstring)ret, NULL));
-    RSDK::SKU::SetUserFileCallbacks(buffer, NULL, NULL);
+    if (ret) {
+        strcpy(buffer, jni->env->GetStringUTFChars((jstring)ret, NULL));
+        RSDK::SKU::SetUserFileCallbacks(buffer, NULL, NULL);
+    }
 
     GameActivity_setWindowFlags(app->activity,
                                 AWINDOW_FLAG_KEEP_SCREEN_ON | AWINDOW_FLAG_TURN_SCREEN_ON | AWINDOW_FLAG_LAYOUT_NO_LIMITS | AWINDOW_FLAG_FULLSCREEN

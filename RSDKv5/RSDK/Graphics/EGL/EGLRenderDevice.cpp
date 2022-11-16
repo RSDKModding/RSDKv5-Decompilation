@@ -48,7 +48,7 @@ out vec2 ex_UV;
 void main()
 {
     gl_Position = vec4(in_pos, 1.0);
-    ex_color    = vec4(1.0);
+    ex_color    = vec4(1.0, 1.0, 1.0, 1.0);
     ex_UV       = in_UV;
 }
 )aa";
@@ -161,9 +161,7 @@ bool RenderDevice::SetupRendering()
         return true; // lie so we can properly swtup later
     }
     ANativeWindow_setBuffersGeometry(window, 0, 0, format);
-#if __ANDROID_API__ >= 30
-    ANativeWindow_setFrameRate(window, videoSettings.refreshRate, ANATIVEWINDOW_FRAME_RATE_COMPATIBILITY_DEFAULT);
-#endif
+    SwappyGL_setSwapIntervalNS(1000000000L / videoSettings.refreshRate);
 #endif
 
     surface = eglCreateWindowSurface(display, config, window, nullptr);
