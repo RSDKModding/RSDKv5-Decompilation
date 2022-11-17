@@ -74,7 +74,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := RetroEngine
 
-LOCAL_CFLAGS := -fexceptions -frtti -DRSDK_USE_GL3
+LOCAL_CFLAGS := -fexceptions -frtti -DRSDK_USE_OGL
 
 LOCAL_C_INCLUDES := \
 	$(RSDK_PATH)/RSDKv5/ 					                \

@@ -268,14 +268,14 @@ enum GameRegions {
 #undef RETRO_INPUTDEVICE_RAWINPUT
 #define RETRO_INPUTDEVICE_RAWINPUT (1)
 
-#elif defined(RSDK_USE_GL3)
+#elif defined(RSDK_USE_OGL)
 #undef RETRO_RENDERDEVICE_GLFW
 #define RETRO_RENDERDEVICE_GLFW (1)
 
 #undef RETRO_INPUTDEVICE_GLFW
 #define RETRO_INPUTDEVICE_GLFW (1)
 #else
-#error One of RSDK_USE_DX9, RSDK_USE_DX11, RSDK_USE_SDL2, or RSDK_USE_GL3 must be defined.
+#error One of RSDK_USE_DX9, RSDK_USE_DX11, RSDK_USE_SDL2, or RSDK_USE_OGL must be defined.
 #endif
 
 #if !defined(_MINGW) && !defined(RSDK_USE_SDL2)
@@ -307,7 +307,7 @@ enum GameRegions {
 #undef RETRO_INPUTDEVICE_SDL2
 #define RETRO_INPUTDEVICE_SDL2 (1)
 
-#elif defined(RSDK_USE_GL3)
+#elif defined(RSDK_USE_OGL)
 #undef RETRO_RENDERDEVICE_GLFW
 #define RETRO_RENDERDEVICE_GLFW (1)
 #undef RETRO_INPUTDEVICE_GLFW
@@ -316,7 +316,7 @@ enum GameRegions {
 #define RETRO_AUDIODEVICE_SDL2 (1)
 
 #else
-#error RSDK_USE_SDL2 or RSDK_USE_GL3 must be defined.
+#error RSDK_USE_SDL2 or RSDK_USE_OGL must be defined.
 #endif //! RSDK_USE_SDL2
 
 #elif RETRO_PLATFORM == RETRO_SWITCH
@@ -332,7 +332,7 @@ enum GameRegions {
 #undef RETRO_INPUTDEVICE_SDL2
 #define RETRO_INPUTDEVICE_SDL2 (1)
 
-#elif defined(RSDK_USE_GL3)
+#elif defined(RSDK_USE_OGL)
 #undef RETRO_RENDERDEVICE_EGL
 #define RETRO_RENDERDEVICE_EGL (1)
 #undef RETRO_INPUTDEVICE_NX
@@ -349,7 +349,7 @@ enum GameRegions {
 #define RETRO_AUDIODEVICE_NX (1)
 #else
 
-#error RSDK_USE_NX, RSDK_USE_SDL2, or RSDK_USE_GL3 must be defined.
+#error RSDK_USE_NX, RSDK_USE_SDL2, or RSDK_USE_OGL must be defined.
 #endif //! RSDK_USE_SDL2
 
 #undef RETRO_INPUTDEVICE_KEYBOARD
@@ -358,7 +358,7 @@ enum GameRegions {
 
 #elif RETRO_PLATFORM == RETRO_ANDROID
 
-#if defined RSDK_USE_GL3
+#if defined RSDK_USE_OGL
 #undef RETRO_RENDERDEVICE_EGL
 #define RETRO_RENDERDEVICE_EGL (1)
 #undef RETRO_INPUTDEVICE_PDBOAT
@@ -366,7 +366,7 @@ enum GameRegions {
 #undef RETRO_AUDIODEVICE_OBOE
 #define RETRO_AUDIODEVICE_OBOE (1)
 #else
-#error RSDK_USE_GL3 must be defined.
+#error RSDK_USE_OGL must be defined.
 #endif
 
 #elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_iOS
@@ -444,7 +444,7 @@ enum GameRegions {
 
 #if RETRO_RENDERDEVICE_EGL
 #include <EGL/egl.h> // EGL library
-#include <GLES3/gl31.h>
+#include <GLES2/gl2.h>
 #endif
 
 #include <androidHelpers.hpp>

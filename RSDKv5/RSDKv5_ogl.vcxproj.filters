@@ -78,7 +78,7 @@
     <Filter Include="Source Files\RSDK\Audio\XAudio">
       <UniqueIdentifier>{3eeafa77-646c-44ce-b45d-565c9917f903}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\RSDK\Graphics\GL3">
+    <Filter Include="Source Files\RSDK\Graphics\GLFW">
       <UniqueIdentifier>{84040347-202b-4c6b-be79-e0fe666aec56}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Dependencies\miniz">
@@ -92,176 +92,176 @@
     <ClCompile Include="..\dependencies\all\tinyxml2\tinyxml2.cpp">
       <Filter>Source Files\Dependencies\tinyxml2</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\main.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files\RSDK</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Dummy\DummyAchievements.cpp">
+    <ClCompile Include="RSDK\User\Dummy\DummyAchievements.cpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Dummy\DummyCore.cpp">
+    <ClCompile Include="RSDK\User\Dummy\DummyCore.cpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Dummy\DummyLeaderboards.cpp">
+    <ClCompile Include="RSDK\User\Dummy\DummyLeaderboards.cpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Dummy\DummyPresence.cpp">
+    <ClCompile Include="RSDK\User\Dummy\DummyPresence.cpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Dummy\DummyStats.cpp">
+    <ClCompile Include="RSDK\User\Dummy\DummyStats.cpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Steam\SteamAchievements.cpp">
+    <ClCompile Include="RSDK\User\Steam\SteamAchievements.cpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Steam\SteamCore.cpp">
+    <ClCompile Include="RSDK\User\Steam\SteamCore.cpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Steam\SteamLeaderboards.cpp">
+    <ClCompile Include="RSDK\User\Steam\SteamLeaderboards.cpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Steam\SteamPresence.cpp">
+    <ClCompile Include="RSDK\User\Steam\SteamPresence.cpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Steam\SteamStats.cpp">
+    <ClCompile Include="RSDK\User\Steam\SteamStats.cpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Dummy\DummyStorage.cpp">
+    <ClCompile Include="RSDK\User\Dummy\DummyStorage.cpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Steam\SteamStorage.cpp">
+    <ClCompile Include="RSDK\User\Steam\SteamStorage.cpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\EOS\EOSAchievements.cpp">
+    <ClCompile Include="RSDK\User\EOS\EOSAchievements.cpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\EOS\EOSCore.cpp">
+    <ClCompile Include="RSDK\User\EOS\EOSCore.cpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\EOS\EOSLeaderboards.cpp">
+    <ClCompile Include="RSDK\User\EOS\EOSLeaderboards.cpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\EOS\EOSPresence.cpp">
+    <ClCompile Include="RSDK\User\EOS\EOSPresence.cpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\EOS\EOSStats.cpp">
+    <ClCompile Include="RSDK\User\EOS\EOSStats.cpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\EOS\EOSStorage.cpp">
+    <ClCompile Include="RSDK\User\EOS\EOSStorage.cpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\NX\NXAchievements.cpp">
+    <ClCompile Include="RSDK\User\NX\NXAchievements.cpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\NX\NXCore.cpp">
+    <ClCompile Include="RSDK\User\NX\NXCore.cpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\NX\NXLeaderboards.cpp">
+    <ClCompile Include="RSDK\User\NX\NXLeaderboards.cpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\NX\NXPresence.cpp">
+    <ClCompile Include="RSDK\User\NX\NXPresence.cpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\NX\NXStats.cpp">
+    <ClCompile Include="RSDK\User\NX\NXStats.cpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\NX\NXStorage.cpp">
+    <ClCompile Include="RSDK\User\NX\NXStorage.cpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Core\UserAchievements.cpp">
+    <ClCompile Include="RSDK\User\Core\UserAchievements.cpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Core\UserCore.cpp">
+    <ClCompile Include="RSDK\User\Core\UserCore.cpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Core\UserLeaderboards.cpp">
+    <ClCompile Include="RSDK\User\Core\UserLeaderboards.cpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Core\UserPresence.cpp">
+    <ClCompile Include="RSDK\User\Core\UserPresence.cpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Core\UserStats.cpp">
+    <ClCompile Include="RSDK\User\Core\UserStats.cpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\User\Core\UserStorage.cpp">
+    <ClCompile Include="RSDK\User\Core\UserStorage.cpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Audio\Audio.cpp">
+    <ClCompile Include="RSDK\Audio\Audio.cpp">
       <Filter>Source Files\RSDK\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Core\Link.cpp">
+    <ClCompile Include="RSDK\Core\Link.cpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Core\Math.cpp">
+    <ClCompile Include="RSDK\Core\Math.cpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Core\ModAPI.cpp">
+    <ClCompile Include="RSDK\Core\ModAPI.cpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Core\Reader.cpp">
+    <ClCompile Include="RSDK\Core\Reader.cpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Core\RetroEngine.cpp">
+    <ClCompile Include="RSDK\Core\RetroEngine.cpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Dev\Debug.cpp">
+    <ClCompile Include="RSDK\Dev\Debug.cpp">
       <Filter>Source Files\RSDK\Dev</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Graphics\Animation.cpp">
+    <ClCompile Include="RSDK\Graphics\Animation.cpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Graphics\Drawing.cpp">
+    <ClCompile Include="RSDK\Graphics\Drawing.cpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Graphics\Palette.cpp">
+    <ClCompile Include="RSDK\Graphics\Palette.cpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Graphics\Scene3D.cpp">
+    <ClCompile Include="RSDK\Graphics\Scene3D.cpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Graphics\Sprite.cpp">
+    <ClCompile Include="RSDK\Graphics\Sprite.cpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Graphics\Video.cpp">
+    <ClCompile Include="RSDK\Graphics\Video.cpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Input\Input.cpp">
+    <ClCompile Include="RSDK\Input\Input.cpp">
       <Filter>Source Files\RSDK\Input</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Scene\Collision.cpp">
+    <ClCompile Include="RSDK\Scene\Collision.cpp">
       <Filter>Source Files\RSDK\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Scene\Object.cpp">
+    <ClCompile Include="RSDK\Scene\Object.cpp">
       <Filter>Source Files\RSDK\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Scene\Scene.cpp">
+    <ClCompile Include="RSDK\Scene\Scene.cpp">
       <Filter>Source Files\RSDK\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Scene\Objects\DefaultObject.cpp">
+    <ClCompile Include="RSDK\Scene\Objects\DefaultObject.cpp">
       <Filter>Source Files\RSDK\Scene\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Scene\Objects\DevOutput.cpp">
+    <ClCompile Include="RSDK\Scene\Objects\DevOutput.cpp">
       <Filter>Source Files\RSDK\Scene\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Storage\Storage.cpp">
+    <ClCompile Include="RSDK\Storage\Storage.cpp">
       <Filter>Source Files\RSDK\Storage</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Storage\Text.cpp">
+    <ClCompile Include="RSDK\Storage\Text.cpp">
       <Filter>Source Files\RSDK\Storage</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Input\Keyboard\KBInputDevice.cpp">
+    <ClCompile Include="RSDK\Input\Keyboard\KBInputDevice.cpp">
       <Filter>Source Files\RSDK\Input\Keyboard</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Input\Steam\SteamInputDevice.cpp">
+    <ClCompile Include="RSDK\Input\Steam\SteamInputDevice.cpp">
       <Filter>Source Files\RSDK\Input\Steam</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Input\GLFW\GLFWInputDevice.cpp">
+    <ClCompile Include="RSDK\Input\GLFW\GLFWInputDevice.cpp">
       <Filter>Source Files\RSDK\Input\GLFW</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Audio\XAudio\XAudioDevice.cpp">
+    <ClCompile Include="RSDK\Audio\XAudio\XAudioDevice.cpp">
       <Filter>Source Files\RSDK\Audio\XAudio</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Graphics\GL3\GL3RenderDevice.cpp">
-      <Filter>Source Files\RSDK\Graphics\GL3</Filter>
+    <ClCompile Include="RSDK\Graphics\GLFW\GLFWRenderDevice.cpp">
+      <Filter>Source Files\RSDK\Graphics\GLFW</Filter>
     </ClCompile>
     <ClCompile Include="..\dependencies\all\iniparser\dictionary.cpp">
       <Filter>Source Files\Dependencies\iniparser</Filter>
@@ -272,7 +272,7 @@
     <ClCompile Include="..\dependencies\all\miniz\miniz.c">
       <Filter>Source Files\Dependencies\miniz</Filter>
     </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Input\NX\NXInputDevice.cpp">
+    <ClCompile Include="RSDK\Input\NX\NXInputDevice.cpp">
       <Filter>Source Files\RSDK\Input\NX</Filter>
     </ClCompile>
   </ItemGroup>
@@ -286,179 +286,179 @@
     <ClInclude Include="resource.h">
       <Filter>Source Files\RSDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Dummy\DummyAchievements.hpp">
+    <ClInclude Include="RSDK\User\Dummy\DummyAchievements.hpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Dummy\DummyCore.hpp">
+    <ClInclude Include="RSDK\User\Dummy\DummyCore.hpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Dummy\DummyLeaderboards.hpp">
+    <ClInclude Include="RSDK\User\Dummy\DummyLeaderboards.hpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Dummy\DummyPresence.hpp">
+    <ClInclude Include="RSDK\User\Dummy\DummyPresence.hpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Dummy\DummyStats.hpp">
+    <ClInclude Include="RSDK\User\Dummy\DummyStats.hpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Steam\SteamAchievements.hpp">
+    <ClInclude Include="RSDK\User\Steam\SteamAchievements.hpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Steam\SteamCore.hpp">
+    <ClInclude Include="RSDK\User\Steam\SteamCore.hpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Steam\SteamLeaderboards.hpp">
+    <ClInclude Include="RSDK\User\Steam\SteamLeaderboards.hpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Steam\SteamPresence.hpp">
+    <ClInclude Include="RSDK\User\Steam\SteamPresence.hpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Steam\SteamStats.hpp">
+    <ClInclude Include="RSDK\User\Steam\SteamStats.hpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Dummy\DummyStorage.hpp">
+    <ClInclude Include="RSDK\User\Dummy\DummyStorage.hpp">
       <Filter>Source Files\RSDK\User\Dummy</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Steam\SteamStorage.hpp">
+    <ClInclude Include="RSDK\User\Steam\SteamStorage.hpp">
       <Filter>Source Files\RSDK\User\Steam</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\EOS\EOSAchievements.hpp">
+    <ClInclude Include="RSDK\User\EOS\EOSAchievements.hpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\EOS\EOSCore.hpp">
+    <ClInclude Include="RSDK\User\EOS\EOSCore.hpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\EOS\EOSLeaderboards.hpp">
+    <ClInclude Include="RSDK\User\EOS\EOSLeaderboards.hpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\EOS\EOSPresence.hpp">
+    <ClInclude Include="RSDK\User\EOS\EOSPresence.hpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\EOS\EOSStats.hpp">
+    <ClInclude Include="RSDK\User\EOS\EOSStats.hpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\EOS\EOSStorage.hpp">
+    <ClInclude Include="RSDK\User\EOS\EOSStorage.hpp">
       <Filter>Source Files\RSDK\User\EOS</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\NX\NXAchievements.hpp">
+    <ClInclude Include="RSDK\User\NX\NXAchievements.hpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\NX\NXCore.hpp">
+    <ClInclude Include="RSDK\User\NX\NXCore.hpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\NX\NXLeaderboards.hpp">
+    <ClInclude Include="RSDK\User\NX\NXLeaderboards.hpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\NX\NXPresence.hpp">
+    <ClInclude Include="RSDK\User\NX\NXPresence.hpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\NX\NXStats.hpp">
+    <ClInclude Include="RSDK\User\NX\NXStats.hpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\NX\NXStorage.hpp">
+    <ClInclude Include="RSDK\User\NX\NXStorage.hpp">
       <Filter>Source Files\RSDK\User\NX</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Core\UserAchievements.hpp">
+    <ClInclude Include="RSDK\User\Core\UserAchievements.hpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Core\UserCore.hpp">
+    <ClInclude Include="RSDK\User\Core\UserCore.hpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Core\UserLeaderboards.hpp">
+    <ClInclude Include="RSDK\User\Core\UserLeaderboards.hpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Core\UserPresence.hpp">
+    <ClInclude Include="RSDK\User\Core\UserPresence.hpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Core\UserStats.hpp">
+    <ClInclude Include="RSDK\User\Core\UserStats.hpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\User\Core\UserStorage.hpp">
+    <ClInclude Include="RSDK\User\Core\UserStorage.hpp">
       <Filter>Source Files\RSDK\User\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Audio\Audio.hpp">
+    <ClInclude Include="RSDK\Audio\Audio.hpp">
       <Filter>Source Files\RSDK\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Core\Link.hpp">
+    <ClInclude Include="RSDK\Core\Link.hpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Core\Math.hpp">
+    <ClInclude Include="RSDK\Core\Math.hpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Core\ModAPI.hpp">
+    <ClInclude Include="RSDK\Core\ModAPI.hpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Core\Reader.hpp">
+    <ClInclude Include="RSDK\Core\Reader.hpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Core\RetroEngine.hpp">
+    <ClInclude Include="RSDK\Core\RetroEngine.hpp">
       <Filter>Source Files\RSDK\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Dev\Debug.hpp">
+    <ClInclude Include="RSDK\Dev\Debug.hpp">
       <Filter>Source Files\RSDK\Dev</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Dev\DevFont.hpp">
+    <ClInclude Include="RSDK\Dev\DevFont.hpp">
       <Filter>Source Files\RSDK\Dev</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Graphics\Animation.hpp">
+    <ClInclude Include="RSDK\Graphics\Animation.hpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Graphics\Drawing.hpp">
+    <ClInclude Include="RSDK\Graphics\Drawing.hpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Graphics\Palette.hpp">
+    <ClInclude Include="RSDK\Graphics\Palette.hpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Graphics\Scene3D.hpp">
+    <ClInclude Include="RSDK\Graphics\Scene3D.hpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Graphics\Sprite.hpp">
+    <ClInclude Include="RSDK\Graphics\Sprite.hpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Graphics\Video.hpp">
+    <ClInclude Include="RSDK\Graphics\Video.hpp">
       <Filter>Source Files\RSDK\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Input\Input.hpp">
+    <ClInclude Include="RSDK\Input\Input.hpp">
       <Filter>Source Files\RSDK\Input</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Scene\Collision.hpp">
+    <ClInclude Include="RSDK\Scene\Collision.hpp">
       <Filter>Source Files\RSDK\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Scene\Object.hpp">
+    <ClInclude Include="RSDK\Scene\Object.hpp">
       <Filter>Source Files\RSDK\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Scene\Scene.hpp">
+    <ClInclude Include="RSDK\Scene\Scene.hpp">
       <Filter>Source Files\RSDK\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Scene\Objects\DefaultObject.hpp">
+    <ClInclude Include="RSDK\Scene\Objects\DefaultObject.hpp">
       <Filter>Source Files\RSDK\Scene\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Scene\Objects\DevOutput.hpp">
+    <ClInclude Include="RSDK\Scene\Objects\DevOutput.hpp">
       <Filter>Source Files\RSDK\Scene\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Storage\Storage.hpp">
+    <ClInclude Include="RSDK\Storage\Storage.hpp">
       <Filter>Source Files\RSDK\Storage</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Storage\Text.hpp">
+    <ClInclude Include="RSDK\Storage\Text.hpp">
       <Filter>Source Files\RSDK\Storage</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\main.hpp">
+    <ClInclude Include="main.hpp">
       <Filter>Source Files\RSDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Input\Keyboard\KBInputDevice.hpp">
+    <ClInclude Include="RSDK\Input\Keyboard\KBInputDevice.hpp">
       <Filter>Source Files\RSDK\Input\Keyboard</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Input\Steam\SteamInputDevice.hpp">
+    <ClInclude Include="RSDK\Input\Steam\SteamInputDevice.hpp">
       <Filter>Source Files\RSDK\Input\Steam</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Input\GLFW\GLFWInputDevice.hpp">
+    <ClInclude Include="RSDK\Input\GLFW\GLFWInputDevice.hpp">
       <Filter>Source Files\RSDK\Input\GLFW</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Audio\XAudio\XAudioDevice.hpp">
+    <ClInclude Include="RSDK\Audio\XAudio\XAudioDevice.hpp">
       <Filter>Source Files\RSDK\Audio\XAudio</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Graphics\GL3\GL3RenderDevice.hpp">
-      <Filter>Source Files\RSDK\Graphics\GL3</Filter>
+    <ClInclude Include="RSDK\Graphics\GLFW\GLFWRenderDevice.hpp">
+      <Filter>Source Files\RSDK\Graphics\GLFW</Filter>
     </ClInclude>
     <ClInclude Include="..\dependencies\all\iniparser\dictionary.h">
       <Filter>Source Files\Dependencies\iniparser</Filter>
@@ -469,17 +469,17 @@
     <ClInclude Include="..\dependencies\all\miniz\miniz.h">
       <Filter>Source Files\Dependencies\miniz</Filter>
     </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Input\NX\NXInputDevice.hpp">
+    <ClInclude Include="RSDK\Input\NX\NXInputDevice.hpp">
       <Filter>Source Files\RSDK\Input\NX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="RSDKv5U.rc">
+    <ResourceCompile Include="RSDKv5.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\dependencies\windows\RSDKv5U Decomp Icon.ico">
+    <Image Include="..\dependencies\windows\RSDKv5 Decomp Icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

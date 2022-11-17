@@ -55,7 +55,7 @@ enum InputDeviceAPIs {
     DEVICE_API_SDL2, // custom-made for SDL2 API, afaik it's not in original RSDKv5 (since it could be in a mac-version, but I do not have that so...)
 #endif
 #if RETRO_INPUTDEVICE_GLFW
-    DEVICE_API_GLFW, // custom-made for GL3, won't be in ANY real RSDKv5 version ever, it's just cool
+    DEVICE_API_GLFW, // custom-made for OGL, won't be in ANY real RSDKv5 version ever, it's just cool
 #endif
 #if RETRO_INPUTDEVICE_PDBOAT
     DEVICE_API_PDBOAT // custom-made for android (paddleboat API)

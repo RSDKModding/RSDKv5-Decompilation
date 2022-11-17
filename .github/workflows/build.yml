@@ -82,7 +82,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libogg-dev libsdl2-dev libtheora-dev libglew-dev libglfw3-dev
-      - name: Build RSDKv5 + U GL3
+      - name: Build RSDKv5 + U OGL
         run: |
           make -j8 RSDK_ONLY=1 AUTOBUILD=1
           make -j8 clean-rsdk

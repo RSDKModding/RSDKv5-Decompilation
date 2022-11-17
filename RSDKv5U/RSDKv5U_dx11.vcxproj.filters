@@ -84,9 +84,6 @@
     <Filter Include="Source Files\RSDK\Input\XInput">
       <UniqueIdentifier>{a16f7ec0-c949-4adf-9e68-f1d10d6b3496}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\RSDK\Graphics\GL3">
-      <UniqueIdentifier>{57407ad7-1b2e-44f4-a59f-2a6b9dc8d84f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\RSDK\Input\GLFW">
       <UniqueIdentifier>{5276caad-9603-4857-bada-a38484267353}</UniqueIdentifier>
     </Filter>
@@ -295,9 +292,6 @@
     </ClCompile>
     <ClCompile Include="..\RSDKv5\RSDK\Input\SDL2\SDL2InputDevice.cpp">
       <Filter>Source Files\RSDK\Input\SDL2</Filter>
-    </ClCompile>
-    <ClCompile Include="..\RSDKv5\RSDK\Graphics\GL3\GL3RenderDevice.cpp">
-      <Filter>Source Files\RSDK\Graphics\GL3</Filter>
     </ClCompile>
     <ClCompile Include="..\RSDKv5\RSDK\Input\GLFW\GLFWInputDevice.cpp">
       <Filter>Source Files\RSDK\Input\GLFW</Filter>
@@ -519,9 +513,6 @@
     </ClInclude>
     <ClInclude Include="..\RSDKv5\RSDK\Input\SDL2\SDL2InputDevice.hpp">
       <Filter>Source Files\RSDK\Input\SDL2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\RSDKv5\RSDK\Graphics\GL3\GL3RenderDevice.hpp">
-      <Filter>Source Files\RSDK\Graphics\GL3</Filter>
     </ClInclude>
     <ClInclude Include="..\RSDKv5\RSDK\Input\GLFW\GLFWInputDevice.hpp">
       <Filter>Source Files\RSDK\Input\GLFW</Filter>

@@ -38,7 +38,7 @@
     <ClCompile Include="RSDK\Dev\Debug.cpp" />
     <ClCompile Include="RSDK\Graphics\Animation.cpp" />
     <ClCompile Include="RSDK\Graphics\Drawing.cpp" />
-    <ClCompile Include="RSDK\Graphics\GL3\GL3RenderDevice.cpp">
+    <ClCompile Include="RSDK\Graphics\GLFW\GLFWRenderDevice.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -255,7 +255,7 @@
     <ClInclude Include="RSDK\Dev\DevFont.hpp" />
     <ClInclude Include="RSDK\Graphics\Animation.hpp" />
     <ClInclude Include="RSDK\Graphics\Drawing.hpp" />
-    <ClInclude Include="RSDK\Graphics\GL3\GL3RenderDevice.hpp">
+    <ClInclude Include="RSDK\Graphics\GLFW\GLFWRenderDevice.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -460,7 +460,7 @@
     <ProjectGuid>{A842E0D8-1D55-4B5D-92B2-5B6770021626}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SonicMania</RootNamespace>
-    <ProjectName>RSDKv5-gl3</ProjectName>
+    <ProjectName>RSDKv5-ogl</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -510,24 +510,24 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\GL3\</OutDir>
-    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\v5\GL3\Intermediate\</IntDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\OGL\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\v5\OGL\Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\GL3\</OutDir>
-    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\v5\GL3\Intermediate\</IntDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\OGL\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\v5\OGL\Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\GL3\</OutDir>
-    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\v5\GL3\Intermediate\</IntDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\OGL\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\v5\OGL\Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\GL3\</OutDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\OGL\</OutDir>
     <TargetName>$(ProjectName)_64</TargetName>
-    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\v5\GL3\Intermediate\</IntDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\v5\OGL\Intermediate\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -535,9 +535,9 @@
       </PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RSDK_USE_GL3;RETRO_REVISION=2;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RSDK_USE_OGL;RETRO_REVISION=2;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/;$(SolutionDir)RSDKv5/;$(SolutionDir)dependencies/gl3/glfw/include/;$(SolutionDir)dependencies/gl3/glew/include/;$(ExecutablePath);$(DXSDK_DIR)Utilities\bin\x86;$(IncludePath);$(DXSDK_DIR)Include;$(LibraryPath);$(DXSDK_DIR)Lib\$(PlatformTargetAsMSBuildArchitecture);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/;$(SolutionDir)RSDKv5/;$(SolutionDir)dependencies/ogl/glfw/include/;$(SolutionDir)dependencies/ogl/glew/include/;$(ExecutablePath);$(DXSDK_DIR)Utilities\bin\x86;$(IncludePath);$(DXSDK_DIR)Include;$(LibraryPath);$(DXSDK_DIR)Lib\$(PlatformTargetAsMSBuildArchitecture);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
@@ -545,11 +545,11 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/gl3/glfw/lib/;$(SolutionDir)dependencies/gl3/glfw/lib-vc2022/;$(SolutionDir)dependencies/gl3/glew/lib/Release/$(Platform)/;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/ogl/glfw/lib/;$(SolutionDir)dependencies/ogl/glfw/lib-vc2022/;$(SolutionDir)dependencies/ogl/glew/lib/Release/$(Platform)/;</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
       <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\gl3\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)" </Command>
+        <Command>copy /Y "$(SolutionDir)dependencies\ogl\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)" </Command>
       </PostBuildEvent>
       <PostBuildEvent>
         <Message>copying GLEW library DLL to the build directory. build should fail if it's not found</Message>
@@ -561,20 +561,20 @@
       </PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RSDK_USE_GL3;RETRO_REVISION=2;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RSDK_USE_OGL;RETRO_REVISION=2;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/;$(SolutionDir)RSDKv5/;$(SolutionDir)dependencies/gl3/glfw/include/;$(SolutionDir)dependencies/gl3/glew/include/;$(ExecutablePath);$(DXSDK_DIR)Utilities\bin\x86;$(IncludePath);$(DXSDK_DIR)Include;$(LibraryPath);$(DXSDK_DIR)Lib\$(PlatformTargetAsMSBuildArchitecture);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/;$(SolutionDir)RSDKv5/;$(SolutionDir)dependencies/ogl/glfw/include/;$(SolutionDir)dependencies/ogl/glew/include/;$(ExecutablePath);$(DXSDK_DIR)Utilities\bin\x86;$(IncludePath);$(DXSDK_DIR)Include;$(LibraryPath);$(DXSDK_DIR)Lib\$(PlatformTargetAsMSBuildArchitecture);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/gl3/glfw/lib/;$(SolutionDir)dependencies/gl3/glfw/lib-vc2022/;$(SolutionDir)dependencies/gl3/glew/lib/Release/$(Platform)/;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/ogl/glfw/lib/;$(SolutionDir)dependencies/ogl/glfw/lib-vc2022/;$(SolutionDir)dependencies/ogl/glew/lib/Release/$(Platform)/;</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
       <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\gl3\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)" </Command>
+        <Command>copy /Y "$(SolutionDir)dependencies\ogl\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)" </Command>
       </PostBuildEvent>
       <PostBuildEvent>
         <Message>copying GLEW library DLL to the build directory. build should fail if it's not found</Message>
@@ -588,9 +588,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RSDK_USE_GL3;RETRO_REVISION=2;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RSDK_USE_OGL;RETRO_REVISION=2;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/;$(SolutionDir)RSDKv5/;$(SolutionDir)dependencies/gl3/glfw/include/;$(SolutionDir)dependencies/gl3/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/;$(SolutionDir)RSDKv5/;$(SolutionDir)dependencies/ogl/glfw/include/;$(SolutionDir)dependencies/ogl/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -599,11 +599,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/gl3/glfw/lib/;$(SolutionDir)dependencies/gl3/glfw/lib-vc2022/;$(SolutionDir)dependencies/gl3/glew/lib/Release/$(Platform)/;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/ogl/glfw/lib/;$(SolutionDir)dependencies/ogl/glfw/lib-vc2022/;$(SolutionDir)dependencies/ogl/glew/lib/Release/$(Platform)/;</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
       <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\gl3\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)" </Command>
+        <Command>copy /Y "$(SolutionDir)dependencies\ogl\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)" </Command>
       </PostBuildEvent>
       <PostBuildEvent>
         <Message>copying GLEW library DLL to the build directory. build should fail if it's not found</Message>
@@ -617,9 +617,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RSDK_USE_GL3;RETRO_REVISION=2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RSDK_USE_OGL;RETRO_REVISION=2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/;$(SolutionDir)RSDKv5/;$(SolutionDir)dependencies/gl3/glfw/include/;$(SolutionDir)dependencies/gl3/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/;$(SolutionDir)RSDKv5/;$(SolutionDir)dependencies/ogl/glfw/include/;$(SolutionDir)dependencies/ogl/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -628,11 +628,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/gl3/glfw/lib/;$(SolutionDir)dependencies/gl3/glfw/lib-vc2022/;$(SolutionDir)dependencies/gl3/glew/lib/Release/$(Platform)/;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/libtheora/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/ogl/glfw/lib/;$(SolutionDir)dependencies/ogl/glfw/lib-vc2022/;$(SolutionDir)dependencies/ogl/glew/lib/Release/$(Platform)/;</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;libtheora_static.lib;winmm.lib;comctl32.lib;opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
       <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\gl3\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)" </Command>
+        <Command>copy /Y "$(SolutionDir)dependencies\ogl\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)" </Command>
       </PostBuildEvent>
       <PostBuildEvent>
         <Message>copying GLEW library DLL to the build directory. build should fail if it's not found</Message>

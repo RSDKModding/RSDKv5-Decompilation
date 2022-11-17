@@ -26,7 +26,7 @@ or if you've already cloned the repo, run inside:
 
 * [Windows](./dependencies/windows/README.md)
 * [Mac](./dependencies/mac/README.md)
-* [Linux/Switch](./dependencies/gl3/README.md)
+* [Linux/Switch](./dependencies/ogl/README.md)
 * [Android](./dependencies/android/README.md)
 
 ## Other Platforms
