@@ -161,7 +161,6 @@ enum GameRegions {
 // ============================
 #define RETRO_RENDERDEVICE_DIRECTX9  (0)
 #define RETRO_RENDERDEVICE_DIRECTX11 (0)
-#define RETRO_RENDERDEVICE_NX        (0)
 // CUSTOM
 #define RETRO_RENDERDEVICE_SDL2 (0)
 #define RETRO_RENDERDEVICE_GLFW (0)
@@ -171,7 +170,6 @@ enum GameRegions {
 // AUDIO DEVICE BACKENDS
 // ============================
 #define RETRO_AUDIODEVICE_XAUDIO (0)
-#define RETRO_AUDIODEVICE_NX     (0)
 // CUSTOM
 #define RETRO_AUDIODEVICE_SDL2 (0)
 #define RETRO_AUDIODEVICE_OBOE (0)
@@ -340,16 +338,8 @@ enum GameRegions {
 #undef RETRO_AUDIODEVICE_SDL2
 #define RETRO_AUDIODEVICE_SDL2 (1)
 
-#elif defined(RSDK_USE_NX)
-#undef RETRO_RENDERDEVICE_NX
-#define RETRO_RENDERDEVICE_NX (1)
-#undef RETRO_INPUTDEVICE_NX
-#define RETRO_INPUTDEVICE_NX (1)
-#undef RETRO_AUDIODEVICE_NX
-#define RETRO_AUDIODEVICE_NX (1)
 #else
-
-#error RSDK_USE_NX, RSDK_USE_SDL2, or RSDK_USE_OGL must be defined.
+#error RSDK_USE_SDL2 or RSDK_USE_OGL must be defined.
 #endif //! RSDK_USE_SDL2
 
 #undef RETRO_INPUTDEVICE_KEYBOARD
