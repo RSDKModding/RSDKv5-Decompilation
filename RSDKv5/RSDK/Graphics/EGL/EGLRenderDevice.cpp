@@ -348,7 +348,7 @@ bool RenderDevice::InitGraphicsAPI()
     Vector2 viewportPos{};
     Vector2 viewportSize{ displayWidth[0], displayHeight[0] };
 
-    if ((viewSize.x / viewSize.y) <= ((pixelSize.x / pixelSize.y) + 0.1)) {
+    if ((viewSize.x / viewSize.y) <= (pixAspect + 0.1)) {
         if ((pixAspect - 0.1) > (viewSize.x / viewSize.y)) {
             viewSize.y     = (pixelSize.y / pixelSize.x) * viewSize.x;
             viewportPos.y  = (displayHeight[0] >> 1) - (viewSize.y * 0.5);
@@ -813,12 +813,14 @@ bool RenderDevice::InitShaders()
         shader->programID = glCreateProgram();
         glAttachShader(shader->programID, vert);
         glAttachShader(shader->programID, frag);
-        glLinkProgram(shader->programID);
-        glDeleteShader(vert);
-        glDeleteShader(frag);
+
         glBindAttribLocation(shader->programID, 0, "in_pos");
         //glBindAttribLocation(shader->programID, 1, "in_color");
         glBindAttribLocation(shader->programID, 1, "in_UV");
+
+        glLinkProgram(shader->programID);
+        glDeleteShader(vert);
+        glDeleteShader(frag);
 
         glUseProgram(shader->programID);
 
@@ -888,6 +890,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     shader->programID = glCreateProgram();
     glAttachShader(shader->programID, vert);
     glAttachShader(shader->programID, frag);
+    
+    glBindAttribLocation(shader->programID, 0, "in_pos");
+    //glBindAttribLocation(shader->programID, 1, "in_color");
+    glBindAttribLocation(shader->programID, 1, "in_UV");
+
     glLinkProgram(shader->programID);
     glGetProgramiv(shader->programID, GL_LINK_STATUS, &success);
     if (!success) {
@@ -897,9 +904,6 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     }
     glDeleteShader(vert);
     glDeleteShader(frag);
-    glBindAttribLocation(shader->programID, 0, "in_pos");
-    //glBindAttribLocation(shader->programID, 1, "in_color");
-    glBindAttribLocation(shader->programID, 1, "in_UV");
     shaderCount++;
 };
 

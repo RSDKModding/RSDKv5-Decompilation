@@ -706,12 +706,14 @@ bool RenderDevice::InitShaders()
         shader->programID = glCreateProgram();
         glAttachShader(shader->programID, vert);
         glAttachShader(shader->programID, frag);
-        glLinkProgram(shader->programID);
-        glDeleteShader(vert);
-        glDeleteShader(frag);
+
         glBindAttribLocation(shader->programID, 0, "in_pos");
         //glBindAttribLocation(shader->programID, 1, "in_color");
         glBindAttribLocation(shader->programID, 1, "in_UV");
+        
+        glLinkProgram(shader->programID);
+        glDeleteShader(vert);
+        glDeleteShader(frag);
 
         glUseProgram(shader->programID);
 
@@ -795,6 +797,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     shader->programID = glCreateProgram();
     glAttachShader(shader->programID, vert);
     glAttachShader(shader->programID, frag);
+
+    glBindAttribLocation(shader->programID, 0, "in_pos");
+    //glBindAttribLocation(shader->programID, 1, "in_color");
+    glBindAttribLocation(shader->programID, 1, "in_UV");
+
     glLinkProgram(shader->programID);
     glGetProgramiv(shader->programID, GL_LINK_STATUS, &success);
     if (!success) {
@@ -804,9 +811,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     }
     glDeleteShader(vert);
     glDeleteShader(frag);
-    glBindAttribLocation(shader->programID, 0, "in_pos");
-    //glBindAttribLocation(shader->programID, 1, "in_color");
-    glBindAttribLocation(shader->programID, 1, "in_UV");
+
     shaderCount++;
 };
 
