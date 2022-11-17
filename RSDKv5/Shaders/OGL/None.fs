@@ -1,14 +1,18 @@
+#if GL_ES
+
+#if GL_OES_standard_derivatives
+#define SUPPORTS_DERIVATIVES 1
+#else // GL_OES_standard_derivatives
+#define SUPPORTS_DERIVATIVES 0
+#endif // GL_OES_standard_derivatives
+
+#else // GL_ES
+#define SUPPORTS_DERIVATIVES 1 // no GLES = should support derivs
+#endif // GL_ES
+
 // =======================
 // VARIABLES
 // =======================
-#if GL_ES
-vec2 round(vec2 inp) {
-    vec2 outp;
-    outp.x = fract(inp.x) < 0.5 ? floor(inp.x) : ceil(inp.x);
-    outp.y = fract(inp.y) < 0.5 ? floor(inp.y) : ceil(inp.y);
-    return outp;
-}
-#endif
 
 in_F vec2 ex_UV;
 in_F vec4 ex_color;
@@ -22,9 +26,16 @@ uniform vec2 viewSize;    // window viewport size
 uniform float screenDim; // screen dimming percent
 #endif
 
+vec2 round(vec2 inp) {
+    vec2 outp;
+    outp.x = fract(inp.x) < 0.5 ? floor(inp.x) : ceil(inp.x);
+    outp.y = fract(inp.y) < 0.5 ? floor(inp.y) : ceil(inp.y);
+    return outp;
+}
+
 void main()
 {
-#if !GL_OES_standard_derivatives
+#if !SUPPORTS_DERIVATIVES
     // shader doesn't support derivatives :sob:
     // just show as is; there will be shimmering/will be very blurry
     gl_FragColor = texture2D(texDiffuse, ex_UV);
