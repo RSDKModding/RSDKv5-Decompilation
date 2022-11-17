@@ -43,8 +43,8 @@ void main()
     gl_FragColor = vec4(ex_UV, 0, 1);
     //return;
     vec2 viewScale;
-    viewScale.x = fract((1.0 / pixelSize.x) * viewSize.x) - 0.01;
-    viewScale.y = fract((1.0 / pixelSize.y) * viewSize.y) - 0.01;
+    viewScale.x = fract(viewSize.x / pixelSize.x) - 0.01;
+    viewScale.y = fract(viewSize.y / pixelSize.y) - 0.01;
 
     // if viewSize is an integer scale of pixelSize (within a small margin of error)
 

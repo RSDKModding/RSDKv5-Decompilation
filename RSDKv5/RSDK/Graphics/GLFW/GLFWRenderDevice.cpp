@@ -37,7 +37,7 @@ uniform sampler2D texDiffuse;
 
 void main()
 {
-    gl_FragColor = texture(texDiffuse, ex_UV);
+    gl_FragColor = texture2D(texDiffuse, ex_UV);
 }
 )aa";
 
@@ -677,6 +677,10 @@ bool RenderDevice::InitShaders()
         maxShaders  = 1;
         shaderCount = 1;
 
+    GLint success;
+    char infoLog[0x1000];
+
+
         GLuint vert, frag;
         const GLchar *vchar[] = { _GLSLVERSION, _GLDEFINE, backupVertex };
         vert                  = glCreateShader(GL_VERTEX_SHADER);
@@ -688,6 +692,17 @@ bool RenderDevice::InitShaders()
         glShaderSource(frag, 3, fchar, NULL);
         glCompileShader(frag);
 
+        glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(vert, 0x1000, NULL, infoLog);
+            PrintLog(PRINT_NORMAL, "BACKUP vertex shader compiling failed:\n%s", infoLog);
+        }        
+
+        glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(frag, 0x1000, NULL, infoLog);
+            PrintLog(PRINT_NORMAL, "BACKUP fragment shader compiling failed:\n%s", infoLog);
+        }     
         shader->programID = glCreateProgram();
         glAttachShader(shader->programID, vert);
         glAttachShader(shader->programID, frag);
