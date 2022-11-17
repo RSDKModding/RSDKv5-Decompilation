@@ -182,9 +182,10 @@ bool RenderDevice::SetupRendering()
     int32 i = 0;
     // clang-format on
 #elif RETRO_PLATFORM == RETRO_ANDROID
-    static const EGLint attributeListList[3][5] = { { EGL_CONTEXT_MAJOR_VERSION, 2, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE },
+    static const EGLint attributeListList[4][5] = { { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 1, EGL_NONE },
                                                  { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE },
-                                                 { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 1, EGL_NONE } };
+                                                 { EGL_CONTEXT_MAJOR_VERSION, 2, EGL_CONTEXT_MINOR_VERSION, 1, EGL_NONE },
+                                                 { EGL_CONTEXT_MAJOR_VERSION, 2, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE } };
     static const int32 listCount             = 3;
     int32 i                                  = 0;
 #endif
@@ -263,8 +264,7 @@ bool RenderDevice::InitGraphicsAPI()
     glDisable(GL_CULL_FACE);
 
     // setup buffers
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(RenderVertex) * (!RETRO_REV02 ? 24 : 60), NULL, GL_DYNAMIC_DRAW);
@@ -736,8 +736,6 @@ void RenderDevice::Release(bool32 isRefresh)
         for (int32 i = 0; i < shaderCount; ++i) {
             glDeleteProgram(shaderList[i].programID);
         }
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
 
         eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         eglDestroyContext(display, context);
