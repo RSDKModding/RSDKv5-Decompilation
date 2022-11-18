@@ -129,20 +129,19 @@ public class RSDKv5 extends GameActivity {
 
         return true;
     }
+
     public static native void nativeOnTouch(int fingerID, int action, float x, float y);
 
-
     // https://stackoverflow.com/questions/62782648/
-    private boolean checkPermission() {
+    private boolean checkPermission(Context c) {
         if (SDK_INT >= Build.VERSION_CODES.R) {
             return Environment.isExternalStorageManager();
         } else {
-            return ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+            return ContextCompat.checkSelfPermission(c, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         }
     }
 
-    private void requestPermission() throws InterruptedException {
+    private void requestPermission() {
         if (SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
@@ -156,15 +155,15 @@ public class RSDKv5 extends GameActivity {
             }
         } else {
             //below android 11
-            ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE}, 0);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
         }
     }
 
 
-    public String getBasePath() throws InterruptedException {
+    public String getBasePath() {
         Context c = getApplicationContext();
 
-        if (!checkPermission()) requestPermission();
+        if (!checkPermission(c)) requestPermission();
 
         String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/RSDK/v5";
         new File(p).mkdirs();
