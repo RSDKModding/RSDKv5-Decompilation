@@ -264,6 +264,10 @@ bool RenderDevice::InitGraphicsAPI()
     glDisable(GL_CULL_FACE);
 
     // setup buffers
+#if RETRO_PLATFORM == RETRO_SWITCH
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+#endif
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -736,6 +740,11 @@ void RenderDevice::Release(bool32 isRefresh)
         for (int32 i = 0; i < shaderCount; ++i) {
             glDeleteProgram(shaderList[i].programID);
         }
+    
+#if RETRO_PLATFORM == RETRO_SWITCH
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &VBO);
+#endif
 
         eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         eglDestroyContext(display, context);
