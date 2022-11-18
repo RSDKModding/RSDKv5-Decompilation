@@ -25,8 +25,8 @@ extern android_app *app;
 class GameActivity;
 class GameActivityKeyEvent;
 
-#define jnifunc(name, class, ...) JNICALL Java_com_decomp_rsdkv5_##class##_##name(JNIEnv *env, jclass cls, __VA_ARGS__)
-#define jnifuncN(name, class) JNICALL Java_com_decomp_rsdkv5_##class##_##name(JNIEnv *env, jclass cls)
+#define jnifunc(name, class, ...) JNICALL Java_org_rems_rsdkv5_##class##_##name(JNIEnv *env, jclass cls, __VA_ARGS__)
+#define jnifuncN(name, class) JNICALL Java_org_rems_rsdkv5_##class##_##name(JNIEnv *env, jclass cls)
 // the lone JNI func
 extern "C" JNIEXPORT void jnifunc(nativeOnTouch, RSDKv5, jint finger, jint action, jfloat x, jfloat y);
 
