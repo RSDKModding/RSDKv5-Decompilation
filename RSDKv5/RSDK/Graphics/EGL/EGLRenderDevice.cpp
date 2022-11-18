@@ -61,7 +61,7 @@ uniform sampler2D texDiffuse;
 
 void main()
 {
-    gl_FragColor = texture2D(texDiffuse, ex_UV);
+    gl_FragColor = texture(texDiffuse, ex_UV);
 }
 )aa";
 
