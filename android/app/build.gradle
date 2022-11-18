@@ -7,11 +7,11 @@ android {
         prefab true
     }
     defaultConfig {
-        applicationId "com.decomp.rsdkv5"
+        applicationId "org.rems.rsdkv5"
         minSdkVersion 17
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 100
+        versionName "1.0.0"
         externalNativeBuild {
             cmake {
                 arguments = ["-DANDROID_STL=c++_shared", "-DPLATFORM=Android"]
