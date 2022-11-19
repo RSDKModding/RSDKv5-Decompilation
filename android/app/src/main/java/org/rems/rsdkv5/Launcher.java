@@ -29,6 +29,8 @@ import androidx.core.content.ContextCompat;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import kotlin.jvm.internal.Lambda;
+
 public class Launcher extends AppCompatActivity {
 
     private static final int RSDK_VER = 5;
@@ -81,9 +83,35 @@ public class Launcher extends AppCompatActivity {
         System.exit(code);
     }
 
+    static class DialogTimer extends CountDownTimer {
+        public AlertDialog alert;
+
+        public DialogTimer(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onTick(long l) {
+            alert.setMessage(String.format(
+                    "Game will start in %s in %d seconds...",
+                    basePath,
+                    TimeUnit.MILLISECONDS.toSeconds(l) + 1
+            ));
+        }
+
+        @Override
+        public void onFinish() {
+            alert.getButton(AlertDialog.BUTTON_POSITIVE).callOnClick();
+        }
+    }
+
     private void startGame() {
 
-        AlertDialog baseAlert = new AlertDialog.Builder(this)
+        AlertDialog baseAlert = null;
+
+        DialogTimer timer = new DialogTimer(6000, 100);
+
+        baseAlert = new AlertDialog.Builder(this)
                 .setTitle("Game starting")
                 .setPositiveButton("Start", (dialog, i) -> {
                         String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + basePath;
@@ -103,28 +131,15 @@ public class Launcher extends AppCompatActivity {
                         finish();
                     }
                 )
-                .setNeutralButton("Change Path", (dialog, i) -> folderPicker())
+                .setNeutralButton("Change Path", (dialog, i) -> {
+                    timer.cancel();
+                    folderPicker();
+                })
                 .create();
 
         baseAlert.setOnShowListener(dialog -> {
-            final int AUTO_START = 6000;
-            AlertDialog alert = (AlertDialog)dialog;
-
-            new CountDownTimer(AUTO_START, 100) {
-                @Override
-                public void onTick(long l) {
-                    alert.setMessage(String.format(
-                            "Game will start in %s in %d seconds...",
-                            basePath,
-                            TimeUnit.MILLISECONDS.toSeconds(l) + 1
-                    ));
-                }
-
-                @Override
-                public void onFinish() {
-                    alert.getButton(AlertDialog.BUTTON_POSITIVE).callOnClick();
-                }
-            }.start();
+            timer.alert = (AlertDialog)dialog;
+            timer.start();
         });
 
         baseAlert.show();
