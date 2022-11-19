@@ -47,6 +47,8 @@ public class RSDK extends GameActivity {
         System.loadLibrary("RetroEngine");
     }
 
+    private static String basePath = null; // TODO: maybe do something cool and allow the user to set their own?
+
     private void hideSystemUI() {
 
         if (SDK_INT >= Build.VERSION_CODES.P) {
@@ -65,6 +67,14 @@ public class RSDK extends GameActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (basePath == null) {
+            if (getIntent().getStringExtra("basePath") != null) {
+                basePath = getIntent().getStringExtra("basePath");
+            }
+            // elif file exists read file
+            else basePath = "RSDK/v5";
+        }
+
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         hideSystemUI();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
@@ -141,12 +151,7 @@ public class RSDK extends GameActivity {
     public String getBasePath() {
         Context c = getApplicationContext();
 
-        String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/RSDK/v5";
-        new File(p).mkdirs();
-        try {
-            new File(p + "../.nomedia").createNewFile();
-        }
-        catch (Exception e) {};
+        String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + basePath;
         return p + "/";
     }
 }

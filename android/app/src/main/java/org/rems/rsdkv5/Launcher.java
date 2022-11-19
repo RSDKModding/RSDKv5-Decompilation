@@ -22,6 +22,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.File;
+
 public class Launcher extends AppCompatActivity {
 
     private static final int RSDK_VER = 5;
@@ -47,9 +49,6 @@ public class Launcher extends AppCompatActivity {
         }
 
         if (canRun) {
-            // TODO:
-            // prompt 3 seconds for change path
-
             if (!checkPermission()) {
                 requestPermission(this, savedInstanceState);
             }
@@ -67,6 +66,14 @@ public class Launcher extends AppCompatActivity {
         // if (base path file not written) {
         //    initial base path flow
         // }
+        // else wait 3 seconds and show path
+
+        String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + basePath;
+        try {
+            new File(p).mkdirs();
+            new File(p + "../.nomedia").createNewFile();
+        }
+        catch (Exception e) {};
 
         if (!checkPermission()) {
             finishAffinity();
