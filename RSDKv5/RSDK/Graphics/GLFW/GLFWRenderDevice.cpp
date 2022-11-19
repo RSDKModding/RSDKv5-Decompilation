@@ -677,8 +677,8 @@ bool RenderDevice::InitShaders()
         maxShaders  = 1;
         shaderCount = 1;
 
-    GLint success;
-    char infoLog[0x1000];
+        GLint success;
+        char infoLog[0x1000];
 
 
         GLuint vert, frag;

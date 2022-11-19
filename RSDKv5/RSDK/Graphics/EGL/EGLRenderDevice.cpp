@@ -807,6 +807,9 @@ bool RenderDevice::InitShaders()
         maxShaders  = 1;
         shaderCount = 1;
 
+        GLint success;
+        char infoLog[0x1000];
+
         GLuint vert, frag;
         const GLchar *vchar[] = { _GLVERSION, _GLDEFINE, _glVPrecision, backupVertex };
         vert                  = glCreateShader(GL_VERTEX_SHADER);
@@ -817,6 +820,18 @@ bool RenderDevice::InitShaders()
         frag                  = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(frag, 4, fchar, NULL);
         glCompileShader(frag);
+
+        glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(vert, 0x1000, NULL, infoLog);
+            PrintLog(PRINT_NORMAL, "BACKUP vertex shader compiling failed:\n%s", infoLog);
+        }        
+
+        glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(frag, 0x1000, NULL, infoLog);
+            PrintLog(PRINT_NORMAL, "BACKUP fragment shader compiling failed:\n%s", infoLog);
+        }     
 
         shader->programID = glCreateProgram();
         glAttachShader(shader->programID, vert);
@@ -874,6 +889,13 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         vert                   = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vert, 4, glchar, NULL);
         glCompileShader(vert);
+
+        glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(vert, 0x1000, NULL, infoLog);
+            PrintLog(PRINT_NORMAL, "Vertex shader compiling failed:\n%s", infoLog);
+            return;
+        }     
     }
     else
         return;
@@ -891,6 +913,13 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         frag                   = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(frag, 4, glchar, NULL);
         glCompileShader(frag);
+
+        glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(frag, 0x1000, NULL, infoLog);
+            PrintLog(PRINT_NORMAL, "Fragment shader compiling failed:\n%s", infoLog);
+            return;
+        }     
     }
     else
         return;
