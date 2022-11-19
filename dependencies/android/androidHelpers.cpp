@@ -144,7 +144,7 @@ int32 AndroidToWinAPIMappings(int32 mapping)
     }
 }
 
-JNIEXPORT void jnifunc(nativeOnTouch, RSDKv5, jint finger, jint action, jfloat x, jfloat y)
+JNIEXPORT void jnifunc(nativeOnTouch, RSDK, jint finger, jint action, jfloat x, jfloat y)
 {
     if (finger > 0x10)
         return; // nah cause how tf

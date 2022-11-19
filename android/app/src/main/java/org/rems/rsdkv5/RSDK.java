@@ -5,6 +5,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION.SDK_INT;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,6 +25,10 @@ import android.widget.RelativeLayout;
 import com.google.androidgamesdk.GameActivity;
 
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -35,7 +40,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 
 import java.io.File;
 
-public class RSDKv5 extends GameActivity {
+public class RSDK extends GameActivity {
     static {
         //https://developer.android.com/ndk/guides/cpp-support#shared_runtimes
         System.loadLibrary("c++_shared");
@@ -64,6 +69,7 @@ public class RSDKv5 extends GameActivity {
         hideSystemUI();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         super.onCreate(savedInstanceState);
     }
 
@@ -132,38 +138,8 @@ public class RSDKv5 extends GameActivity {
 
     public static native void nativeOnTouch(int fingerID, int action, float x, float y);
 
-    // https://stackoverflow.com/questions/62782648/
-    private boolean checkPermission(Context c) {
-        if (SDK_INT >= Build.VERSION_CODES.R) {
-            return Environment.isExternalStorageManager();
-        } else {
-            return ContextCompat.checkSelfPermission(c, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        }
-    }
-
-    private void requestPermission() {
-        if (SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                intent.addCategory("android.intent.category.DEFAULT");
-                intent.setData(Uri.parse(String.format("package:%s",getApplicationContext().getPackageName())));
-                startActivity(intent);
-            } catch (Exception e) {
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivity(intent);
-            }
-        } else {
-            //below android 11
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-        }
-    }
-
-
     public String getBasePath() {
         Context c = getApplicationContext();
-
-        if (!checkPermission(c)) requestPermission();
 
         String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/RSDK/v5";
         new File(p).mkdirs();
