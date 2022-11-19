@@ -116,7 +116,8 @@ bool RenderDevice::Init()
 #if RETRO_PLATFORM == RETRO_SWITCH
         EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
 #else
-        EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+        EGL_CONFORMANT, EGL_OPENGL_ES2_BIT,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
 #endif 
         EGL_RED_SIZE,        8, 
         EGL_GREEN_SIZE,      8, 
@@ -173,36 +174,35 @@ bool RenderDevice::SetupRendering()
 
 #if RETRO_PLATFORM == RETRO_SWITCH
     // clang-format off
-    static const EGLint attributeListList[1][7] = { {
+    static const int32 listCount = 1;
+    static const EGLint attributeListList[listCount][7] = { {
         EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
         EGL_CONTEXT_MAJOR_VERSION,       4, 
         EGL_CONTEXT_MINOR_VERSION,       3,
         EGL_NONE 
     } };
-    static const int32 listCount = 1;
     int32 i = 0;
     // clang-format on
 #elif RETRO_PLATFORM == RETRO_ANDROID
-    static const int32 listCount                        = 4;
-    static const EGLint attributeListList[listCount][5] = { { EGL_CONTEXT_MAJOR_VERSION, 2, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE },
-                                                            { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 0, EGL_NONE },
-                                                            { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 1, EGL_NONE },
-                                                            { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 2, EGL_NONE } };
-    int32 i                                             = 0;
+    static const int32 listCount                     = 1;
+    static const EGLint attributeListList[listCount][3] = { { EGL_CONTEXT_MAJOR_VERSION, 2, EGL_NONE } }; // lol. lmao
+    int32 i                                          = 0;
 #endif
 
-    context = eglCreateContext(display, config, EGL_NO_CONTEXT, attributeListList[i]);
+    context = eglCreateContext(display, config, EGL_NO_CONTEXT, (EGLint *)attributeListList[i]);
     while (!context) {
         PrintLog(PRINT_NORMAL, "[EGL] Context creation failed: %d", eglGetError());
         if (++i < listCount) {
             PrintLog(PRINT_NORMAL, "[EGL] Trying next context...");
-            context = eglCreateContext(display, config, EGL_NO_CONTEXT, attributeListList[i]);
+            context = eglCreateContext(display, config, EGL_NO_CONTEXT, (EGLint *)attributeListList[i]);
         }
         else
             return false;
     }
 
     eglMakeCurrent(display, surface, surface, context);
+    eglQueryContext(display, context, EGL_CONTEXT_CLIENT_VERSION, &i);
+    PrintLog(PRINT_NORMAL, "[EGL] Context client version: %d", i);
 
     GetDisplays();
 
