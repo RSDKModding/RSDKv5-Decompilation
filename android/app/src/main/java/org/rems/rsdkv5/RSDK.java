@@ -1,44 +1,27 @@
 package org.rems.rsdkv5;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION.SDK_INT;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
-import android.view.KeyEvent;
+import android.os.ParcelFileDescriptor;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
+
 import com.google.androidgamesdk.GameActivity;
 
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.PackageManagerCompat;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class RSDK extends GameActivity {
     static {
@@ -47,7 +30,8 @@ public class RSDK extends GameActivity {
         System.loadLibrary("RetroEngine");
     }
 
-    private static String basePath = null; // TODO: maybe do something cool and allow the user to set their own?
+    private static Uri basePath = null;
+    private static OutputStream log = null;
 
     private void hideSystemUI() {
 
@@ -68,11 +52,11 @@ public class RSDK extends GameActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (basePath == null) {
-            if (getIntent().getStringExtra("basePath") != null) {
-                basePath = getIntent().getStringExtra("basePath");
+            if (getIntent().getData() != null) {
+                basePath = getIntent().getData();
             }
             // elif file exists read file
-            else basePath = "RSDK/v5";
+            else basePath = new Uri.Builder().path("/tree/primary:RSDK/v5").build();;
         }
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -80,7 +64,34 @@ public class RSDK extends GameActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        try {
+            ParcelFileDescriptor.adoptFd(getFD("log.txt", "a")).close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Uri uri = basePath.buildUpon().appendEncodedPath(
+                "document/" + Uri.encode(basePath.getLastPathSegment() + "/log.txt")).build();
+
+        try {
+            if (log == null)
+                log = getContentResolver().openOutputStream(uri, "wa");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        setResult(RESULT_OK);
+        try {
+            log.close();
+        } catch (Exception e) {
+        }
+        finish();
+        super.onDestroy();
     }
 
     @Override
@@ -148,10 +159,49 @@ public class RSDK extends GameActivity {
 
     public static native void nativeOnTouch(int fingerID, int action, float x, float y);
 
-    public String getBasePath() {
-        Context c = getApplicationContext();
+    public int getFD(String filepath, String mode) {
+        String useMode = mode;
+        try {
+            // DocumentFile docfile = DocumentFile.fromTreeUri(this, basePath).findFile(filepath);
+            // Uri uri = docfile.getUri();
+            Uri uri = basePath.buildUpon().appendEncodedPath(
+                    "document/" + Uri.encode(basePath.getLastPathSegment() + "/" + filepath)).build();
+            useMode = mode;
+            switch (mode.charAt(0)) {
+                case 'a': useMode = "wa"; break;
+                case 'r': useMode = "r"; break;
+                default: useMode = "w"; break;
+            }
+            ParcelFileDescriptor parcel = getContentResolver().openFileDescriptor(uri, useMode); // i don't think mode is actually required
+            int fd = parcel.dup().detachFd();
+            parcel.close();
+            return fd;
+        } catch (Exception e) {
+            try {
+                if (!useMode.equals("r")) {
+                    if (Launcher.instance == null) {
+                        Log.w("RSDKv5-J", String.format("Cannot create file %s; game opened without launcher", filepath));
+                        return 0;
+                    }
+                    Uri uri = Launcher.instance.createFile(filepath);
+                    ParcelFileDescriptor parcel = getContentResolver().openFileDescriptor(uri, useMode); // i don't think mode is actually required
+                    int fd = parcel.dup().detachFd();
+                    parcel.close();
+                    return fd;
+                }
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return 0;
+    }
 
-        String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + basePath;
-        return p + "/";
+    public void writeLog(String string, int as) {
+        Log.println(as, "RSDKv5", string);
+        try {
+            log.write(string.getBytes(StandardCharsets.UTF_8));
+            log.flush();
+        } catch (Exception e) {};
     }
 }

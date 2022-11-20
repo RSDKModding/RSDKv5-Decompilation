@@ -45,13 +45,8 @@ void android_main(struct android_app *ap)
     else SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
     SwappyGL_setAutoSwapInterval(false);
 
-    char buffer[0x200];
-    jmethodID method = jni->env->GetMethodID(jni->clazz, "getBasePath", "()Ljava/lang/String;");
-    auto ret         = jni->env->CallObjectMethod(jni->thiz, method);
-    if (ret) {
-        strcpy(buffer, jni->env->GetStringUTFChars((jstring)ret, NULL));
-        RSDK::SKU::SetUserFileCallbacks(buffer, NULL, NULL);
-    }
+    getFD = jni->env->GetMethodID(jni->clazz, "getFD", "(Ljava/lang/String;Ljava/lang/String;)I");
+    writeLog = jni->env->GetMethodID(jni->clazz, "writeLog", "(Ljava/lang/String;I)V");
 
     GameActivity_setWindowFlags(app->activity,
                                 AWINDOW_FLAG_KEEP_SCREEN_ON | AWINDOW_FLAG_TURN_SCREEN_ON | AWINDOW_FLAG_LAYOUT_NO_LIMITS | AWINDOW_FLAG_FULLSCREEN

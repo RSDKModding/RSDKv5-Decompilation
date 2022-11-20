@@ -8,7 +8,11 @@ pthread_t mainthread;
 using namespace RSDK;
 
 static struct JNISetup _jni_setup = { 0 };
+
 android_app *app                  = NULL;
+
+jmethodID getFD = { 0 };
+jmethodID writeLog = { 0 };
 
 #include <game-activity/GameActivity.cpp>
 #include <game-text-input/gametextinput.cpp>
@@ -18,13 +22,33 @@ extern "C" {
 
 struct JNISetup *GetJNISetup()
 {
-    if (!_jni_setup.env) {
-        app->activity->vm->AttachCurrentThread(&_jni_setup.env, NULL);
+    app->activity->vm->AttachCurrentThread(&_jni_setup.env, NULL);
+    if (!_jni_setup.thiz) {
         _jni_setup.thiz  = app->activity->javaGameActivity;
         _jni_setup.clazz = _jni_setup.env->GetObjectClass(_jni_setup.thiz);
     }
     return &_jni_setup;
 }
+
+FileIO *fOpen(const char *path, const char *mode) {
+    app->activity->vm->AttachCurrentThread(&_jni_setup.env, NULL);
+    int fd = _jni_setup.env->CallIntMethod(
+            _jni_setup.thiz, 
+            getFD, 
+            _jni_setup.env->NewStringUTF(path), 
+            _jni_setup.env->NewStringUTF(mode));
+    if (!fd) return NULL;
+    return fdopen(fd, mode);
+}
+
+/*
+int fSeek(FileIO* file, long offset, int whence) {
+    return fseek(file, offset, whence);
+}
+
+int fTell(FileIO* file) {
+    return ftell(file);
+}//*/
 
 int32 AndroidToWinAPIMappings(int32 mapping)
 {

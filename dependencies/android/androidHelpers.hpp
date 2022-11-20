@@ -21,6 +21,8 @@ struct JNISetup *GetJNISetup();
 
 typedef struct android_app android_app;
 extern android_app *app;
+extern jmethodID getFD;
+extern jmethodID writeLog;
 
 class GameActivity;
 class GameActivityKeyEvent;
