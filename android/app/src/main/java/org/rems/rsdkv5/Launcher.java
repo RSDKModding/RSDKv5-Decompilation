@@ -193,31 +193,31 @@ public class Launcher extends AppCompatActivity {
                     .setTitle("Game starting")
                     .setMessage("Game will start in...")
                     .setPositiveButton("Start", (dialog, i) -> {
-                                //String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + basePath;
-                                try {
-                                    if (DocumentFile.fromTreeUri(this, basePath).findFile(".nomedia") == null)
-                                        createFile(".nomedia");
-                                } catch (Exception e) {}
+                        timer.cancel();
+                        //String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + basePath;
+                        try {
+                            if (DocumentFile.fromTreeUri(this, basePath).findFile(".nomedia") == null)
+                                createFile(".nomedia");
+                        } catch (Exception e) {}
 
-                                if (!checkPermission()) {
-                                    quit(1);
-                                }
+                        if (!checkPermission()) {
+                            quit(1);
+                        }
 
-                                Intent intent = new Intent(this, RSDK.class);
-                                intent.setData(basePath);
-                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+                        Intent intent = new Intent(this, RSDK.class);
+                        intent.setData(basePath);
+                        intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                        grantUriPermission(getApplicationContext().getPackageName() + ".RSDK", basePath,
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
                                         Intent.FLAG_GRANT_READ_URI_PERMISSION |
                                         Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-                                grantUriPermission(getApplicationContext().getPackageName() + ".RSDK", basePath,
-                                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
-                                                Intent.FLAG_GRANT_READ_URI_PERMISSION |
-                                                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
 
-                                instance = this;
+                        instance = this;
 
-                                gameLauncher.launch(intent);
-                            }
-                    )
+                        gameLauncher.launch(intent);
+                    })
                     .setNeutralButton("Change Path", (dialog, i) -> {
                         timer.cancel();
                         folderPicker();
