@@ -1849,6 +1849,10 @@ void RSDK::DevMenu_ModsMenu()
 #endif
         SaveMods();
         if (devMenu.modsChanged) {
+            DrawDevString("Reloading mods...", currentScreen->center.x, dy + 12, ALIGN_CENTER, 0xF08080);
+            // we do a little hacking
+            RenderDevice::CopyFrameBuffer();
+            RenderDevice::FlipScreen();
             ApplyModChanges();
         }
 #if RETRO_REV0U
