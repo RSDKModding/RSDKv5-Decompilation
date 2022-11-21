@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include "iniparser.h"
+#include "RSDK/Core/RetroEngine.hpp"
 
 /*---------------------------- Defines -------------------------------------*/
 #define ASCIILINESZ         (1024)
@@ -610,6 +611,12 @@ static line_status iniparser_line(
   The returned dictionary must be freed using iniparser_freedict().
  */
 /*--------------------------------------------------------------------------*/
+
+#ifndef __ANDROID__
+#undef fOpen
+#define fOpen fopen
+#endif
+
 dictionary * iniparser_load(const char * ininame)
 {
     FILE * in ;
@@ -628,7 +635,7 @@ dictionary * iniparser_load(const char * ininame)
 
     dictionary * dict ;
 
-    if ((in=fopen(ininame, "r"))==NULL) {
+    if ((in=fOpen(ininame, "r"))==NULL) {
         iniparser_error_callback("iniparser: cannot open %s\n", ininame);
         return NULL ;
     }

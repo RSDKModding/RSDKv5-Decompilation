@@ -2,6 +2,16 @@ package org.rems.rsdkv5;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.google.androidgamesdk.GameActivity;
+
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,34 +20,27 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-
-import com.google.androidgamesdk.GameActivity;
-
-
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import androidx.documentfile.provider.DocumentFile;
 
 public class RSDK extends GameActivity {
     static {
-        //https://developer.android.com/ndk/guides/cpp-support#shared_runtimes
+        // https://developer.android.com/ndk/guides/cpp-support#shared_runtimes
         System.loadLibrary("c++_shared");
         System.loadLibrary("RetroEngine");
     }
 
     private static Uri basePath = null;
     private static OutputStream log = null;
+    private static String pathString = null;
 
     private void hideSystemUI() {
 
         if (SDK_INT >= Build.VERSION_CODES.P) {
-            getWindow().getAttributes().layoutInDisplayCutoutMode
-                    = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow()
+                    .getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
 
         View decorView = getWindow().getDecorView();
@@ -54,14 +57,23 @@ public class RSDK extends GameActivity {
         if (basePath == null) {
             if (getIntent().getData() != null) {
                 basePath = getIntent().getData();
+            } else
+                basePath = Launcher.refreshStore();
+
+            if (basePath == null) {
+                Log.e("RSDKv5-J", "Base path file not found; game cannot be started standalone.");
+                setResult(RESULT_CANCELED);
+                finishActivity(RESULT_CANCELED);
             }
-            // elif file exists read file
-            else basePath = new Uri.Builder().path("/tree/primary:RSDK/v5").build();;
         }
+
+        pathString = DocumentFile.fromTreeUri(getApplicationContext(), basePath).getUri().getEncodedPath()
+                + Uri.encode("/");
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         hideSystemUI();
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         try {
@@ -70,10 +82,10 @@ public class RSDK extends GameActivity {
             e.printStackTrace();
         }
 
-        Uri uri = basePath.buildUpon().appendEncodedPath(
-                "document/" + Uri.encode(basePath.getLastPathSegment() + "/log.txt")).build();
-
         try {
+            DocumentFile docfile = DocumentFile.fromTreeUri(this, basePath).findFile("log.txt");
+            Uri uri = docfile.getUri();
+
             if (log == null)
                 log = getContentResolver().openOutputStream(uri, "wa");
         } catch (FileNotFoundException e) {
@@ -90,7 +102,7 @@ public class RSDK extends GameActivity {
             log.close();
         } catch (Exception e) {
         }
-        finish();
+        finishActivity(RESULT_OK);
         super.onDestroy();
     }
 
@@ -104,12 +116,12 @@ public class RSDK extends GameActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // this is mostly stolen from sdl LOL
-        // this func survives android v3 because it's just  easier to handle
+        // this func survives android v3 because it's just easier to handle
         final int pointerCount = event.getPointerCount();
         int action = event.getActionMasked();
         int i = -1;
 
-        switch(action) {
+        switch (action) {
             case MotionEvent.ACTION_MOVE:
                 for (i = 0; i < pointerCount; i++) {
                     int finger = event.getPointerId(i);
@@ -138,7 +150,7 @@ public class RSDK extends GameActivity {
 
                 nativeOnTouch(finger, action, x, y);
             }
-            break;
+                break;
 
             case MotionEvent.ACTION_CANCEL:
                 for (i = 0; i < pointerCount; i++) {
@@ -160,19 +172,21 @@ public class RSDK extends GameActivity {
     public static native void nativeOnTouch(int fingerID, int action, float x, float y);
 
     public int getFD(String filepath, String mode) {
-        String useMode = mode;
+        String useMode;
+        switch (mode.charAt(0)) {
+            case 'a':
+                useMode = "wa";
+                break;
+            case 'r':
+                useMode = "r";
+                break;
+            default:
+                useMode = "w";
+                break;
+        }
         try {
-            // DocumentFile docfile = DocumentFile.fromTreeUri(this, basePath).findFile(filepath);
-            // Uri uri = docfile.getUri();
-            Uri uri = basePath.buildUpon().appendEncodedPath(
-                    "document/" + Uri.encode(basePath.getLastPathSegment() + "/" + filepath)).build();
-            useMode = mode;
-            switch (mode.charAt(0)) {
-                case 'a': useMode = "wa"; break;
-                case 'r': useMode = "r"; break;
-                default: useMode = "w"; break;
-            }
-            ParcelFileDescriptor parcel = getContentResolver().openFileDescriptor(uri, useMode); // i don't think mode is actually required
+            Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(filepath)).build();
+            ParcelFileDescriptor parcel = getContentResolver().openFileDescriptor(uri, useMode);
             int fd = parcel.dup().detachFd();
             parcel.close();
             return fd;
@@ -180,17 +194,17 @@ public class RSDK extends GameActivity {
             try {
                 if (!useMode.equals("r")) {
                     if (Launcher.instance == null) {
-                        Log.w("RSDKv5-J", String.format("Cannot create file %s; game opened without launcher", filepath));
+                        Log.w("RSDKv5-J",
+                                String.format("Cannot create file %s; game opened without launcher", filepath));
                         return 0;
                     }
                     Uri uri = Launcher.instance.createFile(filepath);
-                    ParcelFileDescriptor parcel = getContentResolver().openFileDescriptor(uri, useMode); // i don't think mode is actually required
+                    ParcelFileDescriptor parcel = getContentResolver().openFileDescriptor(uri, useMode);
                     int fd = parcel.dup().detachFd();
                     parcel.close();
                     return fd;
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -202,6 +216,45 @@ public class RSDK extends GameActivity {
         try {
             log.write(string.getBytes(StandardCharsets.UTF_8));
             log.flush();
-        } catch (Exception e) {};
+        } catch (Exception e) {
+        }
     }
+
+    public boolean fsExists(String path) {
+        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
+        return DocumentFile.fromSingleUri(getApplicationContext(), uri).exists();
+    }
+
+    public boolean fsIsDir(String path) {
+        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
+        return DocumentFile.fromSingleUri(getApplicationContext(), uri).isDirectory();
+    }
+
+    public String[] fsDirIter(String path) {
+        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
+        DocumentFile dir = DocumentFile.fromTreeUri(getApplicationContext(), uri);
+        if (dir.isFile())
+            return new String[0];
+        List<String> out = new ArrayList<String>();
+        for (DocumentFile file : dir.listFiles()) {
+            if (file.isDirectory())
+                out.add(path + "/" + file.getName());
+        }
+        return out.toArray(new String[0]);
+    }
+
+    public String[] fsRecurseIter(String path) {
+        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
+        DocumentFile dir = DocumentFile.fromTreeUri(getApplicationContext(), uri);
+        if (dir.isFile())
+            return new String[0];
+        List<String> out = new ArrayList<String>();
+        for (DocumentFile file : dir.listFiles()) {
+            if (file.isDirectory())
+                out.addAll(Arrays.asList(fsRecurseIter(path + "/" + file.getName())));
+            else out.add(path + "/" + file.getName());
+        }
+        return out.toArray(new String[0]);
+    }
+
 }

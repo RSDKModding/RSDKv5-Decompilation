@@ -38,15 +38,23 @@ void android_main(struct android_app *ap)
     JNISetup *jni = GetJNISetup();
     // we make sure we do it here so init can chill safely before any callbacks occur
     Paddleboat_init(jni->env, jni->thiz);
-    
+
     SwappyGL_init(jni->env, jni->thiz);
     if (RSDK::videoSettings.refreshRate)
-        SwappyGL_setSwapIntervalNS(1000000000L / RSDK::videoSettings.refreshRate);
-    else SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+        SwappyGL_setSwapIntervalNS(1000000000.0 / RSDK::videoSettings.refreshRate);
+    else
+        SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
     SwappyGL_setAutoSwapInterval(false);
 
-    getFD = jni->env->GetMethodID(jni->clazz, "getFD", "(Ljava/lang/String;Ljava/lang/String;)I");
+    getFD    = jni->env->GetMethodID(jni->clazz, "getFD", "(Ljava/lang/String;Ljava/lang/String;)I");
     writeLog = jni->env->GetMethodID(jni->clazz, "writeLog", "(Ljava/lang/String;I)V");
+
+#if RETRO_USE_MOD_LOADER
+    fsExists      = jni->env->GetMethodID(jni->clazz, "fsExists", "(Ljava/lang/String;)Z");
+    fsIsDir       = jni->env->GetMethodID(jni->clazz, "fsIsDir", "(Ljava/lang/String;)Z");
+    fsDirIter     = jni->env->GetMethodID(jni->clazz, "fsDirIter", "(Ljava/lang/String;)[Ljava/lang/String;");
+    fsRecurseIter = jni->env->GetMethodID(jni->clazz, "fsRecurseIter", "(Ljava/lang/String;)[Ljava/lang/String;");
+#endif
 
     GameActivity_setWindowFlags(app->activity,
                                 AWINDOW_FLAG_KEEP_SCREEN_ON | AWINDOW_FLAG_TURN_SCREEN_ON | AWINDOW_FLAG_LAYOUT_NO_LIMITS | AWINDOW_FLAG_FULLSCREEN

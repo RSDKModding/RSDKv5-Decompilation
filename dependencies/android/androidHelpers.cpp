@@ -14,6 +14,13 @@ android_app *app                  = NULL;
 jmethodID getFD = { 0 };
 jmethodID writeLog = { 0 };
 
+#if RETRO_USE_MOD_LOADER
+jmethodID fsExists = { 0 };
+jmethodID fsIsDir = { 0 };
+jmethodID fsDirIter = { 0 };
+jmethodID fsRecurseIter = { 0 };
+#endif
+
 #include <game-activity/GameActivity.cpp>
 #include <game-text-input/gametextinput.cpp>
 extern "C" {

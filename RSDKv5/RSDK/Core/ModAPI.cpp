@@ -11,10 +11,29 @@
 #include <stdexcept>
 #include <functional>
 
-#if RETRO_PLATFORM == RETRO_ANDROID
-namespace fs = std::__fs::filesystem;
-#else
+#if RETRO_PLATFORM != RETRO_ANDROID
 namespace fs = std::filesystem;
+#else
+bool fs::exists(fs::path path) {
+    auto* jni = GetJNISetup();
+    return jni->env->CallBooleanMethod(jni->thiz, fsExists, jni->env->NewStringUTF(path.string().c_str()));
+}
+
+bool fs::is_directory(fs::path path) {
+    auto* jni = GetJNISetup();
+    return jni->env->CallBooleanMethod(jni->thiz, fsIsDir, jni->env->NewStringUTF(path.string().c_str()));
+}
+
+fs::path_list fs::directory_iterator(fs::path path) {
+    auto* jni = GetJNISetup();
+    return fs::path_list((jobjectArray)jni->env->CallObjectMethod(jni->thiz, fsDirIter, jni->env->NewStringUTF(path.string().c_str())));
+}
+
+fs::path_list fs::recursive_directory_iterator(fs::path path, fs::directory_options _) {
+    (void)_;
+    auto* jni = GetJNISetup();
+    return fs::path_list((jobjectArray)jni->env->CallObjectMethod(jni->thiz, fsRecurseIter, jni->env->NewStringUTF(path.string().c_str())));
+}
 #endif
 
 #include "iniparser/iniparser.h"
@@ -409,7 +428,7 @@ void RSDK::LoadMods(bool newOnly)
 
     using namespace std;
     char modBuf[0x100];
-    sprintf_s(modBuf, sizeof(modBuf), "%smods/", SKU::userFileDir);
+    sprintf_s(modBuf, sizeof(modBuf), "%smods", SKU::userFileDir);
     fs::path modPath(modBuf);
 
     if (fs::exists(modPath) && fs::is_directory(modPath)) {

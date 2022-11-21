@@ -1,16 +1,11 @@
 package org.rems.rsdkv5;
 
-import static android.os.Build.VERSION.SDK_INT;
-
-import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.UriPermission;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.DocumentsContract;
@@ -21,8 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 
 import java.io.BufferedReader;
@@ -37,11 +30,10 @@ public class Launcher extends AppCompatActivity {
 
     private static final int RSDK_VER = 5;
     private static Uri basePath = null;
-    private static final int REQUEST_CODE = 3000;
 
     public static Launcher instance = null;
 
-    private File basePathStore;
+    private static File basePathStore;
 
     private static ActivityResultLauncher<Intent> folderLauncher = null;
     private static ActivityResultLauncher<Intent> gameLauncher = null;
@@ -67,26 +59,25 @@ public class Launcher extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     startGame(true);
-                }
-        );
+                });
 
         gameLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     quit(0);
-                }
-        );
+                });
 
         boolean canRun = true;
 
         if (RSDK_VER == 5) {
-            if (((ActivityManager)getSystemService(Context.ACTIVITY_SERVICE)).getDeviceConfigurationInfo().reqGlEsVersion < 0x20000) {
+            if (((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE))
+                    .getDeviceConfigurationInfo().reqGlEsVersion < 0x20000) {
                 canRun = false;
                 new AlertDialog.Builder(this)
                         .setTitle("GLES 2.0 unsupported")
                         .setMessage("This device does not support GLES 2.0, which is required for running RSDKv5.")
-                        .setNegativeButton("OK", (dialogInterface, i) -> {
-                            dialogInterface.cancel();
+                        .setNegativeButton("OK", (dialog, i) -> {
+                            dialog.cancel();
                             quit(2);
                         })
                         .setCancelable(false)
@@ -94,12 +85,8 @@ public class Launcher extends AppCompatActivity {
             }
         }
 
-        if (canRun) {
-            if (!checkPermission()) {
-                requestPermission(this, savedInstanceState);
-            }
-            else startGame(false);
-        }
+        if (canRun)
+            startGame(false);
     }
 
     private void quit(int code) {
@@ -119,8 +106,7 @@ public class Launcher extends AppCompatActivity {
             alert.setMessage(String.format(
                     "Game will start in %s in %d seconds...",
                     basePath.getPath(),
-                    TimeUnit.MILLISECONDS.toSeconds(l) + 1
-            ));
+                    TimeUnit.MILLISECONDS.toSeconds(l) + 1));
         }
 
         @Override
@@ -129,7 +115,7 @@ public class Launcher extends AppCompatActivity {
         }
     }
 
-    private void refreshStore() {
+    public static Uri refreshStore() {
         if (basePathStore.exists()) {
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(basePathStore));
@@ -152,6 +138,7 @@ public class Launcher extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        return basePath;
     }
 
     private void startGame(boolean fromPicker) {
@@ -171,9 +158,8 @@ public class Launcher extends AppCompatActivity {
         if (!found && !fromPicker) {
             new AlertDialog.Builder(this)
                     .setTitle("Path confirmation")
-                    .setMessage(basePath != null ?
-                            "Please reconfirm the path the game should run in." :
-                            "Please set the path the game should run in.")
+                    .setMessage(basePath != null ? "Please reconfirm the path the game should run in."
+                            : "Please set the path the game should run in.")
                     .setPositiveButton("OK", (dialog, i) -> {
                         folderPicker();
                     })
@@ -183,8 +169,7 @@ public class Launcher extends AppCompatActivity {
                     })
                     .setCancelable(false)
                     .show();
-        }
-        else {
+        } else {
             AlertDialog baseAlert = null;
 
             DialogTimer timer = new DialogTimer(5000, 100);
@@ -194,14 +179,12 @@ public class Launcher extends AppCompatActivity {
                     .setMessage("Game will start in...")
                     .setPositiveButton("Start", (dialog, i) -> {
                         timer.cancel();
-                        //String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + basePath;
+                        // String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
+                        // + basePath;
                         try {
                             if (DocumentFile.fromTreeUri(this, basePath).findFile(".nomedia") == null)
                                 createFile(".nomedia");
-                        } catch (Exception e) {}
-
-                        if (!checkPermission()) {
-                            quit(1);
+                        } catch (Exception e) {
                         }
 
                         Intent intent = new Intent(this, RSDK.class);
@@ -231,15 +214,6 @@ public class Launcher extends AppCompatActivity {
         }
     }
 
-    // https://stackoverflow.com/questions/62782648/
-    private boolean checkPermission() {
-        if (SDK_INT >= Build.VERSION_CODES.R) {
-            return true;
-        } else {
-            return ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        }
-    }
-
     private void folderPicker() {
         refreshStore();
         folderLauncher.launch(
@@ -251,49 +225,25 @@ public class Launcher extends AppCompatActivity {
     }
 
     public Uri createFile(String filename) throws FileNotFoundException {
-        return DocumentFile.fromTreeUri(this, basePath).createFile("application/octet-stream", filename).getUri();
-    }
 
-    private void requestPermission(Activity activity, Bundle bundle) {
-
-        ActivityResultLauncher<Intent> launcher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                    result -> startGame(false)
-                );
-
-        new AlertDialog.Builder(this)
-                .setTitle("Permissions needed")
-                .setMessage(
-                        String.format("RSDK needs to be able to access external files.\nWould you like to grant read/write permissions?")
-                )
-                .setPositiveButton("Yes", (dialogInterface, i) -> {
-                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
-                })
-                .setNegativeButton("No", (dialogInterface, i) -> {
-                    quit(1);
-                })
-                .setCancelable(false)
-                .show();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode) {
-            case REQUEST_CODE:
-                if (grantResults.length > 0) {
-                    boolean READ_EXTERNAL_STORAGE = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean WRITE_EXTERNAL_STORAGE = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-
-                    if (READ_EXTERNAL_STORAGE && WRITE_EXTERNAL_STORAGE) {
-                        startGame(false);
-                    } else {
-                        quit(1);
-                    }
-                }
-                break;
+        DocumentFile path = DocumentFile.fromTreeUri(getApplicationContext(), basePath);
+        while (filename.indexOf('/') != -1) {
+            String sub = filename.substring(0, filename.indexOf('/'));
+            if (!sub.isBlank()) {
+                DocumentFile find = path.findFile(sub);
+                if (find == null)
+                    path = path.createDirectory(sub);
+                else
+                    path = find;    
+            }
+            filename = filename.substring(filename.indexOf('/') + 1);
         }
+
+        DocumentFile find = path.findFile(filename);
+        if (find == null)
+            return path.createFile("application/octet-stream", filename).getUri();
+        else
+            return find.getUri();
     }
 
 }
