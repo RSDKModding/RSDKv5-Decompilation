@@ -207,6 +207,7 @@ public:
     static void UpdateFPSCap();
 
     // Public since it's needed for the ModAPI
+    static bool InitShaders();
     static void LoadShader(const char *fileName, bool32 linear);
 
     // ====================
@@ -232,7 +233,6 @@ public:
     static float2 viewSize;
 
 private:
-    static bool InitShaders();
     static bool SetupRendering();
     static void InitVertexBuffer();
     static bool InitGraphicsAPI();

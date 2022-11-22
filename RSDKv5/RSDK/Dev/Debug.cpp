@@ -302,11 +302,7 @@ void RSDK::DevMenu_MainMenu()
     // Info Box
     int32 y = currentScreen->center.y - 80;
     DrawRectangle(currentScreen->center.x - 128, currentScreen->center.y - 84, 0x100, 0x30, 0x80, 0xFF, INK_NONE, true);
-#if RETRO_REV0U
-    DrawDevString("RETRO ENGINE v5U", currentScreen->center.x, y, ALIGN_CENTER, 0xF0F0F0);
-#else
-    DrawDevString("RETRO ENGINE v5", currentScreen->center.x, y, ALIGN_CENTER, 0xF0F0F0);
-#endif
+    DrawDevString("RETRO ENGINE " ENGINE_V_NAME, currentScreen->center.x, y, ALIGN_CENTER, 0xF0F0F0);
 
     y += 8;
     DrawDevString("Dev Menu", currentScreen->center.x, y, ALIGN_CENTER, 0xF0F0F0);

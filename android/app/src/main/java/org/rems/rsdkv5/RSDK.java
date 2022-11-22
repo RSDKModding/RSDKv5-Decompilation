@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.androidgamesdk.GameActivity;
@@ -16,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract.Document;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -243,18 +245,68 @@ public class RSDK extends GameActivity {
         return out.toArray(new String[0]);
     }
 
-    public String[] fsRecurseIter(String path) {
+
+    static class RecursiveIterator {
+        static HashMap<String, RecursiveIterator> iterators = new HashMap<>();
+
+        static class DocPos {
+            public DocumentFile[] docs;
+            int pos = -1;
+
+            public DocPos(DocumentFile doc) {
+                this.docs = doc.listFiles();
+            }
+
+            public DocumentFile next() {
+                if (++pos == docs.length) return null;
+                return docs[pos];
+            }
+        }
+
+        String path;
+        List<String> paths = new ArrayList<>();
+        List<DocPos> docs = new ArrayList<>();
+
+        public RecursiveIterator(String path, DocumentFile doc) {
+            this.path = path;
+            this.paths.add(path);
+            this.docs.add(new DocPos(doc));
+        }
+
+        public static RecursiveIterator get(String path, DocumentFile doc) {
+            if (iterators.get(path) != null)
+                return iterators.get(path);
+            RecursiveIterator iter = new RecursiveIterator(path, doc);
+            iterators.put(path, iter);
+            return iter;
+        }
+
+        public String next() {
+            while (docs.size() != 0) {
+                int last = docs.size() - 1;
+                DocumentFile doc = docs.get(last).next();
+                if (doc == null) {
+                    docs.remove(last);
+                    paths.remove(last);
+                    continue;
+                }
+                if (doc.isDirectory()) {
+                    docs.add(new DocPos(doc));
+                    paths.add(doc.getName());
+                    continue;
+                }
+                return String.join("/", paths) + "/" + doc.getName();
+            }
+            iterators.remove(path);
+            return null;
+        }
+    }
+
+    public String fsRecurseIter(String path) {
         Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
         DocumentFile dir = DocumentFile.fromTreeUri(getApplicationContext(), uri);
-        if (dir.isFile())
-            return new String[0];
-        List<String> out = new ArrayList<String>();
-        for (DocumentFile file : dir.listFiles()) {
-            if (file.isDirectory())
-                out.addAll(Arrays.asList(fsRecurseIter(path + "/" + file.getName())));
-            else out.add(path + "/" + file.getName());
-        }
-        return out.toArray(new String[0]);
+        RecursiveIterator iter = RecursiveIterator.get(path, dir);
+        return iter.next();
     }
 
 }

@@ -53,7 +53,7 @@ void android_main(struct android_app *ap)
     fsExists      = jni->env->GetMethodID(jni->clazz, "fsExists", "(Ljava/lang/String;)Z");
     fsIsDir       = jni->env->GetMethodID(jni->clazz, "fsIsDir", "(Ljava/lang/String;)Z");
     fsDirIter     = jni->env->GetMethodID(jni->clazz, "fsDirIter", "(Ljava/lang/String;)[Ljava/lang/String;");
-    fsRecurseIter = jni->env->GetMethodID(jni->clazz, "fsRecurseIter", "(Ljava/lang/String;)[Ljava/lang/String;");
+    fsRecurseIter = jni->env->GetMethodID(jni->clazz, "fsRecurseIter", "(Ljava/lang/String;)Ljava/lang/String;");
 #endif
 
     GameActivity_setWindowFlags(app->activity,

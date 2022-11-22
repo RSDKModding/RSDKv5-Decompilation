@@ -46,7 +46,7 @@ GLuint RenderDevice::VAO;
 GLuint RenderDevice::VBO;
 
 GLuint RenderDevice::screenTextures[SCREEN_COUNT];
-GLuint RenderDevice::imageTexture;  
+GLuint RenderDevice::imageTexture;
 
 double RenderDevice::lastFrame;
 double RenderDevice::targetFreq;
@@ -202,12 +202,10 @@ bool RenderDevice::InitGraphicsAPI()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), 0);
     glEnableVertexAttribArray(0);
-    //glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, color));
-    //glEnableVertexAttribArray(1);
+    // glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, color));
+    // glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), (void *)offsetof(RenderVertex, tex));
     glEnableVertexAttribArray(1);
-
-
 
     if (videoSettings.windowed || !videoSettings.exclusiveFS) {
         if (videoSettings.windowed) {
@@ -240,7 +238,7 @@ bool RenderDevice::InitGraphicsAPI()
 
         screens[s].size.y = videoSettings.pixHeight;
 
-        float viewAspect  = viewSize.x / viewSize.y;
+        float viewAspect = viewSize.x / viewSize.y;
 #if !RETRO_USE_ORIGINAL_CODE
         screenWidth = (int32)((viewAspect * videoSettings.pixHeight) + 3) & 0xFFFFFFFC;
 #else
@@ -1129,6 +1127,11 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                 case GLFW_KEY_F5:
                     if (engine.devMenu) {
                         // Quick-Reload
+#if RETRO_USE_MOD_LOADER
+                        if (mods & GLFW_MOD_CONTROL)
+                            RefreshModFolders();   
+#endif
+
 #if RETRO_REV0U
                         switch (engine.version) {
                             default: break;

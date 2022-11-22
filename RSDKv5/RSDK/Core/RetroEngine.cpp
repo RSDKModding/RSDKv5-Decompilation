@@ -28,19 +28,36 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 
     if (engine.consoleEnabled)
         InitConsole();
-
     RenderDevice::isRunning = false;
+
     if (InitStorage()) {
         SKU::InitUserCore();
         LoadSettingsINI();
 
 #if RETRO_USE_MOD_LOADER
+        // do it early so we can render funny little loading bar for mods
+        int32 shader = videoSettings.shaderID;
+        strcpy(gameVerInfo.gameTitle, "RSDK" ENGINE_V_NAME);
+        if (RenderDevice::Init()) {
+            RenderDevice::isRunning = true;
+            currentScreen = &screens[0];
+            videoSettings.screenCount = 1;
+        }
+        else {
+            // No render device, throw a "QUIT" msg onto the message loop and call it a day :)
+            SendQuitMsg();
+        }
+#if RETRO_PLATFORM == RETRO_ANDROID
+        // wait until we have a window
+        while (!RenderDevice::window) {
+            RenderDevice::ProcessEvents();
+        }
+#endif
+
 #if RETRO_REV0U
         engine.version = 0;
-        InitModAPI(); // setup mods & the mod API table
+        InitModAPI(true); // check for versions
         engine.version = 5;
-#else
-        InitModAPI(); // setup mods & the mod API table
 #endif
 #endif
 
@@ -61,19 +78,21 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         }
 
         InitEngine();
-
+#if RETRO_USE_MOD_LOADER
+        // we confirmed the game actually is valid & running, lets start some callbacks
+        RunModCallbacks(MODCB_ONGAMESTARTUP, NULL);
+        videoSettings.shaderID = shader;
+        RenderDevice::InitShaders();
+        RenderDevice::SetWindowTitle();
+#else
         if (RenderDevice::Init()) {
             RenderDevice::isRunning = true;
-
-#if RETRO_USE_MOD_LOADER
-            // we confirmed the game actually is valid & running, lets start some callbacks
-            RunModCallbacks(MODCB_ONGAMESTARTUP, NULL);
-#endif
         }
         else {
             // No render device, throw a "QUIT" msg onto the message loop and call it a day :)
             SendQuitMsg();
         }
+#endif
     }
 
     RenderDevice::InitFPSCap();
@@ -157,7 +176,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #endif
                         devMenu.modsChanged = false;
                         SaveMods();
-                        RefreshModFolders();
+                        RefreshModFolders(true);
                         LoadModSettings();
                         for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
 #if RETRO_REV02
@@ -320,6 +339,7 @@ void RSDK::ProcessEngine()
             }
             else {
 #if RETRO_USE_MOD_LOADER
+            if (devMenu.modsChanged)
                 RefreshModFolders();
 #endif
                 LoadSceneFolder();
@@ -405,7 +425,8 @@ void RSDK::ProcessEngine()
 
         case ENGINESTATE_LOAD | ENGINESTATE_STEPOVER:
 #if RETRO_USE_MOD_LOADER
-            RefreshModFolders();
+            if (devMenu.modsChanged)
+                RefreshModFolders();
 #endif
             LoadSceneFolder();
             LoadSceneAssets();
