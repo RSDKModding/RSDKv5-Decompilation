@@ -163,7 +163,7 @@ bool RenderDevice::SetupRendering()
         return true; // lie so we can properly swtup later
     }
     ANativeWindow_setBuffersGeometry(window, 0, 0, format);
-    SwappyGL_setSwapIntervalNS(1000000000L / videoSettings.refreshRate);
+    SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
 #endif
 
     surface = eglCreateWindowSurface(display, config, window, nullptr);
