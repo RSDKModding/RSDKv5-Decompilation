@@ -116,7 +116,7 @@ public class Launcher extends AppCompatActivity {
     }
 
     public static Uri refreshStore() {
-        if (basePathStore.exists()) {
+        if (basePathStore.exists() && basePath == null) {
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(basePathStore));
                 String uri = reader.readLine();
@@ -229,7 +229,7 @@ public class Launcher extends AppCompatActivity {
         DocumentFile path = DocumentFile.fromTreeUri(getApplicationContext(), basePath);
         while (filename.indexOf('/') != -1) {
             String sub = filename.substring(0, filename.indexOf('/'));
-            if (!sub.isBlank()) {
+            if (!sub.isEmpty()) {
                 DocumentFile find = path.findFile(sub);
                 if (find == null)
                     path = path.createDirectory(sub);
