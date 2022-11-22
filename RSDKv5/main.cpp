@@ -26,8 +26,6 @@ extern "C" {
 void android_main(struct android_app *app);
 }
 
-#include <swappy/swappyGL_extra.h>
-
 void android_main(struct android_app *ap)
 {
     app                                 = ap;
@@ -43,14 +41,14 @@ void android_main(struct android_app *ap)
     SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
     SwappyGL_setAutoSwapInterval(false);
 
-    getFD    = jni->env->GetMethodID(jni->clazz, "getFD", "(Ljava/lang/String;Ljava/lang/String;)I");
-    writeLog = jni->env->GetMethodID(jni->clazz, "writeLog", "(Ljava/lang/String;I)V");
+    getFD    = jni->env->GetMethodID(jni->clazz, "getFD", "([BB)I");
+    writeLog = jni->env->GetMethodID(jni->clazz, "writeLog", "([BI)V");
 
 #if RETRO_USE_MOD_LOADER
-    fsExists      = jni->env->GetMethodID(jni->clazz, "fsExists", "(Ljava/lang/String;)Z");
-    fsIsDir       = jni->env->GetMethodID(jni->clazz, "fsIsDir", "(Ljava/lang/String;)Z");
-    fsDirIter     = jni->env->GetMethodID(jni->clazz, "fsDirIter", "(Ljava/lang/String;)[Ljava/lang/String;");
-    fsRecurseIter = jni->env->GetMethodID(jni->clazz, "fsRecurseIter", "(Ljava/lang/String;)Ljava/lang/String;");
+    fsExists      = jni->env->GetMethodID(jni->clazz, "fsExists", "([B)Z");
+    fsIsDir       = jni->env->GetMethodID(jni->clazz, "fsIsDir", "([B)Z");
+    fsDirIter     = jni->env->GetMethodID(jni->clazz, "fsDirIter", "([B)[Ljava/lang/String;");
+    fsRecurseIter = jni->env->GetMethodID(jni->clazz, "fsRecurseIter", "([B)Ljava/lang/String;");
 #endif
 
     GameActivity_setWindowFlags(app->activity,

@@ -9,15 +9,15 @@ using namespace RSDK;
 
 static struct JNISetup _jni_setup = { 0 };
 
-android_app *app                  = NULL;
+android_app *app = NULL;
 
-jmethodID getFD = { 0 };
+jmethodID getFD    = { 0 };
 jmethodID writeLog = { 0 };
 
 #if RETRO_USE_MOD_LOADER
-jmethodID fsExists = { 0 };
-jmethodID fsIsDir = { 0 };
-jmethodID fsDirIter = { 0 };
+jmethodID fsExists      = { 0 };
+jmethodID fsIsDir       = { 0 };
+jmethodID fsDirIter     = { 0 };
 jmethodID fsRecurseIter = { 0 };
 #endif
 
@@ -37,14 +37,14 @@ struct JNISetup *GetJNISetup()
     return &_jni_setup;
 }
 
-FileIO *fOpen(const char *path, const char *mode) {
+FileIO *fOpen(const char *path, const char *mode)
+{
     app->activity->vm->AttachCurrentThread(&_jni_setup.env, NULL);
-    int fd = _jni_setup.env->CallIntMethod(
-            _jni_setup.thiz, 
-            getFD, 
-            _jni_setup.env->NewStringUTF(path), 
-            _jni_setup.env->NewStringUTF(mode));
-    if (!fd) return NULL;
+    jbyteArray jpath = _jni_setup.env->NewByteArray(strlen(path));
+    _jni_setup.env->SetByteArrayRegion(jpath, 0, strlen(path), (jbyte*)path);
+    int fd        = _jni_setup.env->CallIntMethod(_jni_setup.thiz, getFD, jpath, mode[0]);
+    if (!fd)
+        return NULL;
     return fdopen(fd, mode);
 }
 

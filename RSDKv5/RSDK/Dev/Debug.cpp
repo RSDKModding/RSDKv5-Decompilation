@@ -7,6 +7,9 @@
 #endif
 #if RETRO_PLATFORM == RETRO_ANDROID
 #include <android/log.h>
+#include <locale>
+#include <codecvt>
+std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 #endif
 
 using namespace RSDK;
@@ -82,12 +85,18 @@ void RSDK::PrintLog(int32 mode, const char *message, ...)
 #elif RETRO_PLATFORM == RETRO_ANDROID
             int32 as = ANDROID_LOG_INFO;
             switch (mode) {
+#if RETRO_REV0U
+                case PRINT_SCRIPTERR:
+#endif
                 case PRINT_ERROR: as = ANDROID_LOG_ERROR; break;
                 case PRINT_FATAL: as = ANDROID_LOG_FATAL; break;
                 default: break;
             }
-            auto* jni = GetJNISetup();
-            jni->env->CallVoidMethod(jni->thiz, writeLog, jni->env->NewStringUTF(outputString), as);
+            auto *jni = GetJNISetup();
+            int len = strlen(outputString);
+            jbyteArray array = jni->env->NewByteArray(len); // as per research, this gets freed automatically
+            jni->env->SetByteArrayRegion(array, 0, len, (jbyte *)outputString);
+            jni->env->CallVoidMethod(jni->thiz, writeLog, array, as);            
 #elif RETRO_PLATFORM == RETRO_SWITCH
             printf("%s", outputString);
 #endif
@@ -429,9 +438,7 @@ void RSDK::DevMenu_MainMenu()
         }
 #endif
         switch (devMenu.selection) {
-            case 0:
-                CloseDevMenu();
-                break;
+            case 0: CloseDevMenu(); break;
 
             case 1:
 #if RETRO_REV0U

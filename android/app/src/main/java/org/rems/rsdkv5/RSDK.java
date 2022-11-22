@@ -22,6 +22,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -72,6 +74,7 @@ public class RSDK extends GameActivity {
         pathString = DocumentFile.fromTreeUri(getApplicationContext(), basePath).getUri().getEncodedPath()
                 + Uri.encode("/");
 
+
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         hideSystemUI();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
@@ -79,7 +82,7 @@ public class RSDK extends GameActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         try {
-            ParcelFileDescriptor.adoptFd(getFD("log.txt", "a")).close();
+            ParcelFileDescriptor.adoptFd(getFD("log.txt".getBytes(), (byte)'a')).close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -173,9 +176,9 @@ public class RSDK extends GameActivity {
 
     public static native void nativeOnTouch(int fingerID, int action, float x, float y);
 
-    public int getFD(String filepath, String mode) {
-        String useMode;
-        switch (mode.charAt(0)) {
+    public int getFD(byte[] file, byte mode) {
+        String useMode, filepath = new String(file);
+        switch (mode) {
             case 'a':
                 useMode = "wa";
                 break;
@@ -213,27 +216,28 @@ public class RSDK extends GameActivity {
         return 0;
     }
 
-    public void writeLog(String string, int as) {
-        Log.println(as, "RSDKv5", string);
+    public void writeLog(byte[] array, int as) {
+        Log.println(as, "RSDKv5", new String(array));
         try {
-            log.write(string.getBytes(StandardCharsets.UTF_8));
+            log.write(array);
+            // log.write('\n');
             log.flush();
         } catch (Exception e) {
         }
     }
 
-    public boolean fsExists(String path) {
-        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
+    public boolean fsExists(byte[] path) {
+        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(new String(path))).build();
         return DocumentFile.fromSingleUri(getApplicationContext(), uri).exists();
     }
 
-    public boolean fsIsDir(String path) {
-        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
+    public boolean fsIsDir(byte[] path) {
+        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(new String(path))).build();
         return DocumentFile.fromSingleUri(getApplicationContext(), uri).isDirectory();
     }
 
-    public String[] fsDirIter(String path) {
-        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
+    public String[] fsDirIter(byte[] path) {
+        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(new String(path))).build();
         DocumentFile dir = DocumentFile.fromTreeUri(getApplicationContext(), uri);
         if (dir.isFile())
             return new String[0];
@@ -247,36 +251,38 @@ public class RSDK extends GameActivity {
 
 
     static class RecursiveIterator {
-        static HashMap<String, RecursiveIterator> iterators = new HashMap<>();
+        static HashMap<byte[], RecursiveIterator> iterators = new HashMap<>();
 
         static class DocPos {
             public DocumentFile[] docs;
             int pos = -1;
 
-            public DocPos(DocumentFile doc) {
+            public DocPos(@NonNull DocumentFile doc) {
                 this.docs = doc.listFiles();
             }
 
             public DocumentFile next() {
-                if (++pos == docs.length) return null;
-                return docs[pos];
+                try {
+                    return docs[++pos];
+                }
+                catch (Exception e) {
+                    return null;
+                }
             }
         }
 
         String path;
-        List<String> paths = new ArrayList<>();
         List<DocPos> docs = new ArrayList<>();
 
         public RecursiveIterator(String path, DocumentFile doc) {
             this.path = path;
-            this.paths.add(path);
             this.docs.add(new DocPos(doc));
         }
 
-        public static RecursiveIterator get(String path, DocumentFile doc) {
+        public static RecursiveIterator get(byte[] path, DocumentFile doc) {
             if (iterators.get(path) != null)
                 return iterators.get(path);
-            RecursiveIterator iter = new RecursiveIterator(path, doc);
+            RecursiveIterator iter = new RecursiveIterator(new String(path), doc);
             iterators.put(path, iter);
             return iter;
         }
@@ -285,25 +291,26 @@ public class RSDK extends GameActivity {
             while (docs.size() != 0) {
                 int last = docs.size() - 1;
                 DocumentFile doc = docs.get(last).next();
-                if (doc == null) {
+                try {
+                    if (doc.isDirectory()) {
+                        docs.add(new DocPos(doc));
+                        continue;
+                    }
+                    String seg = doc.getUri().getLastPathSegment();
+                    return seg.substring(seg.indexOf(path));
+                }
+                catch (NullPointerException e) {
                     docs.remove(last);
-                    paths.remove(last);
                     continue;
                 }
-                if (doc.isDirectory()) {
-                    docs.add(new DocPos(doc));
-                    paths.add(doc.getName());
-                    continue;
-                }
-                return String.join("/", paths) + "/" + doc.getName();
             }
             iterators.remove(path);
             return null;
         }
     }
 
-    public String fsRecurseIter(String path) {
-        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(path)).build();
+    public String fsRecurseIter(byte[] path) {
+        Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(new String(path))).build();
         DocumentFile dir = DocumentFile.fromTreeUri(getApplicationContext(), uri);
         RecursiveIterator iter = RecursiveIterator.get(path, dir);
         return iter.next();

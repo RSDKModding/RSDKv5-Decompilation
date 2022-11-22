@@ -518,7 +518,7 @@ class recursive_directory_iterator
     jstring jstr;
     const char* str = nullptr;
 
-    jstring jpath;
+    jbyteArray jpath;
 
 public:
     using iterator_category = std::input_iterator_tag;
@@ -532,8 +532,9 @@ public:
     {
         (void)_;
         jni = GetJNISetup();
-        this->jpath = jni->env->NewStringUTF(path.string().c_str());
-        this->operator++();
+        jpath = jni->env->NewByteArray(path.string().length());
+        jni->env->SetByteArrayRegion(jpath, 0, path.string().length(), (jbyte *)path.string().c_str());
+        operator++();
     };
 
     // this class is modified from the MSVC headers LMAO
@@ -557,8 +558,9 @@ public:
             jni->env->ReleaseStringUTFChars(jstr, str);
         }
         jstr = (jstring)jni->env->CallObjectMethod(jni->thiz, fsRecurseIter, jpath);
-        if (jstr == NULL)
+        if (jstr == NULL) {
             *this = {};
+        }
         else {
             str = jni->env->GetStringUTFChars(jstr, NULL);
             current = directory_entry(fs::path(str));

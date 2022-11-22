@@ -11,6 +11,7 @@
 #include <game-activity/native_app_glue/android_native_app_glue.h>
 
 #include <swappy/swappyGL.h>
+#include <swappy/swappyGL_extra.h>
 
 struct JNISetup {
     jclass clazz; // activity class
