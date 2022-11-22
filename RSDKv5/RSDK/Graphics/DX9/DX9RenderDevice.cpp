@@ -740,7 +740,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         ID3DBlob *errorBlob  = nullptr;
         HRESULT result = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "VSMain", "vs_3_0", flags, 0, &shaderBlob, &errorBlob);
 
-        RemoveStorageEntry((void**)&fileData);
+        RemoveStorageEntry((void **)&fileData);
 
         if (FAILED(result)) {
             if (errorBlob) {
@@ -767,7 +767,6 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                 return;
             }
         }
-
     }
     else {
 #endif
@@ -786,11 +785,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->vertexShaderObject = NULL;
                 }
 
-                RemoveStorageEntry((void**)&fileData);
+                RemoveStorageEntry((void **)&fileData);
                 return;
             }
 
-            RemoveStorageEntry((void**)&fileData);
+            RemoveStorageEntry((void **)&fileData);
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -821,7 +820,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         ID3DBlob *errorBlob  = nullptr;
         HRESULT result = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "PSMain", "ps_3_0", flags, 0, &shaderBlob, &errorBlob);
 
-        RemoveStorageEntry((void**)&fileData);
+        RemoveStorageEntry((void **)&fileData);
 
         if (FAILED(result)) {
             if (errorBlob) {
@@ -864,11 +863,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->pixelShaderObject = NULL;
                 }
 
-                RemoveStorageEntry((void**)&fileData);
+                RemoveStorageEntry((void **)&fileData);
                 return;
             }
 
-            RemoveStorageEntry((void**)&fileData);
+            RemoveStorageEntry((void **)&fileData);
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -1105,17 +1104,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
 
                     handledMsg = true;
                     break;
-
-                case VK_F10:
-                    if (engine.devMenu) {
-                        engine.showPaletteOverlay ^= 1;
-
-                        handledMsg = true;
-                    }
-                    break;
             }
-
-            break;
         }
 
         // regular keydown
@@ -1250,6 +1239,10 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F5:
                     if (engine.devMenu) {
                         // Quick-Reload
+#if RETRO_USE_MOD_LOADER
+                        if (GetAsyncKeyState(VK_CONTROL))
+                            RefreshModFolders();                      
+#endif
 
 #if RETRO_REV0U
                         switch (engine.version) {

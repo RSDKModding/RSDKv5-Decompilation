@@ -485,7 +485,7 @@ bool RenderDevice::InitGraphicsAPI()
 
         screens[s].size.y = videoSettings.pixHeight;
 
-        float viewAspect  = viewSize.x / viewSize.y;
+        float viewAspect = viewSize.x / viewSize.y;
 #if !RETRO_USE_ORIGINAL_CODE
         screenWidth = (int32)((viewAspect * videoSettings.pixHeight) + 3) & 0xFFFFFFFC;
 #else
@@ -812,7 +812,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
 #endif
             switch (event.key.keysym.scancode) {
                 case SDL_SCANCODE_RETURN:
-                    if (event.key.keysym.mod == KMOD_LALT) {
+                    if (event.key.keysym.mod & KMOD_LALT) {
                         videoSettings.windowed ^= 1;
                         UpdateGameWindow();
                         changedVideoSettings = false;
@@ -916,6 +916,11 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                 case SDL_SCANCODE_F5:
                     if (engine.devMenu) {
                         // Quick-Reload
+#if RETRO_USE_MOD_LOADER
+                        if (event.key.keysym.mod & KMOD_LCTRL)
+                            RefreshModFolders();   
+#endif
+
 #if RETRO_REV0U
                         switch (engine.version) {
                             default: break;

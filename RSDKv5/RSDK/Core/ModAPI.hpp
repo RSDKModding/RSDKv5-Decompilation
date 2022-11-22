@@ -232,10 +232,10 @@ extern ModInfo *currentMod;
 
 inline void SetActiveMod(int32 id) { modSettings.activeMod = id; }
 
-void InitModAPI();
+void InitModAPI(bool32 getVersion = false);
 void UnloadMods();
-void LoadMods(bool newOnly = false);
-bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 active);
+void LoadMods(bool newOnly = false, bool32 getVersion = false);
+bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 active, bool32 getVersion = false);
 void SaveMods();
 void SortMods();
 void LoadModSettings();
@@ -253,7 +253,7 @@ inline std::vector<ModInfo *> ActiveMods()
     return ret;
 }
 
-bool32 ScanModFolder(ModInfo *info, const char *targetFile = nullptr);
+bool32 ScanModFolder(ModInfo *info, const char *targetFile = nullptr, bool32 fromLoadMod = false);
 inline void RefreshModFolders()
 {
     int32 activeModCount = (int32)ActiveMods().size();

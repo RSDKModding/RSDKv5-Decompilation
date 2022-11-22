@@ -720,7 +720,7 @@ bool RenderDevice::InitGraphicsAPI()
 
         screens[s].size.y = videoSettings.pixHeight;
 
-        float viewAspect  = viewSize.x / viewSize.y;
+        float viewAspect = viewSize.x / viewSize.y;
 #if !RETRO_USE_ORIGINAL_CODE
         screenWidth = (int32)((viewAspect * videoSettings.pixHeight) + 3) & 0xFFFFFFFC;
 #else
@@ -911,7 +911,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         ID3DBlob *errorBlob  = nullptr;
         HRESULT result = D3DCompile(fileData, info.fileSize, fullFilePath, defines, NULL, "VSMain", "vs_5_0", flags, 0, &shaderBlob, &errorBlob);
 
-        RemoveStorageEntry((void**)&fileData);
+        RemoveStorageEntry((void **)&fileData);
 
         if (FAILED(result)) {
             if (errorBlob) {
@@ -960,13 +960,13 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->vertexShaderObject = NULL;
                 }
 
-                RemoveStorageEntry((void**)&fileData);
+                RemoveStorageEntry((void **)&fileData);
                 return;
             }
 
             bytecode     = fileData;
             bytecodeSize = info.fileSize;
-            RemoveStorageEntry((void**)&fileData);
+            RemoveStorageEntry((void **)&fileData);
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -1051,12 +1051,12 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->vertexShaderObject = NULL;
                 }
 
-                RemoveStorageEntry((void**)&fileData);
+                RemoveStorageEntry((void **)&fileData);
                 return;
             }
         }
 
-        RemoveStorageEntry((void**)&fileData);
+        RemoveStorageEntry((void **)&fileData);
     }
     else {
 #endif
@@ -1075,11 +1075,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
                     shader->pixelShaderObject = NULL;
                 }
 
-                RemoveStorageEntry((void**)&fileData);
+                RemoveStorageEntry((void **)&fileData);
                 return;
             }
 
-            RemoveStorageEntry((void**)&fileData);
+            RemoveStorageEntry((void **)&fileData);
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -1558,6 +1558,10 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F5:
                     if (engine.devMenu) {
                         // Quick-Reload
+#if RETRO_USE_MOD_LOADER
+                        if (GetAsyncKeyState(VK_CONTROL))
+                            RefreshModFolders();   
+#endif
 
 #if RETRO_REV0U
                         switch (engine.version) {
