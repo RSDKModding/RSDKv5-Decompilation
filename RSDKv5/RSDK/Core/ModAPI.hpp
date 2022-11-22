@@ -92,7 +92,7 @@ enum ModFunctionTableIDs {
 #if RETRO_MOD_LOADER_VER >= 2
     // Mod Settings (Part 2)
     ModTable_ForeachSetting,
-    ModTable_ForeachSettingCategory, 
+    ModTable_ForeachSettingCategory,
 
     // Files
     ModTable_ExcludeFile,
@@ -254,11 +254,11 @@ inline std::vector<ModInfo *> ActiveMods()
 }
 
 bool32 ScanModFolder(ModInfo *info, const char *targetFile = nullptr, bool32 fromLoadMod = false);
-inline void RefreshModFolders()
+inline void RefreshModFolders(bool32 versionOnly = false)
 {
     int32 activeModCount = (int32)ActiveMods().size();
     for (int32 m = 0; m < activeModCount; ++m) {
-        ScanModFolder(&modList[m]);
+        ScanModFolder(&modList[m], versionOnly ? "Data/Game/GameConfig.bin" : nullptr, true);
     }
 }
 
@@ -341,7 +341,6 @@ void StateMachineRun(void (*state)());
 bool32 HandleRunState_HighPriority(void *state);
 void HandleRunState_LowPriority(void *state, bool32 skipState);
 void RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority);
-
 
 #if RETRO_MOD_LOADER_VER >= 2
 
@@ -436,5 +435,148 @@ bool32 GetGroupEntities(uint16 group, void **entity);
 #endif
 
 } // namespace RSDK
+
+#if RETRO_USE_MOD_LOADER && RETRO_PLATFORM == RETRO_ANDROID
+#if _INTELLISENSE_ANDROID
+#include "RetroEngine.hpp"
+#endif
+
+#include <iterator>
+#include <cstddef>
+#include <forward_list>
+
+extern jmethodID fsExists;
+extern jmethodID fsIsDir;
+extern jmethodID fsDirIter;
+extern jmethodID fsRecurseIter;
+
+namespace fs
+{
+struct filesystem_error {
+    const char *what() { return err.c_str(); }
+
+private:
+    std::string err;
+};
+
+struct path {
+    path() = default;
+    path(std::string str) : pathStr(str){};
+    const std::string &string() const { return pathStr; }
+    path filename() { return pathStr.substr(pathStr.find_last_of('/') + 1); }
+
+private:
+    std::string pathStr = "";
+};
+
+bool exists(path path);
+
+bool is_directory(path path);
+
+struct directory_entry {
+    directory_entry() = default;
+    directory_entry(fs::path p) : m_path(p){};
+
+    bool exists() { return fs::exists(m_path); }
+
+    bool is_directory() { return fs::is_directory(m_path); }
+
+    bool is_regular_file() { return !fs::is_directory(m_path); }
+
+    const path &path() { return m_path; }
+
+private:
+    fs::path m_path;
+};
+
+class path_list : public std::vector<directory_entry>
+{
+public:
+    path_list(jobjectArray array)
+    {
+        vector();
+        auto *jni = GetJNISetup();
+        int len   = jni->env->GetArrayLength(array);
+        for (int i = 0; i < len; ++i) {
+            jstring jstr    = (jstring)jni->env->GetObjectArrayElement(array, i);
+            const char *str = jni->env->GetStringUTFChars(jstr, NULL);
+            this->push_back(directory_entry(std::string(str)));
+            jni->env->ReleaseStringUTFChars(jstr, str);
+        }
+    }
+};
+
+enum class directory_options { follow_directory_symlink = 0 };
+
+path_list directory_iterator(path path);
+
+class recursive_directory_iterator
+{
+    struct JNISetup *jni = nullptr;
+    directory_entry current;
+
+    jstring jstr;
+    const char* str = nullptr;
+
+    jstring jpath;
+
+public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type        = directory_entry;
+    using difference_type   = ptrdiff_t;
+    using pointer           = const directory_entry *;
+    using reference         = const directory_entry &;
+    
+    recursive_directory_iterator() = default;
+    recursive_directory_iterator(path path, directory_options _)
+    {
+        (void)_;
+        jni = GetJNISetup();
+        this->jpath = jni->env->NewStringUTF(path.string().c_str());
+        this->operator++();
+    };
+
+    // this class is modified from the MSVC headers LMAO
+
+    bool operator==(const recursive_directory_iterator& rhs) const noexcept {
+        return jni == rhs.jni;
+    }
+    bool operator!=(const recursive_directory_iterator& rhs) const noexcept {
+        return jni != rhs.jni;
+    }
+    const directory_entry& operator*() const noexcept {
+        return current;
+    }
+
+    const directory_entry* operator->() const noexcept {
+        return &**this;
+    }
+
+    recursive_directory_iterator& operator++() {
+        if (str) {
+            jni->env->ReleaseStringUTFChars(jstr, str);
+        }
+        jstr = (jstring)jni->env->CallObjectMethod(jni->thiz, fsRecurseIter, jpath);
+        if (jstr == NULL)
+            *this = {};
+        else {
+            str = jni->env->GetStringUTFChars(jstr, NULL);
+            current = directory_entry(fs::path(str));
+        }
+        return *this;
+    }
+
+    inline recursive_directory_iterator begin() noexcept {
+        return *this;
+    }
+
+    inline recursive_directory_iterator end() noexcept {
+        return {};
+    }
+
+};
+
+}; // namespace fs
+#endif
 
 #endif // !MOD_API_H

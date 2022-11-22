@@ -86,13 +86,14 @@ void RSDK::PrintLog(int32 mode, const char *message, ...)
                 case PRINT_FATAL: as = ANDROID_LOG_FATAL; break;
                 default: break;
             }
-            __android_log_print(as, "RSDKv5", "%s", outputString);
+            auto* jni = GetJNISetup();
+            jni->env->CallVoidMethod(jni->thiz, writeLog, jni->env->NewStringUTF(outputString), as);
 #elif RETRO_PLATFORM == RETRO_SWITCH
             printf("%s", outputString);
 #endif
         }
 
-#if !RETRO_USE_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_PLATFORM != RETRO_ANDROID
         FileIO *file = fOpen(BASE_PATH "log.txt", "a");
         if (file) {
             fWrite(&outputString, 1, strlen(outputString), file);

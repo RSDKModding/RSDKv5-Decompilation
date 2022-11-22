@@ -47,6 +47,13 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
             // No render device, throw a "QUIT" msg onto the message loop and call it a day :)
             SendQuitMsg();
         }
+#if RETRO_PLATFORM == RETRO_ANDROID
+        // wait until we have a window
+        while (!RenderDevice::window) {
+            RenderDevice::ProcessEvents();
+        }
+#endif
+
 #if RETRO_REV0U
         engine.version = 0;
         InitModAPI(true); // check for versions
@@ -169,7 +176,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #endif
                         devMenu.modsChanged = false;
                         SaveMods();
-                        RefreshModFolders();
+                        RefreshModFolders(true);
                         LoadModSettings();
                         for (int32 c = 0; c < CHANNEL_COUNT; ++c) StopChannel(c);
 #if RETRO_REV02
@@ -418,7 +425,8 @@ void RSDK::ProcessEngine()
 
         case ENGINESTATE_LOAD | ENGINESTATE_STEPOVER:
 #if RETRO_USE_MOD_LOADER
-            RefreshModFolders();
+            if (devMenu.modsChanged)
+                RefreshModFolders();
 #endif
             LoadSceneFolder();
             LoadSceneAssets();

@@ -12,19 +12,6 @@ char RSDK::gameLogicName[0x200];
 
 bool32 RSDK::useDataPack = false;
 
-#if RETRO_PLATFORM == RETRO_ANDROID
-FileIO *fOpen(const char *path, const char *mode)
-{
-    char buffer[0x200];
-    int32 a = 0;
-    if (!strncmp(path, SKU::userFileDir, strlen(SKU::userFileDir)))
-        a = strlen(SKU::userFileDir);
-    sprintf_s(buffer, sizeof(buffer), "%s%s", SKU::userFileDir, path + a);
-
-    return fopen(buffer, mode);
-}
-#endif
-
 #if RETRO_REV0U
 void RSDK::DetectEngineVersion()
 {
