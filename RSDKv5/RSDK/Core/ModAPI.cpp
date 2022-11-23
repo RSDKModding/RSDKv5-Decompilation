@@ -324,7 +324,7 @@ void DrawStatus(const char *str)
 #if RETRO_RENDERDEVICE_EGL
 // egl devices are slower in I/O so render more increments
 #define BAR_THRESHOLD (10.F)
-#define RENDER_COUNT  (50)
+#define RENDER_COUNT  (100)
 #else
 #define BAR_THRESHOLD (100.F)
 #define RENDER_COUNT  (100)

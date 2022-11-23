@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
@@ -262,58 +263,59 @@ public class RSDK extends GameActivity {
         Uri base;
         ContentResolver resolver;
 
-        public RecursiveIterator(@NonNull ContentResolver resolver, String path, @NonNull DocumentFile doc) {
+        public RecursiveIterator(@NonNull ContentResolver resolver, String path, Uri uri) {
             this.path = path;
-            base = doc.getUri();
+            base = uri;
             this.resolver = resolver;
             this.docs.add(resolver.query(
                     DocumentsContract.buildChildDocumentsUriUsingTree(base,
                             DocumentsContract.getDocumentId(base)
-                    ), new String[] {
+                    ), new String[]{
                             Document.COLUMN_DOCUMENT_ID,
                             Document.COLUMN_MIME_TYPE
                     }, null, null, null));
         }
 
-        public static RecursiveIterator get(ContentResolver resolver, byte[] path, DocumentFile doc) {
+        public static RecursiveIterator get(ContentResolver resolver, byte[] path, Uri uri) {
             if (iterators.get(path) != null)
                 return iterators.get(path);
-            RecursiveIterator iter = new RecursiveIterator(resolver, new String(path), doc);
+            RecursiveIterator iter = new RecursiveIterator(resolver, new String(path), uri);
             iterators.put(path, iter);
             return iter;
         }
 
         public String next() {
-            while (docs.size() != 0) {
-                Cursor c = docs.peek();
-                if (!c.moveToNext()) {
-                    docs.pop();
-                    continue;
-                }
+            Cursor c = null;
+            try {
+                c = docs.peek();
+                c.moveToNext();
                 Uri uri = DocumentsContract.buildDocumentUriUsingTree(base, c.getString(0));
                 if (c.getString(1).equals(Document.MIME_TYPE_DIR)) {
                     docs.push(resolver.query(
                             DocumentsContract.buildChildDocumentsUriUsingTree(
                                     uri, DocumentsContract.getDocumentId(uri)
-                            ), new String[] {
+                            ), new String[]{
                                     Document.COLUMN_DOCUMENT_ID,
                                     Document.COLUMN_MIME_TYPE
                             }, null, null, null));
-                    continue;
+                    return next();
                 }
                 String seg = uri.getLastPathSegment();
                 return seg.substring(seg.indexOf(path));
-
+            } catch (EmptyStackException e) {
+                iterators.remove(path);
+                return null;
+            } catch (Exception e) {
+                c.close();
+                docs.pop();
+                return next();
             }
-            iterators.remove(path);
-            return null;
         }
     }
 
     public String fsRecurseIter(byte[] path) {
         Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(new String(path))).build();
-        DocumentFile dir = DocumentFile.fromTreeUri(getApplicationContext(), uri);
-        RecursiveIterator iter = RecursiveIterator.get(getContentResolver(), path, dir);
+        RecursiveIterator iter = RecursiveIterator.get(getContentResolver(), path, uri);
         return iter.next();
     }
 
