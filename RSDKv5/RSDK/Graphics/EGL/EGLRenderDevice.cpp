@@ -351,6 +351,11 @@ bool RenderDevice::InitGraphicsAPI()
     pixelSize.y     = screens[0].size.y;
     float pixAspect = pixelSize.x / pixelSize.y;
 
+#if RETRO_PLATFORM == RETRO_ANDROID
+    auto* jni = GetJNISetup();
+    jni->env->CallVoidMethod(jni->thiz, setPixSize, (int)pixelSize.x, (int)pixelSize.y);
+#endif
+
     Vector2 viewportPos{};
     Vector2 viewportSize{ displayWidth[0], displayHeight[0] };
 

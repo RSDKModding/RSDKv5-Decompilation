@@ -53,4 +53,6 @@ dependencies {
     implementation "androidx.games:games-frame-pacing:1.10.1"
     implementation "androidx.documentfile:documentfile:1.0.1"
     implementation "com.google.oboe:oboe:1.6.1"
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 }

@@ -23,6 +23,10 @@ SceneInfo RSDK::sceneInfo;
 
 void RSDK::LoadSceneFolder()
 {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    ShowLoadingIcon();
+#endif
+
 #if RETRO_USE_MOD_LOADER
     // run this before the game actually unloads all the objects & scene assets
     RunModCallbacks(MODCB_ONSTAGEUNLOAD, NULL);
@@ -278,6 +282,10 @@ void RSDK::LoadSceneFolder()
 }
 void RSDK::LoadSceneAssets()
 {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    ShowLoadingIcon();
+#endif
+
     memset(objectEntityList, 0, ENTITY_COUNT * sizeof(EntityBase));
 
     SceneListEntry *sceneEntry = &sceneInfo.listData[sceneInfo.listPos];

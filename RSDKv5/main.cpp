@@ -44,6 +44,12 @@ void android_main(struct android_app *ap)
     getFD    = jni->env->GetMethodID(jni->clazz, "getFD", "([BB)I");
     writeLog = jni->env->GetMethodID(jni->clazz, "writeLog", "([BI)V");
 
+    setLoading = jni->env->GetMethodID(jni->clazz, "setLoadingIcon", "([B)V");
+    showLoading = jni->env->GetMethodID(jni->clazz, "showLoadingIcon", "()V");
+    hideLoading = jni->env->GetMethodID(jni->clazz, "hideLoadingIcon", "()V");
+
+    setPixSize = jni->env->GetMethodID(jni->clazz, "setPixSize", "(II)V");
+
 #if RETRO_USE_MOD_LOADER
     fsExists      = jni->env->GetMethodID(jni->clazz, "fsExists", "([B)Z");
     fsIsDir       = jni->env->GetMethodID(jni->clazz, "fsIsDir", "([B)Z");

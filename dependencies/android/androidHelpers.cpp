@@ -14,6 +14,11 @@ android_app *app = NULL;
 jmethodID getFD    = { 0 };
 jmethodID writeLog = { 0 };
 
+jmethodID showLoading = { 0 };
+jmethodID hideLoading = { 0 };
+jmethodID setLoading = { 0 };
+jmethodID setPixSize = { 0 };
+
 #if RETRO_USE_MOD_LOADER
 jmethodID fsExists      = { 0 };
 jmethodID fsIsDir       = { 0 };
@@ -175,7 +180,7 @@ int32 AndroidToWinAPIMappings(int32 mapping)
     }
 }
 
-JNIEXPORT void jnifunc(nativeOnTouch, RSDK, jint finger, jint action, jfloat x, jfloat y)
+JNIEXPORT void JNICALL jnifunc(nativeOnTouch, RSDK, jint finger, jint action, jfloat x, jfloat y)
 {
     if (finger > 0x10)
         return; // nah cause how tf
@@ -199,6 +204,45 @@ JNIEXPORT void jnifunc(nativeOnTouch, RSDK, jint finger, jint action, jfloat x, 
         }
     }
 }
+
+JNIEXPORT jbyteArray JNICALL jnifunc(nativeLoadFile, RSDK, jstring file) {
+    const char* path = env->GetStringUTFChars(file, NULL);
+    FileInfo info;
+    InitFileInfo(&info);
+    if (LoadFile(&info, path, FMODE_RB)) {
+        jbyteArray ret = env->NewByteArray(info.fileSize);
+        jbyte* array = env->GetByteArrayElements(ret, NULL);
+        ReadBytes(&info, array, info.fileSize);
+        CloseFile(&info);
+        env->ReleaseByteArrayElements(ret, array, 0);
+        env->ReleaseStringUTFChars(file, path);
+        return ret;
+    }
+    return NULL;
+}
+
+void ShowLoadingIcon() {
+    auto* jni = GetJNISetup();
+    jni->env->CallVoidMethod(jni->thiz, showLoading);
+}
+
+void HideLoadingIcon() {
+    auto* jni = GetJNISetup();
+    jni->env->CallVoidMethod(jni->thiz, hideLoading);
+}
+
+void SetLoadingIcon() {
+    auto* jni = GetJNISetup();
+    // cheating time
+    jstring name = jni->env->NewStringUTF("Data/Sprites/Android/Loading.bin");
+    jbyteArray waitSpinner = jniname(nativeLoadFile, RSDK)(jni->env, jni->clazz, name);
+    if (!waitSpinner) {
+        name = jni->env->NewStringUTF("Data/Sprites/UI/WaitSpinner.bin");
+        waitSpinner = jniname(nativeLoadFile, RSDK)(jni->env, jni->clazz, name);
+    }
+    jni->env->CallVoidMethod(jni->thiz, setLoading, waitSpinner);
+}
+
 
 void AndroidCommandCallback(android_app *app, int32 cmd)
 {

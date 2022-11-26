@@ -39,8 +39,8 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         int32 shader = videoSettings.shaderID;
         strcpy(gameVerInfo.gameTitle, "RSDK" ENGINE_V_NAME);
         if (RenderDevice::Init()) {
-            RenderDevice::isRunning = true;
-            currentScreen = &screens[0];
+            RenderDevice::isRunning   = true;
+            currentScreen             = &screens[0];
             videoSettings.screenCount = 1;
         }
         else {
@@ -263,6 +263,10 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #endif
                 }
 
+#if RETRO_PLATFORM == RETRO_ANDROID
+            HideLoadingIcon(); // best spot to do it
+#endif
+
                 if (videoSettings.windowState != WINDOWSTATE_ACTIVE)
                     continue;
 
@@ -339,8 +343,8 @@ void RSDK::ProcessEngine()
             }
             else {
 #if RETRO_USE_MOD_LOADER
-            if (devMenu.modsChanged)
-                RefreshModFolders();
+                if (devMenu.modsChanged)
+                    RefreshModFolders();
 #endif
                 LoadSceneFolder();
                 LoadSceneAssets();
@@ -366,6 +370,7 @@ void RSDK::ProcessEngine()
                 SKU::LoadAchievementAssets();
 #endif
             }
+
             break;
 
         case ENGINESTATE_REGULAR:
@@ -387,6 +392,7 @@ void RSDK::ProcessEngine()
             SKU::ProcessAchievements();
 #endif
             ProcessObjectDrawLists();
+
             break;
 
         case ENGINESTATE_PAUSED:
@@ -617,6 +623,10 @@ void RSDK::ParseArguments(int32 argc, char *argv[])
 
 void RSDK::InitEngine()
 {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    ShowLoadingIcon(); // if valid
+#endif
+
 #if RETRO_REV0U
     switch (engine.version) {
         case 5:
@@ -706,6 +716,9 @@ void RSDK::InitEngine()
 #endif
     engine.initialized = true;
     engine.hardPause   = false;
+#if RETRO_PLATFORM == RETRO_ANDROID
+    SetLoadingIcon();
+#endif
 }
 
 void RSDK::StartGameObjects()

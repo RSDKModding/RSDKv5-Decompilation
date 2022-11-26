@@ -2,12 +2,12 @@ package org.rems.rsdkv5;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +15,9 @@ import java.util.Stack;
 
 import com.google.androidgamesdk.GameActivity;
 
+import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -25,10 +27,14 @@ import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -44,6 +50,18 @@ public class RSDK extends GameActivity {
     private static Uri basePath = null;
     private static OutputStream log = null;
     private static String pathString = null;
+
+    private static ContentProviderClient cpc = null;
+
+    private LoadingIcon loadingIcon;
+
+    public int pixWidth;
+    public int pixHeight;
+
+    public void setPixSize(int width, int height) {
+        pixWidth = width;
+        pixHeight = height;
+    }
 
     private void hideSystemUI() {
 
@@ -86,6 +104,8 @@ public class RSDK extends GameActivity {
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        cpc = getContentResolver().acquireContentProviderClient(basePath.getAuthority());
+
         try {
             ParcelFileDescriptor.adoptFd(getFD("log.txt".getBytes(), (byte)'a')).close();
         } catch (IOException e) {
@@ -102,7 +122,22 @@ public class RSDK extends GameActivity {
             e.printStackTrace();
         }
 
+        loadingIcon = new LoadingIcon(this, this);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onCreateSurfaceView() {
+        this.mSurfaceView = new GameActivity.InputEnabledSurfaceView(this);
+        FrameLayout frameLayout = new FrameLayout(this);
+        this.contentViewId = ViewCompat.generateViewId();
+        frameLayout.setId(this.contentViewId);
+        frameLayout.addView(this.mSurfaceView);
+        frameLayout.addView(loadingIcon);
+        this.setContentView(frameLayout);
+        frameLayout.requestFocus();
+        this.mSurfaceView.getHolder().addCallback(this);
+        ViewCompat.setOnApplyWindowInsetsListener(this.mSurfaceView, this);
     }
 
     @Override
@@ -113,6 +148,7 @@ public class RSDK extends GameActivity {
         } catch (Exception e) {
         }
         finishActivity(RESULT_OK);
+        cpc.close();
         super.onDestroy();
     }
 
@@ -179,10 +215,19 @@ public class RSDK extends GameActivity {
         return true;
     }
 
+    public void setLoadingIcon(byte[] waitSpinner) throws IOException {
+        loadingIcon.loadAnimationFiles(waitSpinner);
+    }
+
+    // public static native LoadingIcon.ImageInfo nativeLoadSheet(String image);
+
+    public static native byte[] nativeLoadFile(String file);
     public static native void nativeOnTouch(int fingerID, int action, float x, float y);
 
     public int getFD(byte[] file, byte mode) {
-        String useMode, filepath = new String(file);
+        String filepath = new String(file);
+        String useMode;
+        // long start = System.nanoTime();
         switch (mode) {
             case 'a':
                 useMode = "wa";
@@ -196,9 +241,11 @@ public class RSDK extends GameActivity {
         }
         try {
             Uri uri = basePath.buildUpon().encodedPath(pathString + Uri.encode(filepath)).build();
-            ParcelFileDescriptor parcel = getContentResolver().openFileDescriptor(uri, useMode);
-            int fd = parcel.dup().detachFd();
-            parcel.close();
+
+            AssetFileDescriptor jFd = cpc.openAssetFile(uri, useMode);
+            int fd = jFd.getParcelFileDescriptor().dup().detachFd();
+            jFd.close();
+            // Log.d("RSDKv5-J", Long.toString(System.nanoTime() - start));
             return fd;
         } catch (Exception e) {
             try {
@@ -212,6 +259,7 @@ public class RSDK extends GameActivity {
                     ParcelFileDescriptor parcel = getContentResolver().openFileDescriptor(uri, useMode);
                     int fd = parcel.dup().detachFd();
                     parcel.close();
+                    // Log.d("RSDKv5-J", Long.toString(System.nanoTime() - start));
                     return fd;
                 }
             } catch (Exception ex) {
@@ -288,7 +336,7 @@ public class RSDK extends GameActivity {
             Cursor c = null;
             try {
                 c = docs.peek();
-                c.moveToNext();
+                if (!c.moveToNext()) throw new NullPointerException();
                 Uri uri = DocumentsContract.buildDocumentUriUsingTree(base, c.getString(0));
                 if (c.getString(1).equals(Document.MIME_TYPE_DIR)) {
                     docs.push(resolver.query(
@@ -303,7 +351,7 @@ public class RSDK extends GameActivity {
                 String seg = uri.getLastPathSegment();
                 return seg.substring(seg.indexOf(path));
             } catch (EmptyStackException e) {
-                iterators.remove(path);
+                iterators.remove(path.getBytes());
                 return null;
             } catch (Exception e) {
                 c.close();
@@ -319,4 +367,11 @@ public class RSDK extends GameActivity {
         return iter.next();
     }
 
+    public void showLoadingIcon() {
+        loadingIcon.show();
+    }
+
+    public void hideLoadingIcon() {
+        loadingIcon.hide();
+    }
 }
