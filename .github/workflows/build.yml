@@ -1,0 +1,133 @@
+name: Build RSDKv5
+
+on: workflow_dispatch
+
+# each artifact is like 15MB so we'll start by only doing it manually
+# on:
+#   push:
+#     branches:
+#       - master
+
+# TODO: readd with: submodules: recursive once we can
+
+jobs:
+  v5-windows:
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: true
+          install: pkg-config make git mingw-w64-i686-gcc mingw-w64-i686-libogg mingw-w64-i686-libtheora
+      - name: Build RSDKv5 + U
+        run: |
+          make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 clean-rsdk
+          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
+      - name: Move artifacts
+        run: |
+          mkdir artifacts
+          mv ./bin/Windows/DX9/*.exe ./artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: v5-windows
+          path: artifacts
+  v5-windows-x64:
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: pkg-config make git mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libtheora
+      - name: Build RSDKv5 + U
+        run: |
+          make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 clean-rsdk
+          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
+      - name: Move artifacts
+        run: |
+          mkdir artifacts
+          mv ./bin/Windows/DX9/*.exe ./artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: v5-windows-x64
+          path: artifacts
+  v5-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libogg-dev libsdl2-dev libtheora-dev libglew-dev libglfw3-dev
+      - name: Build RSDKv5 + U OGL
+        run: |
+          make -j8 RSDK_ONLY=1 AUTOBUILD=1
+          make -j8 clean-rsdk
+          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
+      - name: Build RSDKv5 + U SDL2
+        run: |
+          make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 AUTOBUILD=1
+          make -j8 clean-rsdk
+          make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 RSDK_REVISION=3 AUTOBUILD=1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: v5-linux
+          path: bin/Linux
+  v5-android:
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: pkg-config make git mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libtheora               
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "zulu"
+          java-version: 11
+      - name: Build RSDKv5 Android
+        working-directory: ./android
+        run: |
+          ./gradlew.bat assembleDebug --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a"
+      - name: Move artifacts
+        run: |
+          mkdir artifacts
+          mv ./android/app/build/outputs/apk/debug ./artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: v5-android
+          path: artifacts          
