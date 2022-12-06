@@ -32,8 +32,8 @@ jobs:
           install: pkg-config make git mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libtheora
       - name: Download GLEW
         run: |
-          Invoke-WebRequest -Uri "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip" -OutFile "GLEW.zip"
-          Expand-Archive -Path GLEW.zip -DestinationPath ./dependencies/android/
+          Invoke-WebRequest -Uri "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip" -OutFile "glew-2.2.0-win32.zip"
+          Expand-Archive -Path glew-2.2.0-win32.zip -DestinationPath ./dependencies/android/
           Rename-Item ./dependencies/android/glew-2.2.0 glew                 
       - name: Set up Java
         uses: actions/setup-java@v2
