@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 jobs: 
-  v5-windows-x64:
+  v5-android:
     runs-on: windows-2022
     defaults:
       run:
