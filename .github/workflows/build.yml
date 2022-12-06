@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 jobs: 
-  v2-android:
+  v5-android:
     runs-on: windows-latest
     steps:
       - name: Checkout repository Android
@@ -59,7 +59,7 @@ jobs:
         with:
           distribution: "zulu"
           java-version: 11
-      - name: Build RSDKv2 Android
+      - name: Build RSDKv5 Android
         working-directory: ./android
         run: |
           ./gradlew.bat assembleDebug --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a"
