@@ -1,99 +1,71 @@
-name: Build RSDKv5
+# This is a basic workflow to help you get started with Actions
 
-on: workflow_dispatch
+name: RSDKv5 Android Build
 
-# each artifact is like 15MB so we'll start by only doing it manually
-# on:
-#   push:
-#     branches:
-#       - master
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-# TODO: readd with: submodules: recursive once we can
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
-jobs:
-  v5-windows:
-    runs-on: windows-2022
-    defaults:
-      run:
-        shell: msys2 {0}
+jobs: 
+  v2-android:
+    runs-on: windows-latest
     steps:
-      - name: Checkout 
+      - name: Checkout repository Android
         uses: actions/checkout@v2
         with:
-          submodules: recursive
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW32
-          update: true
-          install: pkg-config make git mingw-w64-i686-gcc mingw-w64-i686-libogg mingw-w64-i686-libtheora
-      - name: Build RSDKv5 + U
+          submodules: recursive    
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      - name: Download libogg, libvorbis, and libtheora for easier includes
         run: |
-          make -j8 RSDK_ONLY=1 AUTOBUILD=1
-          make -j8 clean-rsdk
-          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
-      - name: Move artifacts
+          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/vorbis/libvorbis-1.3.7.zip" -OutFile "libvorbis.zip"
+          Expand-Archive -Path libvorbis.zip -DestinationPath ./dependencies/android/
+          Rename-Item ./dependencies/android/libvorbis-1.3.7 libvorbis
+          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/ogg/libogg-1.3.5.zip" -OutFile "libogg.zip"
+          Expand-Archive -Path libogg.zip -DestinationPath ./dependencies/android/app/jni/src/dependencies/android/
+          Rename-Item ./dependencies/android/app/jni/src/dependencies/android/libogg-1.3.5 libogg
+          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/theora/libtheora-1.1.1.zip" -OutFile "libtheora.zip"
+          Expand-Archive -Path libtheora.zip -DestinationPath ./dependencies/android
+          Rename-Item ./dependencies/android/libtheora-1.1.1 libtheora   
+      - name: Download GLEW
         run: |
-          mkdir artifacts
-          mv ./bin/Windows/DX9/*.exe ./artifacts
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1.0.0
-        with:
-          name: v5-windows
-          path: artifacts
-  v5-windows-x64:
-    runs-on: windows-2022
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: pkg-config make git mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libtheora
-      - name: Build RSDKv5 + U
+          Invoke-WebRequest -Uri "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip" -OutFile "GLEW.zip"
+          Expand-Archive -Path GLEW.zip -DestinationPath ./dependencies/android/
+          Rename-Item ./dependencies/android/glew-2.2.0 glew          
+      - name: Run vcpkg
         run: |
-          make -j8 RSDK_ONLY=1 AUTOBUILD=1
-          make -j8 clean-rsdk
-          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
-      - name: Move artifacts
+          vcpkg install libogg:x86-windows-static libvorbis:x86-windows-static libtheora:x86-windows-static
+          vcpkg integrate install          
+      - name: Download SDL2
         run: |
-          mkdir artifacts
-          mv ./bin/Windows/DX9/*.exe ./artifacts
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1.0.0
+          Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-devel-2.0.14-VC.zip" -OutFile "SDL2.zip"
+          Expand-Archive -Path SDL2.zip -DestinationPath ./dependencies/android/
+          Rename-Item ./dependencies/android/SDL2-2.0.14 SDL2
+      - name: Move & Copy stuff
+        run: |
+          Copy-Item -Path ./dependencies/all/theoraplay -Destination ./dependencies/android/app/jni/src/dependencies/android/
+          Copy-Item -Path ./dependencies/android/app/jni/src/dependencies/android\* -Destination ./dependencies/
+          Copy-Item -Path ./dependencies/android/app/jni/src/dependencies/android/libogg/ -Destination ./dependencies/android/ -recurse
+          Copy-Item -Path ./dependencies/android/config_types.h -Destination ./dependencies/android/libogg/include/ogg/
+      - name: Set up Java
+        uses: actions/setup-java@v2
         with:
-          name: v5-windows-x64
-          path: artifacts
-  v5-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
+          distribution: "zulu"
+          java-version: 11
+      - name: Build RSDKv2 Android
+        working-directory: ./android
+        run: |
+          ./gradlew.bat assembleDebug --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a"
+      - name: Upload artifact Android
+        uses: actions/upload-artifact@v2
         with:
-          submodules: recursive
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install libogg-dev libsdl2-dev libtheora-dev libglew-dev libglfw3-dev
-      - name: Build RSDKv5 + U OGL
-        run: |
-          make -j8 RSDK_ONLY=1 AUTOBUILD=1
-          make -j8 clean-rsdk
-          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
-      - name: Build RSDKv5 + U SDL2
-        run: |
-          make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 AUTOBUILD=1
-          make -j8 clean-rsdk
-          make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 RSDK_REVISION=3 AUTOBUILD=1
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1.0.0
-        with:
-          name: v5-linux
-          path: bin/Linux
+          name: v5-android
+          path: ./android/app/build/outputs/apk
+  
