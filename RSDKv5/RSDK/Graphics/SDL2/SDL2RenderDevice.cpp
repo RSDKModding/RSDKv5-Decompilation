@@ -16,6 +16,8 @@ RenderVertex RenderDevice::vertexBuffer[!RETRO_REV02 ? 24 : 60];
 
 uint8 RenderDevice::lastTextureFormat = -1;
 
+bool fullscreen_state=false,bordered_state=false;
+
 #define NORMALIZE(val, minVal, maxVal) ((float)(val) - (float)(minVal)) / ((float)(maxVal) - (float)(minVal))
 
 bool RenderDevice::Init()
@@ -60,12 +62,15 @@ bool RenderDevice::Init()
         SDL_RestoreWindow(window);
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_FALSE);
+        fullscreen_state = true;
     }
 
     if (!videoSettings.bordered) {
         SDL_RestoreWindow(window);
         SDL_SetWindowBordered(window, SDL_FALSE);
     }
+    else
+        bordered_state = true;
 
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", videoSettings.windowWidth, videoSettings.windowHeight, videoSettings.windowed);
 
@@ -344,42 +349,47 @@ void RenderDevice::RefreshWindow()
 
     SDL_HideWindow(window);
 
-    if (videoSettings.windowed && videoSettings.bordered)
+    if (videoSettings.bordered && !bordered_state){
         SDL_SetWindowBordered(window, SDL_TRUE);
-    else
+        bordered_state=true;
+    }
+    else if (!videoSettings.bordered && bordered_state){
         SDL_SetWindowBordered(window, SDL_FALSE);
-
+        bordered_state=false;
+    }
     GetDisplays();
 
     SDL_Rect winRect;
     winRect.x = SDL_WINDOWPOS_CENTERED;
     winRect.y = SDL_WINDOWPOS_CENTERED;
-    if (videoSettings.windowed || !videoSettings.exclusiveFS) {
-        int32 currentWindowDisplay = SDL_GetWindowDisplayIndex(window);
-        SDL_DisplayMode displayMode;
-        SDL_GetCurrentDisplayMode(currentWindowDisplay, &displayMode);
+    int32 currentWindowDisplay = SDL_GetWindowDisplayIndex(window);
+    SDL_DisplayMode displayMode;
+    SDL_GetCurrentDisplayMode(currentWindowDisplay, &displayMode);
 
-        if (videoSettings.windowed) {
-            if (videoSettings.windowWidth >= displayMode.w || videoSettings.windowHeight >= displayMode.h) {
-                videoSettings.windowWidth  = (displayMode.h / 480 * videoSettings.pixWidth);
-                videoSettings.windowHeight = displayMode.h / 480 * videoSettings.pixHeight;
-            }
-
-            winRect.w = videoSettings.windowWidth;
-            winRect.h = videoSettings.windowHeight;
-            SDL_SetWindowFullscreen(window, SDL_FALSE);
-            SDL_ShowCursor(SDL_FALSE);
-        }
-        else {
-            winRect.w = displayMode.w;
-            winRect.h = displayMode.h;
-            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-            SDL_ShowCursor(SDL_TRUE);
+    if (videoSettings.windowed && fullscreen_state) {
+        if (videoSettings.windowWidth >= displayMode.w || videoSettings.windowHeight >= displayMode.h) {
+            videoSettings.windowWidth  = (displayMode.h / 480 * videoSettings.pixWidth);
+            videoSettings.windowHeight = displayMode.h / 480 * videoSettings.pixHeight;
         }
 
-        SDL_SetWindowSize(window, winRect.w, winRect.h);
-        SDL_SetWindowPosition(window, winRect.x, winRect.y);
+        winRect.w = videoSettings.windowWidth;
+        winRect.h = videoSettings.windowHeight;
+        SDL_SetWindowFullscreen(window, SDL_FALSE);
+        SDL_ShowCursor(SDL_FALSE);
+        fullscreen_state = false;
+        SDL_SetWindowBordered(window,videoSettings.bordered?SDL_TRUE:SDL_FALSE);
+        bordered_state = videoSettings.bordered;
     }
+    else if(!videoSettings.windowed && !fullscreen_state){
+        winRect.w = displayMode.w;
+        winRect.h = displayMode.h;
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_ShowCursor(SDL_TRUE);
+        fullscreen_state = true;
+    }
+
+    SDL_SetWindowSize(window, winRect.w, winRect.h);
+    SDL_SetWindowPosition(window, winRect.x, winRect.y);
 
     SDL_ShowWindow(window);
 
@@ -692,10 +702,13 @@ void RenderDevice::ProcessEvent(SDL_Event event)
         case SDL_WINDOWEVENT:
             switch (event.window.event) {
                 case SDL_WINDOWEVENT_MAXIMIZED: {
-                    SDL_RestoreWindow(window);
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                    SDL_ShowCursor(SDL_FALSE);
-                    videoSettings.windowed = false;
+                    if(!fullscreen_state){
+                        SDL_RestoreWindow(window);
+                        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        SDL_ShowCursor(SDL_FALSE);
+                        videoSettings.windowed = false;
+                        fullscreen_state=true;
+                    }
                     break;
                 }
 
