@@ -248,6 +248,8 @@ private:
 #include "SDL2/SDL2RenderDevice.hpp"
 #elif RETRO_RENDERDEVICE_GLFW
 #include "GLFW/GLFWRenderDevice.hpp"
+#elif RETRO_RENDERDEVICE_VK
+#include "Vulkan/VulkanRenderDevice.hpp"
 #elif RETRO_RENDERDEVICE_EGL
 #include "EGL/EGLRenderDevice.hpp"
 #endif

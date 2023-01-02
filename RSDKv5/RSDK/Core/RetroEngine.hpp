@@ -169,6 +169,7 @@ enum GameRegions {
 // CUSTOM
 #define RETRO_RENDERDEVICE_SDL2 (0)
 #define RETRO_RENDERDEVICE_GLFW (0)
+#define RETRO_RENDERDEVICE_VK   (0)
 #define RETRO_RENDERDEVICE_EGL  (0)
 
 // ============================
@@ -277,6 +278,16 @@ enum GameRegions {
 
 #undef RETRO_INPUTDEVICE_GLFW
 #define RETRO_INPUTDEVICE_GLFW (1)
+
+#elif defined(RSDK_USE_VK)
+#undef RETRO_RENDERDEVICE_VK
+#define RETRO_RENDERDEVICE_VK (1)
+
+#if defined(VULKAN_USE_GLFW)
+#undef RETRO_INPUTDEVICE_GLFW
+#define RETRO_INPUTDEVICE_GLFW (1)
+#endif
+
 #else
 #error One of RSDK_USE_DX9, RSDK_USE_DX11, RSDK_USE_SDL2, or RSDK_USE_OGL must be defined.
 #endif
@@ -408,6 +419,14 @@ enum GameRegions {
 #elif RETRO_RENDERDEVICE_GLFW
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#elif RETRO_RENDERDEVICE_VK
+
+#ifdef VULKAN_USE_GLFW
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#endif
+
 #endif
 
 #endif // ! RETRO_WIN
