@@ -313,11 +313,12 @@ enum GameRegions {
 
 #elif RETRO_PLATFORM == RETRO_LINUX
 
+#undef RETRO_AUDIODEVICE_SDL2
+#define RETRO_AUDIODEVICE_SDL2 (1)
+
 #ifdef RSDK_USE_SDL2
 #undef RETRO_RENDERDEVICE_SDL2
 #define RETRO_RENDERDEVICE_SDL2 (1)
-#undef RETRO_AUDIODEVICE_SDL2
-#define RETRO_AUDIODEVICE_SDL2 (1)
 #undef RETRO_INPUTDEVICE_SDL2
 #define RETRO_INPUTDEVICE_SDL2 (1)
 
@@ -326,11 +327,18 @@ enum GameRegions {
 #define RETRO_RENDERDEVICE_GLFW (1)
 #undef RETRO_INPUTDEVICE_GLFW
 #define RETRO_INPUTDEVICE_GLFW (1)
-#undef RETRO_AUDIODEVICE_SDL2
-#define RETRO_AUDIODEVICE_SDL2 (1)
+
+#elif defined(RSDK_USE_VK)
+#undef RETRO_RENDERDEVICE_VK
+#define RETRO_RENDERDEVICE_VK (1)
+
+#if defined(VULKAN_USE_GLFW)
+#undef RETRO_INPUTDEVICE_GLFW
+#define RETRO_INPUTDEVICE_GLFW (1)
+#endif
 
 #else
-#error RSDK_USE_SDL2 or RSDK_USE_OGL must be defined.
+#error RSDK_USE_SDL2, RSDK_USE_OGL or RSDK_USE_VK must be defined.
 #endif //! RSDK_USE_SDL2
 
 #elif RETRO_PLATFORM == RETRO_SWITCH
@@ -446,6 +454,16 @@ enum GameRegions {
 #include <glad/glad.h>
 #include <EGL/egl.h> // EGL library
 #include <EGL/eglext.h> // EGL extensions
+
+#elif RETRO_RENDERDEVICE_VK
+#if RETRO_PLATFORM == RETRO_LINUX
+
+#ifdef VULKAN_USE_GLFW
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#endif
+
+#endif
 #endif
 
 #if RETRO_PLATFORM == RETRO_SWITCH
