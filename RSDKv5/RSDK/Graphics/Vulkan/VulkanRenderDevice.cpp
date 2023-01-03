@@ -616,7 +616,7 @@ bool RenderDevice::InitGraphicsAPI()
     swapCreateInfo.presentMode    = pickedMode;
     swapCreateInfo.clipped        = VK_TRUE;
 
-    swapCreateInfo.oldSwapchain = swapChain;
+    // swapCreateInfo.oldSwapchain = swapChain;
 
     if (vkCreateSwapchainKHR(device, &swapCreateInfo, nullptr, &swapChain) != VK_SUCCESS) {
         PrintLog(PRINT_NORMAL, "[VK] Failed to create swapchain");
@@ -1098,6 +1098,7 @@ bool RenderDevice::InitGraphicsAPI()
     poolInfo.poolSizeCount = 2;
     poolInfo.pPoolSizes    = poolSizes;
     poolInfo.maxSets       = 1;
+    poolInfo.flags         = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
     if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
         PrintLog(PRINT_NORMAL, "[VK] Failed to create descriptor pool");
@@ -1573,6 +1574,20 @@ void RenderDevice::FlipScreen()
     vkQueuePresentKHR(presentQueue, &presentInfo);
 }
 
+void RenderDevice::ReleaseShaderPipelines()
+{
+    vkDeviceWaitIdle(device);
+
+    for (int32 i = 0; i < shaderCount; ++i) {
+        vkDestroyPipeline(device, shaderList[i].shaderPipeline, nullptr);
+    }
+
+    shaderCount = 0;
+#if RETRO_USE_MOD_LOADER
+    userShaderCount = 0;
+#endif
+}
+
 void RenderDevice::Release(bool32 isRefresh)
 {
     vkDeviceWaitIdle(device);
@@ -1587,14 +1602,7 @@ void RenderDevice::Release(bool32 isRefresh)
 
     vkDestroySwapchainKHR(device, swapChain, nullptr);
 
-    for (int32 i = 0; i < shaderCount; ++i) {
-        vkDestroyPipeline(device, shaderList[i].shaderPipeline, nullptr);
-    }
-
-    shaderCount = 0;
-#if RETRO_USE_MOD_LOADER
-    userShaderCount = 0;
-#endif
+    ReleaseShaderPipelines();
 
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
@@ -1602,7 +1610,9 @@ void RenderDevice::Release(bool32 isRefresh)
     vkDestroyBuffer(device, uniformBuffer, nullptr);
     vkFreeMemory(device, uniformBufferMemory, nullptr);
 
+    vkFreeDescriptorSets(device, descriptorPool, 1, &descriptorSet);
     vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+    vkDestroyDescriptorSetLayout(device, setLayout, nullptr);
 
     vkDestroySampler(device, samplerPoint, nullptr);
     vkDestroySampler(device, samplerLinear, nullptr);
@@ -1613,6 +1623,10 @@ void RenderDevice::Release(bool32 isRefresh)
         vkUnmapMemory(device, screenTextures[i].memory);
         vkFreeMemory(device, screenTextures[i].memory, nullptr);
     }
+    vkDestroyImageView(device, imageTexture.view, nullptr);
+    vkDestroyImage(device, imageTexture.image, nullptr);
+    vkUnmapMemory(device, imageTexture.memory);
+    vkFreeMemory(device, imageTexture.memory, nullptr);
 
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
@@ -1622,10 +1636,6 @@ void RenderDevice::Release(bool32 isRefresh)
     vkDestroyFence(device, inFlightFence, nullptr);
 
     vkDestroyCommandPool(device, commandPool, nullptr);
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
-
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 
     vkDestroySurfaceKHR(instance, surface, nullptr);
     glfwDestroyWindow(window);
@@ -1732,6 +1742,11 @@ bool RenderDevice::InitShaders()
         descriptorWrites[1].pBufferInfo     = &bufferInfo;
 
         vkUpdateDescriptorSets(device, 2, descriptorWrites, 0, nullptr);
+    }
+
+    // Release old shader pipelines
+    if (shaderCount) {
+        ReleaseShaderPipelines();
     }
 
     videoSettings.shaderSupport = true;
