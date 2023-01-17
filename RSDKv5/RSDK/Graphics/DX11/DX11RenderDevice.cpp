@@ -1980,7 +1980,7 @@ void RenderDevice::SetupVideoTexture_YUV422(int32 width, int32 height, uint8 *yP
             }
 
             pixels = (DWORD *)mappedResource.pData;
-            pitch  = (rect.Pitch >> 2) - (width >> 1);
+            pitch  = (mappedResource.RowPitch >> 2) - (width >> 1);
             for (int32 y = 0; y < height; ++y) {
                 for (int32 x = 0; x < (width >> 1); ++x) {
                     *pixels++ |= (vPlane[x] << 0) | (uPlane[x] << 8) | 0xFF000000;
