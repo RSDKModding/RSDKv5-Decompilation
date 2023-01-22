@@ -5,14 +5,12 @@
 	path = dependencies/all/stb_vorbis
 	url = https://github.com/nothings/stb
 [submodule "dependencies/windows/libtheora"]
-    	path = dependencies/windows/libtheora
-    	url = https://github.com/xiph/theora
-    	branch = master
+	path = dependencies/windows/libtheora
+	url = https://github.com/xiph/theora/
 [submodule "dependencies/windows/libogg"]
-    	path = dependencies/windows/libogg
-    	url = https://github.com/Jackcool476/libogg
-    	branch = master
+	path = dependencies/windows/libogg
+	url = https://github.com/Jackcool476/libogg
 [submodule "dependencies/windows/SDL2"]
-    	path = dependencies/windows/SDL2
-    	url = https://github.com/libsdl-org/SDL
-    	branch = SDL2
+	path = dependencies/windows/SDL2
+	url = https://github.com/libsdl-org/SDL/
+	branch = SDL2
