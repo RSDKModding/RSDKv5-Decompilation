@@ -193,7 +193,7 @@ namespace RSDK
 {
 void DevMenu_HandleTouchControls(int8 cornerButton)
 {
-    bool32 cornerCheck = cornerButton != CORNERBUTTON_START ? (!controller[CONT_ANY].keyUp.down && !controller[CONT_ANY].keyDown.down)
+    bool32 cornerCheck = cornerButton != CORNERBUTTON_START ? !controller[CONT_ANY].keyLeft.down && !controller[CONT_ANY].keyRight.down
                                                             : !controller[CONT_ANY].keyStart.down;
 
     if (cornerCheck && !controller[CONT_ANY].keyUp.down && !controller[CONT_ANY].keyDown.down) {
