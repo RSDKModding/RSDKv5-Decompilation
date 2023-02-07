@@ -531,6 +531,8 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
                     PrintLog(PRINT_NORMAL, "[MOD] Loaded mod %s! Active: %s", info.id.c_str(), active ? "Y" : "N");
                 modList.push_back(info);
             }
+            delete[] keys;
+            iniparser_freedict(ini);
         }
 
         try {
@@ -574,33 +576,34 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
 
 void loadCfg(ModInfo *info, std::string path)
 {
-    FileInfo *cfg     = new FileInfo();
-    cfg->externalFile = true;
+    FileInfo cfg;
+    InitFileInfo(&cfg);
+    cfg.externalFile = true;
     // CFG FILE READ
-    if (LoadFile(cfg, path.c_str(), FMODE_RB)) {
-        int32 catCount = ReadInt8(cfg);
+    if (LoadFile(&cfg, path.c_str(), FMODE_RB)) {
+        int32 catCount = ReadInt8(&cfg);
         for (int32 c = 0; c < catCount; ++c) {
             char catBuf[0x100];
-            ReadString(cfg, catBuf);
-            int32 keyCount = ReadInt8(cfg);
+            ReadString(&cfg, catBuf);
+            int32 keyCount = ReadInt8(&cfg);
             for (int32 k = 0; k < keyCount; ++k) {
                 // ReadString except w packing the type bit
-                uint8 size   = ReadInt8(cfg);
+                uint8 size   = ReadInt8(&cfg);
                 char *keyBuf = new char[size & 0x7F];
-                ReadBytes(cfg, keyBuf, size & 0x7F);
+                ReadBytes(&cfg, keyBuf, size & 0x7F);
                 keyBuf[size & 0x7F] = 0;
                 uint8 type          = size & 0x80;
                 if (!type) {
                     char buf[0xFFFF];
-                    ReadString(cfg, buf);
+                    ReadString(&cfg, buf);
                     info->config[catBuf][keyBuf] = buf;
                 }
                 else
-                    info->config[catBuf][keyBuf] = std::to_string(ReadInt32(cfg, false));
+                    info->config[catBuf][keyBuf] = std::to_string(ReadInt32(&cfg, false));
             }
         }
 
-        CloseFile(cfg);
+        CloseFile(&cfg);
     }
 }
 
