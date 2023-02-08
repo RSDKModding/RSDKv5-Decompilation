@@ -419,10 +419,16 @@ void RSDK::LoadSettingsINI()
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
-        // using standard allocation here due to mod loader trickery
-        gamePadMappings = new GamePadMappings[gamePadCount];
+        if (gamePadCount) {
+#endif
+#if RETRO_USE_MOD_LOADER
+            // using standard allocation here due to mod loader trickery
+            gamePadMappings = new GamePadMappings[gamePadCount];
 #else
-        AllocateStorage((void **)&gamePadMappings, sizeof(GamePadMappings) * gamePadCount, DATASET_STG, true);
+            AllocateStorage((void **)&gamePadMappings, sizeof(GamePadMappings) * gamePadCount, DATASET_STG, true);
+#endif
+#if !RETRO_USE_ORIGINAL_CODE
+        }
 #endif
 
         for (int32 i = 0; i < gamePadCount; ++i) {
@@ -720,7 +726,7 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
         fClose(file);
     }
 
-#if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_MOD_LOADER
     if (gamePadCount && gamePadMappings)
         delete[] gamePadMappings;
     gamePadMappings = NULL;
