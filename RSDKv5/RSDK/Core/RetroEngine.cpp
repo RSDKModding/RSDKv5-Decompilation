@@ -84,6 +84,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         videoSettings.shaderID = shader;
         RenderDevice::InitShaders();
         RenderDevice::SetWindowTitle();
+        RenderDevice::lastShaderID = -1;
 #else
         if (RenderDevice::Init()) {
             RenderDevice::isRunning = true;

@@ -647,7 +647,9 @@ bool RenderDevice::InitShaders()
 {
     videoSettings.shaderSupport = true;
     int32 maxShaders            = 0;
+#if RETRO_USE_MOD_LOADER
     shaderCount                 = 0;
+#endif
 
     LoadShader("None", false);
     LoadShader("Clean", true);

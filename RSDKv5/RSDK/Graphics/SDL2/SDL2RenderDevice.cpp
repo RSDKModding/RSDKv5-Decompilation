@@ -555,6 +555,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear) { PrintLog(PR
 bool RenderDevice::InitShaders()
 {
     int32 maxShaders = 0;
+#if RETRO_USE_MOD_LOADER
+    // who knows maybe SDL3 will have shaders
+    shaderCount = 0;
+#endif
+
     if (videoSettings.shaderSupport) {
         LoadShader("None", false);
         LoadShader("Clean", true);
@@ -919,7 +924,7 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                         // Quick-Reload
 #if RETRO_USE_MOD_LOADER
                         if (event.key.keysym.mod & KMOD_LCTRL)
-                            RefreshModFolders();   
+                            RefreshModFolders();
 #endif
 
 #if RETRO_REV0U

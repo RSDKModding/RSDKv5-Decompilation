@@ -938,6 +938,8 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 
                 return;
             }
+#pragma comment( lib, "dxguid.lib")
+            shader->vertexShaderObject->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(fileName), fileName);
         }
 
         bytecode     = shaderBlob->GetBufferPointer();
@@ -1139,6 +1141,10 @@ bool RenderDevice::InitShaders()
     }
 
     int32 maxShaders = 0;
+#if RETRO_USE_MOD_LOADER
+    shaderCount = 0;
+#endif
+
     if (videoSettings.shaderSupport) {
         LoadShader("None", false);
         LoadShader("Clean", true);
@@ -1561,7 +1567,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                         // Quick-Reload
 #if RETRO_USE_MOD_LOADER
                         if (GetAsyncKeyState(VK_CONTROL))
-                            RefreshModFolders();   
+                            RefreshModFolders();
 #endif
 
 #if RETRO_REV0U

@@ -889,6 +889,11 @@ bool RenderDevice::InitShaders()
     dx9Device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
     int32 maxShaders = 0;
+#if RETRO_USE_MOD_LOADER
+    // this causes small memleaks here and in other render devices, as we never close the existing shaders
+    // TODO: fix? 🤨
+    shaderCount = 0;
+#endif
     if (videoSettings.shaderSupport) {
         LoadShader("None", false);
         LoadShader("Clean", true);
@@ -1242,7 +1247,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                         // Quick-Reload
 #if RETRO_USE_MOD_LOADER
                         if (GetAsyncKeyState(VK_CONTROL))
-                            RefreshModFolders();                      
+                            RefreshModFolders();
 #endif
 
 #if RETRO_REV0U
