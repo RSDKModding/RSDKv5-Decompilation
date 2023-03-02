@@ -9,14 +9,14 @@
 * Ensure the symbolic links in `[root]/android/app/jni` are correct: 
   * `RSDKv5` -> root of the RSDKv5 repository
   * `Game` -> root of the Mania repository (or any other game that you may be compiling)
-  * Extra symbolic links can be added for things like mods, **as mods do not use the local files for logic.** Just ensure that there is an `Android.mk` file at the root of them. 
+  * Extra symbolic links can be added for things like mods, **as mods do not use the local files for logic.** Just ensure that there are `CMakeLists.txt` files at the root of them. 
   
     To add symbolic links, do the following:
       * Windows: `mklink /d "[name-of-symlink]" "[path]"`
       * Linux: `ln -s "[path]" "[name-of-symlink]"`
 * Open `[root]/android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 
-The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL shaders are required, or you will get a black screen.** Read the Shaders section in [the GL3 README](../gl3/README.md#shaders) for a guide on how to install them.
+The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL shaders are required, or you will get a black screen.** Read the Shaders section in [the OGL README](../ogl/README.md#shaders) for a guide on how to install them.
 
 
 ## Common build issues (Windows)

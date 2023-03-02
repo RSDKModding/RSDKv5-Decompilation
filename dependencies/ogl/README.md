@@ -5,9 +5,9 @@
 The OpenGL3 backend is mainly used on Linux and Switch, but it does support Windows too.
 
 For Windows, these need to be downloaded and extracted in their respective subdirectories 
-- **GLEW:** Download from [SourceForge](http://glew.sourceforge.net/), extract it in `dependencies/gl3/glew`
-- **GLFW:** Download from [the official site](https://www.glfw.org/download.html), extract it in `dependencies/gl3/glfw`  
-  There are also 32-bit binaries available if you need them, but make sure the RSDKv5 is built for 32-bit too!
+- **GLEW:** Download from [SourceForge](http://glew.sourceforge.net/), extract it in `dependencies/ogl/glew`
+- **GLFW:** Download from [the official site](https://www.glfw.org/download.html), extract it in `dependencies/ogl/glfw`  
+  There are also 32-bit binaries available if you need them, but make sure the RSDKv5(U) is built for 32-bit too!
 
 For Switch you'll need [devkitPro](https://devkitpro.org/) and GLAD, as GLEW and GLFW are not available. Install GLAD with `sudo dkp-pacman -S switch-glad`
 
@@ -20,7 +20,7 @@ For Linux you can install the dependencies using your distro package manager:
 
 To compile you can just use `make`. To customize the build you can set the following options
 - `PLATFORM=Switch`: Build for Nintendo Switch.
-- `RSDK_REVISION=3`: Compile with support for Origins and S1&2 for mobile. (executable is named RSDKv5U)
+- `RSDK_REVISION=2`: Compile regular RSDKv5 instead of RSDKv5U.
 - `RSDK_ONLY=1`: Only build the engine (no Game.so)
 - `AUTOBUILD=1`: Disable the Plus DLC, which you should do if you plan on distributing the binary.
 
