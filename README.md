@@ -44,8 +44,8 @@ Currently, the only officially supported platforms are the ones listed above. Ho
 You can find the FAQ [here](./FAQ.md).
 
 # Special Thanks
-* [Chuli](https://github.com/MGRich) for leading ModAPI development, porting to other platforms, general decompilation assistance, helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
-* The Weigman for creating the asset bases such as the header and icons (originally made for RSDKv3 and v4, modified by Chuli)
+* [st×tic](https://github.com/stxticOVFL) for leading ModAPI development, porting to other platforms, general decompilation assistance, helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
+* [The Weigman](https://github.com/TheWeigman) for creating the asset bases such as the header and icons (originally made for RSDKv3 and v4, modified by st×tic)
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine) for being supportive of me and for giving me a place to show off these things that I've found
 
 # Contact:
