@@ -245,26 +245,18 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
     for (int32 c = 0; c < strlen(filename); ++c) pathLower[c] = tolower(filename[c]);
 
     bool32 addPath = false;
-    if (modSettings.activeMod != -1) {
-        char buf[0x100];
-        sprintf_s(buf, sizeof(buf), "%s", fullFilePath);
-        sprintf_s(fullFilePath, sizeof(fullFilePath), "%smods/%s/%s", SKU::userFileDir, modList[modSettings.activeMod].id.c_str(), buf);
-        info->externalFile = true;
-        addPath            = false;
-    }
-    else {
-        for (int32 m = 0; m < modList.size(); ++m) {
-            if (modList[m].active) {
-                std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
-                if (iter != modList[m].fileMap.cend()) {
-                    if (std::find(modList[m].excludedFiles.begin(), modList[m].excludedFiles.end(), pathLower) == modList[m].excludedFiles.end()) {
-                        strcpy(fullFilePath, iter->second.c_str());
-                        info->externalFile = true;
-                        break;
-                    }
-                    else {
-                        PrintLog(PRINT_NORMAL, "[MOD] Excluded File: %s", pathLower);
-                    }
+    int32 m        = modSettings.activeMod != -1 ? modSettings.activeMod : 0;
+    for (; m < modList.size(); ++m) {
+        if (modList[m].active) {
+            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
+            if (iter != modList[m].fileMap.cend()) {
+                if (std::find(modList[m].excludedFiles.begin(), modList[m].excludedFiles.end(), pathLower) == modList[m].excludedFiles.end()) {
+                    strcpy(fullFilePath, iter->second.c_str());
+                    info->externalFile = true;
+                    break;
+                }
+                else {
+                    PrintLog(PRINT_NORMAL, "[MOD] Excluded File: %s", pathLower);
                 }
             }
         }
@@ -290,6 +282,8 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
         sprintf_s(pathBuf, sizeof(pathBuf), "%s%s", SKU::userFileDir, fullFilePath);
         sprintf_s(fullFilePath, sizeof(fullFilePath), "%s", pathBuf);
     }
+#else
+    (void)addPath; // unused
 #endif
 
     if (!info->externalFile && fileMode == FMODE_RB && useDataPack) {
