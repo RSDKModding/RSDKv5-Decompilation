@@ -322,6 +322,7 @@ void RSDK::LoadSettingsINI()
         customSettings.disableFocusPause         = iniparser_getboolean(ini, "Game:disableFocusPause", false);
 
 #if RETRO_REV0U
+        customSettings.forceScripts  = iniparser_getboolean(ini, "Game:txtScripts", false);
         engine.gameReleaseID = iniparser_getint(ini, "Game:gameType", 1);
 #endif
 
@@ -512,6 +513,7 @@ void RSDK::LoadSettingsINI()
         customSettings.disableFocusPause         = false;
 
 #if RETRO_REV0U
+        customSettings.forceScripts = false;
         engine.gameReleaseID = 0;
 #endif
 
@@ -609,6 +611,9 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
             WriteText(file, "region=%d\n", customSettings.region);
 
 #if RETRO_REV0U
+            WriteText(file, "; Determines if legacy modes are forced to load from the scripts folder instead of bytecode\n");
+            WriteText(file, "txtScripts=%s\n", (customSettings.forceScripts ? "y" : "n"));
+
             WriteText(file, "; Determines game type in scripts (0 = Standalone/Original releases, 1 = Origins release)\n");
             WriteText(file, "gameType=%d\n", engine.gameReleaseID);
 #endif
@@ -666,7 +671,7 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
         // ==========================
 
         // ================
-        // KE^YBOARD MAP
+        // KEYBOARD MAP
         // ================
         for (int32 i = 1; i <= PLAYER_COUNT; ++i) {
             WriteText(file, "\n[Keyboard Map %d]\n", i);

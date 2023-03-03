@@ -178,6 +178,9 @@ struct CustomSettings {
     bool32 xyButtonFlip;
     bool32 enableControllerDebugging;
     bool32 disableFocusPause;
+#if RETRO_REV0U
+    bool32 forceScripts;
+#endif
     int32 maxPixWidth;
     char username[0x80];
 };
