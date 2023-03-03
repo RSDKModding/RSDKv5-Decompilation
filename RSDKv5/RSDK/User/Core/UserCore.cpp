@@ -314,16 +314,16 @@ void RSDK::LoadSettingsINI()
 
 #if !RETRO_USE_ORIGINAL_CODE
         customSettings.region                    = iniparser_getint(ini, "Game:region", -1);
-        // customSettings.confirmButtonFlip         = iniparser_getboolean(ini, "Game:confirmButtonFlip", false);
-        // customSettings.xyButtonFlip              = iniparser_getboolean(ini, "Game:xyButtonFlip", false);
+        // customSettings.confirmButtonFlip        = iniparser_getboolean(ini, "Game:confirmButtonFlip", false);
+        // customSettings.xyButtonFlip             = iniparser_getboolean(ini, "Game:xyButtonFlip", false);
         customSettings.confirmButtonFlip         = iniparser_getboolean(ini, "Game:faceButtonFlip", false);
         customSettings.xyButtonFlip              = customSettings.confirmButtonFlip;
         customSettings.enableControllerDebugging = iniparser_getboolean(ini, "Game:enableControllerDebugging", false);
         customSettings.disableFocusPause         = iniparser_getboolean(ini, "Game:disableFocusPause", false);
 
 #if RETRO_REV0U
-        customSettings.forceScripts  = iniparser_getboolean(ini, "Game:txtScripts", false);
-        engine.gameReleaseID = iniparser_getint(ini, "Game:gameType", 1);
+        customSettings.forceScripts = iniparser_getboolean(ini, "Game:txtScripts", false);
+        engine.gameReleaseID        = iniparser_getint(ini, "Game:gameType", 1);
 #endif
 
         sprintf_s(gameLogicName, sizeof(gameLogicName), "%s", iniparser_getstring(ini, "Game:gameLogic", "Game"));

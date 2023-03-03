@@ -13,7 +13,7 @@ A: Submit an issue in the issues tab and we _might_ fix it in the main branch. D
 
 # Using Sonic Origins RSDK Files
 ### Q: Why is there no audio?
-A: Sonic Origins doesn't have any music or sound effects contained in the games' data files, instead storing and handling all in-game audio itself through Hedgehog Engine 2. You can fix this by simply inserting the audio files other versions of the games.
+A: Sonic Origins doesn't have any music or sound effects contained in the games' data files, instead storing and handling all in-game audio itself through Hedgehog Engine 2. You can fix this by simply inserting the audio files from other versions of the games.
 
 ### Q: Why is the Drop Dash disabled by default? How do I turn it on?
 A: By default, the game mode is set to Classic Mode, which disables the Drop Dash. The only way to change this is through a mod, either by changing the default value of the `game.playMode` global variable in `GameConfig.bin` or by setting the variable to another value via scripts.
