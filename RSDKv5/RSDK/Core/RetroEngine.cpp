@@ -751,7 +751,7 @@ void RSDK::LoadXMLObjects()
         SetActiveMod(m);
 
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -788,7 +788,7 @@ void RSDK::LoadXMLObjects()
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "Failed to parse game.xml File!");
+                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;
@@ -805,7 +805,7 @@ void RSDK::LoadXMLSoundFX()
     for (int32 m = 0; m < activeModCount; ++m) {
         SetActiveMod(m);
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -839,7 +839,7 @@ void RSDK::LoadXMLSoundFX()
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "Failed to parse game.xml File!");
+                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;
@@ -858,7 +858,7 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
     for (int32 m = 0; m < activeModCount; ++m) {
         SetActiveMod(m);
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -946,7 +946,7 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "Failed to parse game.xml File!");
+                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;
