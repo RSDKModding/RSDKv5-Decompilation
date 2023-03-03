@@ -468,7 +468,7 @@ void RSDK::Legacy::v3::LoadXMLVariables()
         SetActiveMod(m);
 
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -520,7 +520,7 @@ void RSDK::Legacy::v3::LoadXMLPalettes()
         SetActiveMod(m);
 
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -586,7 +586,7 @@ void RSDK::Legacy::v3::LoadXMLObjects()
         SetActiveMod(m);
 
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -633,7 +633,7 @@ void RSDK::Legacy::v3::LoadXMLObjects()
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
+                PrintLog(PRINT_NORMAL, "Failed to parse game.xml File!");
             }
 
             delete[] xmlData;
@@ -653,7 +653,7 @@ void RSDK::Legacy::v3::LoadXMLSoundFX()
         SetActiveMod(m);
 
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -689,7 +689,7 @@ void RSDK::Legacy::v3::LoadXMLSoundFX()
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
+                PrintLog(PRINT_NORMAL, "Failed to parse game.xml File!");
             }
 
             delete[] xmlData;
@@ -709,7 +709,7 @@ void RSDK::Legacy::v3::LoadXMLPlayers()
         SetActiveMod(m);
 
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -737,7 +737,7 @@ void RSDK::Legacy::v3::LoadXMLPlayers()
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
+                PrintLog(PRINT_NORMAL, "Failed to parse game.xml File!");
             }
 
             delete[] xmlData;
@@ -758,7 +758,7 @@ int32 RSDK::Legacy::v3::LoadXMLStages(int32 mode, int32 gcStageCount)
         SetActiveMod(m);
 
         InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
+        if (LoadFile(&info, "Data/Game/game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -833,7 +833,7 @@ int32 RSDK::Legacy::v3::LoadXMLStages(int32 mode, int32 gcStageCount)
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
+                PrintLog(PRINT_NORMAL, "Failed to parse game.xml File!");
             }
 
             delete[] xmlData;
