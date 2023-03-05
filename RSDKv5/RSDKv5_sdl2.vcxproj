@@ -615,7 +615,7 @@
     </Link>
     <When Condition=" '$(VCPKG)'!='Y' ">
       <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\$(Configuration)\SDL2.dll" "$(OutDir)" </Command>
+        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"</Command>
       </PostBuildEvent>
       <PostBuildEvent>
         <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
@@ -642,12 +642,18 @@
     </Link>
     <When Condition=" '$(VCPKG)'!='Y' ">
       <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\$(Configuration)\SDL2.dll" "$(OutDir)" </Command>
+        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"</Command>
       </PostBuildEvent>
       <PostBuildEvent>
         <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
       </PostBuildEvent>
     </When>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -673,7 +679,7 @@
     </Link>
     <When Condition=" '$(VCPKG)'!='Y' ">
       <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\$(Configuration)\SDL2.dll" "$(OutDir)" </Command>
+        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"</Command>
       </PostBuildEvent>
       <PostBuildEvent>
         <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
@@ -704,7 +710,7 @@
     </Link>
     <When Condition=" '$(VCPKG)'!='Y' ">
       <PostBuildEvent>
-        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\$(Configuration)\SDL2.dll" "$(OutDir)" </Command>
+        <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"</Command>
       </PostBuildEvent>
       <PostBuildEvent>
         <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>

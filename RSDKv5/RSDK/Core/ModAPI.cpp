@@ -233,7 +233,7 @@ void RSDK::LoadModSettings()
 
 #if RETRO_REV0U
     modSettings.versionOverride = 0;
-    modSettings.forceScripts    = false;
+    modSettings.forceScripts    = customSettings.forceScripts;
 #endif
 
     int32 activeModCount = (int32)ActiveMods().size();
@@ -727,7 +727,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                             linked = true;
                         }
                         else {
-                            PrintLog(PRINT_ERROR, "[MOD] ERROR: ailed to find 'LinkModLogic' -> %s", Link::GetError());
+                            PrintLog(PRINT_ERROR, "[MOD] ERROR: Failed to find 'LinkModLogic' -> %s", Link::GetError());
                         }
                         info->unloadMod = (void (*)())Link::GetSymbol(linkHandle, "UnloadMod");
                         info->modLogicHandles.push_back(linkHandle);
@@ -738,7 +738,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
 
                     if (!linked) {
                         // PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
-                        PrintLog(PRINT_NORMAL, "[MOD] ERROR: failed to link logic '%s'", file.string().c_str());
+                        PrintLog(PRINT_NORMAL, "[MOD] ERROR: Failed to link logic '%s'", file.string().c_str());
 
                         iniparser_freedict(ini);
                         currentMod = cur;

@@ -41,21 +41,11 @@ Currently, the only officially supported platforms are the ones listed above. Ho
 * #### and a [general optimization fork](https://github.com/smb123w64gb/RSDKv5-Decompilation) by smb123w64gb
 
 # FAQ
-### Q: The screen is tearing, how do I fix it?
-A: Try turning on VSync in settings.ini.
-
-### Q: I found a bug/I have a feature request!
-A: Submit an issue in the issues tab and we _might_ fix it in the main branch. Don't expect any major future releases, however.
-
-### Q: Is there a decompilation for RSDKv3 and/or RSDKv4 alone?
-A: There is! You can find RSDKv3 [here](https://github.com/Rubberduckycooly/Sonic-CD-11-Decompilation) and RSDKv4 [here](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation).
-
-### Q: Are there anymore decompilation projects in the works, such as other RSDK versions?
-A: Absolutely not. This project took about 1 and a half years to do, and between the last two and this one, we're done with decompiling, at least for the time being. Please do not expect any more decompilations from us, Sonic or otherwise!
+You can find the FAQ [here](./FAQ.md).
 
 # Special Thanks
-* [Chuli](https://github.com/MGRich) for leading ModAPI development, porting to other platforms, general decompilation assistance, helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
-* The Weigman for creating the asset bases such as the header and icons (originally made for RSDKv3 and v4, modified by Chuli)
+* [st×tic](https://github.com/stxticOVFL) for leading ModAPI development, porting to other platforms, general decompilation assistance, helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
+* [The Weigman](https://github.com/TheWeigman) for creating the asset bases such as the header and icons (originally made for RSDKv3 and v4, modified by st×tic)
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine) for being supportive of me and for giving me a place to show off these things that I've found
 
 # Contact:

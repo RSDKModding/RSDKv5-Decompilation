@@ -679,7 +679,7 @@ void RSDK::InitEngine()
 
             Legacy::CalculateTrigAnglesM7();
 
-            engine.gamePlatform      = "Standard";
+            engine.gamePlatform      = (RETRO_DEVICETYPE == RETRO_STANDARD ? "Standard" : "Mobile");
             engine.gameRenderType    = "SW_Rendering";
             engine.gameHapticSetting = "No_Haptics";
 #if !RETRO_USE_ORIGINAL_CODE
