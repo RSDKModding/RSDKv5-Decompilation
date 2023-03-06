@@ -203,7 +203,7 @@ inline void GetCString(char *destChars, String *string)
     int32 textLen = destChars ? string->length : 0x400;
 
     int32 c = 0;
-    for (; c < textLen; ++c) cString[c] = string->chars[c];
+    for (; c < textLen; ++c) cString[c] = (char)string->chars[c];
     cString[c] = 0;
 }
 

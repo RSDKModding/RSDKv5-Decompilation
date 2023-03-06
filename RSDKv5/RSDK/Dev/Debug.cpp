@@ -342,9 +342,13 @@ void RSDK::DevMenu_MainMenu()
 #if RETRO_USE_MOD_LOADER
     if (devMenu.modsChanged)
         DrawDevString("Game will restart on resume!", currentScreen->center.x, y, ALIGN_CENTER, 0xF08080);
+#ifdef RETRO_DEV_EXTRA
+    else
+        DrawDevString(RETRO_DEV_EXTRA, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
+#endif
 #endif
     y += 8;
-    DrawDevString(gameVerInfo.gameTitle, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
+    DrawDevString(gameVerInfo.gameTitle, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);   
 
     y += 8;
     DrawDevString(gameVerInfo.version, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);

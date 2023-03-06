@@ -52,11 +52,11 @@ void RSDK::CalculateTrigAngles()
     randSeed = rand();
 
     for (int32 i = 0; i < 0x400; ++i) {
-        sin1024LookupTable[i]  = (int32)(sinf((i / 512.0) * RSDK_PI) * 1024.0);
-        cos1024LookupTable[i]  = (int32)(cosf((i / 512.0) * RSDK_PI) * 1024.0);
-        tan1024LookupTable[i]  = (int32)(tanf((i / 512.0) * RSDK_PI) * 1024.0);
-        asin1024LookupTable[i] = (int32)((asinf(i / 1023.0) * 512.0) / RSDK_PI);
-        acos1024LookupTable[i] = (int32)((acosf(i / 1023.0) * 512.0) / RSDK_PI);
+        sin1024LookupTable[i]  = (int32)(sinf((i / 512.f) * RSDK_PI) * 1024.f);
+        cos1024LookupTable[i]  = (int32)(cosf((i / 512.f) * RSDK_PI) * 1024.f);
+        tan1024LookupTable[i]  = (int32)(tanf((i / 512.f) * RSDK_PI) * 1024.f);
+        asin1024LookupTable[i] = (int32)((asinf(i / 1023.f) * 512.f) / RSDK_PI);
+        acos1024LookupTable[i] = (int32)((acosf(i / 1023.f) * 512.f) / RSDK_PI);
     }
 
     cos1024LookupTable[0x000] = 0x400;
@@ -70,11 +70,11 @@ void RSDK::CalculateTrigAngles()
     sin1024LookupTable[0x300] = -0x400;
 
     for (int32 i = 0; i < 0x200; ++i) {
-        sin512LookupTable[i]  = (int32)(sinf((i / 256.0) * RSDK_PI) * 512.0);
-        cos512LookupTable[i]  = (int32)(cosf((i / 256.0) * RSDK_PI) * 512.0);
-        tan512LookupTable[i]  = (int32)(tanf((i / 256.0) * RSDK_PI) * 512.0);
-        asin512LookupTable[i] = (int32)((asinf(i / 511.0) * 256.0) / RSDK_PI);
-        acos512LookupTable[i] = (int32)((acosf(i / 511.0) * 256.0) / RSDK_PI);
+        sin512LookupTable[i]  = (int32)(sinf((i / 256.f) * RSDK_PI) * 512.f);
+        cos512LookupTable[i]  = (int32)(cosf((i / 256.f) * RSDK_PI) * 512.f);
+        tan512LookupTable[i]  = (int32)(tanf((i / 256.f) * RSDK_PI) * 512.f);
+        asin512LookupTable[i] = (int32)((asinf(i / 511.f) * 256.f) / RSDK_PI);
+        acos512LookupTable[i] = (int32)((acosf(i / 511.f) * 256.f) / RSDK_PI);
     }
 
     cos512LookupTable[0x00]  = 0x200;
@@ -91,8 +91,8 @@ void RSDK::CalculateTrigAngles()
         sin256LookupTable[i]  = (int32)((sin512LookupTable[i * 2] >> 1));
         cos256LookupTable[i]  = (int32)((cos512LookupTable[i * 2] >> 1));
         tan256LookupTable[i]  = (int32)((tan512LookupTable[i * 2] >> 1));
-        asin256LookupTable[i] = (int32)((asinf(i / 255.0) * 128.0) / RSDK_PI);
-        acos256LookupTable[i] = (int32)((acosf(i / 255.0) * 128.0) / RSDK_PI);
+        asin256LookupTable[i] = (int32)((asinf(i / 255.f) * 128.f) / RSDK_PI);
+        acos256LookupTable[i] = (int32)((acosf(i / 255.f) * 128.f) / RSDK_PI);
     }
 
     for (int32 y = 0; y < 0x100; ++y) {
@@ -100,7 +100,7 @@ void RSDK::CalculateTrigAngles()
 
         for (int32 x = 0; x < 0x100; ++x) {
             // 40.743664 = 0x100 / (2 * M_PI) (roughly)
-            *arcTan = (int32)(float)((float)atan2((float)y, x) * 40.743664);
+            *arcTan = (int32)(float)((float)atan2((float)y, x) * 40.743664f);
             arcTan += 0x100;
         }
     }

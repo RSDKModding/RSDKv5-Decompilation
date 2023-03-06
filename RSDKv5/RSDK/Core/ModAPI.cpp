@@ -2,6 +2,8 @@
 
 #if RETRO_USE_MOD_LOADER
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/ModAPILegacy.cpp"
 #endif
@@ -40,8 +42,6 @@ fs::path_list fs::directory_iterator(fs::path path)
 #endif
 
 #include "iniparser/iniparser.h"
-
-using namespace RSDK;
 
 int32 RSDK::currentObjectID = 0;
 std::vector<ObjectClass *> allocatedInherits;
@@ -398,7 +398,6 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
 
             int32 i    = 0;
             int32 bars = 1;
-            int32 logs = 1;
 
             for (auto dirFile : files) {
                 std::string folderPath = dirFile.path().string().substr(dataPath.string().length() + 1);

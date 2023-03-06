@@ -1,5 +1,7 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/AudioLegacy.cpp"
 #endif
@@ -12,15 +14,13 @@
 stb_vorbis *vorbisInfo = NULL;
 stb_vorbis_alloc vorbisAlloc;
 
-using namespace RSDK;
-
 SFXInfo RSDK::sfxList[SFX_COUNT];
 ChannelInfo RSDK::channels[CHANNEL_COUNT];
 
 char streamFilePath[0x40];
 uint8 *streamBuffer    = NULL;
 int32 streamBufferSize = 0;
-int32 streamStartPos   = 0;
+uint32 streamStartPos   = 0;
 int32 streamLoopPoint  = 0;
 
 #define LINEAR_INTERPOLATION_LOOKUP_DIVISOR 0x40 // Determines the 'resolution' of the lookup table.
@@ -32,6 +32,8 @@ float linearInterpolationLookup[LINEAR_INTERPOLATION_LOOKUP_LENGTH];
 #include "XAudio/XAudioDevice.cpp"
 #elif RETRO_AUDIODEVICE_SDL2
 #include "SDL2/SDL2AudioDevice.cpp"
+#elif RETRO_AUDIODEVICE_PORT
+#include "PortAudio/PortAudioDevice.cpp"
 #elif RETRO_AUDIODEVICE_OBOE
 #include "Oboe/OboeAudioDevice.cpp"
 #endif
@@ -97,7 +99,7 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
                             break;
                         }
                         else {
-                            channel->bufferPos -= channel->sampleLength;
+                            channel->bufferPos -= (uint32)channel->sampleLength;
                             channel->bufferPos += channel->loop;
 
                             sfxBuffer = &channel->samplePtr[channel->bufferPos];
@@ -135,7 +137,7 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
                     channel->bufferPos += next * 2;
 
                     if (channel->bufferPos >= channel->sampleLength) {
-                        channel->bufferPos -= channel->sampleLength;
+                        channel->bufferPos -= (uint32)channel->sampleLength;
 
                         streamBuffer = &channel->samplePtr[channel->bufferPos];
 
@@ -236,7 +238,7 @@ void RSDK::LoadStream(ChannelInfo *channel)
         channel->state = CHANNEL_IDLE;
 }
 
-int32 RSDK::PlayStream(const char *filename, uint32 slot, int32 startPos, uint32 loopPoint, bool32 loadASync)
+int32 RSDK::PlayStream(const char *filename, uint32 slot, uint32 startPos, uint32 loopPoint, bool32 loadASync)
 {
     if (!engine.streamsEnabled)
         return -1;

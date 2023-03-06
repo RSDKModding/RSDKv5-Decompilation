@@ -709,11 +709,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 
     const D3D_SHADER_MACRO defines[] = {
 #if RETRO_REV02
-        "RETRO_REV02",
-        "1",
+        { "RETRO_REV02" },
+        { "1" },
 #endif
-        NULL,
-        NULL
+        { NULL },
+        { NULL }
     };
 
 #if !RETRO_USE_ORIGINAL_CODE

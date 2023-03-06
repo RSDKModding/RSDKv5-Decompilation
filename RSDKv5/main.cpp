@@ -2,6 +2,12 @@
 #include "main.hpp"
 
 #if RETRO_STANDALONE
+#define LinkGameLogic RSDK::LinkGameLogic
+#else
+#define EngineInfo RSDK::EngineInfo
+#include <GameMain.h>
+#define LinkGameLogic LinkGameLogicDLL
+#endif
 
 #if RETRO_PLATFORM == RETRO_WIN && !RETRO_RENDERDEVICE_SDL2
 
@@ -12,12 +18,12 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     RSDK::RenderDevice::hPrevInstance = hPrevInstance;
     RSDK::RenderDevice::nShowCmd      = nShowCmd;
 
-    return RSDK_main(1, &lpCmdLine, RSDK::LinkGameLogic);
+    return RSDK_main(1, &lpCmdLine, LinkGameLogic);
 }
 #else
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nShowCmd)
 {
-    return RSDK_main(1, &lpCmdLine, RSDK::LinkGameLogic);
+    return RSDK_main(1, &lpCmdLine, LinkGameLogic);
 }
 #endif
 
@@ -62,15 +68,13 @@ void android_main(struct android_app *ap)
                                     | AWINDOW_FLAG_SHOW_WHEN_LOCKED,
                                 0);
 
-    RSDK_main(0, NULL, (void *)RSDK::LinkGameLogic);
+    RSDK_main(0, NULL, (void *)LinkGameLogic);
 
     Paddleboat_destroy(jni->env);
     SwappyGL_destroy();
 }
 #else
-int32 main(int32 argc, char *argv[]) { return RSDK_main(argc, argv, (void *)RSDK::LinkGameLogic); }
-#endif
-
+int32 main(int32 argc, char *argv[]) { return RSDK_main(argc, argv, (void *)LinkGameLogic); }
 #endif
 
 int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)

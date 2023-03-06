@@ -1,15 +1,18 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/AnimationLegacy.cpp"
 #endif
 
-using namespace RSDK;
-
 SpriteAnimation RSDK::spriteAnimationList[SPRFILE_COUNT];
 
-uint16 RSDK::LoadSpriteAnimation(const char *filePath, int32 scope)
+uint16 RSDK::LoadSpriteAnimation(const char *filePath, uint8 scope)
 {
+    if (!scope || scope > SCOPE_STAGE)
+        return -1;
+
     char fullFilePath[0x100];
     sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Sprites/%s", filePath);
 
@@ -108,8 +111,11 @@ uint16 RSDK::LoadSpriteAnimation(const char *filePath, int32 scope)
     return -1;
 }
 
-uint16 RSDK::CreateSpriteAnimation(const char *filename, uint32 frameCount, uint32 animCount, int32 scope)
+uint16 RSDK::CreateSpriteAnimation(const char *filename, uint32 frameCount, uint32 animCount, uint8 scope)
 {
+    if (!scope || scope > SCOPE_STAGE)
+        return -1;
+
     char fullFilePath[0x100];
     sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Sprites/%s", filename);
 

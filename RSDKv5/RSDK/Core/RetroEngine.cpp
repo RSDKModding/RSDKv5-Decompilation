@@ -1,10 +1,11 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/RetroEngineLegacy.cpp"
 #endif
 
-using namespace RSDK;
 
 LogicLinkHandle RSDK::linkGameLogic = NULL;
 
@@ -265,7 +266,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                 }
 
 #if RETRO_PLATFORM == RETRO_ANDROID
-            HideLoadingIcon(); // best spot to do it
+                HideLoadingIcon(); // best spot to do it
 #endif
 
                 if (videoSettings.windowState != WINDOWSTATE_ACTIVE)
@@ -1173,7 +1174,7 @@ void RSDK::InitGameLink()
     globalObjectCount = TYPE_DEFAULT_COUNT;
 
 #if RETRO_REV02
-    GameInfo info;
+    EngineInfo info;
 
     info.functionTable = RSDKFunctionTable;
     info.APITable      = APIFunctionTable;
@@ -1197,7 +1198,7 @@ void RSDK::InitGameLink()
     info.modTable = modFunctionTable;
 #endif
 #else
-    GameInfo info;
+    EngineInfo info;
 
     info.functionTable = RSDKFunctionTable;
 

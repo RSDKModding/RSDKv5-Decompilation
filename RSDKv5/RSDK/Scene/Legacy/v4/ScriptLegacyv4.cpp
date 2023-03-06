@@ -20,7 +20,7 @@ int32 RSDK::Legacy::v4::jumpTableStackPos = 0;
 int32 RSDK::Legacy::v4::functionStackPos  = 0;
 int32 RSDK::Legacy::v4::foreachStackPos   = 0;
 
-RSDK::Legacy::v4::ScriptEngine RSDK::Legacy::v4::scriptEng = ScriptEngine();
+RSDK::Legacy::v4::ScriptEngine RSDK::Legacy::v4::scriptEng = Legacy::v4::ScriptEngine();
 char RSDK::Legacy::v4::scriptText[0x4000];
 
 #if LEGACY_RETRO_USE_COMPILER

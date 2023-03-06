@@ -129,6 +129,7 @@ void RSDK::SKU::InitUserCore()
     memset(achievementsRAM, 0, 0x100 * sizeof(int32));
     bool32 loaded = false;
     loaded        = LoadUserFile("Achievements.bin", achievementsRAM, 0x100 * sizeof(int32));
+    (void)loaded;
     for (int32 i = 0; i < (int32)achievementList.size(); ++i) {
         achievementList[i].achieved = achievementsRAM[i];
     }
@@ -364,8 +365,8 @@ void RSDK::LoadSettingsINI()
 #endif
 
         engine.streamsEnabled = iniparser_getboolean(ini, "Audio:streamsEnabled", true);
-        engine.streamVolume   = iniparser_getdouble(ini, "Audio:streamVolume", 0.8);
-        engine.soundFXVolume  = iniparser_getdouble(ini, "Audio:sfxVolume", 1.0);
+        engine.streamVolume   = (float)iniparser_getdouble(ini, "Audio:streamVolume", 0.8);
+        engine.soundFXVolume  = (float)iniparser_getdouble(ini, "Audio:sfxVolume", 1.0);
 
         for (int32 i = CONT_P1; i <= PLAYER_COUNT; ++i) {
             char buffer[0x30];

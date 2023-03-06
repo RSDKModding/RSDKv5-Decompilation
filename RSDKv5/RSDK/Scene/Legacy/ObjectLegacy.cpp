@@ -6,9 +6,9 @@
 #include "v4/ScriptLegacyv4.cpp"
 
 int32 RSDK::Legacy::OBJECT_BORDER_X1 = 0x80;
-int32 RSDK::Legacy::OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;
+int32 RSDK::Legacy::OBJECT_BORDER_X2 = Legacy::SCREEN_XSIZE + 0x80;
 int32 RSDK::Legacy::OBJECT_BORDER_X3 = 0x20;
-int32 RSDK::Legacy::OBJECT_BORDER_X4 = SCREEN_XSIZE + 0x20;
+int32 RSDK::Legacy::OBJECT_BORDER_X4 = Legacy::SCREEN_XSIZE + 0x20;
 
 const int32 RSDK::Legacy::OBJECT_BORDER_Y1 = 0x100;
 const int32 RSDK::Legacy::OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;

@@ -75,11 +75,11 @@ inline void SetupCollisionConfig(int32 minDistance, uint8 lowTolerance, uint8 hi
                                  uint8 roofAngleTolerance)
 {
     collisionMinimumDistance = TO_FIXED(minDistance);
-    lowCollisionTolerance    = lowTolerance;
+    lowCollisionTolerance    = lowTolerance; 
     highCollisionTolerance   = highTolerance;
-    floorAngleTolerance      = floorAngleTolerance;
-    wallAngleTolerance       = wallAngleTolerance;
-    roofAngleTolerance       = roofAngleTolerance;
+    RSDK::floorAngleTolerance    = floorAngleTolerance;
+    RSDK::wallAngleTolerance     = wallAngleTolerance;
+    RSDK::roofAngleTolerance     = roofAngleTolerance;
 }
 #endif
 

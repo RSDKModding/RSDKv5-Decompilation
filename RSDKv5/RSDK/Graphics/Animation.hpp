@@ -79,8 +79,8 @@ struct Animator {
 
 extern SpriteAnimation spriteAnimationList[SPRFILE_COUNT];
 
-uint16 LoadSpriteAnimation(const char *filename, int32 scope);
-uint16 CreateSpriteAnimation(const char *filename, uint32 frameCount, uint32 animCount, int32 scope);
+uint16 LoadSpriteAnimation(const char *filename, uint8 scope);
+uint16 CreateSpriteAnimation(const char *filename, uint32 frameCount, uint32 animCount, uint8 scope);
 
 inline uint16 FindSpriteAnimation(uint16 aniFrames, const char *name)
 {

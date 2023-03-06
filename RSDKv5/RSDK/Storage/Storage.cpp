@@ -1,5 +1,7 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/UserStorageLegacy.cpp"
 #endif
@@ -7,8 +9,6 @@
 // Macro to access the header variables of a block of memory.
 // Note that this is pointless if the pointer is already pointing directly at the header rather than the memory after it.
 #define HEADER(memory, header_value) memory[-HEADER_SIZE + header_value]
-
-using namespace RSDK;
 
 // Every block of allocated memory is prefixed with a header that consists of the following four longwords.
 enum {

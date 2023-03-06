@@ -16,7 +16,7 @@ int32 RSDK::Legacy::v3::jumpTableOffset   = 0;
 int32 RSDK::Legacy::v3::jumpTableStackPos = 0;
 int32 RSDK::Legacy::v3::functionStackPos  = 0;
 
-RSDK::Legacy::v3::ScriptEngine RSDK::Legacy::v3::scriptEng = ScriptEngine();
+RSDK::Legacy::v3::ScriptEngine RSDK::Legacy::v3::scriptEng = Legacy::v3::ScriptEngine();
 char RSDK::Legacy::v3::scriptText[0x100];
 
 #define LEGACY_v3_COMMONALIAS_COUNT (0x20)

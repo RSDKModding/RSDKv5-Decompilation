@@ -10,6 +10,8 @@ namespace SKU
 // This is the base struct, it serves as the base for any API-specific stats
 // This struct should never be removed
 struct UserRichPresence {
+    virtual ~UserRichPresence() = default;
+
     virtual void StageLoad() {}
     virtual void FrameInit() {}
     virtual void OnUnknownEvent() {}
