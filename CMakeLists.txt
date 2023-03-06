@@ -68,7 +68,7 @@ if(COMPILE_OGG)
     set(OGG_DIR dependencies/${DEP_PATH}/libogg)
     add_library(
         libogg
-        GAME_STATIC
+        STATIC
         ${OGG_DIR}/src/bitwise.c
         ${OGG_DIR}/src/framing.c
     )
@@ -83,7 +83,7 @@ endif()
 if(COMPILE_THEORA)
     set(THEORA_DIR dependencies/android/libtheora)
 
-    add_library(libtheora GAME_STATIC
+    add_library(libtheora STATIC
         ${THEORA_DIR}/lib/analyze.c
         ${THEORA_DIR}/lib/apiwrapper.c
         ${THEORA_DIR}/lib/bitpack.c
