@@ -55,7 +55,7 @@ int32 RSDK::Legacy::PlayMusic(int32 trackID)
 void RSDK::Legacy::SetMusicVolume(int32 volume)
 {
     musicVolume = CLAMP(volume, 0, 100);
-    SetChannelAttributes(musicChannel, musicVolume * 0.01, 0.0, 1.0);
+    SetChannelAttributes(musicChannel, musicVolume * 0.01f, 0.f, 1.f);
 }
 
 void RSDK::Legacy::v4::SwapMusicTrack(const char *filePath, uint8 trackID, uint32 loopPoint, uint32 ratio)

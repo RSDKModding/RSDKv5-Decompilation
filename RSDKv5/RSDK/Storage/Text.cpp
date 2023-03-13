@@ -1,5 +1,7 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/TextLegacy.cpp"
 #endif
@@ -141,8 +143,6 @@ unsigned *md5(unsigned *h, const char *msg, int32 mlen)
     return h;
 }
 
-using namespace RSDK;
-
 char RSDK::textBuffer[0x400];
 // Buffer is expected to be at least 16 bytes long
 void RSDK::GenerateHashMD5(uint32 *buffer, char *textBuffer, int32 textBufferLen)
@@ -265,8 +265,13 @@ void RSDK::AppendText(String *string, const char *appendString)
         return;
 
     int32 len     = 0;
+#if RETRO_USE_ORIGINAL_CODE
     const char *textBuf = appendString;
     for (int32 pos = 0; *textBuf; ++len) pos += utf8CharSizes[*textBuf++ & 0xFF];
+#else
+    len = StrLength(appendString);
+#endif
+
     if (!len)
         return;
 

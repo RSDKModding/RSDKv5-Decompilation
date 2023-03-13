@@ -1,10 +1,10 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/DrawingLegacy.cpp"
 #endif
-
-using namespace RSDK;
 
 // all render devices need to access the initial vertex buffer :skull:
 
@@ -559,7 +559,7 @@ void RSDK::SetVideoSetting(int32 id, int32 value)
     }
 }
 
-void RSDK::SwapDrawListEntries(uint8 drawGroup, uint16 slot1, uint16 slot2, int32 count)
+void RSDK::SwapDrawListEntries(uint8 drawGroup, uint16 slot1, uint16 slot2, uint16 count)
 {
     if (drawGroup < DRAWGROUP_COUNT) {
         DrawList *group = &drawGroups[drawGroup];
@@ -672,11 +672,9 @@ void RSDK::DrawLine(int32 x1, int32 y1, int32 x2, int32 y2, uint32 color, int32 
     else if (drawY2 < currentScreen->clipBound_Y1)
         flags2 |= 4;
 
-    int32 id = 0;
     while (flags1 || flags2) {
         if (flags1 & flags2)
             return;
-        ++id;
 
         int32 curFlags = flags2;
         if (flags1)
@@ -2511,26 +2509,26 @@ void RSDK::DrawBlendedFace(Vector2 *vertices, uint32 *colors, int32 vertCount, i
                 for (int32 s = topScreen; s <= bottomScreen; ++s) {
                     int32 start  = edge->start;
                     int32 count  = edge->end - edge->start;
-                    int32 deltaR = 0;
-                    int32 deltaG = 0;
-                    int32 deltaB = 0;
-                    if (count > 0) {
-                        deltaR = (edge->endR - edge->startR) / count;
-                        deltaG = (edge->endG - edge->startG) / count;
-                        deltaB = (edge->endB - edge->startB) / count;
-                    }
-                    int32 startR = edge->startR;
-                    int32 startG = edge->startG;
-                    int32 startB = edge->startB;
+                    // int32 deltaR = 0;
+                    // int32 deltaG = 0;
+                    // int32 deltaB = 0;
+                    // if (count > 0) {
+                    //     deltaR = (edge->endR - edge->startR) / count;
+                    //     deltaG = (edge->endG - edge->startG) / count;
+                    //     deltaB = (edge->endB - edge->startB) / count;
+                    // }
+                    // int32 startR = edge->startR;
+                    // int32 startG = edge->startG;
+                    // int32 startB = edge->startB;
 
                     if (start > currentScreen->clipBound_X2) {
                         edge->start = currentScreen->clipBound_X2;
                     }
 
                     if (start < currentScreen->clipBound_X1) {
-                        startR += deltaR * (currentScreen->clipBound_X1 - edge->start);
-                        startG += deltaG * (currentScreen->clipBound_X1 - edge->start);
-                        startB += deltaB * (currentScreen->clipBound_X1 - edge->start);
+                        // startR += deltaR * (currentScreen->clipBound_X1 - edge->start);
+                        // startG += deltaG * (currentScreen->clipBound_X1 - edge->start);
+                        // startB += deltaB * (currentScreen->clipBound_X1 - edge->start);
                         count -= (currentScreen->clipBound_X1 - edge->start);
                         edge->start = currentScreen->clipBound_X1;
                     }
@@ -2547,9 +2545,9 @@ void RSDK::DrawBlendedFace(Vector2 *vertices, uint32 *colors, int32 vertCount, i
                     for (int32 x = 0; x < count; ++x) {
                         frameBuffer[edge->start + x] = tintLookupTable[frameBuffer[edge->start + x]];
 
-                        startR += deltaR;
-                        startG += deltaG;
-                        startB += deltaB;
+                        // startR += deltaR;
+                        // startG += deltaG;
+                        // startB += deltaB;
                     }
 
                     ++edge;
@@ -4042,7 +4040,7 @@ void RSDK::DrawDeformedSprite(uint16 sheetID, int32 inkEffect, int32 alpha)
             break;
 
         case INK_UNMASKED:
-            for (; clipY1 < currentScreen->clipBound_Y2; ++scanline) {
+            for (; clipY1 < currentScreen->clipBound_Y2; ++clipY1) {
                 uint16 *activePalette = fullPalette[*lineBuffer++];
                 int32 lx              = scanline->position.x;
                 int32 ly              = scanline->position.y;

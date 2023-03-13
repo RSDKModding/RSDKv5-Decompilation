@@ -2,7 +2,7 @@
 int32 RSDK::Legacy::v3::yScrollA    = 0;
 int32 RSDK::Legacy::v3::yScrollB    = SCREEN_YSIZE;
 int32 RSDK::Legacy::v3::xScrollA    = 0;
-int32 RSDK::Legacy::v3::xScrollB    = SCREEN_XSIZE;
+int32 RSDK::Legacy::v3::xScrollB    = Legacy::SCREEN_XSIZE;
 int32 RSDK::Legacy::v3::yScrollMove = 0;
 
 #if RETRO_USE_MOD_LOADER

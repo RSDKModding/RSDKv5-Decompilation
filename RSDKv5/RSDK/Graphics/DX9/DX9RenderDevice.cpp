@@ -709,11 +709,11 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
 
     const D3D_SHADER_MACRO defines[] = {
 #if RETRO_REV02
-        "RETRO_REV02",
-        "1",
+        { "RETRO_REV02" },
+        { "1" },
 #endif
-        NULL,
-        NULL
+        { NULL },
+        { NULL }
     };
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -889,6 +889,11 @@ bool RenderDevice::InitShaders()
     dx9Device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
     int32 maxShaders = 0;
+#if RETRO_USE_MOD_LOADER
+    // this causes small memleaks here and in other render devices, as we never close the existing shaders
+    // TODO: fix? 🤨
+    shaderCount = 0;
+#endif
     if (videoSettings.shaderSupport) {
         LoadShader("None", false);
         LoadShader("Clean", true);
@@ -1169,7 +1174,8 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F1:
                     if (engine.devMenu) {
                         sceneInfo.listPos--;
-                        if (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart) {
+                        if (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart
+                            || sceneInfo.listPos >= sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd) {
                             sceneInfo.activeCategory--;
                             if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
                                 sceneInfo.activeCategory = sceneInfo.categoryCount - 1;
@@ -1195,7 +1201,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                 case VK_F2:
                     if (engine.devMenu) {
                         sceneInfo.listPos++;
-                        if (sceneInfo.listPos >= sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd) {
+                        if (sceneInfo.listPos >= sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd || sceneInfo.listPos == 0) {
                             sceneInfo.activeCategory++;
                             if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
                                 sceneInfo.activeCategory = 0;
@@ -1241,7 +1247,7 @@ void RenderDevice::ProcessEvent(MSG Msg)
                         // Quick-Reload
 #if RETRO_USE_MOD_LOADER
                         if (GetAsyncKeyState(VK_CONTROL))
-                            RefreshModFolders();                      
+                            RefreshModFolders();
 #endif
 
 #if RETRO_REV0U

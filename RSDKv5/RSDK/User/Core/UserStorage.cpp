@@ -1043,9 +1043,9 @@ bool32 RSDK::SKU::LoadUserFile(const char *filename, void *buffer, uint32 bufSiz
     FileIO *file = fOpen(fullFilePath, "rb");
     if (file) {
         fSeek(file, 0, SEEK_END);
-        int32 fSize = (int32)fTell(file);
+        uint32 fSize = (uint32)fTell(file);
         fSeek(file, 0, SEEK_SET);
-        int32 size = bufSize;
+        uint32 size = bufSize;
         if (bufSize > fSize)
             size = fSize;
         fRead(buffer, 1, size, file);

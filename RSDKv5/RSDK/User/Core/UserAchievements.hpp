@@ -21,6 +21,8 @@ struct AchievementID {
 struct UserAchievements {
     UserAchievements() {}
 
+    virtual ~UserAchievements() = default;
+
     virtual void FrameInit() {}
     virtual void StageLoad() { enabled = true; }
     virtual void OnUnknownEvent() {}

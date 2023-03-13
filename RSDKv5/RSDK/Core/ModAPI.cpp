@@ -2,6 +2,8 @@
 
 #if RETRO_USE_MOD_LOADER
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/ModAPILegacy.cpp"
 #endif
@@ -40,8 +42,6 @@ fs::path_list fs::directory_iterator(fs::path path)
 #endif
 
 #include "iniparser/iniparser.h"
-
-using namespace RSDK;
 
 int32 RSDK::currentObjectID = 0;
 std::vector<ObjectClass *> allocatedInherits;
@@ -233,7 +233,7 @@ void RSDK::LoadModSettings()
 
 #if RETRO_REV0U
     modSettings.versionOverride = 0;
-    modSettings.forceScripts    = false;
+    modSettings.forceScripts    = customSettings.forceScripts;
 #endif
 
     int32 activeModCount = (int32)ActiveMods().size();
@@ -398,7 +398,6 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
 
             int32 i    = 0;
             int32 bars = 1;
-            int32 logs = 1;
 
             for (auto dirFile : files) {
                 std::string folderPath = dirFile.path().string().substr(dataPath.string().length() + 1);
@@ -531,6 +530,8 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
                     PrintLog(PRINT_NORMAL, "[MOD] Loaded mod %s! Active: %s", info.id.c_str(), active ? "Y" : "N");
                 modList.push_back(info);
             }
+            delete[] keys;
+            iniparser_freedict(ini);
         }
 
         try {
@@ -574,33 +575,34 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
 
 void loadCfg(ModInfo *info, std::string path)
 {
-    FileInfo *cfg     = new FileInfo();
-    cfg->externalFile = true;
+    FileInfo cfg;
+    InitFileInfo(&cfg);
+    cfg.externalFile = true;
     // CFG FILE READ
-    if (LoadFile(cfg, path.c_str(), FMODE_RB)) {
-        int32 catCount = ReadInt8(cfg);
+    if (LoadFile(&cfg, path.c_str(), FMODE_RB)) {
+        int32 catCount = ReadInt8(&cfg);
         for (int32 c = 0; c < catCount; ++c) {
             char catBuf[0x100];
-            ReadString(cfg, catBuf);
-            int32 keyCount = ReadInt8(cfg);
+            ReadString(&cfg, catBuf);
+            int32 keyCount = ReadInt8(&cfg);
             for (int32 k = 0; k < keyCount; ++k) {
                 // ReadString except w packing the type bit
-                uint8 size   = ReadInt8(cfg);
+                uint8 size   = ReadInt8(&cfg);
                 char *keyBuf = new char[size & 0x7F];
-                ReadBytes(cfg, keyBuf, size & 0x7F);
+                ReadBytes(&cfg, keyBuf, size & 0x7F);
                 keyBuf[size & 0x7F] = 0;
                 uint8 type          = size & 0x80;
                 if (!type) {
                     char buf[0xFFFF];
-                    ReadString(cfg, buf);
+                    ReadString(&cfg, buf);
                     info->config[catBuf][keyBuf] = buf;
                 }
                 else
-                    info->config[catBuf][keyBuf] = std::to_string(ReadInt32(cfg, false));
+                    info->config[catBuf][keyBuf] = std::to_string(ReadInt32(&cfg, false));
             }
         }
 
-        CloseFile(cfg);
+        CloseFile(&cfg);
     }
 }
 
@@ -724,7 +726,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                             linked = true;
                         }
                         else {
-                            PrintLog(PRINT_ERROR, "[MOD] ERROR: ailed to find 'LinkModLogic' -> %s", Link::GetError());
+                            PrintLog(PRINT_ERROR, "[MOD] ERROR: Failed to find 'LinkModLogic' -> %s", Link::GetError());
                         }
                         info->unloadMod = (void (*)())Link::GetSymbol(linkHandle, "UnloadMod");
                         info->modLogicHandles.push_back(linkHandle);
@@ -735,7 +737,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
 
                     if (!linked) {
                         // PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
-                        PrintLog(PRINT_NORMAL, "[MOD] ERROR: failed to link logic '%s'", file.string().c_str());
+                        PrintLog(PRINT_NORMAL, "[MOD] ERROR: Failed to link logic '%s'", file.string().c_str());
 
                         iniparser_freedict(ini);
                         currentMod = cur;

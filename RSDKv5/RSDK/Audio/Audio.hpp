@@ -63,7 +63,7 @@ protected:
 
 void UpdateStreamBuffer(ChannelInfo *channel);
 void LoadStream(ChannelInfo *channel);
-int32 PlayStream(const char *filename, uint32 slot, int32 startPos, uint32 loopPoint, bool32 loadASync);
+int32 PlayStream(const char *filename, uint32 slot, uint32 startPos, uint32 loopPoint, bool32 loadASync);
 
 void LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope);
 void LoadSfx(char *filePath, uint8 plays, uint8 scope);
@@ -72,6 +72,8 @@ void LoadSfx(char *filePath, uint8 plays, uint8 scope);
 
 #if RETRO_AUDIODEVICE_XAUDIO
 #include "XAudio/XAudioDevice.hpp"
+#elif RETRO_AUDIODEVICE_PORT
+#include "PortAudio/PortAudioDevice.hpp"
 #elif RETRO_AUDIODEVICE_SDL2
 #include "SDL2/SDL2AudioDevice.hpp"
 #elif RETRO_AUDIODEVICE_OBOE
@@ -94,7 +96,7 @@ inline uint16 GetSfx(const char *sfxName)
     return -1;
 }
 int32 PlaySfx(uint16 sfx, uint32 loopPoint, uint32 priority);
-inline void StopSfx(int32 sfx)
+inline void StopSfx(uint16 sfx)
 {
 #if !RETRO_USE_ORIGINAL_CODE
     LockAudioDevice();

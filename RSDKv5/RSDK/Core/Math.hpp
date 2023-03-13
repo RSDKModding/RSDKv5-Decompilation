@@ -16,7 +16,7 @@ namespace RSDK
 #define FROM_FIXED(x) ((x) >> 16)
 
 // M_PI is *too* accurate, so use this instead
-#define RSDK_PI (3.1415927)
+#define RSDK_PI (3.1415927f)
 
 struct Vector2 {
     int32 x;

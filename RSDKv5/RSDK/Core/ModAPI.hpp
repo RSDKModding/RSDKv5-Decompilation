@@ -144,8 +144,8 @@ enum ModFunctionTableIDs {
 typedef void (*ModCallback)(void *data);
 typedef std::function<void(void *data)> ModCallbackSTD;
 
-typedef bool (*modLink)(GameInfo *, const char *);
-typedef std::function<bool(GameInfo *, const char *)> modLinkSTD;
+typedef bool (*modLink)(EngineInfo *, const char *);
+typedef std::function<bool(EngineInfo *, const char *)> modLinkSTD;
 
 struct ModPublicFunctionInfo {
     std::string name;

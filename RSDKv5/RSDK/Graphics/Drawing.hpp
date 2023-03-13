@@ -119,7 +119,7 @@ struct VideoSettings {
     int32 shaderID;
     int32 screenCount;
     uint32 dimTimer;
-    int32 dimLimit;
+    uint32 dimLimit;
     float dimMax;
     float dimPercent;
     float viewportW;
@@ -368,7 +368,7 @@ inline void SetDrawGroupProperties(uint8 drawGroup, bool32 sorted, void (*hookCB
     }
 }
 
-void SwapDrawListEntries(uint8 drawGroup, uint16 slot1, uint16 slot2, int32 count);
+void SwapDrawListEntries(uint8 drawGroup, uint16 slot1, uint16 slot2, uint16 count);
 
 void FillScreen(uint32 color, int32 alphaR, int32 alphaG, int32 alphaB);
 

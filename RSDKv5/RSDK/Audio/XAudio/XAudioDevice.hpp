@@ -15,12 +15,22 @@ class AudioDeviceCallback : public IXAudio2VoiceCallback
     void WINAPI OnVoiceError(void *pBufferContext, HRESULT Error) {}
 };
 
+#ifdef __GNUC__
+// using clang to compile? stfu
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmicrosoft-exception-spec"
+#endif
+
 class AudioEngineCallback : public IXAudio2EngineCallback
 {
-    void WINAPI OnProcessingPassStart() {}
-    void WINAPI OnProcessingPassEnd() {}
+    void WINAPI OnProcessingPassStart(void) {}
+    void WINAPI OnProcessingPassEnd(void) {}
     void WINAPI OnCriticalError(HRESULT Error);
 };
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 struct AudioDevice : public AudioDeviceBase {
     static bool32 Init();

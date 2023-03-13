@@ -340,7 +340,7 @@ extern int32 APIFunctionTableCount;
 #endif
 
 #if RETRO_REV02
-struct GameInfo {
+struct EngineInfo {
     void *functionTable;
     void *APITable;
 
@@ -369,7 +369,7 @@ struct GameInfo {
 #endif
 };
 #else
-struct GameInfo {
+struct EngineInfo {
     void *functionTable;
 
     GameVersionInfo *gameInfo;
@@ -393,7 +393,7 @@ void SetupFunctionTables();
 #if RETRO_REV02
 void LinkGameLogic(void *info);
 #else
-void LinkGameLogic(GameInfo info);
+void LinkGameLogic(EngineInfo info);
 #endif
 
 // ORIGINAL CLASS

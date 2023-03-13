@@ -1,10 +1,10 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/SpriteLegacy.cpp"
 #endif
-
-using namespace RSDK;
 
 const int32 LOADING_IMAGE = 0;
 const int32 LOAD_COMPLETE = 1;
@@ -903,10 +903,13 @@ bool32 RSDK::ImageTGA::Load(const char *fileName, bool32 loadHeader)
 }
 #endif
 
-uint16 RSDK::LoadSpriteSheet(const char *filename, int32 scope)
+uint16 RSDK::LoadSpriteSheet(const char *filename, uint8 scope)
 {
     char fullFilePath[0x100];
     sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Sprites/%s", filename);
+
+    if (!scope || scope > SCOPE_STAGE)
+        return -1;
 
     RETRO_HASH_MD5(hash);
     GEN_HASH_MD5(filename, hash);
@@ -925,6 +928,7 @@ uint16 RSDK::LoadSpriteSheet(const char *filename, int32 scope)
 
     if (id >= SURFACE_COUNT)
         return -1;
+
 
     GFXSurface *surface = &gfxSurface[id];
     ImageGIF image;

@@ -177,8 +177,13 @@ enum GameRegions {
 // ============================
 #define RETRO_AUDIODEVICE_XAUDIO (0)
 // CUSTOM
+#ifndef RETRO_AUDIODEVICE_SDL2
 #define RETRO_AUDIODEVICE_SDL2 (0)
+#endif
 #define RETRO_AUDIODEVICE_OBOE (0)
+#ifndef RETRO_AUDIODEVICE_PORT
+#define RETRO_AUDIODEVICE_PORT (0)
+#endif
 
 // ============================
 // INPUT DEVICE BACKENDS
@@ -292,12 +297,14 @@ enum GameRegions {
 #error One of RSDK_USE_DX9, RSDK_USE_DX11, RSDK_USE_SDL2, or RSDK_USE_OGL must be defined.
 #endif
 
-#if !defined(_MINGW) && !defined(RSDK_USE_SDL2)
+#if !RETRO_AUDIODEVICE_PORT 
+#if !RSDK_USE_SDL2
 #undef RETRO_AUDIODEVICE_XAUDIO
 #define RETRO_AUDIODEVICE_XAUDIO (1)
 #else
 #undef RETRO_AUDIODEVICE_SDL2
 #define RETRO_AUDIODEVICE_SDL2 (1)
+#endif
 #endif
 
 #elif RETRO_PLATFORM == RETRO_XB1
@@ -313,14 +320,21 @@ enum GameRegions {
 
 #elif RETRO_PLATFORM == RETRO_LINUX
 
-#undef RETRO_AUDIODEVICE_SDL2
-#define RETRO_AUDIODEVICE_SDL2 (1)
+#if !RETRO_AUDIODEVICE_SDL2 
+#undef RETRO_AUDIODEVICE_PORT
+#define RETRO_AUDIODEVICE_PORT (1)
+#endif
 
 #ifdef RSDK_USE_SDL2
 #undef RETRO_RENDERDEVICE_SDL2
 #define RETRO_RENDERDEVICE_SDL2 (1)
 #undef RETRO_INPUTDEVICE_SDL2
 #define RETRO_INPUTDEVICE_SDL2 (1)
+
+#undef RETRO_AUDIODEVICE_PORT
+#define RETRO_AUDIODEVICE_PORT (0)
+#undef RETRO_AUDIODEVICE_SDL2
+#define RETRO_AUDIODEVICE_SDL2 (1)
 
 #elif defined(RSDK_USE_OGL)
 #undef RETRO_RENDERDEVICE_GLFW
@@ -398,17 +412,19 @@ enum GameRegions {
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP
 
+// All windows systems need windows API for LoadLibrary()
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #if RETRO_AUDIODEVICE_XAUDIO
 #include <XAudio2.h>
+#elif RETRO_AUDIODEVICE_PORT
+#include <portaudio.h>
 #endif
 
 #if RETRO_INPUTDEVICE_XINPUT
 #include <Xinput.h>
 #endif
-
-// All windows systems need windows API for LoadLibrary()
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 #if RETRO_RENDERDEVICE_DIRECTX9 || RETRO_RENDERDEVICE_DIRECTX11
 #include <timeapi.h>
@@ -446,6 +462,10 @@ enum GameRegions {
 
 #include "cocoaHelpers.hpp"
 #elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_SWITCH
+
+#if RETRO_AUDIODEVICE_PORT
+#include <portaudio.h>
+#endif
 
 #if RETRO_RENDERDEVICE_GLFW
 #include <GL/glew.h>
@@ -606,9 +626,9 @@ struct RetroEngine {
 extern RetroEngine engine;
 
 #if RETRO_REV02
-typedef void (*LogicLinkHandle)(GameInfo *info);
+typedef void (*LogicLinkHandle)(EngineInfo *info);
 #else
-typedef void (*LogicLinkHandle)(GameInfo info);
+typedef void (*LogicLinkHandle)(EngineInfo info);
 #endif
 
 extern LogicLinkHandle linkGameLogic;

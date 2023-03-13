@@ -1,54 +1,19 @@
-# THIS CMAKE SHOULD BE USED FOR ANDROID ONLY
-# might make this all plats later but not needed for now, the Makefile works fine
-
 cmake_minimum_required(VERSION 3.7)
 
-set(OGG_DIR dependencies/android/libogg)
-set(THEORA_DIR dependencies/android/libtheora)
-add_library(
-    libogg
-    STATIC
-    ${OGG_DIR}/src/bitwise.c
-    ${OGG_DIR}/src/framing.c
-)
+project(RetroEngine)
 
-add_library(libtheora STATIC
-    ${THEORA_DIR}/lib/analyze.c
-    ${THEORA_DIR}/lib/apiwrapper.c
-    ${THEORA_DIR}/lib/bitpack.c
-    ${THEORA_DIR}/lib/cpu.c
-    ${THEORA_DIR}/lib/decapiwrapper.c
-    ${THEORA_DIR}/lib/decinfo.c
-    ${THEORA_DIR}/lib/decode.c
-    ${THEORA_DIR}/lib/dequant.c
-    ${THEORA_DIR}/lib/encapiwrapper.c
-    ${THEORA_DIR}/lib/encfrag.c
-    ${THEORA_DIR}/lib/encinfo.c
-    ${THEORA_DIR}/lib/encode.c
-    ${THEORA_DIR}/lib/encoder_disabled.c
-    ${THEORA_DIR}/lib/enquant.c
-    ${THEORA_DIR}/lib/fdct.c
-    ${THEORA_DIR}/lib/fragment.c
-    ${THEORA_DIR}/lib/huffdec.c
-    ${THEORA_DIR}/lib/huffenc.c
-    ${THEORA_DIR}/lib/idct.c
-    ${THEORA_DIR}/lib/info.c
-    ${THEORA_DIR}/lib/internal.c
-    ${THEORA_DIR}/lib/mathops.c
-    ${THEORA_DIR}/lib/mcenc.c
-    ${THEORA_DIR}/lib/quant.c
-    ${THEORA_DIR}/lib/rate.c
-    ${THEORA_DIR}/lib/state.c
-    ${THEORA_DIR}/lib/tokenize.c
-)
+set(RETRO_REVISION 3 CACHE STRING "What revision to compile for. Defaults to v5U = 3")
+option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
 
-target_include_directories(libogg PRIVATE dependencies/android/libogg/include)
-target_include_directories(libtheora PRIVATE dependencies/android/libogg/include dependencies/android/libtheora/include)
+set(RETRO_NAME "RSDKv5")
 
-target_compile_options(libogg PRIVATE -ffast-math -fsigned-char -O2 -fPIC -DPIC -DBYTE_ORDER=LITTLE_ENDIAN -D_ARM_ASSEM_ -w)
-target_compile_options(libtheora PRIVATE -ffast-math -fsigned-char -O2 -fPIC -DPIC -DBYTE_ORDER=LITTLE_ENDIAN -D_ARM_ASSEM_ -w)
+if(RETRO_REVISION STREQUAL "3")
+    set(RETRO_NAME "RSDKv5U")
+endif()
 
-add_library(RetroEngine SHARED
+set(RETRO_OUTPUT_NAME ${RETRO_NAME} CACHE STRING "The exported name")
+
+set(RETRO_FILES
     RSDKv5/main.cpp
     RSDKv5/RSDK/Core/RetroEngine.cpp
     RSDKv5/RSDK/Core/Math.cpp
@@ -81,41 +46,108 @@ add_library(RetroEngine SHARED
     dependencies/all/iniparser/iniparser.cpp
     dependencies/all/iniparser/dictionary.cpp
     dependencies/all/miniz/miniz.c
-    dependencies/android/androidHelpers.cpp
 )
+
+if(NOT PLATFORM)
+    if(WIN32) # THIS ASSUMES VCPKG OR SOURCES !!!!!!!
+        set(PLATFORM "Windows" CACHE STRING "The platform to compile for.")
+    elseif(ANDROID)
+        set(PLATFORM "Android" CACHE STRING "The platform to compile for.")
+    elseif(SWITCH)
+        set(PLATFORM "Switch" CACHE STRING "The platform to compile for.")
+    else()
+        set(PLATFORM ${CMAKE_SYSTEM_NAME} CACHE STRING "The platform to compile for.")
+    endif()
+endif()
+
+include(platforms/${PLATFORM}.cmake)
+
+set_target_properties(RetroEngine PROPERTIES OUTPUT_NAME ${RETRO_OUTPUT_NAME})
+
+if(COMPILE_OGG)
+    set(OGG_DIR dependencies/${DEP_PATH}/libogg)
+    add_library(
+        libogg
+        STATIC
+        ${OGG_DIR}/src/bitwise.c
+        ${OGG_DIR}/src/framing.c
+    )
+
+    target_compile_options(libogg PRIVATE ${OGG_FLAGS})
+
+    target_include_directories(libogg PRIVATE ${OGG_DIR}/include)
+    target_include_directories(RetroEngine PRIVATE ${OGG_DIR}/include)
+    target_link_libraries(RetroEngine libogg)
+endif()
+
+if(COMPILE_THEORA)
+    set(THEORA_DIR dependencies/android/libtheora)
+
+    add_library(libtheora STATIC
+        ${THEORA_DIR}/lib/analyze.c
+        ${THEORA_DIR}/lib/apiwrapper.c
+        ${THEORA_DIR}/lib/bitpack.c
+        ${THEORA_DIR}/lib/cpu.c
+        ${THEORA_DIR}/lib/decapiwrapper.c
+        ${THEORA_DIR}/lib/decinfo.c
+        ${THEORA_DIR}/lib/decode.c
+        ${THEORA_DIR}/lib/dequant.c
+        ${THEORA_DIR}/lib/encapiwrapper.c
+        ${THEORA_DIR}/lib/encfrag.c
+        ${THEORA_DIR}/lib/encinfo.c
+        ${THEORA_DIR}/lib/encode.c
+        ${THEORA_DIR}/lib/encoder_disabled.c
+        ${THEORA_DIR}/lib/enquant.c
+        ${THEORA_DIR}/lib/fdct.c
+        ${THEORA_DIR}/lib/fragment.c
+        ${THEORA_DIR}/lib/huffdec.c
+        ${THEORA_DIR}/lib/huffenc.c
+        ${THEORA_DIR}/lib/idct.c
+        ${THEORA_DIR}/lib/info.c
+        ${THEORA_DIR}/lib/internal.c
+        ${THEORA_DIR}/lib/mathops.c
+        ${THEORA_DIR}/lib/mcenc.c
+        ${THEORA_DIR}/lib/quant.c
+        ${THEORA_DIR}/lib/rate.c
+        ${THEORA_DIR}/lib/state.c
+        ${THEORA_DIR}/lib/tokenize.c
+    )
+
+    target_compile_options(libtheora PRIVATE ${THEORA_FLAGS})
+
+    target_include_directories(libtheora PRIVATE ${THEORA_DIR}/include ${OGG_DIR}/include)
+    target_include_directories(RetroEngine PRIVATE ${THEORA_DIR}/include)
+    target_link_libraries(RetroEngine libtheora)
+endif()
 
 target_include_directories(RetroEngine PRIVATE
     RSDKv5/
-    dependencies/android/libogg/include/
-    dependencies/android/libtheora/include/
-    dependencies/android/
     dependencies/all/
     dependencies/all/tinyxml2/
     dependencies/all/iniparser/
 )
 
-target_compile_options(RetroEngine PRIVATE -fexceptions -frtti -DRSDK_USE_OGL -DRETRO_REVISION=3)
+if(DEFINED DEP_PATH)
+    target_include_directories(RetroEngine PRIVATE
+        dependencies/${DEP_PATH}/
+    )
+endif()
 
-find_package(games-controller REQUIRED CONFIG)
-find_package(game-activity REQUIRED CONFIG)
-find_package(games-frame-pacing REQUIRED CONFIG)
-find_package(oboe REQUIRED CONFIG)
+if(NOT DEFINED GAME_STATIC)
+    set(GAME_STATIC OFF)
+endif()
 
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u GameActivity_onCreate")
-
-target_link_libraries(
-    RetroEngine
-    android
-    libogg
-    libtheora
-    EGL
-    GLESv3
-    log
-    z
-    jnigraphics
-    games-controller::paddleboat_static
-    game-activity::game-activity
-    games-frame-pacing::swappy_static
-    oboe::oboe
-    OpenSLES
+target_compile_definitions(RetroEngine PRIVATE
+    RETRO_REVISION=${RETRO_REVISION}
+    RSDK_USE_${RETRO_SUBSYSTEM}=1
+    RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
+    RETRO_STANDALONE=$<NOT:$<BOOL:${GAME_STATIC}>>
+    RETRO_DEV_EXTRA="${PLATFORM} - ${RETRO_SUBSYSTEM} - ${CMAKE_CXX_COMPILER_ID}"
 )
+
+if(NOT GAME_STATIC AND WITH_RSDK)
+    add_custom_command(TARGET RetroEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:${GAME_NAME}>
+        $<TARGET_FILE_DIR:RetroEngine>)
+endif()

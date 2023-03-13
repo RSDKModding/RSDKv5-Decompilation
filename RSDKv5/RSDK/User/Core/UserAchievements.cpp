@@ -123,6 +123,9 @@ void RSDK::SKU::ProcessAchievements()
                     InitString(&achievementStrings[0], achievementText.c_str(), 0);
                     String buffer;
                     CopyString(&achievementStrings[1], achievements->GetAchievementName(&buffer, achievementID));
+#if !RETRO_USE_ORIGINAL_CODE
+                    RemoveStorageEntry((void**)&buffer);
+#endif
 
                     if (curSKU.language == LANGUAGE_JP) {
                         achievementStringWidth[0] = 13 * achievementStrings[0].length;
@@ -158,6 +161,9 @@ void RSDK::SKU::DrawAchievements()
             InitString(&achievementStrings[0], achievementText.c_str(), 0);
             String buffer;
             CopyString(&achievementStrings[1], achievements->GetAchievementName(&buffer, achievementID));
+#if !RETRO_USE_ORIGINAL_CODE
+            RemoveStorageEntry((void**)&buffer);
+#endif
 
             int32 drawX = achievementStrX + currentScreen->size.x - achievementStrW;
             DrawRectangle(drawX, currentScreen->size.y - 40, achievementStrW - achievementStrX, 40, 0xFF107C, 0x10, INK_NONE, true);

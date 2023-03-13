@@ -417,8 +417,8 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_ProcessAnimation, ProcessAnimation);
 
     // Tile Layers
-    ADD_RSDK_FUNCTION(FunctionTable_GetTileLayer, GetTileLayer);
     ADD_RSDK_FUNCTION(FunctionTable_GetTileLayerID, GetTileLayerID);
+    ADD_RSDK_FUNCTION(FunctionTable_GetTileLayer, GetTileLayer);
     ADD_RSDK_FUNCTION(FunctionTable_GetLayerSize, GetLayerSize);
     ADD_RSDK_FUNCTION(FunctionTable_GetTile, GetTile);
     ADD_RSDK_FUNCTION(FunctionTable_SetTile, SetTile);
@@ -540,5 +540,5 @@ void RSDK::SetupFunctionTables()
 #if RETRO_REV02
 void RSDK::LinkGameLogic(void *info) { PrintLog(PRINT_POPUP, "Internal LinkGameLogic() function called, no logic will be linked"); }
 #else
-void RSDK::LinkGameLogic(GameInfo info) { PrintLog(PRINT_POPUP, "Internal LinkGameLogic() function called, no logic will be linked"); }
+void RSDK::LinkGameLogic(EngineInfo info) { PrintLog(PRINT_POPUP, "Internal LinkGameLogic() function called, no logic will be linked"); }
 #endif

@@ -1,10 +1,10 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+using namespace RSDK;
+
 #if RETRO_REV0U
 #include "Legacy/Scene3DLegacy.cpp"
 #endif
-
-using namespace RSDK;
 
 Model RSDK::modelList[MODEL_COUNT];
 Scene3D RSDK::scene3DList[SCENE3D_COUNT];
@@ -376,8 +376,11 @@ void RSDK::MatrixInverse(Matrix *dest, Matrix *matrix)
     for (int32 i = 0; i < 0x10; ++i) dest->values[i / 4][i % 4] = (int32)inv[i];
 }
 
-uint16 RSDK::LoadMesh(const char *filename, int32 scope)
+uint16 RSDK::LoadMesh(const char *filename, uint8 scope)
 {
+    if (!scope || scope > SCOPE_STAGE)
+        return -1;
+
     char fullFilePath[0x100];
     sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Meshes/%s", filename);
 
@@ -464,8 +467,11 @@ uint16 RSDK::LoadMesh(const char *filename, int32 scope)
     }
     return -1;
 }
-uint16 RSDK::Create3DScene(const char *name, uint16 vertexLimit, int32 scope)
+uint16 RSDK::Create3DScene(const char *name, uint16 vertexLimit, uint8 scope)
 {
+    if (!scope || scope > SCOPE_STAGE)
+        return -1;
+
     RETRO_HASH_MD5(hash);
     GEN_HASH_MD5(name, hash);
 
