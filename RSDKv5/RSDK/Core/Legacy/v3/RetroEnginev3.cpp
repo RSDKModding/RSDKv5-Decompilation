@@ -56,13 +56,17 @@ bool32 RSDK::Legacy::v3::LoadGameConfig(const char *filepath)
 #endif
         }
 
+#if RETRO_USE_MOD_LOADER
+        RSDK::Legacy::v3::LoadXMLSoundFX();
+#endif
+
         // Read Player Names
         uint8 plrCount = ReadInt8(&info);
         for (uint8 p = 0; p < plrCount; ++p) {
             ReadString(&info, strBuffer);
 
-            // needed for PlayerName[] stuff in scripts
 #if RETRO_USE_MOD_LOADER
+            // needed for PlayerName[] stuff in scripts
             StrCopy(modSettings.playerNames[p], strBuffer);
             modSettings.playerCount++;
 #endif
