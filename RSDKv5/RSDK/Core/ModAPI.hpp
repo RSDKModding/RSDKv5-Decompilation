@@ -177,6 +177,7 @@ struct ModInfo {
     std::string desc;
     std::string author;
     std::string version;
+    std::string folderName;
     bool active;
     bool redirectSaveRAM;
     bool disableGameLogic;
