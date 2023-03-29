@@ -1,4 +1,4 @@
-![header](https://user-images.githubusercontent.com/29069561/183143615-d7f77921-13cf-4c58-8c5f-6a1e76ea20e2.svg)
+![header](header.png?raw=true)
 
 A complete decompilation of Retro Engine v5 and v5Ultimate.
 
@@ -45,7 +45,7 @@ You can find the FAQ [here](./FAQ.md).
 
 # Special Thanks
 * [st×tic](https://github.com/stxticOVFL) for leading ModAPI development, porting to other platforms, general decompilation assistance, helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
-* [The Weigman](https://github.com/TheWeigman) for creating the asset bases such as the header and icons (originally made for RSDKv3 and v4, modified by st×tic)
+* [The Weigman](https://github.com/TheWeigman) for making v5u assets with st×tic such as the header and icons
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine) for being supportive of me and for giving me a place to show off these things that I've found
 
 # Contact:
