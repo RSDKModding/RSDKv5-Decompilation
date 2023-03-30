@@ -45,7 +45,7 @@ You can find the FAQ [here](./FAQ.md).
 
 # Special Thanks
 * [st×tic](https://github.com/stxticOVFL) for leading ModAPI development, porting to other platforms, general decompilation assistance, helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
-* [The Weigman](https://github.com/TheWeigman) for making v5u assets with st×tic such as the header and icons
+* [The Weigman](https://github.com/TheWeigman) for making v5 and v5U assets with st×tic such as the header and icons
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine) for being supportive of me and for giving me a place to show off these things that I've found
 
 # Contact:
