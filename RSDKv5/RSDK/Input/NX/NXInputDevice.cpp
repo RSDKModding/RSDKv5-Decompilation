@@ -7,7 +7,7 @@ HidNpadIdType npadTypes[5] = { HidNpadIdType_Handheld, HidNpadIdType_No1, HidNpa
 int32 nxVibrateDeviceCount = 0;
 
 int32 lastNPadType       = -1;
-int32 activeNPadTypes[5] = { -1, -1, -1, -1, -1 };
+int activeNPadTypes[5] = { -1, -1, -1, -1, -1 };
 
 uint8 activeNPadCount = 8;
 uint8 nPadIDs[]       = { 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -15,7 +15,7 @@ uint8 storedNPadIDs[] = { 0, 0, 0, 0, 0 };
 
 int32 RSDK::SKU::currentNXControllerType = (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_HANDHELD << 0);
 
-void UpdateInputNX(InputDeviceNX *device, int64 *buttonMasks, int32 *hDelta, int32 *vDelta)
+void UpdateInputNX(InputDeviceNX *device, u64 *buttonMasks, int32 *hDelta, int32 *vDelta)
 {
     int32 prevButtonMasks = device->buttonMasks;
     device->buttonMasks   = *buttonMasks;
@@ -97,7 +97,7 @@ void InputDeviceNXJoyL::UpdateInput()
     vDelta[0] = -state.analog_stick_l.y;
     vDelta[1] = -state.analog_stick_r.y;
 
-    int64 correctedButtonMasks = state.buttons;
+    u64 correctedButtonMasks = state.buttons;
 
     // "Rotate" the buttons
     correctedButtonMasks |= (state.buttons & HidNpadButton_Down) ? HidNpadButton_A : 0;
@@ -121,7 +121,7 @@ void InputDeviceNXJoyL::UpdateInput()
         //     OnAssertionFailure(2, "", "", "", 0);
 
         if (lastNPadType <= 3 && activeNPadTypes[lastNPadType] == 4)
-            hidMergeSingleJoyAsDualJoy(activeNPadTypes[lastNPadType], this->npadType);
+            hidMergeSingleJoyAsDualJoy((HidNpadIdType)activeNPadTypes[lastNPadType], this->npadType);
         else
             lastNPadType = this->npadType;
     }
@@ -139,7 +139,7 @@ void InputDeviceNXJoyR::UpdateInput()
     vDelta[0] = -state.analog_stick_l.y;
     vDelta[1] = -state.analog_stick_r.y;
 
-    int64 correctedButtonMasks = state.buttons;
+    u64 correctedButtonMasks = state.buttons;
 
     // "Rotate" the buttons
     correctedButtonMasks |= (state.buttons & HidNpadButton_A) ? HidNpadButton_B : 0;
@@ -163,7 +163,7 @@ void InputDeviceNXJoyR::UpdateInput()
         //     OnAssertionFailure(2, "", "", "", 0);
 
         if (lastNPadType <= 3 && activeNPadTypes[lastNPadType] == 3)
-            hidMergeSingleJoyAsDualJoy(activeNPadTypes[lastNPadType], this->npadType);
+            hidMergeSingleJoyAsDualJoy((HidNpadIdType)activeNPadTypes[lastNPadType], this->npadType);
         else
             lastNPadType = this->npadType;
     }
@@ -189,8 +189,8 @@ void InputDeviceNXJoyGrip::UpdateInput()
     int32 masks = (int32)state.buttons;
     if ((masks & HidNpadButton_LeftSL) && (masks & HidNpadButton_LeftSR)) {
         for (int32 id = HidNpadIdType_No1; id <= HidNpadIdType_No4; ++id) {
-            if (!hidGetNpadStyleSet(id)) {
-                hidSetNpadJoyAssignmentModeSingleByDefault(id);
+            if (!hidGetNpadStyleSet((HidNpadIdType)id)) {
+                hidSetNpadJoyAssignmentModeSingleByDefault((HidNpadIdType)id);
                 return;
             }
         }
@@ -199,8 +199,8 @@ void InputDeviceNXJoyGrip::UpdateInput()
     }
     else if ((masks & HidNpadButton_RightSL) && (masks & HidNpadButton_RightSR)) {
         for (int32 id = HidNpadIdType_No1; id <= HidNpadIdType_No4; ++id) {
-            if (!hidGetNpadStyleSet(id)) {
-                hidSetNpadJoyAssignmentModeSingleByDefault(id);
+            if (!hidGetNpadStyleSet((HidNpadIdType)id)) {
+                hidSetNpadJoyAssignmentModeSingleByDefault((HidNpadIdType)id);
                 return;
             }
         }
@@ -288,7 +288,7 @@ void InputDeviceNX::ProcessInput(int32 controllerID)
 #endif
 }
 
-InputDeviceNXHandheld *RSDK::SKU::InitNXHandheldInputDevice(uint32 id, int32 type)
+InputDeviceNXHandheld *RSDK::SKU::InitNXHandheldInputDevice(uint32 id, HidNpadIdType type)
 {
     if (inputDeviceCount == INPUTDEVICE_COUNT)
         return NULL;
@@ -320,7 +320,7 @@ InputDeviceNXHandheld *RSDK::SKU::InitNXHandheldInputDevice(uint32 id, int32 typ
     return device;
 }
 
-InputDeviceNXJoyL *RSDK::SKU::InitNXJoyLInputDevice(uint32 id, int32 type)
+InputDeviceNXJoyL *RSDK::SKU::InitNXJoyLInputDevice(uint32 id, HidNpadIdType type)
 {
     if (inputDeviceCount == INPUTDEVICE_COUNT)
         return NULL;
@@ -351,7 +351,7 @@ InputDeviceNXJoyL *RSDK::SKU::InitNXJoyLInputDevice(uint32 id, int32 type)
     inputDeviceCount++;
     return device;
 }
-InputDeviceNXJoyR *RSDK::SKU::InitNXJoyRInputDevice(uint32 id, int32 type)
+InputDeviceNXJoyR *RSDK::SKU::InitNXJoyRInputDevice(uint32 id, HidNpadIdType type)
 {
     if (inputDeviceCount == INPUTDEVICE_COUNT)
         return NULL;
@@ -382,7 +382,7 @@ InputDeviceNXJoyR *RSDK::SKU::InitNXJoyRInputDevice(uint32 id, int32 type)
     inputDeviceCount++;
     return device;
 }
-InputDeviceNXJoyGrip *RSDK::SKU::InitNXJoyGripInputDevice(uint32 id, int32 type)
+InputDeviceNXJoyGrip *RSDK::SKU::InitNXJoyGripInputDevice(uint32 id, HidNpadIdType type)
 {
     if (inputDeviceCount == INPUTDEVICE_COUNT)
         return NULL;
@@ -413,7 +413,7 @@ InputDeviceNXJoyGrip *RSDK::SKU::InitNXJoyGripInputDevice(uint32 id, int32 type)
     inputDeviceCount++;
     return device;
 }
-InputDeviceNXPro *RSDK::SKU::InitNXProInputDevice(uint32 id, int32 type)
+InputDeviceNXPro *RSDK::SKU::InitNXProInputDevice(uint32 id, HidNpadIdType type)
 {
     if (inputDeviceCount == INPUTDEVICE_COUNT)
         return NULL;

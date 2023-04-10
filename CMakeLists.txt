@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.7)
 
 project(RetroEngine)
 
+set(DECOMP_VERSION 1.1.0-a)
+
 set(RETRO_REVISION 3 CACHE STRING "What revision to compile for. Defaults to v5U = 3")
 option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
 
@@ -53,8 +55,6 @@ if(NOT PLATFORM)
         set(PLATFORM "Windows" CACHE STRING "The platform to compile for.")
     elseif(ANDROID)
         set(PLATFORM "Android" CACHE STRING "The platform to compile for.")
-    elseif(SWITCH)
-        set(PLATFORM "Switch" CACHE STRING "The platform to compile for.")
     else()
         set(PLATFORM ${CMAKE_SYSTEM_NAME} CACHE STRING "The platform to compile for.")
     endif()
@@ -143,6 +143,7 @@ target_compile_definitions(RetroEngine PRIVATE
     RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
     RETRO_STANDALONE=$<NOT:$<BOOL:${GAME_STATIC}>>
     RETRO_DEV_EXTRA="${PLATFORM} - ${RETRO_SUBSYSTEM} - ${CMAKE_CXX_COMPILER_ID}"
+    DECOMP_VERSION="${DECOMP_VERSION}"
 )
 
 if(NOT GAME_STATIC AND WITH_RSDK)
