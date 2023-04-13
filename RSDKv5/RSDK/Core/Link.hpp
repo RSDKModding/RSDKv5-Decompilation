@@ -416,9 +416,11 @@ public:
     typedef HMODULE Handle;
     // constexpr was added in C++11 this is safe don't kill me
     static constexpr const char *extention = ".dll";
+    static constexpr const char *prefix    = NULL;
 #elif RETRO_PLATFORM == RETRO_SWITCH
-    typedef DynModule* Handle;
+    typedef DynModule *Handle;
     static constexpr const char *extention = ".elf";
+    static constexpr const char *prefix    = NULL;
 
     static Handle dlopen(const char *, int);
     static void *dlsym(Handle, const char *);
@@ -426,7 +428,7 @@ public:
     static char *dlerror();
 
     static constexpr const int RTLD_LOCAL = 0;
-    static constexpr const int RTLD_LAZY = 0;
+    static constexpr const int RTLD_LAZY  = 0;
 
 private:
     static Result err;
@@ -434,6 +436,7 @@ private:
 public:
 #else
     typedef void *Handle;
+    static constexpr const char *prefix    = "lib";
 #if RETRO_PLATFORM == RETRO_OSX
     static constexpr const char *extention = ".dylib";
 #else
@@ -483,11 +486,29 @@ public:
         // put it again!
         path += extention;
 
-        Handle ret = PlatformLoadLibrary(path);
+        Handle ret;
+        if (prefix) {
+            int32 last = path.find_last_of('/') + 1;
+            if (last == std::string::npos + 1)
+                ret = PlatformLoadLibrary(prefix + path);
+            else
+                ret = PlatformLoadLibrary(path.substr(0, last) + prefix + path.substr(last));
+        }
+        if (!ret)
+            ret = PlatformLoadLibrary(path);
 
 #if RETRO_ARCHITECTURE
-        if (!ret)
-            ret = PlatformLoadLibrary(original_path);
+        if (!ret) {
+            if (prefix) {
+                int32 last = original_path.find_last_of('/') + 1;
+                if (last == std::string::npos + 1)
+                    ret = PlatformLoadLibrary(prefix + original_path);
+                else
+                    ret = PlatformLoadLibrary(original_path.substr(0, last) + prefix + original_path.substr(last));
+            }
+            if (!ret)
+                ret = PlatformLoadLibrary(original_path);
+        }
 #endif // ! RETRO_ARCHITECTURE
         return ret;
     }
