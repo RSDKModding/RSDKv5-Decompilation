@@ -172,6 +172,8 @@ void RSDK::SKU::InitGLFWInputAPI()
 
         if (glfwUpdateGamepadMappings(buf) == GLFW_FALSE)
             RSDK::PrintLog(PRINT_NORMAL, "[GLFW] failed to load from gamecontrollerdb");
+
+        RemoveStorageEntry((void**)&buf);
     }
 
     for (int32 i = GLFW_JOYSTICK_1; i < GLFW_JOYSTICK_LAST; ++i) {
