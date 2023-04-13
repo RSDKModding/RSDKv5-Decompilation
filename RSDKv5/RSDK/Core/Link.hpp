@@ -416,6 +416,22 @@ public:
     typedef HMODULE Handle;
     // constexpr was added in C++11 this is safe don't kill me
     static constexpr const char *extention = ".dll";
+#elif RETRO_PLATFORM == RETRO_SWITCH
+    typedef DynModule* Handle;
+    static constexpr const char *extention = ".elf";
+
+    static Handle dlopen(const char *, int);
+    static void *dlsym(Handle, const char *);
+    static int dlclose(Handle);
+    static char *dlerror();
+
+    static constexpr const int RTLD_LOCAL = 0;
+    static constexpr const int RTLD_LAZY = 0;
+
+private:
+    static Result err;
+
+public:
 #else
     typedef void *Handle;
 #if RETRO_PLATFORM == RETRO_OSX
@@ -425,10 +441,6 @@ public:
 #endif
 #endif
 
-#if RETRO_PLATFORM == RETRO_SWITCH
-    // do nothing for switch
-    static inline Handle Open(std::string path) { return NULL; }
-#else
     static inline Handle PlatformLoadLibrary(std::string path)
     {
         Handle ret;
@@ -442,12 +454,14 @@ public:
         path = "lib" + path;
 #endif // ! RETRO_PLATFORM == ANDROID
         ret  = (Handle)dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
+#if RETRO_PLATFORM != RETRO_SWITCH
         // try loading the library globally on linux
         if (!ret) {
             if (path.find_last_of('/') != std::string::npos)
                 path = path.substr(path.find_last_of('/') + 1);
             ret = (Handle)dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
         }
+#endif // ! RETRO_PLATFORM != SWITCH
 #endif // ! RETRO_PLATFORM == WIN
         return ret;
     }
@@ -477,27 +491,19 @@ public:
 #endif // ! RETRO_ARCHITECTURE
         return ret;
     }
-#endif // ! RETRO_PLATFORM == SWITCH
 
     static inline void Close(Handle handle)
     {
-#if RETRO_PLATFORM == RETRO_SWITCH
-        return;
-#else
         if (handle)
 #if RETRO_PLATFORM == RETRO_WIN
             FreeLibrary(handle);
 #else
             dlclose(handle);
 #endif
-#endif
     }
 
     static inline void *GetSymbol(Handle handle, const char *symbol)
     {
-#if RETRO_PLATFORM == RETRO_SWITCH
-        return NULL;
-#else
         if (!handle)
             return NULL;
 #if RETRO_PLATFORM == RETRO_WIN
@@ -505,19 +511,14 @@ public:
 #else
         return (void *)dlsym(handle, symbol);
 #endif
-#endif
     }
 
     static inline char *GetError()
     {
-#if RETRO_PLATFORM == RETRO_SWITCH
-        return NULL;
-#else
 #if RETRO_PLATFORM == RETRO_WIN
         return (char *)GetLastErrorAsString();
 #else
         return dlerror();
-#endif
 #endif
     }
 

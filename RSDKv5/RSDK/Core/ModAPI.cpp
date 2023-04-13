@@ -691,6 +691,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                     Link::Handle linkHandle = Link::Open(file.string().c_str());
 
                     if (linkHandle) {
+                        modLink linkModLogic = (modLink)Link::GetSymbol(linkHandle, "LinkModLogic");
                         const ModVersionInfo *modInfo = (const ModVersionInfo *)Link::GetSymbol(linkHandle, "modInfo");
                         if (!modInfo) {
                             // PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
@@ -717,7 +718,6 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                                      file.string().c_str(), modInfo->modLoaderVer, targetModVersion.modLoaderVer);
                         }
 
-                        modLink linkModLogic = (modLink)Link::GetSymbol(linkHandle, "LinkModLogic");
                         if (linkModLogic) {
                             info->linkModLogic.push_back(linkModLogic);
                             linked = true;
