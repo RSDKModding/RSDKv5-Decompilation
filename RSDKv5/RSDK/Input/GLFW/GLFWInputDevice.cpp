@@ -160,24 +160,18 @@ void RSDK::SKU::InitGLFWInputAPI()
                               "Controller,a:b0,b:b1,back:b11,dpdown:b15,dpleft:b12,dpright:b14,dpup:b13,leftshoulder:b6,leftstick:b4,lefttrigger:"
                               "b8,leftx:a0,lefty:a1,rightshoulder:b7,rightstick:b5,righttrigger:b9,rightx:a2,righty:a3,start:b10,x:b3,y:b2,");
     // Support for extra controller types SDL doesn't recognise
-#elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
-    // if (!usingCWD)
-    //    sprintf(buffer, "%s/controllerdb.txt", getResourcesPath());
-    // else
-    //    sprintf(buffer, "%scontrollerdb.txt", gamePath);
-    sprintf(buffer, BASE_PATH "controllerdb.txt");
-#else
-    sprintf(buffer, BASE_PATH "controllerdb.txt");
 #endif // ! RETRO_PLATFORM == RETRO_SWITCH
 
-    FileIO *file = fOpen(buffer, "rb");
-    if (file) {
-        fClose(file);
-        /*
-        int32 nummaps = SDL_GameControllerAddMappingsFromFile(buffer);
-        if (nummaps >= 0)
-            RSDK::PrintLog(PRINT_NORMAL, "loaded %d controller mappings from '%s'", buffer, nummaps);
-        // i'll do this later it's not using the usercore dir*/
+    FileInfo f;
+    char path[0x100]; 
+    sprintf_s(path, sizeof(path), "%s/gamecontrollerdb.txt", SKU::userFileDir);
+
+    if (LoadFile(&f, path, FMODE_RB)) {
+        char* buf;
+        AllocateStorage((void**)&buf, f.fileSize, DATASET_TMP, true);
+
+        if (glfwUpdateGamepadMappings(buf) == GLFW_FALSE)
+            RSDK::PrintLog(PRINT_NORMAL, "[GLFW] failed to load from gamecontrollerdb");
     }
 
     for (int32 i = GLFW_JOYSTICK_1; i < GLFW_JOYSTICK_LAST; ++i) {
