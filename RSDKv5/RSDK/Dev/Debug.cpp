@@ -92,11 +92,11 @@ void RSDK::PrintLog(int32 mode, const char *message, ...)
                 case PRINT_FATAL: as = ANDROID_LOG_FATAL; break;
                 default: break;
             }
-            auto *jni = GetJNISetup();
-            int len = strlen(outputString);
+            auto *jni        = GetJNISetup();
+            int len          = strlen(outputString);
             jbyteArray array = jni->env->NewByteArray(len); // as per research, this gets freed automatically
             jni->env->SetByteArrayRegion(array, 0, len, (jbyte *)outputString);
-            jni->env->CallVoidMethod(jni->thiz, writeLog, array, as);            
+            jni->env->CallVoidMethod(jni->thiz, writeLog, array, as);
 #elif RETRO_PLATFORM == RETRO_SWITCH
             printf("%s", outputString);
 #endif
@@ -348,7 +348,7 @@ void RSDK::DevMenu_MainMenu()
 #endif
 #endif
     y += 8;
-    DrawDevString(gameVerInfo.gameTitle, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);   
+    DrawDevString(gameVerInfo.gameTitle, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
 
     y += 8;
     DrawDevString(gameVerInfo.version, currentScreen->center.x, y, ALIGN_CENTER, 0x808090);
@@ -500,9 +500,11 @@ void RSDK::DevMenu_MainMenu()
 #else
             case 4:
                 LoadMods(true); // reload our mod list real quick
-                devMenu.state     = DevMenu_ModsMenu;
-                devMenu.selection = 0;
-                devMenu.timer     = 1;
+                if (modList.size() != 0) {
+                    devMenu.state     = DevMenu_ModsMenu;
+                    devMenu.selection = 0;
+                    devMenu.timer     = 1;
+                }
                 break;
 
             case 5: RenderDevice::isRunning = false; break;
