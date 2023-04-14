@@ -8,8 +8,6 @@ bool32 RSDK::SKU::HIDEnabled = false;
 InputDevice *RSDK::SKU::rawInputDevices[INPUTDEVICE_COUNT];
 int32 RSDK::SKU::rawInputDeviceCount = 0;
 
-tagRAWINPUT RSDK::SKU::rawInputData;
-
 void RSDK::SKU::InputDeviceRaw::UpdateInput()
 {
     this->prevButtonMasks = this->buttonMasks;
@@ -253,13 +251,29 @@ void RSDK::SKU::InitHIDDevices()
 void RSDK::SKU::UpdateHIDButtonStates(HRAWINPUT hRawInput)
 {
     uint32 pcbSize;
-    GetRawInputData(hRawInput, RID_INPUT, NULL, &pcbSize, sizeof(rawInputData.header));          // get size
-    GetRawInputData(hRawInput, RID_INPUT, &rawInputData, &pcbSize, sizeof(rawInputData.header)); // get data
+    tagRAWINPUT *rawInputData;
+
+    GetRawInputData(hRawInput, RID_INPUT, NULL, &pcbSize, sizeof(rawInputData->header));          // get size
+#if RETRO_USE_ORIGINAL_CODE || true 
+    // this is likely how rsdk ACTUALLY did it according to ms cods
+    uint8 inputBuffer[1024];
+    if (pcbSize <= sizeof(inputBuffer)) {
+        PrintLog(PRINT_FATAL, "PCBSIZE OVER 1024");
+    }
+    rawInputData = (tagRAWINPUT *)inputBuffer;
+#else
+    // BUT i likke this safer way way better
+    // which doesnt work on pcbSize == 0 but it's 12:30 so im ot fixing it yet
+    uint8* inputBuffer;
+    AllocateStorage((void**)&inputBuffer, pcbSize, DATASET_TMP, true);
+    rawInputData = (tagRAWINPUT *)inputBuffer;
+#endif
+    GetRawInputData(hRawInput, RID_INPUT, &inputBuffer, &pcbSize, sizeof(rawInputData->header)); // get data
 
     for (int32 d = 0; d < rawInputDeviceCount; ++d) {
         InputDeviceRaw *device = (InputDeviceRaw *)rawInputDevices[d];
 
-        if (device && device->deviceHandle == rawInputData.header.hDevice) {
+        if (device && device->deviceHandle == rawInputData->header.hDevice) {
             device->activeButtons = 0;
             for (int32 b = 0; b < RAWBUTTON_TRIGGER_L; ++b) {
                 int32 offset = device->buttons[b].offset;
@@ -271,17 +285,17 @@ void RSDK::SKU::UpdateHIDButtonStates(HRAWINPUT hRawInput)
                     case RAWMAP_ANALOG_POS: break;
 
                     case RAWMAP_ONBUTTONDOWN:
-                        if (((1 << (offset & 7)) & rawInputData.data.hid.bRawData[offset >> 3]) != 0)
+                        if (((1 << (offset & 7)) & rawInputData->data.hid.bRawData[offset >> 3]) != 0)
                             device->activeButtons |= device->buttons[b].maskVal;
                         break;
 
                     case RAWMAP_ONBUTTONUP:
-                        if (((1 << (offset & 7)) & rawInputData.data.hid.bRawData[offset >> 3]) == 0)
+                        if (((1 << (offset & 7)) & rawInputData->data.hid.bRawData[offset >> 3]) == 0)
                             device->activeButtons |= device->buttons[b].maskVal;
                         break;
 
                     case RAWMAP_DIRECTIONAL:
-                        switch (rawInputData.data.hid.bRawData[offset >> 3] & 0xF) {
+                        switch (rawInputData->data.hid.bRawData[offset >> 3] & 0xF) {
                             case 0: device->activeButtons |= KEYMASK_UP; break;
                             case 1: device->activeButtons |= KEYMASK_UP | KEYMASK_RIGHT; break;
                             case 2: device->activeButtons |= KEYMASK_RIGHT; break;
@@ -307,8 +321,8 @@ void RSDK::SKU::UpdateHIDButtonStates(HRAWINPUT hRawInput)
                     case RAWMAP_ONBUTTONUP:
                     case RAWMAP_DIRECTIONAL: break;
 
-                    case RAWMAP_ANALOG_NEG: delta = (rawInputData.data.hid.bRawData[offset >> 3] - 128.0) * -(1.0 / 128); break;
-                    case RAWMAP_ANALOG_POS: delta = (rawInputData.data.hid.bRawData[offset >> 3] - 128.0) * (1.0 / 128); break;
+                    case RAWMAP_ANALOG_NEG: delta = (rawInputData->data.hid.bRawData[offset >> 3] - 128.0) * -(1.0 / 128); break;
+                    case RAWMAP_ANALOG_POS: delta = (rawInputData->data.hid.bRawData[offset >> 3] - 128.0) * (1.0 / 128); break;
                 }
 
                 switch (b) {
@@ -322,4 +336,7 @@ void RSDK::SKU::UpdateHIDButtonStates(HRAWINPUT hRawInput)
             }
         }
     }
+#if !RETRO_USE_ORIGINAL_CODE && false
+    RemoveStorageEntry((void**)&inputBuffer);
+#endif
 }
