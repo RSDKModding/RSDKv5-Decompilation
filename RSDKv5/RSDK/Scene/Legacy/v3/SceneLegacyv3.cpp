@@ -85,7 +85,8 @@ void RSDK::Legacy::v3::ProcessStage()
             sceneInfo.currentScreenID = 0;
             currentScreen             = screens;
 #if RETRO_USE_MOD_LOADER
-            RefreshModFolders();
+            if (devMenu.modsChanged)
+                RefreshModFolders();
 #endif
             ResetBackgroundSettings();
             LoadStageFiles();

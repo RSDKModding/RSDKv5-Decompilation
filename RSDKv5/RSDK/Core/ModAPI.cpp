@@ -330,7 +330,7 @@ void DrawStatus(const char *str)
 #define RENDER_COUNT  (200)
 #endif
 
-bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoadMod)
+bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoadMod, bool32 loadingBar)
 {
     if (!info)
         return false;
@@ -364,12 +364,14 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
 
     if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
         try {
-            currentScreen = &screens[0];
-            DrawRectangle(dx - 0x80 + 0x10, dy + 48, 0x100 - 0x20, 0x10, 0x000000, 0xFF, INK_NONE, true);
-            DrawDevString(fromLoadMod ? "Getting count..." : ("Scanning " + info->id + "...").c_str(), currentScreen->center.x, dy + 52, ALIGN_CENTER,
-                          0xFFFFFF);
-            RenderDevice::CopyFrameBuffer();
-            RenderDevice::FlipScreen();
+            if (loadingBar) {
+                currentScreen = &screens[0];
+                DrawRectangle(dx - 0x80 + 0x10, dy + 48, 0x100 - 0x20, 0x10, 0x000000, 0xFF, INK_NONE, true);
+                DrawDevString(fromLoadMod ? "Getting count..." : ("Scanning " + info->id + "...").c_str(), currentScreen->center.x, dy + 52, ALIGN_CENTER,
+                            0xFFFFFF);
+                RenderDevice::CopyFrameBuffer();
+                RenderDevice::FlipScreen();
+            }
 
             auto dirIterator = fs::recursive_directory_iterator(dataPath, fs::directory_options::follow_directory_symlink);
 
@@ -384,7 +386,7 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
 #endif
                     files.push_back(dirFile);
 
-                    if (++size >= RENDER_COUNT * renders) {
+                    if (loadingBar && ++size >= RENDER_COUNT * renders) {
                         DrawRectangle(dx - 0x80 + 0x10, dy + 48, 0x100 - 0x20, 0x10, 0x000000, 0xFF, INK_NONE, true);
                         DrawDevString((std::to_string(size) + " files").c_str(), currentScreen->center.x, dy + 52, ALIGN_CENTER, 0xFFFFFF);
                         RenderDevice::CopyFrameBuffer();
@@ -405,7 +407,7 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
                                [](unsigned char c) { return c == '\\' ? '/' : std::tolower(c); });
 
                 info->fileMap.insert(std::pair<std::string, std::string>(folderPath, dirFile.path().string()));
-                if ((size * bars) / BAR_THRESHOLD < ++i) {
+                if (loadingBar && (size * bars) / BAR_THRESHOLD < ++i) {
                     DrawRectangle(dx - 0x80 + 0x10, dy + 48, 0x100 - 0x20, 0x10, 0x000000, 0xFF, INK_NONE, true);
                     DrawRectangle(dx - 0x80 + 0x10 + 2, dy + 50, (int32)((0x100 - 0x20 - 4) * (i / (float)size)), 0x10 - 4, 0x00FF00, 0xFF, INK_NONE,
                                   true);
@@ -420,7 +422,7 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
         }
     }
 
-    if (fromLoadMod) {
+    if (loadingBar && fromLoadMod) {
         DrawRectangle(dx - 0x80 + 0x10, dy + 48, 0x100 - 0x20, 0x10, 0x000080, 0xFF, INK_NONE, true);
 
         RenderDevice::CopyFrameBuffer();

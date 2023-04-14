@@ -254,12 +254,12 @@ inline std::vector<ModInfo *> ActiveMods()
     return ret;
 }
 
-bool32 ScanModFolder(ModInfo *info, const char *targetFile = nullptr, bool32 fromLoadMod = false);
-inline void RefreshModFolders(bool32 versionOnly = false)
+bool32 ScanModFolder(ModInfo *info, const char *targetFile = nullptr, bool32 fromLoadMod = false, bool32 loadingBar = true);
+inline void RefreshModFolders(bool32 versionOnly = false, bool32 loadingBar = true)
 {
     int32 activeModCount = (int32)ActiveMods().size();
     for (int32 m = 0; m < activeModCount; ++m) {
-        ScanModFolder(&modList[m], versionOnly ? "Data/Game/GameConfig.bin" : nullptr, true);
+        ScanModFolder(&modList[m], versionOnly ? "Data/Game/GameConfig.bin" : nullptr, true, loadingBar);
     }
 }
 

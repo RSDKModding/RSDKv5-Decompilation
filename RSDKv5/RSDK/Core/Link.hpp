@@ -486,7 +486,7 @@ public:
         // put it again!
         path += extention;
 
-        Handle ret;
+        Handle ret = NULL;
         if (prefix) {
             int32 last = path.find_last_of('/') + 1;
             if (last == std::string::npos + 1)
