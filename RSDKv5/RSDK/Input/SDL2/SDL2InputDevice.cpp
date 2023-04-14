@@ -238,7 +238,7 @@ void RSDK::SKU::InitSDL2InputAPI()
     SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
 
     char path[0x100]; 
-    sprintf_s(path, sizeof(path), "%s/gamecontrollerdb.txt", SKU::userFileDir);
+    sprintf_s(path, sizeof(path), "%sgamecontrollerdb.txt", SKU::userFileDir);
     SDL_GameControllerAddMappingsFromFile(path);
 }
 
