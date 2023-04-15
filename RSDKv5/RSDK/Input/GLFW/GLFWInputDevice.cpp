@@ -163,6 +163,8 @@ void RSDK::SKU::InitGLFWInputAPI()
 #endif // ! RETRO_PLATFORM == RETRO_SWITCH
 
     FileInfo f;
+    InitFileInfo(&f);
+    f.externalFile = true;
     char path[0x100]; 
     sprintf_s(path, sizeof(path), "%sgamecontrollerdb.txt", SKU::userFileDir);
 
@@ -174,6 +176,7 @@ void RSDK::SKU::InitGLFWInputAPI()
             RSDK::PrintLog(PRINT_NORMAL, "[GLFW] failed to load from gamecontrollerdb");
 
         RemoveStorageEntry((void**)&buf);
+        CloseFile(&f);
     }
 
     for (int32 i = GLFW_JOYSTICK_1; i < GLFW_JOYSTICK_LAST; ++i) {
