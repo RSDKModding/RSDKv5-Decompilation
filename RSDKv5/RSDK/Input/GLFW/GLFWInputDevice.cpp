@@ -170,7 +170,10 @@ void RSDK::SKU::InitGLFWInputAPI()
 
     if (LoadFile(&f, path, FMODE_RB)) {
         char* buf;
-        AllocateStorage((void**)&buf, f.fileSize, DATASET_TMP, true);
+        AllocateStorage((void**)&buf, f.fileSize + 1, DATASET_TMP, false);
+        buf[f.fileSize] = 0;
+        ReadBytes(&f, buf, f.fileSize);
+        RSDK::PrintLog(PRINT_NORMAL, "[GLFW] gamecontrollerdb size %d: %s", f.fileSize, buf);
 
         if (glfwUpdateGamepadMappings(buf) == GLFW_FALSE)
             RSDK::PrintLog(PRINT_NORMAL, "[GLFW] failed to load from gamecontrollerdb");
@@ -180,6 +183,7 @@ void RSDK::SKU::InitGLFWInputAPI()
     }
 
     for (int32 i = GLFW_JOYSTICK_1; i < GLFW_JOYSTICK_LAST; ++i) {
+        RSDK::PrintLog(PRINT_NORMAL, "[GLFW] joystick %d is '%s', isGamepad %d", i, glfwGetJoystickName(i), glfwJoystickIsGamepad(i));
         if (glfwJoystickIsGamepad(i)) {
             uint32 hash;
             char idBuffer[0x20];
