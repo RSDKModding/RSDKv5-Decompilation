@@ -254,21 +254,19 @@ void RSDK::SKU::UpdateHIDButtonStates(HRAWINPUT hRawInput)
     tagRAWINPUT *rawInputData;
 
     GetRawInputData(hRawInput, RID_INPUT, NULL, &pcbSize, sizeof(rawInputData->header));          // get size
-#if RETRO_USE_ORIGINAL_CODE || true 
+#if RETRO_USE_ORIGINAL_CODE
     // this is likely how rsdk ACTUALLY did it according to ms cods
     uint8 inputBuffer[1024];
     if (pcbSize <= sizeof(inputBuffer)) {
-        PrintLog(PRINT_FATAL, "PCBSIZE OVER 1024");
+        PrintLog(PRINT_FATAL, "PCBSIZE OVER SIZEOF(INPUTBUFFER) (%d/%d)", pcbSize, sizeof(inputBuffer));
     }
-    rawInputData = (tagRAWINPUT *)inputBuffer;
 #else
     // BUT i likke this safer way way better
-    // which doesnt work on pcbSize == 0 but it's 12:30 so im ot fixing it yet
     uint8* inputBuffer;
-    AllocateStorage((void**)&inputBuffer, pcbSize, DATASET_TMP, true);
-    rawInputData = (tagRAWINPUT *)inputBuffer;
+    AllocateStorage((void**)&inputBuffer, pcbSize, DATASET_TMP, false);
 #endif
-    GetRawInputData(hRawInput, RID_INPUT, &inputBuffer, &pcbSize, sizeof(rawInputData->header)); // get data
+    rawInputData = (tagRAWINPUT *)inputBuffer;
+    GetRawInputData(hRawInput, RID_INPUT, inputBuffer, &pcbSize, sizeof(rawInputData->header)); // get data
 
     for (int32 d = 0; d < rawInputDeviceCount; ++d) {
         InputDeviceRaw *device = (InputDeviceRaw *)rawInputDevices[d];
@@ -336,7 +334,7 @@ void RSDK::SKU::UpdateHIDButtonStates(HRAWINPUT hRawInput)
             }
         }
     }
-#if !RETRO_USE_ORIGINAL_CODE && false
+#if !RETRO_USE_ORIGINAL_CODE
     RemoveStorageEntry((void**)&inputBuffer);
 #endif
 }
