@@ -684,7 +684,7 @@ void RSDK::InitEngine()
             engine.gameRenderType    = "SW_Rendering";
             engine.gameHapticSetting = "No_Haptics";
 #if !RETRO_USE_ORIGINAL_CODE
-            engine.releaseType = (engine.gameReleaseID ? "Use_Origins" : "Use_Standlone");
+            engine.releaseType = (engine.gameReleaseID ? "Use_Origins" : "Use_Standalone");
 
             Legacy::deviceType = RETRO_DEVICETYPE;
             switch (RETRO_PLATFORM) {
