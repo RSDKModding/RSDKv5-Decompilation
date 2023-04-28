@@ -20,11 +20,11 @@ ChannelInfo RSDK::channels[CHANNEL_COUNT];
 char streamFilePath[0x40];
 uint8 *streamBuffer    = NULL;
 int32 streamBufferSize = 0;
-uint32 streamStartPos   = 0;
+uint32 streamStartPos  = 0;
 int32 streamLoopPoint  = 0;
 
 #define LINEAR_INTERPOLATION_LOOKUP_DIVISOR 0x40 // Determines the 'resolution' of the lookup table.
-#define LINEAR_INTERPOLATION_LOOKUP_LENGTH (TO_FIXED(1) / LINEAR_INTERPOLATION_LOOKUP_DIVISOR)
+#define LINEAR_INTERPOLATION_LOOKUP_LENGTH  (TO_FIXED(1) / LINEAR_INTERPOLATION_LOOKUP_DIVISOR)
 
 float linearInterpolationLookup[LINEAR_INTERPOLATION_LOOKUP_LENGTH];
 
@@ -81,7 +81,14 @@ void AudioDeviceBase::ProcessAudioMixing(void *stream, int32 length)
                 SAMPLE_FORMAT *curStreamF = streamF;
                 while (curStreamF < streamEndF && streamF < streamEndF) {
                     // Perform linear interpolation.
-                    SAMPLE_FORMAT sample = (sfxBuffer[1] - sfxBuffer[0]) * linearInterpolationLookup[speedPercent / LINEAR_INTERPOLATION_LOOKUP_DIVISOR] + sfxBuffer[0];
+                    SAMPLE_FORMAT sample;
+#if !RETRO_USE_ORIGINAL_CODE
+                    if (!sfxBuffer) // PROTECTION FOR v5U (and other mysterious crashes 👻)
+                        sample = 0;
+                    else
+#endif
+                        sample = (sfxBuffer[1] - sfxBuffer[0]) * linearInterpolationLookup[speedPercent / LINEAR_INTERPOLATION_LOOKUP_DIVISOR]
+                                 + sfxBuffer[0];
 
                     speedPercent += channel->speed;
                     sfxBuffer += FROM_FIXED(speedPercent);
@@ -161,8 +168,7 @@ void AudioDeviceBase::InitAudioChannels()
 
     // Compute a lookup table of floating-point linear interpolation delta scales,
     // to speed-up the process of converting from fixed-point to floating-point.
-    for (int32 i = 0; i < LINEAR_INTERPOLATION_LOOKUP_LENGTH; ++i)
-        linearInterpolationLookup[i] = i / (float)LINEAR_INTERPOLATION_LOOKUP_LENGTH;
+    for (int32 i = 0; i < LINEAR_INTERPOLATION_LOOKUP_LENGTH; ++i) linearInterpolationLookup[i] = i / (float)LINEAR_INTERPOLATION_LOOKUP_LENGTH;
 
     GEN_HASH_MD5("Stream Channel 0", sfxList[SFX_COUNT - 1].hash);
     sfxList[SFX_COUNT - 1].scope              = SCOPE_GLOBAL;
@@ -198,8 +204,7 @@ void RSDK::UpdateStreamBuffer(ChannelInfo *channel)
         bufferRemaining = MIX_BUFFER_SIZE - s;
     }
 
-    for (int32 i = 0; i < MIX_BUFFER_SIZE; ++i)
-        channel->samplePtr[i] *= 0.5f;
+    for (int32 i = 0; i < MIX_BUFFER_SIZE; ++i) channel->samplePtr[i] *= 0.5f;
 }
 
 void RSDK::LoadStream(ChannelInfo *channel)
@@ -316,20 +321,20 @@ void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
             uint32 signature = ReadInt32(&info, false);
 
             if (signature == WAV_SIG_HEADER) {
-                ReadInt32(&info, false);                   // chunk size
-                ReadInt32(&info, false);                   // WAVE
-                ReadInt32(&info, false);                   // FMT
+                ReadInt32(&info, false); // chunk size
+                ReadInt32(&info, false); // WAVE
+                ReadInt32(&info, false); // FMT
 #if !RETRO_USE_ORIGINAL_CODE
                 int32 chunkSize = ReadInt32(&info, false); // chunk size
 #else
-                ReadInt32(&info, false);                   // chunk size
+                ReadInt32(&info, false); // chunk size
 #endif
-                ReadInt16(&info);                          // audio format
-                ReadInt16(&info);                          // channels
-                ReadInt32(&info, false);                   // sample rate
-                ReadInt32(&info, false);                   // bytes per sec
-                ReadInt16(&info);                          // block align
-                ReadInt16(&info);                          // format
+                ReadInt16(&info);        // audio format
+                ReadInt16(&info);        // channels
+                ReadInt32(&info, false); // sample rate
+                ReadInt32(&info, false); // bytes per sec
+                ReadInt16(&info);        // block align
+                ReadInt16(&info);        // format
 
                 Seek_Set(&info, 34);
                 uint16 sampleBits = ReadInt16(&info);
@@ -340,7 +345,7 @@ void RSDK::LoadSfxToSlot(char *filename, uint8 slot, uint8 plays, uint8 scope)
 #endif
 
                 // Find the data header
-                int32 loop        = 0;
+                int32 loop = 0;
                 while (true) {
                     signature = ReadInt32(&info, false);
                     if (signature == WAV_SIG_DATA)

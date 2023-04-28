@@ -92,7 +92,7 @@ void DummyCore::StageLoad()
 {
     UserCore::StageLoad();
 
-#ifndef RSDK_AUTOBUILD
+#if !RSDK_AUTOBUILD
     for (int32 v = 0; v < valueCount; ++v) AddViewableVariable(userValueNames[v], &values[v], VIEWVAR_BOOL, false, true);
 #else
     // disable plus on autobuilds

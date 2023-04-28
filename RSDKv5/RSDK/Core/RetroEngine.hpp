@@ -297,7 +297,7 @@ enum GameRegions {
 #error One of RSDK_USE_DX9, RSDK_USE_DX11, RSDK_USE_SDL2, or RSDK_USE_OGL must be defined.
 #endif
 
-#if !RETRO_AUDIODEVICE_PORT 
+#if !RETRO_AUDIODEVICE_PORT
 #if !RSDK_USE_SDL2
 #undef RETRO_AUDIODEVICE_XAUDIO
 #define RETRO_AUDIODEVICE_XAUDIO (1)
@@ -320,7 +320,7 @@ enum GameRegions {
 
 #elif RETRO_PLATFORM == RETRO_LINUX
 
-#if !RETRO_AUDIODEVICE_SDL2 
+#if !RETRO_AUDIODEVICE_SDL2
 #undef RETRO_AUDIODEVICE_PORT
 #define RETRO_AUDIODEVICE_PORT (1)
 #endif
@@ -472,7 +472,7 @@ enum GameRegions {
 #include <GLFW/glfw3.h>
 #elif RETRO_RENDERDEVICE_EGL
 #include <glad/glad.h>
-#include <EGL/egl.h> // EGL library
+#include <EGL/egl.h>    // EGL library
 #include <EGL/eglext.h> // EGL extensions
 
 #elif RETRO_RENDERDEVICE_VK
@@ -489,6 +489,9 @@ enum GameRegions {
 #if RETRO_PLATFORM == RETRO_SWITCH
 #define PrintConsole _PrintConsole
 #include <switch.h>
+extern "C" {
+#include <dyn.h>
+}
 #undef PrintConsole
 #endif
 
@@ -556,10 +559,10 @@ enum GameRegions {
 
 #if !RETRO_REV0U
 #define ENGINE_VERSION (5)
-#define ENGINE_V_NAME "v5"
+#define ENGINE_V_NAME  "v5"
 #else
 #define ENGINE_VERSION (engine.version)
-#define ENGINE_V_NAME "v5U"
+#define ENGINE_V_NAME  "v5U"
 #endif
 
 namespace RSDK

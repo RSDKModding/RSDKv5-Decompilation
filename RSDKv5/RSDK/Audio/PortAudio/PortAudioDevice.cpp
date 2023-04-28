@@ -3,6 +3,11 @@ PaStream *AudioDevice::stream;
 
 bool32 AudioDevice::Init()
 {
+    if (!contextInitialized) {
+        contextInitialized = true;
+        InitAudioChannels();
+    }
+
     PaError result;
     result = Pa_Initialize();
     if (result != paNoError) {
@@ -31,7 +36,7 @@ void AudioDevice::Release()
 void AudioDevice::InitAudioChannels() { AudioDeviceBase::InitAudioChannels(); }
 
 int RSDK::AudioDevice::AudioCallback(const void *input, void *output, unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo,
-                                      PaStreamCallbackFlags statusFlags, void *userData)
+                                     PaStreamCallbackFlags statusFlags, void *userData)
 {
     (void)input;
     (void)timeInfo;

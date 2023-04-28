@@ -550,10 +550,10 @@ inline uint32 GetInputDeviceID(uint8 inputSlot)
 #if RETRO_REV02
 inline uint32 GetFilteredInputDeviceID(bool32 confirmOnly, bool32 unassignedOnly, uint32 maxInactiveTimer)
 {
-    int32 mostRecentTime    = -1;
+    uint32 mostRecentTime    = -1;
     int32 mostRecentValidID = 0;
     int32 mostRecentID      = 0;
-    int32 maxTime           = maxInactiveTimer ? maxInactiveTimer : -1;
+    uint32 maxTime           = maxInactiveTimer ? maxInactiveTimer : -1;
 
     if (inputDeviceCount) {
         for (int32 i = 0; i < inputDeviceCount; ++i) {

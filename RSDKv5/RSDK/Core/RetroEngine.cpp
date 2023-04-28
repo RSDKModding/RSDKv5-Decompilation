@@ -684,7 +684,7 @@ void RSDK::InitEngine()
             engine.gameRenderType    = "SW_Rendering";
             engine.gameHapticSetting = "No_Haptics";
 #if !RETRO_USE_ORIGINAL_CODE
-            engine.releaseType = (engine.gameReleaseID ? "Use_Origins" : "Use_Standlone");
+            engine.releaseType = (engine.gameReleaseID ? "Use_Origins" : "Use_Standalone");
 
             Legacy::deviceType = RETRO_DEVICETYPE;
             switch (RETRO_PLATFORM) {
@@ -1415,7 +1415,9 @@ void RSDK::InitCoreAPI()
 #endif
 
 #ifdef __SWITCH__
-    // initNxLink();
+    Result res;
+    if (R_FAILED(res = dynInitialize()))
+        diagAbortWithResult(res);
 #endif
 
 #if RETRO_RENDERDEVICE_SDL2 || RETRO_AUDIODEVICE_SDL2 || RETRO_INPUTDEVICE_SDL2
@@ -1429,7 +1431,7 @@ void RSDK::ReleaseCoreAPI()
 #endif
 
 #ifdef __SWITCH__
-    // socketExit();
+    dynExit();
 #endif
 }
 

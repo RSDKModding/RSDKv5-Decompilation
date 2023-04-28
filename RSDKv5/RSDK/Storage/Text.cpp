@@ -265,12 +265,10 @@ void RSDK::AppendText(String *string, const char *appendString)
         return;
 
     int32 len     = 0;
-#if RETRO_USE_ORIGINAL_CODE
     const char *textBuf = appendString;
-    for (int32 pos = 0; *textBuf; ++len) pos += utf8CharSizes[*textBuf++ & 0xFF];
-#else
-    len = StrLength(appendString);
-#endif
+    int32 pos;
+    for (pos = 0; *textBuf; ++len) pos += utf8CharSizes[*textBuf++ & 0xFF];
+    (void)pos;
 
     if (!len)
         return;

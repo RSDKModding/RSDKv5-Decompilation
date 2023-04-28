@@ -59,7 +59,8 @@ void RSDK::Legacy::v4::ProcessStage(void)
             stageMode         = STAGEMODE_NORMAL;
 
 #if RETRO_USE_MOD_LOADER
-            RefreshModFolders();
+            if (devMenu.modsChanged)
+                RefreshModFolders();
 #endif
             ResetBackgroundSettings();
             LoadStageFiles();

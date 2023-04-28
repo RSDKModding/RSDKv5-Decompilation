@@ -1,4 +1,5 @@
 #include "RSDK/Core/RetroEngine.hpp"
+#include "Link.hpp"
 
 using namespace RSDK;
 
@@ -541,4 +542,37 @@ void RSDK::SetupFunctionTables()
 void RSDK::LinkGameLogic(void *info) { PrintLog(PRINT_POPUP, "Internal LinkGameLogic() function called, no logic will be linked"); }
 #else
 void RSDK::LinkGameLogic(EngineInfo info) { PrintLog(PRINT_POPUP, "Internal LinkGameLogic() function called, no logic will be linked"); }
+#endif
+
+#if RETRO_PLATFORM == RETRO_SWITCH
+
+Result RSDK::Link::err = 0; 
+
+RSDK::Link::Handle RSDK::Link::dlopen(const char *path, int _flags)
+{
+    auto mod = new DynModule();
+
+    err = dynLoadNroModule(mod, path, false);
+    if (R_FAILED(err)) {
+        return nullptr;
+    }
+
+    return mod;
+}
+
+void *RSDK::Link::dlsym(RSDK::Link::Handle mod, const char *name)
+{
+    void *sym = NULL;
+    err       = dynModuleLookupSymbol(mod, name, &sym);
+    if (R_FAILED(err)) {
+        return nullptr;
+    }
+
+    return sym;
+}
+
+int RSDK::Link::dlclose(RSDK::Link::Handle mod) { dynModuleUnload(mod); return 0; }
+
+char *RSDK::Link::dlerror() { return nullptr; }
+
 #endif
