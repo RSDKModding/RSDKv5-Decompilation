@@ -5,9 +5,10 @@ project(RetroEngine)
 set(DECOMP_VERSION 1.1.0-a)
 
 set(RETRO_REVISION 3 CACHE STRING "What revision to compile for. Defaults to v5U = 3")
-option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
-option(RETRO_DISABLE_PLUS "Disable plus. should be set on for any public releases." OFF)
+option(RETRO_DISABLE_PLUS "Disable plus. Should be set on for any public releases." OFF)
 
+option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
+set(RETRO_MOD_LOADER_VER 2 CACHE STRING "Sets the mod loader version. Defaults to latest")
 
 set(RETRO_NAME "RSDKv5")
 
@@ -142,16 +143,36 @@ endif()
 target_compile_definitions(RetroEngine PRIVATE
     RETRO_REVISION=${RETRO_REVISION}
     RSDK_USE_${RETRO_SUBSYSTEM}=1
+    
     RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
+    RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
+
     RETRO_STANDALONE=$<NOT:$<BOOL:${GAME_STATIC}>>
+    
     RSDK_AUTOBUILD=$<BOOL:${RETRO_DISABLE_PLUS}>
+    
     RETRO_DEV_EXTRA="${PLATFORM} - ${RETRO_SUBSYSTEM} - ${CMAKE_CXX_COMPILER_ID}"
     DECOMP_VERSION="${DECOMP_VERSION}"
 )
 
-if(NOT GAME_STATIC AND WITH_RSDK)
-    add_custom_command(TARGET RetroEngine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:${GAME_NAME}>
-        $<TARGET_FILE_DIR:RetroEngine>)
+if(WITH_RSDK)
+    if(NOT GAME_STATIC)
+        add_custom_command(TARGET RetroEngine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:${GAME_NAME}>
+            $<TARGET_FILE_DIR:RetroEngine>)
+    endif()
+
+    target_compile_definitions(${GAME_NAME} PRIVATE
+        RETRO_REVISION=${RETRO_REVISION}
+
+        RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
+        RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
+    
+        GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
+
+        MANIA_PREPLUS=$<BOOL:${MANIA_PREPLUS}>
+        MANIA_FIRST_RELEASE=$<BOOL:${MANIA_FIRST_RELEASE}>
+        GAME_VERSION=${GAME_VERSION}
+    )
 endif()
