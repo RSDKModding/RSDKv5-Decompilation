@@ -12,17 +12,26 @@ For Windows, these need to be downloaded and extracted in their respective subdi
 For Switch you'll need [devkitPro](https://devkitpro.org/) and GLAD, as GLEW and GLFW are not available. Install GLAD with `sudo dkp-pacman -S switch-glad`
 
 For Linux you can install the dependencies using your distro package manager:
-- **Arch Linux:** `sudo pacman -S base-devel glew glfw libtheora zlib sdl2`
-- **Ubuntu (20.04+) or Debian (11+):** `sudo apt install build-essential libglew-dev libglfw3-dev libtheora-dev zlib1g-dev libsdl2-dev`
-- **Fedora:** `sudo dnf install make gcc glew-devel glfw-devel libtheora-devel zlib-devel SDL2-devel`
+- **pacman (Arch):** `sudo pacman -S base-devel glew glfw libtheora zlib sdl2 portaudio`
+- **apt (Debian/Ubuntu):** `sudo apt install build-essential libglew-dev libglfw3-dev libtheora-dev zlib1g-dev libsdl2-dev portaudio19-dev`
+- **rpm (Fedora):** `sudo dnf install make gcc glew-devel glfw-devel libtheora-devel zlib-devel SDL2-devel portaudio`
 
-## Compiling 
+## Compiling
 
-To compile you can just use `make`. To customize the build you can set the following options
+Compiling is as simple as typing the following:
+```
+cmake ./
+make clean
+make
+```
+
+To customize the build, you can set the following variables during the `make` step.
 - `PLATFORM=Switch`: Build for Nintendo Switch.
 - `RSDK_REVISION=2`: Compile regular RSDKv5 instead of RSDKv5U.
 - `RSDK_ONLY=1`: Only build the engine (no Game.so)
 - `AUTOBUILD=1`: Disable the Plus DLC, which you should do if you plan on distributing the binary.
+
+For those building Sonic Mania, you will need to build `libGame.so` from [Sonic-Mania-Decompilation](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation), and your legally obtained `Data.rsdk`, and place them both within the same directory as your compiled binary. Follow the above compiling steps there as well.
 
 ## Shaders 
 
