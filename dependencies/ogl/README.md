@@ -29,5 +29,6 @@ cmake --build ..
 - `RETRO_DISABLE_PLUS`= What it says on the tin. Takes a boolean (on/off); build with `=on` when compiling for distribution. Defaults to `=off`.
 - `RETRO_MOD_LOADER`= Enables or disables the mod loader. Takes a boolean, defaults to `=on`.
 - `RETRO_MOD_LOADER_VER`= Manually sets the mod loader version. Takes a string, defaults to `latest`.
+- `CMAKE_SYSTEM_NAME`= Manually sets the system to build for. Takes a string, is set by default via `uname`.
 
 After compiling your binary, stick your `libGame.so` and `Data.rsdk` files in the same directory, launch, and voila!
