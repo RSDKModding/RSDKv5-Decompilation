@@ -214,7 +214,9 @@ void RSDK::SKU::InitHIDDevices()
                 memset(deviceName, 0, sizeof(deviceName));
                 uint32 deviceNameSize = sizeof(deviceName);
                 allocatedBytes        = GetRawInputDeviceInfoA(pRawInputDeviceList[d].hDevice, RIDI_DEVICENAME, deviceName, &deviceNameSize);
+#if !RETRO_USE_ORIGINAL_CODE
                 (void)allocatedBytes;
+#endif
 
                 if (deviceInfo.dwType == RIM_TYPEHID && deviceInfo.hid.usUsage == HID_USAGE_GENERIC_GAMEPAD) {
                     uint32 id;
