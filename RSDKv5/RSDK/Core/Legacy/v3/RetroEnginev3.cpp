@@ -654,7 +654,7 @@ void RSDK::Legacy::v3::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
 
                 const tinyxml2::XMLAttribute *folderAttr = stgElement->FindAttribute("folder");
                 const char *stgFolder                    = "unknownStageFolder";
-                if (nameAttr)
+                if (folderAttr)
                     stgFolder = folderAttr->Value();
 
                 const tinyxml2::XMLAttribute *idAttr = stgElement->FindAttribute("id");
