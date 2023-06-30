@@ -6,7 +6,6 @@ using namespace RSDK;
 #include "Legacy/RetroEngineLegacy.cpp"
 #endif
 
-
 LogicLinkHandle RSDK::linkGameLogic = NULL;
 
 Link::Handle gameLogicHandle = NULL;
@@ -849,14 +848,17 @@ void RSDK::LoadXMLSoundFX()
     }
     SetActiveMod(-1);
 }
-int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
+
+std::vector<SceneListEntry> listData;
+std::vector<SceneListInfo> listCategory;
+
+void RSDK::LoadXMLStages()
 {
     FileInfo info;
-    int32 listCount  = 0;
-    int32 stageCount = 0;
-
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 m = 0; m < activeModCount; ++m) {
+    SortMods();
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
         SetActiveMod(m);
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
@@ -871,83 +873,81 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
 
             if (success) {
                 const tinyxml2::XMLElement *gameElement = doc->FirstChildElement("game");
-                const tinyxml2::XMLElement *listElement = gameElement->FirstChildElement("category");
-                if (listElement) {
-                    do {
-                        int32 listID                           = gcListCount++;
-                        const tinyxml2::XMLElement *stgElement = listElement->FirstChildElement("stage");
+                for (const tinyxml2::XMLElement *listElement = gameElement->FirstChildElement("category"); listElement;
+                     listElement                             = listElement->NextSiblingElement("category")) {
+                    SceneListInfo *list = nullptr;
+                    int32 listID;
 
-                        SceneListInfo *list = &sceneInfo.listCategory[listID];
-                        if (!mode) {
-                            const tinyxml2::XMLAttribute *nameAttr = listElement->FindAttribute("name");
-                            const char *lstName                    = "unknown list";
-                            if (nameAttr)
-                                lstName = nameAttr->Value();
+                    const tinyxml2::XMLAttribute *nameAttr = listElement->FindAttribute("name");
+                    const char *lstName                    = "unknown list";
+                    if (nameAttr)
+                        lstName = nameAttr->Value();
+                    RETRO_HASH_MD5(hash);
+                    GEN_HASH_MD5(lstName, hash);
 
-                            sprintf_s(list->name, sizeof(list->name), "%s", lstName);
-                            GEN_HASH_MD5(list->name, list->hash);
-
-                            list->sceneOffsetStart = gcStageCount;
-                            list->sceneOffsetEnd   = gcStageCount;
-                            list->sceneCount       = 0;
+                    for (int l = 0; l < listCategory.size(); ++l) {
+                        if (HASH_MATCH_MD5(hash, listCategory[l].hash)) {
+                            list   = &listCategory[l];
+                            listID = l;
                         }
+                    }
 
-                        if (stgElement) {
-                            do {
-                                if (!mode) {
-                                    const tinyxml2::XMLAttribute *nameAttr = stgElement->FindAttribute("name");
-                                    const char *stgName                    = "unknownStage";
-                                    if (nameAttr)
-                                        stgName = nameAttr->Value();
+                    if (!list) {
+                        listCategory.emplace_back();
+                        list = &listCategory.back();
+                        sprintf_s(list->name, sizeof(list->name), "%s", lstName);
+                        HASH_COPY_MD5(list->hash, hash);
 
-                                    const tinyxml2::XMLAttribute *folderAttr = stgElement->FindAttribute("folder");
-                                    const char *stgFolder                    = "unknownStageFolder";
-                                    if (nameAttr)
-                                        stgFolder = folderAttr->Value();
+                        list->sceneOffsetStart = listData.size();
+                        list->sceneOffsetEnd   = listData.size();
+                        list->sceneCount       = 0;
+                        sceneInfo.categoryCount++;
+                    }
 
-                                    const tinyxml2::XMLAttribute *idAttr = stgElement->FindAttribute("id");
-                                    const char *stgID                    = "unknownStageID";
-                                    if (idAttr)
-                                        stgID = idAttr->Value();
+                    for (const tinyxml2::XMLElement *stgElement = listElement->FirstChildElement("stage"); stgElement;
+                         stgElement                             = stgElement->NextSiblingElement("stage")) {
+                        const tinyxml2::XMLAttribute *nameAttr = stgElement->FindAttribute("name");
+                        const char *stgName                    = "unknownStage";
+                        if (nameAttr)
+                            stgName = nameAttr->Value();
+
+                        const tinyxml2::XMLAttribute *folderAttr = stgElement->FindAttribute("folder");
+                        const char *stgFolder                    = "unknownStageFolder";
+                        if (nameAttr)
+                            stgFolder = folderAttr->Value();
+
+                        const tinyxml2::XMLAttribute *idAttr = stgElement->FindAttribute("id");
+                        const char *stgID                    = "unknownStageID";
+                        if (idAttr)
+                            stgID = idAttr->Value();
 
 #if RETRO_REV02
-                                    const tinyxml2::XMLAttribute *filterAttr = stgElement->FindAttribute("filter");
-                                    int32 stgFilter                          = 0;
-                                    if (stgFilter)
-                                        stgFilter = filterAttr->IntValue();
+                        const tinyxml2::XMLAttribute *filterAttr = stgElement->FindAttribute("filter");
+                        int32 stgFilter                          = 0;
+                        if (stgFilter)
+                            stgFilter = filterAttr->IntValue();
 #endif
+                        listData.emplace(listData.begin() + list->sceneOffsetEnd);
+                        SceneListEntry *scene = &listData[list->sceneOffsetEnd];
 
-                                    SceneListEntry *scene = &sceneInfo.listData[gcStageCount];
-
-                                    sprintf_s(scene->name, sizeof(scene->name), "%s", stgName);
-                                    GEN_HASH_MD5(scene->name, scene->hash);
-                                    sprintf_s(scene->folder, sizeof(scene->folder), "%s", stgFolder);
-                                    sprintf_s(scene->id, sizeof(scene->id), "%s", stgID);
+                        sprintf_s(scene->name, sizeof(scene->name), "%s", stgName);
+                        GEN_HASH_MD5(scene->name, scene->hash);
+                        sprintf_s(scene->folder, sizeof(scene->folder), "%s", stgFolder);
+                        sprintf_s(scene->id, sizeof(scene->id), "%s", stgID);
 
 #if RETRO_REV02
-                                    scene->filter = stgFilter;
-                                    if (scene->filter == 0x00)
-                                        scene->filter = 0xFF;
+                        scene->filter = stgFilter;
+                        if (scene->filter == 0x00)
+                            scene->filter = 0xFF;
 #endif
-
-                                    gcStageCount++;
-                                    sceneInfo.listCategory[listID].sceneCount++;
-                                }
-                                ++stageCount;
-                            } while ((stgElement = stgElement->NextSiblingElement("stage")));
-                        }
-
-                        if (!mode) {
-                            list->sceneOffsetEnd += list->sceneCount;
-                            sceneInfo.categoryCount++;
-                        }
-
-                        ++listCount;
-                    } while ((listElement = listElement->NextSiblingElement("category")));
+                        list->sceneCount++;
+                        list->sceneOffsetEnd++;
+                        for (int32 l = listID + 1; l < listCategory.size(); ++l) listCategory[l].sceneOffsetStart++;
+                    }
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
+                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml file!");
             }
 
             delete[] xmlData;
@@ -955,11 +955,8 @@ int32 RSDK::LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount)
         }
     }
     SetActiveMod(-1);
-
-    if (mode == 1)
-        return listCount;
-    else
-        return stageCount;
+    sceneInfo.listData     = listData.data();
+    sceneInfo.listCategory = listCategory.data();
 }
 #endif
 
@@ -1033,15 +1030,16 @@ void RSDK::LoadGameConfig()
 
         uint16 totalSceneCount = ReadInt16(&info);
 
-#if RETRO_USE_MOD_LOADER
-        gcSceneCount = totalSceneCount;
-        totalSceneCount += LoadXMLStages(2, 0, 0);
-#endif
         if (!totalSceneCount)
             totalSceneCount = 1;
 
         if (strlen(currentSceneFolder) && strlen(currentSceneID)) {
+#if RETRO_USE_MOD_LOADER
+            listData.resize(totalSceneCount + 1);
+            sceneInfo.listData = listData.data();
+#else
             AllocateStorage((void **)&sceneInfo.listData, sizeof(SceneListEntry) * (totalSceneCount + 1), DATASET_STG, false);
+#endif
             SceneListEntry *scene = &sceneInfo.listData[totalSceneCount];
             strcpy(scene->name, "_RSDK_SCENE");
             strcpy(scene->folder, currentSceneFolder);
@@ -1058,21 +1056,28 @@ void RSDK::LoadGameConfig()
             currentSceneID[0]        = 0;
         }
         else {
+#if RETRO_USE_MOD_LOADER
+            listData.resize(totalSceneCount);
+            sceneInfo.listData = listData.data();
+#else
             AllocateStorage((void **)&sceneInfo.listData, sizeof(SceneListEntry) * totalSceneCount, DATASET_STG, false);
+#endif
         }
 
         sceneInfo.categoryCount = ReadInt8(&info);
         sceneInfo.listPos       = 0;
 
         int32 categoryCount = sceneInfo.categoryCount;
-#if RETRO_USE_MOD_LOADER
-        gcListCount = categoryCount;
-        categoryCount += LoadXMLStages(1, 0, 0);
-#endif
+
         if (!categoryCount)
             categoryCount = 1;
 
+#if RETRO_USE_MOD_LOADER
+        listCategory.resize(categoryCount);
+        sceneInfo.listCategory = listCategory.data();
+#else
         AllocateStorage((void **)&sceneInfo.listCategory, sizeof(SceneListInfo) * categoryCount, DATASET_STG, false);
+#endif
         sceneInfo.listPos = 0;
 
         int32 sceneID = 0;
@@ -1123,7 +1128,7 @@ void RSDK::LoadGameConfig()
         CloseFile(&info);
 #if RETRO_USE_MOD_LOADER
         LoadXMLObjects();
-        LoadXMLStages(0, gcListCount, gcSceneCount);
+        LoadXMLStages();
         LoadXMLSoundFX();
 #endif
 

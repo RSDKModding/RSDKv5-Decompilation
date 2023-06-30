@@ -16,7 +16,7 @@ if(RETRO_REVISION STREQUAL "3")
     set(RETRO_NAME "RSDKv5U")
 endif()
 
-set(RETRO_OUTPUT_NAME ${RETRO_NAME} CACHE STRING "The exported name")
+set(RETRO_OUTPUT_NAME ${RETRO_NAME} CACHE STRING "The exported name of the executable.")
 
 set(RETRO_FILES
     RSDKv5/main.cpp

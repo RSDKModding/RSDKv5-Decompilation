@@ -260,6 +260,8 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
                 }
             }
         }
+        if (modSettings.activeMod != -1)
+            break;
     }
 
 #if RETRO_REV0U

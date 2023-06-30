@@ -651,7 +651,7 @@ void StartGameObjects();
 #if RETRO_USE_MOD_LOADER
 void LoadXMLObjects();
 void LoadXMLSoundFX();
-int32 LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount);
+void LoadXMLStages();
 #endif
 
 void LoadGameConfig();
