@@ -743,7 +743,7 @@ void RSDK::StartGameObjects()
 
 #if RETRO_USE_MOD_LOADER
 
-void RSDK::LoadGameXML()
+void RSDK::LoadGameXML(bool pal)
 {
     FileInfo info;
     SortMods();
@@ -764,9 +764,13 @@ void RSDK::LoadGameXML()
             const tinyxml2::XMLElement *gameElement = doc->FirstChildElement("game"); // gameElement is nullptr if parse failure
 
             if (gameElement) {
-                LoadXMLObjects(gameElement);
-                LoadXMLSoundFX(gameElement);
-                LoadXMLStages(gameElement);
+                if (pal)
+                    LoadXMLPalettes(gameElement);
+                else {
+                    LoadXMLObjects(gameElement);
+                    LoadXMLSoundFX(gameElement);
+                    LoadXMLStages(gameElement);
+                }
             }
             else {
                 PrintLog(PRINT_NORMAL, "[MOD] Failed to parse Game.xml file for mod %s", modList[m].id.c_str());
@@ -777,6 +781,78 @@ void RSDK::LoadGameXML()
         }
     }
     SetActiveMod(-1);
+}
+
+void RSDK::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
+{
+    const tinyxml2::XMLElement *paletteElement = gameElement->FirstChildElement("palette");
+    if (paletteElement) {
+        for (const tinyxml2::XMLElement *clrElement = paletteElement->FirstChildElement("color"); clrElement;
+             clrElement                             = clrElement->NextSiblingElement("color")) {
+            const tinyxml2::XMLAttribute *bankAttr = clrElement->FindAttribute("bank");
+            int32 bank                             = 0;
+            if (bankAttr)
+                bank = bankAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *indAttr = clrElement->FindAttribute("index");
+            int32 index                           = 0;
+            if (indAttr)
+                index = indAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *rAttr = clrElement->FindAttribute("r");
+            int32 r                             = 0;
+            if (rAttr)
+                r = rAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *gAttr = clrElement->FindAttribute("g");
+            int32 g                             = 0;
+            if (gAttr)
+                g = gAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *bAttr = clrElement->FindAttribute("b");
+            int32 b                             = 0;
+            if (bAttr)
+                b = bAttr->IntValue();
+
+            SetPaletteEntry(bank, index, (r << 16) | (g << 8) | b);
+        }
+
+        for (const tinyxml2::XMLElement *clrsElement = paletteElement->FirstChildElement("colors"); clrsElement;
+             clrsElement                             = clrsElement->NextSiblingElement("colors")) {
+            const tinyxml2::XMLAttribute *bankAttr = clrsElement->FindAttribute("bank");
+            int32 bank                             = 0;
+            if (bankAttr)
+                bank = bankAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *indAttr = clrsElement->FindAttribute("start");
+            int32 index                           = 0;
+            if (indAttr)
+                index = indAttr->IntValue();
+
+            std::string text = clrsElement->GetText();
+            // working: AABBFF #FFaaFF (12,32,34) (145 53 234)
+            std::regex search(R"((?:#?([0-9A-F]{6}))|(?:\((\d+),?\s*(\d+),?\s*(\d+)\)))",
+                              std::regex_constants::icase | std::regex_constants::ECMAScript);
+            std::smatch match;
+            while (std::regex_search(text, match, search)) {
+                int32 color;
+                if (match[1].matched) {
+                    // we have hex, just set color directly lol
+                    color = std::stoi(match[1].str(), nullptr, 16);
+                }
+                else {
+                    // triplet
+                    int32 r = std::stoi(match[2 + 0].str(), nullptr, 10);
+                    int32 g = std::stoi(match[2 + 1].str(), nullptr, 10);
+                    int32 b = std::stoi(match[2 + 2].str(), nullptr, 10);
+                    color   = (r << 16) | (g << 8) | b;
+                }
+
+                SetPaletteEntry(bank, index++, color);
+                text = match.suffix();
+            }
+        }
+    }
 }
 
 void RSDK::LoadXMLObjects(const tinyxml2::XMLElement *gameElement)
@@ -904,7 +980,7 @@ void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
             for (int32 l = listID + 1; l < listCategory.size(); ++l) listCategory[l].sceneOffsetStart++;
         }
     }
-    sceneInfo.listData = listData.data();
+    sceneInfo.listData     = listData.data();
     sceneInfo.listCategory = listCategory.data();
 }
 #endif

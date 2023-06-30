@@ -20,7 +20,7 @@ void ProcessEngine();
 void RetroEngineCallback(int32 callbackID);
 
 #if RETRO_USE_MOD_LOADER
-void LoadGameXML(bool onlyPal = false);
+void LoadGameXML(bool pal = false);
 void LoadXMLVariables(const tinyxml2::XMLElement* gameElement);
 void LoadXMLPalettes(const tinyxml2::XMLElement* gameElement);
 void LoadXMLObjects(const tinyxml2::XMLElement* gameElement);

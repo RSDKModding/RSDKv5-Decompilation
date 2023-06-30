@@ -460,7 +460,7 @@ void RSDK::Legacy::v3::RetroEngineCallback(int32 callbackID)
 }
 
 #if RETRO_USE_MOD_LOADER
-void RSDK::Legacy::v3::LoadGameXML(bool onlyPal)
+void RSDK::Legacy::v3::LoadGameXML(bool pal)
 {
     FileInfo info;
     SortMods();
@@ -481,8 +481,9 @@ void RSDK::Legacy::v3::LoadGameXML(bool onlyPal)
             const tinyxml2::XMLElement *gameElement = doc->FirstChildElement("game"); // gameElement is nullptr if parse failure
 
             if (gameElement) {
-                LoadXMLPalettes(gameElement);
-                if (!onlyPal) {
+                if (pal)
+                    LoadXMLPalettes(gameElement);
+                else {
                     LoadXMLVariables(gameElement);
                     LoadXMLObjects(gameElement);
                     LoadXMLSoundFX(gameElement);
@@ -572,8 +573,8 @@ void RSDK::Legacy::v3::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
 
             std::string text = clrsElement->GetText();
             // working: AABBFF #FFaaFF (12, 32, 34) (145 53 234)
-            std::regex search(R"((?:#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2}))|(?:\((\d+),?\s+(\d+),?\s+(\d+)\)))",
-                              std::regex_constants::icase | std::regex_constants::ECMAScript | std::regex_constants::optimize);
+            std::regex search(R"((?:#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2}))|(?:\((\d+),?\s*(\d+),?\s*(\d+)\)))",
+                              std::regex_constants::icase | std::regex_constants::ECMAScript);
             std::smatch match;
             while (std::regex_search(text, match, search)) {
                 int32 r, g, b;
@@ -588,7 +589,7 @@ void RSDK::Legacy::v3::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
                     base  = 10;
                     start = 4;
                 }
-                
+
                 r = std::stoi(match[start + 0].str(), nullptr, base);
                 g = std::stoi(match[start + 1].str(), nullptr, base);
                 b = std::stoi(match[start + 2].str(), nullptr, base);
