@@ -4,7 +4,9 @@
 #if RETRO_USE_MOD_LOADER
 #include <vector>
 #include <string>
+#include <sstream>
 #include <map>
+#include <regex>
 #include "tinyxml2.h"
 
 #include <functional>

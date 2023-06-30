@@ -557,6 +557,46 @@ void RSDK::Legacy::v3::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
 
             SetPaletteEntry(clrBank, clrInd, clrR, clrG, clrB);
         }
+
+        for (const tinyxml2::XMLElement *clrsElement = paletteElement->FirstChildElement("colors"); clrsElement;
+             clrsElement                             = clrsElement->NextSiblingElement("colors")) {
+            const tinyxml2::XMLAttribute *bankAttr = clrsElement->FindAttribute("bank");
+            int32 bank                             = 0;
+            if (bankAttr)
+                bank = bankAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *indAttr = clrsElement->FindAttribute("start");
+            int32 index                           = 0;
+            if (indAttr)
+                index = indAttr->IntValue();
+
+            std::string text = clrsElement->GetText();
+            // working: AABBFF #FFaaFF (12, 32, 34) (145 53 234)
+            std::regex search(R"((?:#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2}))|(?:\((\d+),?\s+(\d+),?\s+(\d+)\)))",
+                              std::regex_constants::icase | std::regex_constants::ECMAScript | std::regex_constants::optimize);
+            std::smatch match;
+            while (std::regex_search(text, match, search)) {
+                int32 r, g, b;
+                int32 base, start;
+                if (match[1].matched) {
+                    // we have hex
+                    base  = 16;
+                    start = 1;
+                }
+                else {
+                    // triplet
+                    base  = 10;
+                    start = 4;
+                }
+                
+                r = std::stoi(match[start + 0].str(), nullptr, base);
+                g = std::stoi(match[start + 1].str(), nullptr, base);
+                b = std::stoi(match[start + 2].str(), nullptr, base);
+
+                SetPaletteEntry(bank, index++, r, g, b);
+                text = match.suffix();
+            }
+        }
     }
 }
 

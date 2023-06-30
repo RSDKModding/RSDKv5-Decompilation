@@ -9,7 +9,6 @@ using namespace RSDK;
 #endif
 
 #include <filesystem>
-#include <sstream>
 #include <stdexcept>
 #include <functional>
 
