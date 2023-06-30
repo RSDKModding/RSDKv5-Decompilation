@@ -649,9 +649,10 @@ void InitEngine();
 void StartGameObjects();
 
 #if RETRO_USE_MOD_LOADER
-void LoadXMLObjects();
-void LoadXMLSoundFX();
-void LoadXMLStages();
+void LoadGameXML();
+void LoadXMLObjects(const tinyxml2::XMLElement* gameElement);
+void LoadXMLSoundFX(const tinyxml2::XMLElement* gameElement);
+void LoadXMLStages(const tinyxml2::XMLElement* gameElement);
 #endif
 
 void LoadGameConfig();

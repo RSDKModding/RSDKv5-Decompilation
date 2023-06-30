@@ -1,3 +1,4 @@
+#include "RetroEnginev4.hpp"
 
 bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
 {
@@ -8,8 +9,6 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
 #if RETRO_USE_MOD_LOADER
     modSettings.playerCount = 0;
 #endif
-
-    int32 gcSceneCount = 0;
 
     FileInfo info;
     InitFileInfo(&info);
@@ -60,10 +59,6 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
             RSDK::Legacy::LoadSfx(strBuffer, s, SCOPE_GLOBAL);
         }
 
-#if RETRO_USE_MOD_LOADER
-        RSDK::Legacy::v4::LoadXMLSoundFX();
-#endif
-
         // Read Player Names
         uint8 plrCount = ReadInt8(&info);
         for (uint8 p = 0; p < plrCount; ++p) {
@@ -93,17 +88,18 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
             totalSceneCount += count;
         }
 
-#if RETRO_USE_MOD_LOADER
-        gcSceneCount = totalSceneCount;
-        totalSceneCount += RSDK::Legacy::v4::LoadXMLStages(2, 0);
-#endif
         if (!totalSceneCount)
             totalSceneCount = 1;
 
         int32 startScene = 0;
 #if !RETRO_USE_ORIGINAL_CODE
         if (strlen(currentSceneFolder) && strlen(currentSceneID)) {
+#if RETRO_USE_MOD_LOADER
+            listData.resize(totalSceneCount + 1);
+            sceneInfo.listData = listData.data();
+#else
             AllocateStorage((void **)&sceneInfo.listData, sizeof(SceneListEntry) * (totalSceneCount + 1), DATASET_STG, false);
+#endif
             SceneListEntry *scene = &sceneInfo.listData[totalSceneCount];
             strcpy(scene->name, "_RSDK_SCENE");
             strcpy(scene->folder, currentSceneFolder);
@@ -118,10 +114,17 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
             currentSceneID[0]        = 0;
         }
         else {
-            AllocateStorage((void **)&sceneInfo.listData, sizeof(SceneListEntry) * totalSceneCount, DATASET_STG, false);
-        }
+#endif
+
+#if RETRO_USE_MOD_LOADER
+            listData.resize(totalSceneCount);
+            sceneInfo.listData = listData.data();
 #else
-        AllocateStorage((void **)&sceneInfo.listData, sizeof(SceneListEntry) * totalSceneCount, DATASET_STG, true);
+        AllocateStorage((void **)&sceneInfo.listData, sizeof(SceneListEntry) * totalSceneCount, DATASET_STG, false);
+#endif //! RETRO_USE_MOD_LOADER
+
+#if !RETRO_USE_ORIGINAL_CODE
+        }
 #endif
 
         AllocateStorage((void **)&sceneInfo.listCategory, sizeof(SceneListInfo) * sceneInfo.categoryCount, DATASET_STG, true);
@@ -166,15 +169,8 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
 
         sceneInfo.listPos = startScene;
 #if RETRO_USE_MOD_LOADER
-        RSDK::Legacy::v4::LoadXMLVariables();
-        RSDK::Legacy::v4::LoadXMLPalettes();
-        RSDK::Legacy::v4::LoadXMLObjects();
-        RSDK::Legacy::v4::LoadXMLPlayers();
-        RSDK::Legacy::v4::LoadXMLStages(0, gcSceneCount);
-
-        SetGlobalVariableByName("options.devMenuFlag", false);
-        if (engine.devMenu)
-            SetGlobalVariableByName("options.devMenuFlag", true);
+        v4::LoadGameXML();
+        SetGlobalVariableByName("options.devMenuFlag", engine.devMenu ? 1 : 0);
 #endif
 
         usingBytecode = false;
@@ -290,14 +286,14 @@ void RSDK::Legacy::v4::ProcessEngine()
 }
 
 #if RETRO_USE_MOD_LOADER
-void RSDK::Legacy::v4::LoadXMLVariables()
+void RSDK::Legacy::v4::LoadGameXML(bool onlyPal)
 {
     FileInfo info;
-
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 m = 0; m < activeModCount; ++m) {
+    SortMods();
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
         SetActiveMod(m);
-
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
@@ -305,377 +301,209 @@ void RSDK::Legacy::v4::LoadXMLVariables()
             char *xmlData = new char[info.fileSize + 1];
             ReadBytes(&info, xmlData, info.fileSize);
             xmlData[info.fileSize] = 0;
+            CloseFile(&info);
 
-            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+            doc->Parse(xmlData);
+            const tinyxml2::XMLElement *gameElement = doc->FirstChildElement("game"); // gameElement is nullptr if parse failure
 
-            if (success) {
-                const tinyxml2::XMLElement *gameElement      = doc->FirstChildElement("game");
-                const tinyxml2::XMLElement *variablesElement = gameElement->FirstChildElement("variables");
-                if (variablesElement) {
-                    const tinyxml2::XMLElement *varElement = variablesElement->FirstChildElement("variable");
-                    if (varElement) {
-                        do {
-                            const tinyxml2::XMLAttribute *nameAttr = varElement->FindAttribute("name");
-                            const char *varName                    = "unknownVariable";
-                            if (nameAttr)
-                                varName = nameAttr->Value();
-
-                            const tinyxml2::XMLAttribute *valAttr = varElement->FindAttribute("value");
-                            int32 varValue                        = 0;
-                            if (valAttr)
-                                varValue = valAttr->IntValue();
-
-                            StrCopy(globalVariables[globalVariablesCount].name, varName);
-                            globalVariables[globalVariablesCount].value = varValue;
-                            globalVariablesCount++;
-
-                        } while ((varElement = varElement->NextSiblingElement("variable")));
-                    }
+            if (gameElement) {
+                LoadXMLPalettes(gameElement);
+                if (!onlyPal) {
+                    LoadXMLVariables(gameElement);
+                    LoadXMLObjects(gameElement);
+                    LoadXMLSoundFX(gameElement);
+                    LoadXMLPlayers(gameElement);
+                    LoadXMLStages(gameElement);
                 }
+            }
+            else {
+                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse Game.xml file for mod %s", modList[m].id.c_str());
             }
 
             delete[] xmlData;
             delete doc;
-
-            CloseFile(&info);
         }
     }
     SetActiveMod(-1);
 }
-void RSDK::Legacy::v4::LoadXMLPalettes()
+void RSDK::Legacy::v4::LoadXMLVariables(const tinyxml2::XMLElement *gameElement)
 {
-    FileInfo info;
+    const tinyxml2::XMLElement *variablesElement = gameElement->FirstChildElement("variables");
+    if (variablesElement) {
+        for (const tinyxml2::XMLElement *varElement = variablesElement->FirstChildElement("variable"); varElement;
+             varElement                             = varElement->NextSiblingElement("variable")) {
+            const tinyxml2::XMLAttribute *nameAttr = varElement->FindAttribute("name");
+            const char *varName                    = "unknownVariable";
+            if (nameAttr)
+                varName = nameAttr->Value();
 
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 m = 0; m < activeModCount; ++m) {
-        SetActiveMod(m);
+            const tinyxml2::XMLAttribute *valAttr = varElement->FindAttribute("value");
+            int32 varValue                        = 0;
+            if (valAttr)
+                varValue = valAttr->IntValue();
 
-        InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
-            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
-
-            char *xmlData = new char[info.fileSize + 1];
-            ReadBytes(&info, xmlData, info.fileSize);
-            xmlData[info.fileSize] = 0;
-
-            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
-
-            if (success) {
-                const tinyxml2::XMLElement *gameElement    = doc->FirstChildElement("game");
-                const tinyxml2::XMLElement *paletteElement = gameElement->FirstChildElement("palette");
-                if (paletteElement) {
-                    const tinyxml2::XMLElement *clrElement = paletteElement->FirstChildElement("color");
-                    if (clrElement) {
-                        do {
-                            const tinyxml2::XMLAttribute *bankAttr = clrElement->FindAttribute("bank");
-                            int32 clrBank                          = 0;
-                            if (bankAttr)
-                                clrBank = bankAttr->IntValue();
-
-                            const tinyxml2::XMLAttribute *indAttr = clrElement->FindAttribute("index");
-                            int32 clrInd                          = 0;
-                            if (indAttr)
-                                clrInd = indAttr->IntValue();
-
-                            const tinyxml2::XMLAttribute *rAttr = clrElement->FindAttribute("r");
-                            int32 clrR                          = 0;
-                            if (rAttr)
-                                clrR = rAttr->IntValue();
-
-                            const tinyxml2::XMLAttribute *gAttr = clrElement->FindAttribute("g");
-                            int32 clrG                          = 0;
-                            if (gAttr)
-                                clrG = gAttr->IntValue();
-
-                            const tinyxml2::XMLAttribute *bAttr = clrElement->FindAttribute("b");
-                            int32 clrB                          = 0;
-                            if (bAttr)
-                                clrB = bAttr->IntValue();
-
-                            SetPaletteEntry(clrBank, clrInd, clrR, clrG, clrB);
-
-                        } while ((clrElement = clrElement->NextSiblingElement("color")));
-                    }
-                }
-            }
-
-            delete[] xmlData;
-            delete doc;
-
-            CloseFile(&info);
+            StrCopy(globalVariables[globalVariablesCount].name, varName);
+            globalVariables[globalVariablesCount].value = varValue;
+            globalVariablesCount++;
         }
     }
-    SetActiveMod(-1);
 }
-void RSDK::Legacy::v4::LoadXMLObjects()
+
+void RSDK::Legacy::v4::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
 {
-    FileInfo info;
+    const tinyxml2::XMLElement *paletteElement = gameElement->FirstChildElement("palette");
+    if (paletteElement) {
+        for (const tinyxml2::XMLElement *clrElement = paletteElement->FirstChildElement("color"); clrElement;
+             clrElement                             = clrElement->NextSiblingElement("color")) {
+            const tinyxml2::XMLAttribute *bankAttr = clrElement->FindAttribute("bank");
+            int32 clrBank                          = 0;
+            if (bankAttr)
+                clrBank = bankAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *indAttr = clrElement->FindAttribute("index");
+            int32 clrInd                          = 0;
+            if (indAttr)
+                clrInd = indAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *rAttr = clrElement->FindAttribute("r");
+            int32 clrR                          = 0;
+            if (rAttr)
+                clrR = rAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *gAttr = clrElement->FindAttribute("g");
+            int32 clrG                          = 0;
+            if (gAttr)
+                clrG = gAttr->IntValue();
+
+            const tinyxml2::XMLAttribute *bAttr = clrElement->FindAttribute("b");
+            int32 clrB                          = 0;
+            if (bAttr)
+                clrB = bAttr->IntValue();
+
+            SetPaletteEntry(clrBank, clrInd, clrR, clrG, clrB);
+        }
+    }
+}
+
+void RSDK::Legacy::v4::LoadXMLObjects(const tinyxml2::XMLElement *gameElement)
+{
     modObjCount = 0;
 
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 m = 0; m < activeModCount; ++m) {
-        SetActiveMod(m);
+    const tinyxml2::XMLElement *objectsElement = gameElement->FirstChildElement("objects");
+    if (objectsElement) {
+        for (const tinyxml2::XMLElement *objElement = objectsElement->FirstChildElement("object"); objElement;
+             objElement                             = objElement->NextSiblingElement("object")) {
+            const tinyxml2::XMLAttribute *nameAttr = objElement->FindAttribute("name");
+            const char *objName                    = "unknownObject";
+            if (nameAttr)
+                objName = nameAttr->Value();
 
-        InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
-            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+            const tinyxml2::XMLAttribute *scrAttr = objElement->FindAttribute("script");
+            const char *objScript                 = "unknownObject.txt";
+            if (scrAttr)
+                objScript = scrAttr->Value();
 
-            char *xmlData = new char[info.fileSize + 1];
-            ReadBytes(&info, xmlData, info.fileSize);
-            xmlData[info.fileSize] = 0;
+            uint8 flags = 0;
 
-            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+            // forces the object to be loaded, this means the object doesn't have to be and *SHOULD NOT* be in the stage object list
+            // if it is, it'll cause issues!!!!
+            const tinyxml2::XMLAttribute *loadAttr = objElement->FindAttribute("forceLoad");
+            int32 objForceLoad                     = false;
+            if (loadAttr)
+                objForceLoad = loadAttr->BoolValue();
 
-            if (success) {
-                const tinyxml2::XMLElement *gameElement    = doc->FirstChildElement("game");
-                const tinyxml2::XMLElement *objectsElement = gameElement->FirstChildElement("objects");
-                if (objectsElement) {
-                    const tinyxml2::XMLElement *objElement = objectsElement->FirstChildElement("object");
-                    if (objElement) {
-                        do {
-                            const tinyxml2::XMLAttribute *nameAttr = objElement->FindAttribute("name");
-                            const char *objName                    = "unknownObject";
-                            if (nameAttr)
-                                objName = nameAttr->Value();
+            flags |= (objForceLoad & 1);
 
-                            const tinyxml2::XMLAttribute *scrAttr = objElement->FindAttribute("script");
-                            const char *objScript                 = "unknownObject.txt";
-                            if (scrAttr)
-                                objScript = scrAttr->Value();
-
-                            uint8 flags = 0;
-
-                            // forces the object to be loaded, this means the object doesn't have to be and *SHOULD NOT* be in the stage object list
-                            // if it is, it'll cause issues!!!!
-                            const tinyxml2::XMLAttribute *loadAttr = objElement->FindAttribute("forceLoad");
-                            int32 objForceLoad                     = false;
-                            if (loadAttr)
-                                objForceLoad = loadAttr->BoolValue();
-
-                            flags |= (objForceLoad & 1);
-
-                            StrCopy(modTypeNames[modObjCount], objName);
-                            StrCopy(modScriptPaths[modObjCount], objScript);
-                            modScriptFlags[modObjCount] = flags;
-                            modObjCount++;
-
-                        } while ((objElement = objElement->NextSiblingElement("object")));
-                    }
-                }
-            }
-            else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
-            }
-
-            delete[] xmlData;
-            delete doc;
-
-            CloseFile(&info);
+            StrCopy(modTypeNames[modObjCount], objName);
+            StrCopy(modScriptPaths[modObjCount], objScript);
+            modScriptFlags[modObjCount] = flags;
+            modObjCount++;
         }
     }
-    SetActiveMod(-1);
 }
-void RSDK::Legacy::v4::LoadXMLSoundFX()
+
+void RSDK::Legacy::v4::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement)
 {
-    FileInfo info;
+    const tinyxml2::XMLElement *soundsElement = gameElement->FirstChildElement("sounds");
+    if (soundsElement) {
+        for (const tinyxml2::XMLElement *sfxElement = soundsElement->FirstChildElement("soundfx"); sfxElement;
+             sfxElement                             = sfxElement->NextSiblingElement("soundfx")) {
+            const tinyxml2::XMLAttribute *nameAttr = sfxElement->FindAttribute("name");
+            const char *sfxName                    = "unknownSFX";
+            if (nameAttr)
+                sfxName = nameAttr->Value();
 
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 m = 0; m < activeModCount; ++m) {
-        SetActiveMod(m);
+            const tinyxml2::XMLAttribute *valAttr = sfxElement->FindAttribute("path");
+            const char *sfxPath                   = "unknownSFX.wav";
+            if (valAttr)
+                sfxPath = valAttr->Value();
 
-        InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
-            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+            SetSfxName(sfxName, globalSFXCount);
 
-            char *xmlData = new char[info.fileSize + 1];
-            ReadBytes(&info, xmlData, info.fileSize);
-            xmlData[info.fileSize] = 0;
-
-            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
-
-            if (success) {
-                const tinyxml2::XMLElement *gameElement   = doc->FirstChildElement("game");
-                const tinyxml2::XMLElement *soundsElement = gameElement->FirstChildElement("sounds");
-                if (soundsElement) {
-                    const tinyxml2::XMLElement *sfxElement = soundsElement->FirstChildElement("soundfx");
-                    if (sfxElement) {
-                        do {
-                            const tinyxml2::XMLAttribute *nameAttr = sfxElement->FindAttribute("name");
-                            const char *sfxName                    = "unknownSFX";
-                            if (nameAttr)
-                                sfxName = nameAttr->Value();
-
-                            const tinyxml2::XMLAttribute *valAttr = sfxElement->FindAttribute("path");
-                            const char *sfxPath                   = "unknownSFX.wav";
-                            if (valAttr)
-                                sfxPath = valAttr->Value();
-
-                            SetSfxName(sfxName, globalSFXCount);
-
-                            RSDK::Legacy::LoadSfx((char *)sfxPath, globalSFXCount, SCOPE_GLOBAL);
-                            globalSFXCount++;
-
-                        } while ((sfxElement = sfxElement->NextSiblingElement("soundfx")));
-                    }
-                }
-            }
-            else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
-            }
-
-            delete[] xmlData;
-            delete doc;
-
-            CloseFile(&info);
+            RSDK::Legacy::LoadSfx((char *)sfxPath, globalSFXCount, SCOPE_GLOBAL);
+            globalSFXCount++;
         }
     }
-    SetActiveMod(-1);
 }
-void RSDK::Legacy::v4::LoadXMLPlayers()
+
+void RSDK::Legacy::v4::LoadXMLPlayers(const tinyxml2::XMLElement *gameElement)
 {
-    FileInfo info;
+    const tinyxml2::XMLElement *playersElement = gameElement->FirstChildElement("players");
+    if (playersElement) {
+        for (const tinyxml2::XMLElement *plrElement = playersElement->FirstChildElement("player"); plrElement;
+             plrElement                             = plrElement->NextSiblingElement("player")) {
+            const tinyxml2::XMLAttribute *nameAttr = plrElement->FindAttribute("name");
+            const char *plrName                    = "unknownPlayer";
+            if (nameAttr)
+                plrName = nameAttr->Value();
 
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 m = 0; m < activeModCount; ++m) {
-        SetActiveMod(m);
-
-        InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
-            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
-
-            char *xmlData = new char[info.fileSize + 1];
-            ReadBytes(&info, xmlData, info.fileSize);
-            xmlData[info.fileSize] = 0;
-
-            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
-
-            if (success) {
-                const tinyxml2::XMLElement *gameElement    = doc->FirstChildElement("game");
-                const tinyxml2::XMLElement *playersElement = gameElement->FirstChildElement("players");
-                if (playersElement) {
-                    const tinyxml2::XMLElement *plrElement = playersElement->FirstChildElement("player");
-                    if (plrElement) {
-                        do {
-                            const tinyxml2::XMLAttribute *nameAttr = plrElement->FindAttribute("name");
-                            const char *plrName                    = "unknownPlayer";
-                            if (nameAttr)
-                                plrName = nameAttr->Value();
-
-                            StrCopy(modSettings.playerNames[modSettings.playerCount++], plrName);
-
-                        } while ((plrElement = plrElement->NextSiblingElement("player")));
-                    }
-                }
-            }
-            else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
-            }
-
-            delete[] xmlData;
-            delete doc;
-
-            CloseFile(&info);
+            StrCopy(modSettings.playerNames[modSettings.playerCount++], plrName);
         }
     }
-    SetActiveMod(-1);
 }
-int32 RSDK::Legacy::v4::LoadXMLStages(int32 mode, int32 gcStageCount)
+
+void RSDK::Legacy::v4::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
 {
-    FileInfo info;
-    int32 stageCount = 0;
+    const char *elementNames[] = { "presentationStages", "regularStages", "bonusStages", "specialStages" };
 
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 m = 0; m < activeModCount; ++m) {
-        SetActiveMod(m);
+    for (int32 l = 0; l < sceneInfo.categoryCount; ++l) {
+        const tinyxml2::XMLElement *listElement = gameElement->FirstChildElement(elementNames[l]);
+        SceneListInfo *list                     = &sceneInfo.listCategory[l];
+        if (listElement) {
+            for (const tinyxml2::XMLElement *stgElement = listElement->FirstChildElement("stage"); stgElement;
+                 stgElement                             = stgElement->NextSiblingElement("stage")) {
+                const tinyxml2::XMLAttribute *nameAttr = stgElement->FindAttribute("name");
+                const char *stgName                    = "unknownStage";
+                if (nameAttr)
+                    stgName = nameAttr->Value();
 
-        InitFileInfo(&info);
-        if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
-            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+                const tinyxml2::XMLAttribute *folderAttr = stgElement->FindAttribute("folder");
+                const char *stgFolder                    = "unknownStageFolder";
+                if (nameAttr)
+                    stgFolder = folderAttr->Value();
 
-            char *xmlData = new char[info.fileSize + 1];
-            ReadBytes(&info, xmlData, info.fileSize);
-            xmlData[info.fileSize] = 0;
+                const tinyxml2::XMLAttribute *idAttr = stgElement->FindAttribute("id");
+                const char *stgID                    = "unknownStageID";
+                if (idAttr)
+                    stgID = idAttr->Value();
 
-            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+                listData.emplace(listData.begin() + list->sceneOffsetEnd);
+                SceneListEntry *scene = &listData[list->sceneOffsetEnd];
 
-            if (success) {
-                const tinyxml2::XMLElement *gameElement = doc->FirstChildElement("game");
-                const char *elementNames[]              = { "presentationStages", "regularStages", "specialStages", "bonusStages" };
-                const char *categoryNames[]             = {
-                    "Presentation",
-                    "Regular",
-                    "Special",
-                    "Bonus",
-                };
+                sprintf_s(scene->name, sizeof(scene->name), "%s", stgName);
+                GEN_HASH_MD5(scene->name, scene->hash);
+                sprintf_s(scene->folder, sizeof(scene->folder), "%s", stgFolder);
+                sprintf_s(scene->id, sizeof(scene->id), "%s", stgID);
 
-                for (int32 l = 0; l < sceneInfo.categoryCount; ++l) {
-                    const tinyxml2::XMLElement *listElement = gameElement->FirstChildElement(elementNames[l]);
-                    if (listElement) {
-                        const tinyxml2::XMLElement *stgElement = listElement->FirstChildElement("stage");
+                scene->filter = 0xFF;
 
-                        SceneListInfo *list = &sceneInfo.listCategory[l];
-                        if (!mode) {
-                            sprintf_s(list->name, sizeof(list->name), "%s", categoryNames[l]);
-                            GEN_HASH_MD5(list->name, list->hash);
-
-                            list->sceneOffsetStart = gcStageCount;
-                            list->sceneOffsetEnd   = gcStageCount;
-                            list->sceneCount       = 0;
-                        }
-
-                        if (stgElement) {
-                            do {
-                                if (!mode) {
-                                    const tinyxml2::XMLAttribute *nameAttr = stgElement->FindAttribute("name");
-                                    const char *stgName                    = "unknownStage";
-                                    if (nameAttr)
-                                        stgName = nameAttr->Value();
-
-                                    const tinyxml2::XMLAttribute *folderAttr = stgElement->FindAttribute("folder");
-                                    const char *stgFolder                    = "unknownStageFolder";
-                                    if (nameAttr)
-                                        stgFolder = folderAttr->Value();
-
-                                    const tinyxml2::XMLAttribute *idAttr = stgElement->FindAttribute("id");
-                                    const char *stgID                    = "unknownStageID";
-                                    if (idAttr)
-                                        stgID = idAttr->Value();
-
-                                    SceneListEntry *scene = &sceneInfo.listData[gcStageCount];
-
-                                    sprintf_s(scene->name, sizeof(scene->name), "%s", stgName);
-                                    GEN_HASH_MD5(scene->name, scene->hash);
-                                    sprintf_s(scene->folder, sizeof(scene->folder), "%s", stgFolder);
-                                    sprintf_s(scene->id, sizeof(scene->id), "%s", stgID);
-
-                                    scene->filter = 0xFF;
-
-                                    gcStageCount++;
-                                    sceneInfo.listCategory[l].sceneCount++;
-                                }
-                                ++stageCount;
-                            } while ((stgElement = stgElement->NextSiblingElement("stage")));
-                        }
-
-                        if (!mode) {
-                            list->sceneOffsetEnd += list->sceneCount;
-                        }
-                    }
-                }
+                list->sceneCount++;
+                list->sceneOffsetEnd++;
+                for (int32 c = l + 1; c < sceneInfo.categoryCount; ++c) sceneInfo.listCategory[c].sceneOffsetStart++;
             }
-            else {
-                PrintLog(PRINT_NORMAL, "Failed to parse Game.xml File!");
-            }
-
-            delete[] xmlData;
-            delete doc;
-
-            CloseFile(&info);
         }
     }
-
-    SetActiveMod(-1);
-
-    return stageCount;
+    sceneInfo.listData = listData.data();
 }
+
 #endif

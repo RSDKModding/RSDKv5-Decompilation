@@ -32,7 +32,7 @@ void RSDK::Legacy::v3::InitFirstStage()
     activePalette = fullPalette[0];
     LoadPalette("MasterPalette.act", 0, 0, 0, 256);
 #if RETRO_USE_MOD_LOADER
-    LoadXMLPalettes();
+    LoadGameXML(true);
 #endif
 
     stageMode = STAGEMODE_LOAD;
@@ -308,7 +308,7 @@ void RSDK::Legacy::v3::LoadStageFiles()
 
         LoadPalette("MasterPalette.act", 0, 0, 0, 256);
 #if RETRO_USE_MOD_LOADER
-        LoadXMLPalettes();
+        LoadGameXML(true);
 #endif
 
         ClearScriptData();

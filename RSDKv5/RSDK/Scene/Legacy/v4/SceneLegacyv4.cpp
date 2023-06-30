@@ -485,7 +485,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
             CloseFile(&info);
 
 #if RETRO_USE_MOD_LOADER
-            LoadXMLPalettes();
+            LoadGameXML(true);
 #endif
 
 #if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
