@@ -27,7 +27,7 @@ void RSDK::DetectEngineVersion()
     int32 m = 0;
     for (m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
-            return;
+            break;
         SetActiveMod(m);
 
         FileInfo checkInfo;
