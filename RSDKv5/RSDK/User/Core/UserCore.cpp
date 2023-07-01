@@ -314,7 +314,7 @@ void RSDK::LoadSettingsINI()
             engine.devMenu = iniparser_getboolean(ini, "Game:devMenu", false);
 
 #if !RETRO_USE_ORIGINAL_CODE
-        customSettings.region                    = iniparser_getint(ini, "Game:region", -1);
+        customSettings.region = iniparser_getint(ini, "Game:region", -1);
         // customSettings.confirmButtonFlip        = iniparser_getboolean(ini, "Game:confirmButtonFlip", false);
         // customSettings.xyButtonFlip             = iniparser_getboolean(ini, "Game:xyButtonFlip", false);
         customSettings.confirmButtonFlip         = iniparser_getboolean(ini, "Game:faceButtonFlip", false);
@@ -427,7 +427,7 @@ void RSDK::LoadSettingsINI()
             // using standard allocation here due to mod loader trickery
             gamePadMappings = new GamePadMappings[gamePadCount];
 #else
-            AllocateStorage((void **)&gamePadMappings, sizeof(GamePadMappings) * gamePadCount, DATASET_STG, true);
+        AllocateStorage((void **)&gamePadMappings, sizeof(GamePadMappings) * gamePadCount, DATASET_STG, true);
 #endif
 #if !RETRO_USE_ORIGINAL_CODE
         }
@@ -515,7 +515,7 @@ void RSDK::LoadSettingsINI()
 
 #if RETRO_REV0U
         customSettings.forceScripts = false;
-        engine.gameReleaseID = 0;
+        engine.gameReleaseID        = 0;
 #endif
 
         sprintf_s(gameLogicName, sizeof(gameLogicName), "Game");
@@ -585,11 +585,11 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
         // ================
         WriteText(file, "[Game]\n");
         if (ini) {
-            if (strcmp(iniparser_getstring(ini, "Game:dataFile", ";unknown;"), ";unknown;") != 0) {
+            if (strcmp(iniparser_getstring(ini, "Game:dataFile", ";unknown;"), ";unknown;") != 0 || (!RETRO_USE_ORIGINAL_CODE && RETRO_REV0U)) {
                 WriteText(file, "dataFile=%s\n", iniparser_getstring(ini, "Game:dataFile", "Data.rsdk"));
             }
 
-            if (strcmp(iniparser_getstring(ini, "Game:devMenu", ";unknown;"), ";unknown;") != 0)
+            if (strcmp(iniparser_getstring(ini, "Game:devMenu", ";unknown;"), ";unknown;") != 0 || (!RETRO_USE_ORIGINAL_CODE && RETRO_REV0U))
                 WriteText(file, "devMenu=%s\n", (engine.devMenu ? "y" : "n"));
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -600,7 +600,8 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
             // WriteText(file, "confirmButtonFlip=%s\n", (customSettings.confirmButtonFlip ? "y" : "n"));
             // WriteText(file, "xyButtonFlip=%s\n", (customSettings.xyButtonFlip ? "y" : "n"));
 
-            WriteText(file, "enableControllerDebugging=%s\n", (customSettings.enableControllerDebugging ? "y" : "n"));
+            if (engine.devMenu)
+                WriteText(file, "enableControllerDebugging=%s\n", (customSettings.enableControllerDebugging ? "y" : "n"));
 
             WriteText(file, "; Determines if the engine should pause when window focus is lost or not\n");
             WriteText(file, "disableFocusPause=%s\n", (customSettings.disableFocusPause ? "y" : "n"));
