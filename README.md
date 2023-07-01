@@ -20,22 +20,66 @@ You probably want [the dedicated Sonic Mania repo](https://github.com/Rubberduck
 
 ## Get the source code
 
-* Clone the repo **recursively**, using:
-```git clone --recursive https://github.com/Rubberduckycooly/RSDKv5-Decompilation.git```
-or if you've already cloned the repo, run inside:
+Clone the repo **recursively**, using:
+`git clone --recursive https://github.com/Rubberduckycooly/RSDKv5-Decompilation`
+
+If you've already cloned the repo, run this command inside of the repository:
 ```git submodule update --init```
 
 ## Follow the build steps
 
-* [Windows](./dependencies/windows/README.md)
-* [Mac](./dependencies/mac/README.md)
-* [Linux/Switch](./dependencies/ogl/README.md)
-* [Android](./dependencies/android/README.md)
+### Windows
+[Install vcpkg](https://github.com/microsoft/vcpkg#quick-start-windows), then run the following:
+- `[vcpkg root]\vcpkg.exe install libtheora libogg --triplet=x64-windows-static` (the triplet can be whatever preferred)
+
+Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCKPG_TARGET_TRIPLET=(chosen triplet)` as arguments for `cmake ..`.
+
+### Linux
+Install the following dependencies: then follow the [compilation steps below](#compiling):
+- **pacman (Arch):** `sudo pacman -S base-devel glew glfw libtheora portaudio`
+- **apt (Debian/Ubuntu):** `sudo apt install build-essential libglew-dev libglfw3-dev libtheora-dev portaudio19-dev`
+- **rpm (Fedora):** `sudo dnf install make gcc glew-devel glfw-devel libtheora-devel zlib-devel portaudio`
+- Your favorite package manager here, [make a pull request](https://github.com/Rubberduckycooly/RSDKv5-Decompilation/fork) (also update Mania!)
+
+#### (make sure to [install GL shaders!](FAQ.md#q-why-arent-videosfilters-working-while-using-gl))
+
+## Switch
+[Setup devKitPro](https://devkitpro.org/wiki/Getting_Started), then run the following:
+- `(dkp-)pacman -Syuu switch-dev switch-libogg switch-libtheora switch-sdl2 switch-glad`
+
+Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Platform/Switch.cmake` as arguments for `cmake ..`.
+
+#### (make sure to [install GL shaders!](FAQ.md#q-why-arent-videosfilters-working-while-using-gl))
+
+## Android
+Follow the android build instructions [here.](./dependencies/android/README.md)
+
+### Compiling
+
+Compiling is as simple as typing the following:
+```
+mkdir build
+cd build
+cmake .. # arguments go here
+cmake --build ..
+```
+
+The resulting build will be located somewhere in `build/` depending on your system.
+
+The following cmake arguments are available when compiling:
+- Use these on the `cmake ..` step like so: `cmake .. -DRETRO_DISABLE_PLUS=on`
+
+### RSDKv5 flags
+- `RETRO_REVISION`: What revision to compile for. Takes an integer, defaults to `3` (RSDKv5U).
+- `RETRO_DISABLE_PLUS`: Whether or not to disable the Plus DLC. Takes a boolean (on/off): build with `on` when compiling for distribution. Defaults to `off`.
+- `RETRO_MOD_LOADER`: Enables or disables the mod loader. Takes a boolean, defaults to `on`.
+- `RETRO_MOD_LOADER_VER`: Manually sets the mod loader version. Takes an integer, defaults to the current latest version.
+- `RETRO_SUBSYSTEM`: *Only change this if you know what you're doing.* Changes the subsystem that RSDKv5 will be built for. Defaults to the most standard subsystem for the platform.   
 
 ## Other Platforms
-Currently, the only officially supported platforms are the ones listed above. However, the backend is very modular, so the codebase is very multiplatform.
+Currently, the only officially supported platforms are the ones listed above.
 
-**However,** since release, there have been a multitude of forks made by the community (keep in mind that many of these ports are still a WIP!:) 
+**However,** since release, there have been a multitude of forks made by the community (keep in mind that many of these ports are still a WIP, and some may be out of date): 
 * ### [WebASM](https://github.com/heyjoeway/RSDKv5-Decompilation/tree/emscripten) by heyjoeway 
 * ### [New 3DS](https://github.com/SaturnSH2x2/RSDKv5-Decompilation/tree/3ds-main) by SaturnSH2x2
 * ### [Wii U](https://github.com/Radfordhound/RSDKv5-Decompilation) by Radfordhound
