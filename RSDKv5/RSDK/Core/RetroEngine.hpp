@@ -157,10 +157,6 @@ enum GameRegions {
 
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
-#ifndef BASE_PATH
-#define BASE_PATH ""
-#endif
-
 // ============================
 // RENDER DEVICE BACKENDS
 // ============================

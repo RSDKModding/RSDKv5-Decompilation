@@ -24,9 +24,10 @@ void RSDK::DetectEngineVersion()
     }
 
     // check if we have any mods with gameconfigs
-    int32 m              = 0;
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (m = 0; m < activeModCount; ++m) {
+    int32 m = 0;
+    for (m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            return;
         SetActiveMod(m);
 
         FileInfo checkInfo;
@@ -218,13 +219,13 @@ bool32 RSDK::OpenDataFile(FileInfo *info, const char *filename)
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
-        PrintLog(PRINT_NORMAL, "Loaded File %s", filename);
+        PrintLog(PRINT_NORMAL, "Loaded data file %s", filename);
 #endif
         return true;
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    PrintLog(PRINT_NORMAL, "Data File not found: %s", filename);
+    PrintLog(PRINT_NORMAL, "Data file not found: %s", filename);
 #else
     PrintLog(PRINT_NORMAL, "File not found: %s", filename);
 #endif
@@ -256,12 +257,14 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
                     break;
                 }
                 else {
-                    PrintLog(PRINT_NORMAL, "[MOD] Excluded File: %s", pathLower);
+                    PrintLog(PRINT_NORMAL, "[MOD] Excluded File: %s", filename);
                 }
             }
         }
-        if (modSettings.activeMod != -1)
-            break;
+        if (modSettings.activeMod != -1) {
+            PrintLog(PRINT_NORMAL, "[MOD] Failed to find file %s in active mod %s", filename, modList[m].id.c_str());
+            // TODO return false? check original impl later
+        }
     }
 
 #if RETRO_REV0U
@@ -285,7 +288,16 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
         sprintf_s(fullFilePath, sizeof(fullFilePath), "%s", pathBuf);
     }
 #else
-    (void)addPath; // unused
+    (void)addPath;
+#endif
+
+#if !RETRO_USE_ORIGNAL_CODE
+    // somewhat hacky that also pleases the mod gods
+    if (!info->externalFile) {
+        char pathBuf[0x100];
+        sprintf_s(pathBuf, sizeof(pathBuf), "%s%s", SKU::userFileDir, fullFilePath);
+        sprintf_s(fullFilePath, sizeof(fullFilePath), "%s", pathBuf);
+    }
 #endif
 
     if (!info->externalFile && fileMode == FMODE_RB && useDataPack) {

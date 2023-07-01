@@ -1311,9 +1311,10 @@ void RSDK::InitGameLink()
 #if RETRO_USE_MOD_LOADER
     }
 
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 m = 0; m < activeModCount; ++m) {
+    for (int32 m = 0; m < modList.size(); ++m) {
         currentMod = &modList[m];
+        if (!currentMod->active)
+            break;
         for (modLinkSTD linkModLogic : modList[m].linkModLogic) {
             if (!linkModLogic(&info, modList[m].id.c_str())) {
                 modList[m].active = false;
@@ -1323,7 +1324,6 @@ void RSDK::InitGameLink()
     }
 
     currentMod = NULL;
-    SortMods();
 #endif
 }
 

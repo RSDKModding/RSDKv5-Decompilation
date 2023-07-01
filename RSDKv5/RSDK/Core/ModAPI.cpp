@@ -215,7 +215,7 @@ void RSDK::SortMods()
         }
     }
 
-    std::sort(modList.begin(), modList.end(), [](ModInfo a, ModInfo b) {
+    std::stable_sort(modList.begin(), modList.end(), [](ModInfo a, ModInfo b) {
         if (!(a.active && b.active))
             return a.active;
         // keep it unsorted i guess
@@ -235,8 +235,10 @@ void RSDK::LoadModSettings()
     modSettings.forceScripts    = customSettings.forceScripts;
 #endif
 
-    int32 activeModCount = (int32)ActiveMods().size();
-    for (int32 i = activeModCount - 1; i >= 0; --i) {
+    int32 start = -1;
+    while (modList[++start].active)
+        ; // cheeky
+    for (int32 i = start; i >= 0; --i) {
         ModInfo *mod = &modList[i];
 
         if (mod->redirectSaveRAM) {
@@ -366,8 +368,8 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
             if (loadingBar) {
                 currentScreen = &screens[0];
                 DrawRectangle(dx - 0x80 + 0x10, dy + 48, 0x100 - 0x20, 0x10, 0x000000, 0xFF, INK_NONE, true);
-                DrawDevString(fromLoadMod ? "Getting count..." : ("Scanning " + info->id + "...").c_str(), currentScreen->center.x, dy + 52, ALIGN_CENTER,
-                            0xFFFFFF);
+                DrawDevString(fromLoadMod ? "Getting count..." : ("Scanning " + info->id + "...").c_str(), currentScreen->center.x, dy + 52,
+                              ALIGN_CENTER, 0xFFFFFF);
                 RenderDevice::CopyFrameBuffer();
                 RenderDevice::FlipScreen();
             }
@@ -571,7 +573,8 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
     RenderDevice::CopyFrameBuffer();
     RenderDevice::FlipScreen();
 
-    LoadModSettings(); // implicit SortMods
+    SortMods();
+    LoadModSettings();
 }
 
 void loadCfg(ModInfo *info, std::string path)
@@ -696,7 +699,7 @@ bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bo
                     Link::Handle linkHandle = Link::Open(file.string().c_str());
 
                     if (linkHandle) {
-                        modLink linkModLogic = (modLink)Link::GetSymbol(linkHandle, "LinkModLogic");
+                        modLink linkModLogic          = (modLink)Link::GetSymbol(linkHandle, "LinkModLogic");
                         const ModVersionInfo *modInfo = (const ModVersionInfo *)Link::GetSymbol(linkHandle, "modInfo");
                         if (!modInfo) {
                             // PrintLog(PRINT_NORMAL, "[MOD] Failed to load mod %s...", folder.c_str());
