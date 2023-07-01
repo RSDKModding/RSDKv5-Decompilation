@@ -13,6 +13,9 @@ We do not condone using this project as a means for piracy in any form. This pro
 * Added a built-in shader compiler for backends/platforms that support it.
 * Added various other backends to windows aside from the usual DirectX 9 backends
 
+## If you are here for Sonic Mania:
+You probably want [the dedicated Sonic Mania repo](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation) instead.
+
 # How to Build
 
 ## Get the source code

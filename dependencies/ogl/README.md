@@ -1,46 +1,34 @@
-# Linux/Switch
+# Linux
 
-## Installing GL3 dependencies 
+## Installing dependencies 
 
-The OpenGL3 backend is mainly used on Linux and Switch, but it does support Windows too.
+Building for Windows on Linux requires `vcpkg`. i (fox) don't do this, so dont take my word for it.
+apparently you run `vcpkg install glfw3 glew --triplet=(wtv wanted)`?
+if you can figure this out, [take this section out and fix it yourself](https://github.com/Rubberduckycooly/RSDKv5-Decompilation/fork).
 
-For Windows, these need to be downloaded and extracted in their respective subdirectories 
-- **GLEW:** Download from [SourceForge](http://glew.sourceforge.net/), extract it in `dependencies/ogl/glew`
-- **GLFW:** Download from [the official site](https://www.glfw.org/download.html), extract it in `dependencies/ogl/glfw`  
-  There are also 32-bit binaries available if you need them, but make sure the RSDKv5(U) is built for 32-bit too!
-
-For Switch you'll need [devkitPro](https://devkitpro.org/) and GLAD, as GLEW and GLFW are not available. Install GLAD with `sudo dkp-pacman -S switch-glad`
+For Switch you'll need [devkitPro](https://devkitpro.org/) and GLAD, install GLAD with `sudo dkp-pacman -S switch-glad`.
 
 For Linux you can install the dependencies using your distro package manager:
-- **Arch Linux:** `sudo pacman -S base-devel glew glfw libtheora zlib sdl2`
-- **Ubuntu (20.04+) or Debian (11+):** `sudo apt install build-essential libglew-dev libglfw3-dev libtheora-dev zlib1g-dev libsdl2-dev`
-- **Fedora:** `sudo dnf install make gcc glew-devel glfw-devel libtheora-devel zlib-devel SDL2-devel`
+- **pacman (Arch):** `sudo pacman -S base-devel glew glfw libtheora zlib sdl2 portaudio`
+- **apt (Debian/Ubuntu):** `sudo apt install build-essential libglew-dev libglfw3-dev libtheora-dev zlib1g-dev libsdl2-dev portaudio19-dev`
+- **rpm (Fedora):** `sudo dnf install make gcc glew-devel glfw-devel libtheora-devel zlib-devel SDL2-devel portaudio`
+- your favorite package manager here, [make a pull request](https://github.com/Rubberduckycooly/RSDKv5-Decompilation/fork) <3 (also update Sonic Manias' repo!)
 
-## Compiling 
+## Compiling
 
-To compile you can just use `make`. To customize the build you can set the following options
-- `PLATFORM=Switch`: Build for Nintendo Switch.
-- `RSDK_REVISION=2`: Compile regular RSDKv5 instead of RSDKv5U.
-- `RSDK_ONLY=1`: Only build the engine (no Game.so)
-- `AUTOBUILD=1`: Disable the Plus DLC, which you should do if you plan on distributing the binary.
-
-## Shaders 
-
-Once completed, it is **heavily recommended** that you grab the Shaders folder in RSDKv5 and turn it into a mod. Otherwise, movies will not display properly and the filters from video settings won't work.
-
-To do this, create the following directory structure inside your mods directory:
+Compiling is as simple as typing the following:
 ```
-GLShaders/
-| Data/
-| | ...
-| mod.ini
+mkdir build
+cd build
+cmake .. # arguments go here
+cmake --build ..
 ```
 
-Inside `mods/GLShaders/Data/` copy the `RSDKv5/Shaders` directory, and inside the mod.ini, paste this:
-```
-Name=GLShaders
-Description=GL3 shaders to enable filters and stuff
-Author=Ducky
-Version=1.0.0
-TargetVersion=5
-```
+### RSDKv5 flags
+- `TRO_REVISION`= What revision to compile for. Takes an integer, defaults to `3` (RSDKv5U).
+- `RETRO_DISABLE_PLUS`= What it says on the tin. Takes a boolean (on/off); build with `=on` when compiling for distribution. Defaults to `=off`.
+- `RETRO_MOD_LOADER`= Enables or disables the mod loader. Takes a boolean, defaults to `=on`.
+- `RETRO_MOD_LOADER_VER`= Manually sets the mod loader version. Takes a string, defaults to `latest`.
+- `CMAKE_SYSTEM_NAME`= Manually sets the system to build for. Takes a string, is set by default via `uname`.
+
+After compiling your binary, stick your `libGame.so` and `Data.rsdk` files in the same directory, launch, and voila!
