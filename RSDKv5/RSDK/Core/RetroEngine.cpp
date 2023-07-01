@@ -90,7 +90,6 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         InitEngine();
 #if RETRO_USE_MOD_LOADER
         // we confirmed the game actually is valid & running, lets start some callbacks
-        RunModCallbacks(MODCB_ONGAMESTARTUP, NULL);
         videoSettings.shaderID = shader;
         RenderDevice::InitShaders();
         RenderDevice::SetWindowTitle();
@@ -729,6 +728,10 @@ void RSDK::InitEngine()
     engine.hardPause   = false;
 #if RETRO_PLATFORM == RETRO_ANDROID
     SetLoadingIcon();
+#endif
+
+#if RETRO_USE_MOD_LOADER
+    RunModCallbacks(MODCB_ONGAMESTARTUP, NULL); // rerun those callbacks
 #endif
 }
 
