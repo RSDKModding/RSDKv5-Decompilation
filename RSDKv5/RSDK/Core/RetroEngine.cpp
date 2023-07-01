@@ -34,6 +34,16 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         SKU::InitUserCore();
         LoadSettingsINI();
 
+#if !RETRO_USE_ORIGINAL_CODE
+        // temp fix till i properly figure out what exactly went wrong here
+#if RETRO_REV02
+        SKU::curSKU.platform = SKU::userCore->GetUserPlatform();
+#else
+        if (gameVerInfo.platform == PLATFORM_PC)
+            gameVerInfo.platform = engine.devMenu ? PLATFORM_DEV : PLATFORM_PC;
+#endif
+#endif
+
 #if RETRO_USE_MOD_LOADER
         // do it early so we can render funny little loading bar for mods
         int32 shader = videoSettings.shaderID;
