@@ -114,6 +114,8 @@ bool RenderDevice::SetupRendering()
         return false;
     }
 
+    glfwSwapInterval(videoSettings.vsync ? 1 : 0);
+
     GetDisplays();
 
     if (!InitGraphicsAPI() || !InitShaders())
