@@ -235,9 +235,19 @@ void RSDK::LoadModSettings()
     modSettings.forceScripts    = customSettings.forceScripts;
 #endif
 
-    int32 start = -1;
-    while (modList[++start].active)
-        ; // cheeky
+    if (modList.empty())
+        return;
+
+    // Iterate backwards to find the last active mod in the list
+    int32 start = modList.size() - 1;
+    while ((start != -1) && !modList[start].active) {
+        --start;
+    }
+
+    // No active mod in the list
+    if (start == -1)
+        return;
+
     for (int32 i = start; i >= 0; --i) {
         ModInfo *mod = &modList[i];
 
