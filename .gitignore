@@ -44,6 +44,8 @@ RSDKv5/*.ini
 RSDKv5U/*.ini
 RSDKv5/*.bin
 RSDKv5U/*.bin
+RSDKv5/*.dll
+RSDKv5U/*.dll
 
 #OSX files
 *.DS_Store
