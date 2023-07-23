@@ -1633,7 +1633,7 @@ void RSDK::DevMenu_DebugOptionsMenu()
                     }
                 }
 
-                DrawDevString(valueStr, currentScreen->center.x + 96, dy, ALIGN_CENTER, selectionColors[i]);
+                DrawDevString(valueStr, currentScreen->center.x + 96, dy, ALIGN_CENTER, 0xF0F080);
             }
             dy += 8;
         }
