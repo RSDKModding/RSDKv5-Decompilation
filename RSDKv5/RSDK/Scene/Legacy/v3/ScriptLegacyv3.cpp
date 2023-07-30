@@ -1269,7 +1269,39 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                         case 'B': list = STAGELIST_BONUS; break;
                         case 'S': list = STAGELIST_SPECIAL; break;
                     }
-                    // s = GetSceneID(list, &arrayStr[2]);
+                    if (list <= 3) {
+                        char scnName[0x40];
+                        int32 scnPos          = 0;
+                        int32 pos             = 0;
+                        const char *sceneName = &arrayStr[2];
+
+                        while (sceneName[scnPos]) {
+                            if (sceneName[scnPos] != ' ')
+                                scnName[pos++] = sceneName[scnPos];
+                            ++scnPos;
+                        }
+                        scnName[pos]           = 0;
+                        SceneListInfo *listCat = &sceneInfo.listCategory[list];
+                        int32 l                = listCat->sceneOffsetStart;
+                        for (int32 c = 0; c < listCat->sceneCount; ++c) {
+                            char nameBuffer[0x40];
+
+                            scnPos = 0;
+                            pos    = 0;
+                            while (sceneInfo.listData[l].name[scnPos]) {
+                                if (sceneInfo.listData[l].name[scnPos] != ' ')
+                                    nameBuffer[pos++] = sceneInfo.listData[l].name[scnPos];
+                                ++scnPos;
+                            }
+                            nameBuffer[pos] = 0;
+
+                            if (StrComp(scnName, nameBuffer)) {
+                                s = c;
+                                break;
+                            }
+                            l++;
+                        }
+                    }
                 }
 
                 if (s == -1) {
