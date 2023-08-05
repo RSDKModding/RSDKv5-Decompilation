@@ -209,6 +209,26 @@ void RSDK::Legacy::v3::ProcessEngine()
 
             int32 yOff = DevOutput_GetStringYSize(scriptErrorMessage);
             DrawDevString(scriptErrorMessage, 8, currentScreen->center.y - (yOff >> 1) + 8, 0, 0xF0F0F0);
+
+            ProcessInput();
+            if (controller[CONT_ANY].keyStart.press || controller[CONT_ANY].keyA.press) {
+                OpenDevMenu();
+            }
+            else if (controller[CONT_ANY].keyB.press) {
+                ResetCurrentStageFolder();
+                sceneInfo.activeCategory = 0;
+                gameMode                 = ENGINE_MAINGAME;
+                stageMode                = STAGEMODE_LOAD;
+                sceneInfo.listPos        = 0;
+            }
+            else if (controller[CONT_ANY].keyC.press) {
+                ResetCurrentStageFolder();
+#if RETRO_USE_MOD_LOADER
+                RefreshModFolders();
+#endif
+                gameMode  = ENGINE_MAINGAME;
+                stageMode = STAGEMODE_LOAD;
+            }
             break;
         }
 
