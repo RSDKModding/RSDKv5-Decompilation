@@ -486,9 +486,22 @@ void RSDK::DevMenu_MainMenu()
                 break;
 
             case 2:
+#if RETRO_REV0U && RETRO_USE_MOD_LOADER
+                if (engine.version == 5) {
+                    devMenu.state     = DevMenu_CategorySelectMenu;
+                    devMenu.selection = 0;
+                    devMenu.timer     = 1;
+                }
+                else {
+                    devMenu.state     = DevMenu_PlayerSelectMenu;
+                    devMenu.scrollPos = 0;
+                    devMenu.selection = 0;
+                }
+#else
                 devMenu.state     = DevMenu_CategorySelectMenu;
                 devMenu.selection = 0;
                 devMenu.timer     = 1;
+#endif
                 break;
 
             case 3:
@@ -645,12 +658,27 @@ void RSDK::DevMenu_CategorySelectMenu()
     }
 #if !RETRO_USE_ORIGINAL_CODE
     else if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
+#if RETRO_REV0U && RETRO_USE_MOD_LOADER
+        if (engine.version == 5) {
+            devMenu.state     = DevMenu_MainMenu;
+            devMenu.listPos   = 0;
+            devMenu.scrollPos = 0;
+            devMenu.selection = 2;
+        }
+        else {
+            devMenu.state     = DevMenu_PlayerSelectMenu;
+            devMenu.listPos   = 0;
+            devMenu.scrollPos = 0;
+            devMenu.selection = 0;
+        }
+#else
         devMenu.state     = DevMenu_MainMenu;
         devMenu.listPos   = 0;
         devMenu.scrollPos = 0;
         devMenu.selection = 2;
+#endif //! RETRO_REV0U && RETRO_USE_MOD_LOADER
     }
-#endif
+#endif // ! !RETRO_USE_ORIGINAL_CODE
 }
 void RSDK::DevMenu_SceneSelectMenu()
 {
@@ -768,14 +796,12 @@ void RSDK::DevMenu_SceneSelectMenu()
                 case 5: sceneInfo.state = ENGINESTATE_LOAD; break;
                 case 4:
                 case 3:
-#if !RETRO_USE_MOD_LOADER
+                    switch (engine.version) {
+                        case 3: RSDK::Legacy::v3::playerListPos = devMenu.playerListPos; break;
+                        case 4: RSDK::Legacy::v4::playerListPos = devMenu.playerListPos; break;
+                    }
                     RSDK::Legacy::gameMode  = RSDK::Legacy::ENGINE_MAINGAME;
                     RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD;
-#else
-                    devMenu.state     = DevMenu_PlayerSelectMenu;
-                    devMenu.scrollPos = 0;
-                    devMenu.selection = 0;
-#endif //! RETRO_USE_ORIGINAL_CODE
                     break;
             }
 #else
@@ -2007,17 +2033,16 @@ void RSDK::DevMenu_PlayerSelectMenu()
         confirm = controller[CONT_ANY].keyB.press;
 
     if (controller[CONT_ANY].keyStart.press || confirm) {
-        switch (engine.version) {
-            case 3: RSDK::Legacy::v3::playerListPos = devMenu.selection; break;
-            case 4: RSDK::Legacy::v4::playerListPos = devMenu.selection; break;
-        }
-        RSDK::Legacy::gameMode  = RSDK::Legacy::ENGINE_MAINGAME;
-        RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD;
+        devMenu.state         = DevMenu_CategorySelectMenu;
+        devMenu.playerListPos = devMenu.selection;
+        devMenu.selection     = 0;
+        devMenu.timer         = 1;
     }
     else if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
-        devMenu.state     = DevMenu_SceneSelectMenu;
-        devMenu.scrollPos = 0;
-        devMenu.selection = 0;
+        devMenu.state         = DevMenu_MainMenu;
+        devMenu.playerListPos = 0;
+        devMenu.scrollPos     = 0;
+        devMenu.selection     = 2;
     }
 }
 #endif
