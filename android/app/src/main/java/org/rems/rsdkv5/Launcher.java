@@ -38,6 +38,9 @@ public class Launcher extends AppCompatActivity {
     private static ActivityResultLauncher<Intent> folderLauncher = null;
     private static ActivityResultLauncher<Intent> gameLauncher = null;
 
+    private static int takeFlags = (Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+            Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -197,12 +200,18 @@ public class Launcher extends AppCompatActivity {
                                         Intent.FLAG_GRANT_READ_URI_PERMISSION |
                                         Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
 
+                        getContentResolver().takePersistableUriPermission(basePath, takeFlags);
+
                         instance = this;
 
                         gameLauncher.launch(intent);
                     })
                     .setNeutralButton("Change Path", (dialog, i) -> {
                         timer.cancel();
+                        try {
+                            getContentResolver().releasePersistableUriPermission(basePath, takeFlags);
+                        } catch (Exception e) {
+                        }
                         folderPicker();
                     })
                     .create();
