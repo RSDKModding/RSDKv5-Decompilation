@@ -208,10 +208,7 @@ public class Launcher extends AppCompatActivity {
                     })
                     .setNeutralButton("Change Path", (dialog, i) -> {
                         timer.cancel();
-                        try {
                             getContentResolver().releasePersistableUriPermission(basePath, takeFlags);
-                        } catch (Exception e) {
-                        }
                         folderPicker();
                     })
                     .create();
