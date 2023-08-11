@@ -737,7 +737,14 @@ void RSDK::InitEngine()
 
 void RSDK::StartGameObjects()
 {
+#if RETRO_USE_MOD_LOADER
+    // ObjectClass is a non-POD struct because of std::function, we can't memset(0) or it would overwrite vtable data
+    for (int i = 0; i < OBJECT_COUNT; ++i) {
+        objectClassList[i] = {};
+    }
+#else
     memset(&objectClassList, 0, sizeof(objectClassList));
+#endif
 
     sceneInfo.classCount     = 0;
     sceneInfo.activeCategory = 0;
