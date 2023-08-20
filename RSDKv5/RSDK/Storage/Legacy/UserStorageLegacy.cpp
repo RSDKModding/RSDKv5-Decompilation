@@ -71,40 +71,44 @@ void RSDK::Legacy::v4::SetLeaderboard(int32 *leaderboardID, int32 *score)
 void RSDK::Legacy::v4::HapticEffect(int32 *id, int32 *unknown1, int32 *unknown2, int32 *unknown3) {}
 
 enum NotifyCallbackIDs {
-    NOTIFY_DEATH_EVENT        = 128,
-    NOTIFY_TOUCH_SIGNPOST     = 129,
-    NOTIFY_HUD_ENABLE         = 130,
-    NOTIFY_ADD_COIN           = 131,
-    NOTIFY_KILL_ENEMY         = 132,
-    NOTIFY_SAVESLOT_SELECT    = 133,
-    NOTIFY_FUTURE_PAST        = 134,
-    NOTIFY_GOTO_FUTURE_PAST   = 135,
-    NOTIFY_BOSS_END           = 136,
-    NOTIFY_SPECIAL_END        = 137,
-    NOTIFY_DEBUGPRINT         = 138,
-    NOTIFY_KILL_BOSS          = 139,
-    NOTIFY_TOUCH_EMERALD      = 140,
-    NOTIFY_STATS_ENEMY        = 141,
-    NOTIFY_STATS_CHARA_ACTION = 142,
-    NOTIFY_STATS_RING         = 143,
-    NOTIFY_STATS_MOVIE        = 144,
-    NOTIFY_STATS_PARAM_1      = 145,
-    NOTIFY_STATS_PARAM_2      = 146,
-    NOTIFY_CHARACTER_SELECT   = 147,
-    NOTIFY_SPECIAL_RETRY      = 148,
-    NOTIFY_TOUCH_CHECKPOINT   = 149,
-    NOTIFY_ACT_FINISH         = 150,
-    NOTIFY_1P_VS_SELECT       = 151,
-    NOTIFY_CONTROLLER_SUPPORT = 152,
-    NOTIFY_STAGE_RETRY        = 153,
-    NOTIFY_SOUND_TRACK        = 154,
-    NOTIFY_GOOD_ENDING        = 155,
-    NOTIFY_BACK_TO_MAINMENU   = 156,
-    NOTIFY_LEVEL_SELECT_MENU  = 157,
-    NOTIFY_PLAYER_SET         = 158,
-    NOTIFY_EXTRAS_MODE        = 159,
-    NOTIFY_SPIN_DASH_TYPE     = 160,
-    NOTIFY_TIME_OVER          = 161,
+    NOTIFY_DEATH_EVENT         = 128,
+    NOTIFY_TOUCH_SIGNPOST      = 129,
+    NOTIFY_HUD_ENABLE          = 130,
+    NOTIFY_ADD_COIN            = 131,
+    NOTIFY_KILL_ENEMY          = 132,
+    NOTIFY_SAVESLOT_SELECT     = 133,
+    NOTIFY_FUTURE_PAST         = 134,
+    NOTIFY_GOTO_FUTURE_PAST    = 135,
+    NOTIFY_BOSS_END            = 136,
+    NOTIFY_SPECIAL_END         = 137,
+    NOTIFY_DEBUGPRINT          = 138,
+    NOTIFY_KILL_BOSS           = 139,
+    NOTIFY_TOUCH_EMERALD       = 140,
+    NOTIFY_STATS_ENEMY         = 141,
+    NOTIFY_STATS_CHARA_ACTION  = 142,
+    NOTIFY_STATS_RING          = 143,
+    NOTIFY_STATS_MOVIE         = 144,
+    NOTIFY_STATS_PARAM_1       = 145,
+    NOTIFY_STATS_PARAM_2       = 146,
+    NOTIFY_CHARACTER_SELECT    = 147,
+    NOTIFY_SPECIAL_RETRY       = 148,
+    NOTIFY_TOUCH_CHECKPOINT    = 149,
+    NOTIFY_ACT_FINISH          = 150,
+    NOTIFY_1P_VS_SELECT        = 151,
+    NOTIFY_CONTROLLER_SUPPORT  = 152,
+    NOTIFY_STAGE_RETRY         = 153,
+    NOTIFY_SOUND_TRACK         = 154,
+    NOTIFY_GOOD_ENDING         = 155,
+    NOTIFY_BACK_TO_MAINMENU    = 156,
+    NOTIFY_LEVEL_SELECT_MENU   = 157,
+    NOTIFY_PLAYER_SET          = 158,
+    NOTIFY_EXTRAS_MODE         = 159,
+    NOTIFY_SPIN_DASH_TYPE      = 160,
+    NOTIFY_TIME_OVER           = 161,
+    NOTIFY_TIMEATTACK_MODE     = 162,
+    NOTIFY_STATS_BREAK_OBJECT  = 163,
+    NOTIFY_STATS_SAVE_FUTURE   = 164,
+    NOTIFY_STATS_CHARA_ACTION2 = 165,
 };
 
 void RSDK::Legacy::v4::NotifyCallback(int32 *callback, int32 *param1, int32 *param2, int32 *param3)
@@ -117,14 +121,24 @@ void RSDK::Legacy::v4::NotifyCallback(int32 *callback, int32 *param1, int32 *par
         case NOTIFY_DEATH_EVENT: PrintLog(PRINT_NORMAL, "NOTIFY: DeathEvent() -> %d", *param1); break;
         case NOTIFY_TOUCH_SIGNPOST: PrintLog(PRINT_NORMAL, "NOTIFY: TouchSignPost() -> %d", *param1); break;
         case NOTIFY_HUD_ENABLE: PrintLog(PRINT_NORMAL, "NOTIFY: HUDEnable() -> %d", *param1); break;
-        case NOTIFY_ADD_COIN: PrintLog(PRINT_NORMAL, "NOTIFY: AddCoin() -> %d", *param1); break;
+        case NOTIFY_ADD_COIN:
+            PrintLog(PRINT_NORMAL, "NOTIFY: AddCoin() -> %d", *param1);
+            SetGlobalVariableByName("game.coinCount", GetGlobalVariableByName("game.coinCount") + *param1);
+            break;
         case NOTIFY_KILL_ENEMY: PrintLog(PRINT_NORMAL, "NOTIFY: KillEnemy() -> %d", *param1); break;
         case NOTIFY_SAVESLOT_SELECT: PrintLog(PRINT_NORMAL, "NOTIFY: SaveSlotSelect() -> %d", *param1); break;
         case NOTIFY_FUTURE_PAST: PrintLog(PRINT_NORMAL, "NOTIFY: FuturePast() -> %d", *param1); break;
         case NOTIFY_GOTO_FUTURE_PAST: PrintLog(PRINT_NORMAL, "NOTIFY: GotoFuturePast() -> %d", *param1); break;
         case NOTIFY_BOSS_END: PrintLog(PRINT_NORMAL, "NOTIFY: BossEnd() -> %d", *param1); break;
         case NOTIFY_SPECIAL_END: PrintLog(PRINT_NORMAL, "NOTIFY: SpecialEnd() -> %d", *param1); break;
-        case NOTIFY_DEBUGPRINT: PrintLog(PRINT_NORMAL, "NOTIFY: DebugPrint() -> %d, %d, %d", *param1, *param2, *param3); break;
+        case NOTIFY_DEBUGPRINT:
+            // This callback can be called with either CallNativeFunction2 or CallNativeFunction4
+            // todo: find a better way to check for which one was used
+            if (*param2 == 264865096)
+                PrintLog(PRINT_NORMAL, "NOTIFY: DebugPrint() -> %d", *param1);
+            else
+                PrintLog(PRINT_NORMAL, "NOTIFY: DebugPrint() -> %d, %d, %d", *param1, *param2, *param3);
+            break;
         case NOTIFY_KILL_BOSS: PrintLog(PRINT_NORMAL, "NOTIFY: KillBoss() -> %d", *param1); break;
         case NOTIFY_TOUCH_EMERALD: PrintLog(PRINT_NORMAL, "NOTIFY: TouchEmerald() -> %d", *param1); break;
         case NOTIFY_STATS_ENEMY: PrintLog(PRINT_NORMAL, "NOTIFY: StatsEnemy() -> %d, %d, %d", *param1, *param2, *param3); break;
@@ -164,5 +178,9 @@ void RSDK::Legacy::v4::NotifyCallback(int32 *callback, int32 *param1, int32 *par
         case NOTIFY_EXTRAS_MODE: PrintLog(PRINT_NORMAL, "NOTIFY: ExtrasMode() -> %d", *param1); break;
         case NOTIFY_SPIN_DASH_TYPE: PrintLog(PRINT_NORMAL, "NOTIFY: SpindashType() -> %d", *param1); break;
         case NOTIFY_TIME_OVER: PrintLog(PRINT_NORMAL, "NOTIFY: TimeOver() -> %d", *param1); break;
+        case NOTIFY_TIMEATTACK_MODE: PrintLog(PRINT_NORMAL, "NOTIFY: TimeAttackMode() -> %d", *param1); break;
+        case NOTIFY_STATS_BREAK_OBJECT: PrintLog(PRINT_NORMAL, "NOTIFY: StatsBreakObject() -> %d, %d", *param1, *param2); break;
+        case NOTIFY_STATS_SAVE_FUTURE: PrintLog(PRINT_NORMAL, "NOTIFY: StatsSaveFuture() -> %d", *param1); break;
+        case NOTIFY_STATS_CHARA_ACTION2: PrintLog(PRINT_NORMAL, "NOTIFY: StatsCharaAction2() -> %d, %d, %d", *param1, *param2, *param3); break;
     }
 }

@@ -883,6 +883,14 @@ void RSDK::Legacy::v3::CheckAliasText(char *text)
     if (FindStringToken(text, "#alias", 1) != 0)
         return;
 
+#if !RETRO_USE_ORIGINAL_CODE
+    if (aliasCount >= LEGACY_v3_ALIAS_COUNT) {
+        RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases\nFILE: %s", scriptFile);
+        gameMode = ENGINE_SCRIPTERROR;
+        return;
+    }
+#endif
+
     int32 textPos     = 6;
     int32 aliasStrPos = 0;
     int32 parseMode   = 0;
