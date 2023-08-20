@@ -796,6 +796,9 @@ void RSDK::DevMenu_SceneSelectMenu()
                 case 5: sceneInfo.state = ENGINESTATE_LOAD; break;
                 case 4:
                 case 3:
+#if !RETRO_USE_ORIGINAL_CODE
+                    RSDK::Legacy::debugMode = confirm;
+#endif
 #if RETRO_USE_MOD_LOADER
                     switch (engine.version) {
                         case 3: RSDK::Legacy::v3::playerListPos = devMenu.playerListPos; break;
