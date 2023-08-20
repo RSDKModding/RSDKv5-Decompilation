@@ -664,7 +664,6 @@ void RSDK::Legacy::v3::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement)
     if (soundsElement) {
         for (const tinyxml2::XMLElement *sfxElement = soundsElement->FirstChildElement("soundfx"); sfxElement;
             sfxElement                             = sfxElement->NextSiblingElement("soundfx")) {
-
             const tinyxml2::XMLAttribute *valAttr = sfxElement->FindAttribute("path");
             const char *sfxPath                   = "unknownSFX.wav";
             if (valAttr)
