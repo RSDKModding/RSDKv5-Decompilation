@@ -94,6 +94,8 @@ void ObjectFloorGrip(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectLWallGrip(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectRoofGrip(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath);
+void ObjectLEntityGrip(int32 xOffset, int32 yOffset, int32 cPath);
+void ObjectREntityGrip(int32 xOffset, int32 yOffset, int32 cPath);
 
 } // namespace v4
 
