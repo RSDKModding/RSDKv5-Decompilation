@@ -13,7 +13,7 @@ RSDK::Legacy::v3::CollisionStore RSDK::Legacy::v3::collisionStorage[2];
 // custom)
 // TODO: Get the actual values
 
-int8 hammerDashHitbox[] = {
+const int8 hammerDashHitbox[] = {
     0,  0, 13, 0,
   -13,  0,  0, 0,
    -8, -7 , 0, 0,
@@ -24,7 +24,7 @@ int8 hammerDashHitbox[] = {
     0, -9, 15, 0
 };
 
-int8 chibiHammerDashHitbox[] = {
+const int8 chibiHammerDashHitbox[] = {
     -5, 0, 0, 0,
     -2, 0, 0, 0,
     -2, 0, 8, 0
@@ -3008,9 +3008,9 @@ void RSDK::Legacy::v3::EnemyCollision(int32 left, int32 top, int32 right, int32 
     int8 aniHammerDash    = GetGlobalVariableByName("ANI_HAMMER_DASH") ? GetGlobalVariableByName("ANI_HAMMER_DASH") : 46;
 #else
     bool32 mini_PlayerFlag = globalVariables[62];
-    sbyte playerAmy        = 5;
-    sbyte aniHammerJump    = 45;
-    sbyte aniHammerDash    = 46;
+    int8 playerAmy         = 5;
+    int8 aniHammerJump     = 45;
+    int8 aniHammerDash     = 46;
 #endif
 
     scriptEng.checkResult = collisionRight > left && collisionLeft < right && collisionBottom > top && collisionTop < bottom;
