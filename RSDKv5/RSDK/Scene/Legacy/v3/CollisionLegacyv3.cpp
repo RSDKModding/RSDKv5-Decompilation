@@ -7,27 +7,33 @@ int32 RSDK::Legacy::v3::collisionBottom = 0;
 RSDK::Legacy::v3::CollisionSensor RSDK::Legacy::v3::sensors[6];
 RSDK::Legacy::v3::CollisionStore RSDK::Legacy::v3::collisionStorage[2];
 
-// Should be noted that these values are guesstimates
-// In Origins Plus, the hitbox values are not stored in the RSDK side of the game, instead being pulled from somewhere in Hedgehog Engine 2
-// It proved to be too difficult to figure out what these values were, so we decided to guess instead (normal hitboxes are taken from S1/2, chibi is
-// custom)
-// TODO: Get the actual values
-
-const int8 hammerDashHitbox[] = {
-    0,  0, 13, 0,
-  -13,  0,  0, 0,
-   -8, -7 , 0, 0,
-    0, -9, 15, 0,
-    0,  0, 13, 0,
-  -13,  0,  0, 0,
-   -8, -7,  0, 0,
-    0, -9, 15, 0
+const int32 hammerJumpHitbox[] = {
+    -25, -25,  25,  25,
+    -25, -25,  25,  25,
+    -25, -25,  25,  25,
+    -25, -25,  25,  25
 };
 
-const int8 chibiHammerDashHitbox[] = {
-    -5, 0, 0, 0,
-    -2, 0, 0, 0,
-    -2, 0, 8, 0
+const int32 hammerDashHitbox[] = { 
+     -10, -17, 23, 17,
+     -23, -17, 10, 17,
+     -18, -24, 10, 17,
+     -10, -26, 25, 17,
+     -10, -17, 23, 17,
+     -23, -17, 10, 17,
+     -18, -24, 10, 17,
+     -10, -26, 25, 17
+};
+
+const int32 chibiHammerJumpHitbox[] = {
+    -15, -11, 15, 20,
+    -15, -11, 15, 20,
+};
+
+const int32 chibiHammerDashHitbox[] = {
+    -14, -12, 8, 12,
+    -10, -12, 8, 12,
+     -8, -12,16, 12
 };
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -2984,17 +2990,9 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
 // original function, feel free to do so and send a PR, but this should be good enough as is
 void RSDK::Legacy::v3::EnemyCollision(int32 left, int32 top, int32 right, int32 bottom)
 {
-    Player *player       = &playerList[activePlayer];
-    Hitbox *playerHitbox = GetPlayerHitbox(player);
-    collisionLeft        = player->XPos >> 16;
-    collisionTop         = player->YPos >> 16;
-    collisionRight       = collisionLeft;
-    collisionBottom      = collisionTop;
+    TouchCollision(left, top, right, bottom);
 
-    collisionLeft   += playerHitbox->left[0];
-    collisionTop    += playerHitbox->top[0];
-    collisionRight  += playerHitbox->right[0];
-    collisionBottom += playerHitbox->bottom[0];
+    Player *player           = &playerList[activePlayer];
 
     int32 hammerHitboxLeft   = 0;
     int32 hammerHitboxRight  = 0;
@@ -3013,28 +3011,33 @@ void RSDK::Legacy::v3::EnemyCollision(int32 left, int32 top, int32 right, int32 
     int8 aniHammerDash     = 46;
 #endif
 
-    scriptEng.checkResult = collisionRight > left && collisionLeft < right && collisionBottom > top && collisionTop < bottom;
+    collisionLeft   = player->XPos >> 16;
+    collisionTop    = player->YPos >> 16;
+    collisionRight  = collisionLeft;
+    collisionBottom = collisionTop;
 
     if (!scriptEng.checkResult) {
         if (playerListPos == playerAmy) {
             if (player->boundEntity->animation == aniHammerDash) {
-                int32 frame          = player->boundEntity->frame * 4;
-                hammerHitboxLeft   = miniPlayerFlag ? chibiHammerDashHitbox[frame] : hammerDashHitbox[frame];
+                int32 frame        = (miniPlayerFlag ? player->boundEntity->frame % 3 : player->boundEntity->frame % 8) * 4;
+
+                hammerHitboxLeft   = miniPlayerFlag ? chibiHammerDashHitbox[frame]     : hammerDashHitbox[frame];
                 hammerHitboxTop    = miniPlayerFlag ? chibiHammerDashHitbox[frame + 1] : hammerDashHitbox[frame + 1];
                 hammerHitboxRight  = miniPlayerFlag ? chibiHammerDashHitbox[frame + 2] : hammerDashHitbox[frame + 2];
                 hammerHitboxBottom = miniPlayerFlag ? chibiHammerDashHitbox[frame + 3] : hammerDashHitbox[frame + 3];
-                if (player->boundEntity->direction) {
-                    int32 storeHitboxLeft = hammerHitboxLeft;
-                    hammerHitboxLeft      = -hammerHitboxRight;
-                    hammerHitboxRight     = -storeHitboxLeft;
-                }
             }
             if (player->boundEntity->animation == aniHammerJump) {
-                // These values are guesstimates, see above for more info
-                hammerHitboxLeft   = miniPlayerFlag ? -6 : -15;
-                hammerHitboxTop    = miniPlayerFlag ? -6 : -12;
-                hammerHitboxRight  = miniPlayerFlag ?  6 :  15;
-                hammerHitboxBottom = miniPlayerFlag ?  6 :  12;
+                int32 frame        = (miniPlayerFlag ? player->boundEntity->frame % 2 : player->boundEntity->frame % 4) * 4;
+
+                hammerHitboxLeft   = miniPlayerFlag ? chibiHammerJumpHitbox[frame]     : hammerJumpHitbox[frame];
+                hammerHitboxTop    = miniPlayerFlag ? chibiHammerJumpHitbox[frame + 1] : hammerJumpHitbox[frame + 1];
+                hammerHitboxRight  = miniPlayerFlag ? chibiHammerJumpHitbox[frame + 2] : hammerJumpHitbox[frame + 2];
+                hammerHitboxBottom = miniPlayerFlag ? chibiHammerJumpHitbox[frame + 3] : hammerJumpHitbox[frame + 3];
+            }
+            if (player->boundEntity->direction) {
+                int32 storeHitboxLeft =  hammerHitboxLeft;
+                hammerHitboxLeft      = -hammerHitboxRight;
+                hammerHitboxRight     = -storeHitboxLeft;
             }
             scriptEng.checkResult = collisionRight + hammerHitboxRight > left && collisionLeft + hammerHitboxLeft < right
                                     && collisionBottom + hammerHitboxBottom > top && collisionTop + hammerHitboxTop < bottom;
@@ -3049,12 +3052,13 @@ void RSDK::Legacy::v3::EnemyCollision(int32 left, int32 top, int32 right, int32 
         right -= entity->XPos >> 16;
         bottom -= entity->YPos >> 16;
 
+        Hitbox *playerHitbox = GetPlayerHitbox(player);
+
         int32 thisHitboxID = AddDebugHitbox(H_TYPE_TOUCH, entity, left, top, right, bottom);
         if (thisHitboxID >= 0 && scriptEng.checkResult)
             debugHitboxList[thisHitboxID].collision |= 1;
 
-        int32 otherHitboxID = AddDebugHitbox(H_TYPE_TOUCH, NULL, hammerHitboxLeft + playerHitbox->left[0], hammerHitboxTop + playerHitbox->top[0],
-                                           hammerHitboxRight + playerHitbox->right[0], hammerHitboxBottom + playerHitbox->bottom[0]);
+        int32 otherHitboxID = AddDebugHitbox(H_TYPE_HAMMER, NULL, hammerHitboxLeft, hammerHitboxTop, hammerHitboxRight, hammerHitboxBottom);
         AddDebugHitbox(H_TYPE_TOUCH, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
         if (otherHitboxID >= 0) {
             debugHitboxList[otherHitboxID].pos.x = player->XPos;
