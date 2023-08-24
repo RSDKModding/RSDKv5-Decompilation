@@ -809,7 +809,7 @@ void RSDK::LoadXMLWindowText(const tinyxml2::XMLElement *gameElement)
     if (titleElement) {
         const tinyxml2::XMLAttribute *nameAttr = titleElement->FindAttribute("name");
         if (nameAttr)
-            StrCopy(gameVerInfo.gameTitle, nameAttr->Value());
+            strcpy(gameVerInfo.gameTitle, nameAttr->Value());
     }
 }
 
