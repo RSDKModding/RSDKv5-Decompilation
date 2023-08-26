@@ -550,7 +550,7 @@ void RSDK::Legacy::v3::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
     const tinyxml2::XMLElement *paletteElement = gameElement->FirstChildElement("palette");
     if (paletteElement) {
         for (const tinyxml2::XMLElement *clrElement = paletteElement->FirstChildElement("color"); clrElement;
-             clrElement                             = clrElement->NextSiblingElement("color")) {
+            clrElement                             = clrElement->NextSiblingElement("color")) {
             const tinyxml2::XMLAttribute *bankAttr = clrElement->FindAttribute("bank");
             int32 clrBank                          = 0;
             if (bankAttr)
@@ -580,7 +580,7 @@ void RSDK::Legacy::v3::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
         }
 
         for (const tinyxml2::XMLElement *clrsElement = paletteElement->FirstChildElement("colors"); clrsElement;
-             clrsElement                             = clrsElement->NextSiblingElement("colors")) {
+            clrsElement                             = clrsElement->NextSiblingElement("colors")) {
             const tinyxml2::XMLAttribute *bankAttr = clrsElement->FindAttribute("bank");
             int32 bank                             = 0;
             if (bankAttr)
@@ -628,7 +628,7 @@ void RSDK::Legacy::v3::LoadXMLObjects(const tinyxml2::XMLElement *gameElement)
     const tinyxml2::XMLElement *objectsElement = gameElement->FirstChildElement("objects");
     if (objectsElement) {
         for (const tinyxml2::XMLElement *objElement = objectsElement->FirstChildElement("object"); objElement;
-             objElement                             = objElement->NextSiblingElement("object")) {
+            objElement                             = objElement->NextSiblingElement("object")) {
             const tinyxml2::XMLAttribute *nameAttr = objElement->FindAttribute("name");
             const char *objName                    = "unknownObject";
             if (nameAttr)
@@ -663,18 +663,13 @@ void RSDK::Legacy::v3::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement)
     const tinyxml2::XMLElement *soundsElement = gameElement->FirstChildElement("sounds");
     if (soundsElement) {
         for (const tinyxml2::XMLElement *sfxElement = soundsElement->FirstChildElement("soundfx"); sfxElement;
-             sfxElement                             = sfxElement->NextSiblingElement("soundfx")) {
-            const tinyxml2::XMLAttribute *nameAttr = sfxElement->FindAttribute("name");
-            const char *sfxName                    = "unknownSFX";
-            if (nameAttr)
-                sfxName = nameAttr->Value();
-
+            sfxElement                             = sfxElement->NextSiblingElement("soundfx")) {
             const tinyxml2::XMLAttribute *valAttr = sfxElement->FindAttribute("path");
             const char *sfxPath                   = "unknownSFX.wav";
             if (valAttr)
                 sfxPath = valAttr->Value();
 
-            SetSfxName(sfxName, globalSFXCount, true);
+            SetSfxName(sfxPath, globalSFXCount, true);
 
             RSDK::Legacy::LoadSfx((char *)sfxPath, globalSFXCount, SCOPE_GLOBAL);
             globalSFXCount++;
@@ -687,7 +682,7 @@ void RSDK::Legacy::v3::LoadXMLPlayers(const tinyxml2::XMLElement *gameElement)
     const tinyxml2::XMLElement *playersElement = gameElement->FirstChildElement("players");
     if (playersElement) {
         for (const tinyxml2::XMLElement *plrElement = playersElement->FirstChildElement("player"); plrElement;
-             plrElement                             = plrElement->NextSiblingElement("player")) {
+            plrElement                             = plrElement->NextSiblingElement("player")) {
             const tinyxml2::XMLAttribute *nameAttr = plrElement->FindAttribute("name");
             const char *plrName                    = "unknownPlayer";
             if (nameAttr)
@@ -707,7 +702,7 @@ void RSDK::Legacy::v3::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
         SceneListInfo *list                     = &sceneInfo.listCategory[l];
         if (listElement) {
             for (const tinyxml2::XMLElement *stgElement = listElement->FirstChildElement("stage"); stgElement;
-                 stgElement                             = stgElement->NextSiblingElement("stage")) {
+                stgElement                             = stgElement->NextSiblingElement("stage")) {
                 const tinyxml2::XMLAttribute *nameAttr = stgElement->FindAttribute("name");
                 const char *stgName                    = "unknownStage";
                 if (nameAttr)
