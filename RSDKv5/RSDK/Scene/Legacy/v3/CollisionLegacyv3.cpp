@@ -5,6 +5,36 @@ int32 RSDK::Legacy::v3::collisionRight  = 0;
 int32 RSDK::Legacy::v3::collisionBottom = 0;
 
 RSDK::Legacy::v3::CollisionSensor RSDK::Legacy::v3::sensors[6];
+RSDK::Legacy::v3::CollisionStore RSDK::Legacy::v3::collisionStorage[2];
+
+const int32 hammerJumpHitbox[] = {
+    -25, -25,  25,  25,
+    -25, -25,  25,  25,
+    -25, -25,  25,  25,
+    -25, -25,  25,  25
+};
+
+const int32 hammerDashHitbox[] = { 
+     -10, -17, 23, 17,
+     -23, -17, 10, 17,
+     -18, -24, 10, 17,
+     -10, -26, 25, 17,
+     -10, -17, 23, 17,
+     -23, -17, 10, 17,
+     -18, -24, 10, 17,
+     -10, -26, 25, 17
+};
+
+const int32 chibiHammerJumpHitbox[] = {
+    -15, -11, 15, 20,
+    -15, -11, 15, 20,
+};
+
+const int32 chibiHammerDashHitbox[] = {
+    -14, -12, 8, 12,
+    -10, -12, 8, 12,
+     -8, -12,16, 12
+};
 
 #if !RETRO_USE_ORIGINAL_CODE
 int32 RSDK::Legacy::v3::AddDebugHitbox(uint8 type, Entity *entity, int32 left, int32 top, int32 right, int32 bottom)
@@ -2108,6 +2138,100 @@ void RSDK::Legacy::v3::ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath
     }
 }
 
+void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, int32 effect)
+{
+    // effects:
+    // 0 - nothing
+    // 1 - reset collisionStorage
+    // 2 - use BoxCollision3
+    Player *player       = &playerList[activePlayer];
+    Hitbox *playerHitbox = GetPlayerHitbox(player);
+
+    collisionLeft   = playerHitbox->left[0];
+    collisionTop    = playerHitbox->top[0];
+    collisionRight  = playerHitbox->right[0];
+    collisionBottom = playerHitbox->bottom[0];
+
+    int32 p = 0;
+    int32 count = 0;
+
+    scriptEng.checkResult = false;
+    if (collisionStorage[0].entityNo != -1) {
+        count++;
+        scriptEng.checkResult = true;
+    }
+    if (collisionStorage[1].entityNo != -1) {
+        p = 1;
+        count++;
+        scriptEng.checkResult = true;
+    }
+    switch (effect) {
+        case 0:
+        case 1: {
+            if (count) {
+                scriptEng.checkResult = false;
+                int32 extendedBottomCol = (extendBottomCol != 0) ? collisionBottom + 5 : -5;
+                Entity *entity          = &objectEntityList[collisionStorage[p].entityNo];
+                int32 yCheck1           = ((collisionStorage[p].top + extendedBottomCol) << 16) + entity->YPos;
+                int32 yCheck2           = ((collisionStorage[p].bottom + extendedBottomCol) << 16) + entity->YPos;
+                int32 xCheck1           = (collisionStorage[p].left << 16) + entity->XPos;
+                int32 xCheck2           = (collisionStorage[p].right << 16) + entity->XPos;
+
+                if (direction) {
+                    if ((((collisionLeft << 16) + player->XPos) <= xCheck2) && xCheck2 < (player->XPos - player->XVelocity)) {
+                        player->XPos = xCheck2 - (collisionLeft << 16);
+                        if (yCheck1 < player->YPos + (collisionBottom << 16) && player->YPos + (collisionTop << 16) < yCheck2)
+                            scriptEng.checkResult = true;
+                        else {
+                            if (effect == 1) {
+                                for (int32 i = 0; i < 2; i++) {
+                                    collisionStorage[i].entityNo = -1;
+                                    collisionStorage[i].type     = -1;
+                                    collisionStorage[i].left     = 0;
+                                    collisionStorage[i].top      = 0;
+                                    collisionStorage[i].right    = 0;
+                                    collisionStorage[i].bottom   = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    if (((collisionRight << 16) + player->XPos) >= xCheck1 && xCheck1 > (player->XPos - player->XVelocity)) {
+                        player->XPos = xCheck1 - (collisionRight << 16);
+                        if (yCheck1 < player->YPos + (collisionBottom << 16) && player->YPos + (collisionTop << 16) < yCheck2)
+                            scriptEng.checkResult = true;
+                        else {
+                            if (effect == 1) {
+                                for (int32 i = 0; i < 2; i++) {
+                                    collisionStorage[i].entityNo = -1;
+                                    collisionStorage[i].type     = -1;
+                                    collisionStorage[i].left     = 0;
+                                    collisionStorage[i].top      = 0;
+                                    collisionStorage[i].right    = 0;
+                                    collisionStorage[i].bottom   = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case 2: {
+            for (int32 o = 0; o < ENTITY_COUNT; o++) {
+                Entity *entity = &objectEntityList[o];
+                if (collisionStorage[p].type == entity->type) {
+                    BoxCollision3(entity->XPos + (collisionStorage[p].left << 16), entity->YPos + (collisionStorage[p].top << 16),
+                                  entity->XPos + (collisionStorage[p].right << 16), entity->YPos + (collisionStorage[p].bottom << 16));
+                }
+            }
+            break;
+        }
+        default: break;
+    }
+}
+
 void RSDK::Legacy::v3::TouchCollision(int32 left, int32 top, int32 right, int32 bottom)
 {
     Player *player       = &playerList[activePlayer];
@@ -2720,6 +2844,228 @@ void RSDK::Legacy::v3::PlatformCollision(int32 left, int32 top, int32 right, int
 
             if (scriptEng.checkResult)
                 debugHitboxList[otherHitboxID].collision |= 1 << 3;
+        }
+    }
+#endif
+}
+
+void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 bottom)
+{
+    Player *player       = &playerList[activePlayer];
+    Hitbox *playerHitbox = GetPlayerHitbox(player);
+
+    collisionLeft   = playerHitbox->left[0];
+    collisionTop    = playerHitbox->top[0];
+    collisionRight  = playerHitbox->right[0];
+    collisionBottom = playerHitbox->bottom[0];
+
+    scriptEng.checkResult = false;
+    int32 entSlot = 0;
+
+    sensors[0].collided = false;
+    sensors[1].collided = false;
+    sensors[2].collided = false;
+    sensors[0].XPos     = player->XPos + ((collisionLeft + 2) << 16);
+    sensors[1].XPos     = player->XPos;
+    sensors[2].XPos     = player->XPos + ((collisionRight - 2) << 16);
+    sensors[0].YPos     = (collisionBottom << 16) + player->YPos;
+    sensors[1].YPos     = sensors[0].YPos;
+    sensors[2].YPos     = sensors[0].YPos;
+    if (player->YVelocity > -1) {
+        for (int32 i = 0; i < 3; ++i) {
+            if (((left < sensors[i].XPos) && (sensors[i].XPos < right)) && ((top <= sensors[i].YPos && (player->YPos - player->YVelocity < top)))) {
+                sensors[i].collided = 1;
+                player->flailing[i] = 1;
+            }
+        }
+    }
+    if (((sensors[0].collided) || (sensors[1].collided)) || (sensors[2].collided)) {
+        if ((!player->gravity) && (player->collisionMode == CMODE_RWALL || player->collisionMode == CMODE_LWALL)) {
+            player->XVelocity = 0;
+            player->speed     = 0;
+        }
+        player->gravity               = 0;
+        player->YPos                  = top - (collisionBottom << 16);
+        player->YVelocity             = 0;
+        player->angle                 = 0;
+        player->boundEntity->rotation = 0;
+        player->controlLock           = 0;
+        scriptEng.checkResult         = true;
+    }
+    else {
+        sensors[0].collided = false;
+        sensors[1].collided = false;
+        sensors[0].XPos     = player->XPos + ((collisionLeft + 2) << 16);
+        sensors[1].XPos     = player->XPos + ((collisionRight - 2) << 16);
+        sensors[0].YPos     = (collisionTop << 16) + player->YPos;
+        sensors[1].YPos     = sensors[0].YPos;
+        for (int32 i = 0; i < 2; ++i) {
+            if (((left < sensors[i].XPos) && (sensors[i].XPos < right))
+                && ((sensors[i].YPos <= bottom && (bottom < player->YPos - player->YVelocity)))) {
+                sensors[i].collided = true;
+            }
+        }
+        if ((sensors[0].collided) || (sensors[1].collided)) {
+            if (player->gravity == 1) {
+                player->YPos = bottom - (collisionTop << 16);
+            }
+            if (player->YVelocity < 1) {
+                player->YVelocity = 0;
+            }
+            scriptEng.checkResult = 4;
+        }
+        else {
+            sensors[0].collided = false;
+            sensors[1].collided = false;
+            if ((left <= (collisionRight << 16) + player->XPos) && (player->XPos - player->XVelocity < left)) {
+                for (int32 i = 0; i < 2; ++i) {
+                    if ((top < (collisionBottom << 16) + player->YPos) && (sensors[i].YPos < bottom)) {
+                        sensors[i].collided = true;
+                    }
+                }
+            }
+            if (sensors[0].collided || sensors[1].collided) {
+                scriptEng.checkResult = 2;
+                player->XPos          = left - (collisionRight << 16);
+                if (collisionStorage[0].entityNo != -1)
+                    entSlot = 1;
+            }
+            else {
+                sensors[0].collided = false;
+                sensors[1].collided = false;
+                if (((collisionLeft << 16) + player->XPos <= right) && (right < player->XPos - player->XVelocity)) {
+                    for (int32 i = 0; i < 2; ++i) {
+                        if ((top < (collisionBottom << 16) + player->YPos) && sensors[i].YPos < bottom) {
+                            sensors[i].collided = true;
+                        }
+                    }
+                }
+                if (sensors[0].collided || sensors[1].collided) {
+                    scriptEng.checkResult = 3;
+                    player->XPos          = right - (collisionLeft << 16);
+                    if (collisionStorage[0].entityNo != -1)
+                        entSlot = 1;
+                }
+            }
+            CollisionStore *entityHitbox = &collisionStorage[entSlot];
+            Entity *entity               = &objectEntityList[objectLoop];
+            entityHitbox->entityNo       = objectLoop;
+            entityHitbox->type           = entity->type;
+            entityHitbox->left           = scriptEng.operands[1];
+            entityHitbox->top            = scriptEng.operands[2];
+            entityHitbox->right          = scriptEng.operands[3];
+            entityHitbox->bottom         = scriptEng.operands[4];
+        }
+    }
+
+#if !RETRO_USE_ORIGINAL_CODE
+    int32 thisHitboxID = 0;
+    if (showHitboxes) {
+        Entity *entity = &objectEntityList[objectLoop];
+        left -= entity->XPos;
+        top -= entity->YPos;
+        right -= entity->XPos;
+        bottom -= entity->YPos;
+
+        thisHitboxID = AddDebugHitbox(H_TYPE_BOX, &objectEntityList[objectLoop], left >> 16, top >> 16, right >> 16, bottom >> 16);
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1 << 0;
+
+        int32 otherHitboxID =
+            AddDebugHitbox(H_TYPE_BOX, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
+        if (otherHitboxID >= 0) {
+            debugHitboxList[otherHitboxID].pos.x = player->XPos;
+            debugHitboxList[otherHitboxID].pos.y = player->YPos;
+
+            if (scriptEng.checkResult)
+                debugHitboxList[otherHitboxID].collision |= 1 << 3;
+        }
+    }
+#endif
+}
+
+// Note for those that care: This is not a direct decomp of this function
+// We did try to make one, but the original function was too much of a mess to comprehend fully, so we opted to instead take what we could understand
+// from it and make a new one that replicates the behavior the best we could. If anyone out there wants to take a shot at fully decompiling the
+// original function, feel free to do so and send a PR, but this should be good enough as is
+void RSDK::Legacy::v3::EnemyCollision(int32 left, int32 top, int32 right, int32 bottom)
+{
+    TouchCollision(left, top, right, bottom);
+
+    Player *player           = &playerList[activePlayer];
+
+    int32 hammerHitboxLeft   = 0;
+    int32 hammerHitboxRight  = 0;
+    int32 hammerHitboxTop    = 0;
+    int32 hammerHitboxBottom = 0;
+
+#if !RETRO_USE_ORIGINAL_CODE
+    bool32 miniPlayerFlag = GetGlobalVariableByName("Mini_PlayerFlag");
+    int8 playerAmy        = GetGlobalVariableByName("PLAYER_AMY") ? GetGlobalVariableByName("PLAYER_AMY") : 5;
+    int8 aniHammerJump    = GetGlobalVariableByName("ANI_HAMMER_JUMP") ? GetGlobalVariableByName("ANI_HAMMER_JUMP") : 45;
+    int8 aniHammerDash    = GetGlobalVariableByName("ANI_HAMMER_DASH") ? GetGlobalVariableByName("ANI_HAMMER_DASH") : 46;
+#else
+    bool32 mini_PlayerFlag = globalVariables[62];
+    int8 playerAmy         = 5;
+    int8 aniHammerJump     = 45;
+    int8 aniHammerDash     = 46;
+#endif
+
+    collisionLeft   = player->XPos >> 16;
+    collisionTop    = player->YPos >> 16;
+    collisionRight  = collisionLeft;
+    collisionBottom = collisionTop;
+
+    if (!scriptEng.checkResult) {
+        if (playerListPos == playerAmy) {
+            if (player->boundEntity->animation == aniHammerDash) {
+                int32 frame        = (miniPlayerFlag ? player->boundEntity->frame % 3 : player->boundEntity->frame % 8) * 4;
+
+                hammerHitboxLeft   = miniPlayerFlag ? chibiHammerDashHitbox[frame]     : hammerDashHitbox[frame];
+                hammerHitboxTop    = miniPlayerFlag ? chibiHammerDashHitbox[frame + 1] : hammerDashHitbox[frame + 1];
+                hammerHitboxRight  = miniPlayerFlag ? chibiHammerDashHitbox[frame + 2] : hammerDashHitbox[frame + 2];
+                hammerHitboxBottom = miniPlayerFlag ? chibiHammerDashHitbox[frame + 3] : hammerDashHitbox[frame + 3];
+            }
+            if (player->boundEntity->animation == aniHammerJump) {
+                int32 frame        = (miniPlayerFlag ? player->boundEntity->frame % 2 : player->boundEntity->frame % 4) * 4;
+
+                hammerHitboxLeft   = miniPlayerFlag ? chibiHammerJumpHitbox[frame]     : hammerJumpHitbox[frame];
+                hammerHitboxTop    = miniPlayerFlag ? chibiHammerJumpHitbox[frame + 1] : hammerJumpHitbox[frame + 1];
+                hammerHitboxRight  = miniPlayerFlag ? chibiHammerJumpHitbox[frame + 2] : hammerJumpHitbox[frame + 2];
+                hammerHitboxBottom = miniPlayerFlag ? chibiHammerJumpHitbox[frame + 3] : hammerJumpHitbox[frame + 3];
+            }
+            if (player->boundEntity->direction) {
+                int32 storeHitboxLeft =  hammerHitboxLeft;
+                hammerHitboxLeft      = -hammerHitboxRight;
+                hammerHitboxRight     = -storeHitboxLeft;
+            }
+            scriptEng.checkResult = collisionRight + hammerHitboxRight > left && collisionLeft + hammerHitboxLeft < right
+                                    && collisionBottom + hammerHitboxBottom > top && collisionTop + hammerHitboxTop < bottom;
+        }
+    }
+
+#if !RETRO_USE_ORIGINAL_CODE
+    if (showHitboxes) {
+        Entity *entity = &objectEntityList[objectLoop];
+        left -= entity->XPos >> 16;
+        top -= entity->YPos >> 16;
+        right -= entity->XPos >> 16;
+        bottom -= entity->YPos >> 16;
+
+        Hitbox *playerHitbox = GetPlayerHitbox(player);
+
+        int32 thisHitboxID = AddDebugHitbox(H_TYPE_TOUCH, entity, left, top, right, bottom);
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1;
+
+        int32 otherHitboxID = AddDebugHitbox(H_TYPE_HAMMER, NULL, hammerHitboxLeft, hammerHitboxTop, hammerHitboxRight, hammerHitboxBottom);
+        AddDebugHitbox(H_TYPE_TOUCH, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
+        if (otherHitboxID >= 0) {
+            debugHitboxList[otherHitboxID].pos.x = player->XPos;
+            debugHitboxList[otherHitboxID].pos.y = player->YPos;
+
+            if (scriptEng.checkResult)
+                debugHitboxList[otherHitboxID].collision |= 1;
         }
     }
 #endif

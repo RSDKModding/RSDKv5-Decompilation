@@ -2132,6 +2132,137 @@ void RSDK::Legacy::v4::ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath
     }
 }
 
+void RSDK::Legacy::v4::ObjectLEntityGrip(int32 xOffset, int32 yOffset, int32 cPath) { 
+    scriptEng.checkResult = false;
+    Entity *entity        = &objectEntityList[objectEntityPos];
+    int32 mBlockID        = entity->values[44];
+    int32 XPos            = (entity->xpos >> 16) + xOffset - 16;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
+    int32 check           = 0;
+    if (mBlockID > 0 && objectTypeGroupList[mBlockID].listSize > 0) {
+        TypeGroupList *mBlockGroupList = &objectTypeGroupList[mBlockID];
+        for (int32 i = 0; i < objectTypeGroupList[mBlockID].listSize; i++) {
+            short entRef                   = mBlockGroupList->entityRefs[i];
+            Entity *otherEntity            = &objectEntityList[entRef];
+            int32 XPos2                    = otherEntity->xpos >> 16;
+            int32 YPos2                    = otherEntity->ypos >> 16;
+            if (((((XPos2 - 16) <= XPos) && (XPos <= (XPos2 + 16))) && ((YPos2 - 16) <= YPos)) && (YPos <= (YPos2 + 16))) {
+                entity->xpos = otherEntity->xpos - (xOffset << 16) - 0x100000;
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        check                 = 1;
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+            if ((((XPos2 - 16) <= (XPos + 16) && ((XPos + 16) <= (XPos2 + 16))) && (YPos2 - 16) <= YPos) && (YPos <= (YPos2 + 16))) {
+                entity->xpos = otherEntity->xpos - (xOffset << 16) - 0x100000;
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+
+            if (((XPos2 <= (XPos + 32)) && ((XPos + 32) <= (XPos2 + 16))) && (((YPos2 - 16) <= YPos && YPos <= (YPos2 + 16)))) {
+                entity->xpos = otherEntity->xpos - (xOffset << 16) - 0x100000;
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        check                 = 1;
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+
+            if (check != 0) {
+                return;
+            }
+        }
+    }
+    ObjectLWallGrip(xOffset, yOffset, cPath);
+}
+
+void RSDK::Legacy::v4::ObjectREntityGrip(int32 xOffset, int32 yOffset, int32 cPath)
+{
+    scriptEng.checkResult = false;
+    Entity *entity        = &objectEntityList[objectEntityPos];
+    int32 mBlockID        = entity->values[44];
+    int32 XPos            = (entity->xpos >> 16) + xOffset + 16;
+    int32 YPos            = (entity->ypos >> 16) + yOffset;
+    int32 check           = 0;
+    if (mBlockID > 0 && objectTypeGroupList[mBlockID].listSize > 0) {
+        TypeGroupList *mBlockGroupList = &objectTypeGroupList[mBlockID];
+        for (int32 i = 0; i < objectTypeGroupList[mBlockID].listSize; i++) {
+            short entRef    = mBlockGroupList->entityRefs[i];
+            Entity *otherEntity = &objectEntityList[entRef];
+            int32 XPos2         = otherEntity->xpos >> 16;
+            int32 YPos2         = otherEntity->ypos >> 16;
+            if (((((XPos2 - 16) <= XPos) && (XPos <= (XPos2 + 16))) && ((YPos2 - 16) <= YPos)) && (YPos <= (YPos2 + 16))) {
+                entity->xpos = otherEntity->xpos + ((16 - xOffset) << 16);
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        check                 = 1;
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+            if ((((XPos2 - 16) <= (XPos + 16) && ((XPos - 16) <= (XPos2 + 16))) && (YPos2 - 16) <= YPos) && (YPos <= (YPos2 + 16))) {
+                entity->xpos = otherEntity->xpos + ((16 - xOffset) << 16);
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+
+            if (((XPos2 <= (XPos - 32)) && ((XPos - 32) <= (XPos2 + 16))) && (((YPos2 - 16) <= YPos && YPos <= (YPos2 + 16)))) {
+                entity->xpos = otherEntity->xpos + ((16 - xOffset) << 16);
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        check                 = 1;
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+
+            if (check != 0) {
+                return;
+            }
+        }
+    }
+    ObjectRWallGrip(xOffset, yOffset, cPath);
+}
+
 void RSDK::Legacy::v4::TouchCollision(Entity *thisEntity, int32 thisLeft, int32 thisTop, int32 thisRight, int32 thisBottom, Entity *otherEntity,
                                       int32 otherLeft, int32 otherTop, int32 otherRight, int32 otherBottom)
 {

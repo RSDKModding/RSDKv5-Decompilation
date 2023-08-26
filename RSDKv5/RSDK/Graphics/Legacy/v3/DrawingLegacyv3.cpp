@@ -148,6 +148,11 @@ void RSDK::Legacy::v3::DrawDebugOverlays()
                             DrawRectangle(x, y + h, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
                     }
                     break;
+
+                case H_TYPE_HAMMER:
+                    if (showHitboxes & 1)
+                        DrawRectangle(x, y, w, h, info->collision ? 0xA0 : 0xFF, info->collision ? 0xA0 : 0xFF, 0x00, 0x60);
+                    break;
             }
         }
     }
