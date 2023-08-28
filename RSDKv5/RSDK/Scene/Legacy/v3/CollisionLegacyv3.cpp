@@ -2178,8 +2178,8 @@ void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, 
                 int32 xCheck2           = (collisionStorage[storePos].right << 16) + entity->XPos;
 
                 if (direction) {
-                    if ((collisionLeft << 16) + player->XPos <= xCheck2 && xCheck2 < player->XPos - player->XVelocity) {
-                        if (yCheck1 < player->YPos + (collisionBottom << 16) && player->YPos + (collisionTop << 16) < yCheck2) {
+                    if (((collisionLeft << 16) + player->XPos) <= xCheck2 && xCheck2 < (player->XPos - player->XVelocity)) {
+                        if (yCheck1 < (player->YPos + (collisionBottom << 16)) && (player->YPos + (collisionTop << 16)) < yCheck2) {
                             player->XPos          = xCheck2 - (collisionLeft << 16);
                             scriptEng.checkResult = true;
                         }
@@ -2199,9 +2199,9 @@ void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, 
                     }
                 }
                 else {
-                    if ((collisionRight << 16) + player->XPos >= xCheck1 && xCheck1 > player->XPos - player->XVelocity) {
+                    if (((collisionRight << 16) + player->XPos) >= xCheck1 && xCheck1 > (player->XPos - player->XVelocity)) {
                         player->XPos = xCheck1 - (collisionRight << 16);
-                        if (yCheck1 < player->YPos + (collisionBottom << 16) && player->YPos + (collisionTop << 16) < yCheck2) {
+                        if (yCheck1 < (player->YPos + (collisionBottom << 16)) && (player->YPos + (collisionTop << 16)) < yCheck2) {
                             scriptEng.checkResult = true;
                             player->XPos          = xCheck1 - (collisionRight << 16);
                         }
@@ -2892,7 +2892,7 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
 
     if (player->YVelocity > -1) {
         for (int32 i = 0; i < 3; ++i) {
-            if ((left < sensors[i].XPos && sensors[i].XPos < right) && (top <= sensors[i].YPos && player->YPos - player->YVelocity < top)) {
+            if ((left < sensors[i].XPos) && (sensors[i].XPos < right) && (top <= sensors[i].YPos) && ((player->YPos - player->YVelocity) < top)) {
                 sensors[i].collided = true;
                 player->flailing[i] = 1;
             }
@@ -2936,9 +2936,9 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
             sensors[0].collided = false;
             sensors[1].collided = false;
 
-            if (left <= player->XPos + (collisionRight << 16) && player->XPos - player->XVelocity < left) {
+            if (left <= (player->XPos + (collisionRight << 16)) && (player->XPos - player->XVelocity) < left) {
                 for (int32 i = 0; i < 2; ++i) {
-                    if (top < player->YPos + (collisionBottom << 16) && sensors[i].YPos < bottom) {
+                    if (top < (player->YPos + (collisionBottom << 16)) && sensors[i].YPos < bottom) {
                         sensors[i].collided = true;
                     }
                 }
@@ -2965,9 +2965,9 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
             else {
                 sensors[0].collided = false;
                 sensors[1].collided = false;
-                if ((collisionLeft << 16) + player->XPos <= right && right < player->XPos - player->XVelocity) {
+                if (((collisionLeft << 16) + player->XPos) <= right && right < (player->XPos - player->XVelocity)) {
                     for (int32 i = 0; i < 2; ++i) {
-                        if (top < (collisionBottom << 16) + player->YPos && sensors[i].YPos < bottom) {
+                        if (top < ((collisionBottom << 16) + player->YPos) && sensors[i].YPos < bottom) {
                             sensors[i].collided = true;
                         }
                     }
