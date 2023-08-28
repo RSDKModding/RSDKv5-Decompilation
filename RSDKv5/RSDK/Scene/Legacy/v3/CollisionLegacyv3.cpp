@@ -2140,10 +2140,6 @@ void RSDK::Legacy::v3::ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath
 
 void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, int32 effect)
 {
-    // effects:
-    // 0 - nothing
-    // 1 - reset collisionStorage
-    // 2 - use BoxCollision3
     Player *player       = &playerList[activePlayer];
     Hitbox *playerHitbox = GetPlayerHitbox(player);
 
@@ -2166,11 +2162,11 @@ void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, 
     }
 
     switch (effect) {
-        case 0:
-        case 1: {
+        case ECEFFECT_NONE:
+        case ECEFFECT_RESETSTORAGE: {
             if (storeCount == 1) {
                 scriptEng.checkResult = false;
-                int32 extendedBottomCol = (extendBottomCol != 0) ? collisionBottom + 5 : -5;
+                int32 extendedBottomCol = extendBottomCol ? collisionBottom + 5 : -5;
                 Entity *entity          = &objectEntityList[collisionStorage[storePos].entityNo];
                 int32 yCheck1           = ((collisionStorage[storePos].top + extendedBottomCol) << 16) + entity->YPos;
                 int32 yCheck2           = ((collisionStorage[storePos].bottom + extendedBottomCol) << 16) + entity->YPos;
@@ -2184,7 +2180,7 @@ void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, 
                             scriptEng.checkResult = true;
                         }
                         else {
-                            if (effect == 1) {
+                            if (effect == ECEFFECT_RESETSTORAGE) {
                                 for (int32 i = 0; i < COLSTORE_COUNT; i++) {
                                     CollisionStore *entityHitbox = &collisionStorage[i];
                                     entityHitbox->entityNo       = -1;
@@ -2206,7 +2202,7 @@ void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, 
                             player->XPos          = xCheck1 - (collisionRight << 16);
                         }
                         else {
-                            if (effect == 1) {
+                            if (effect == ECEFFECT_RESETSTORAGE) {
                                 for (int32 i = 0; i < COLSTORE_COUNT; i++) {
                                     CollisionStore *entityHitbox = &collisionStorage[i];
                                     entityHitbox->entityNo       = -1;
@@ -2222,7 +2218,7 @@ void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, 
                 }
             }
             else {
-                if (effect == 1) {
+                if (effect == ECEFFECT_RESETSTORAGE) {
                     for (int32 i = 0; i < COLSTORE_COUNT; i++) {
                         CollisionStore *entityHitbox = &collisionStorage[i];
                         entityHitbox->entityNo       = -1;
@@ -2236,7 +2232,7 @@ void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, 
             }
             break;
         }
-        case 2: {
+        case ECEFFECT_BOXCOL3: {
             CollisionStore *entityHitbox = &collisionStorage[storePos];
             for (int32 o = 0; o < LEGACY_v3_ENTITY_COUNT; o++) {
                 Entity *entity = &objectEntityList[o];
@@ -3091,12 +3087,11 @@ void RSDK::Legacy::v3::EnemyCollision(int32 left, int32 top, int32 right, int32 
 
         Hitbox *playerHitbox = GetPlayerHitbox(player);
 
-        int32 thisHitboxID = AddDebugHitbox(H_TYPE_TOUCH, entity, left, top, right, bottom);
+        int32 thisHitboxID = AddDebugHitbox(H_TYPE_HAMMER, entity, left, top, right, bottom);
         if (thisHitboxID >= 0 && scriptEng.checkResult)
             debugHitboxList[thisHitboxID].collision |= 1;
 
         int32 otherHitboxID = AddDebugHitbox(H_TYPE_HAMMER, NULL, hammerHitboxLeft, hammerHitboxTop, hammerHitboxRight, hammerHitboxBottom);
-        AddDebugHitbox(H_TYPE_TOUCH, NULL, playerHitbox->left[0], playerHitbox->top[0], playerHitbox->right[0], playerHitbox->bottom[0]);
         if (otherHitboxID >= 0) {
             debugHitboxList[otherHitboxID].pos.x = player->XPos;
             debugHitboxList[otherHitboxID].pos.y = player->YPos;

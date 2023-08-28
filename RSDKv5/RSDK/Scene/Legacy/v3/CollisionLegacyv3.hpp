@@ -63,6 +63,12 @@ struct CollisionStore {
 };
 extern CollisionStore collisionStorage[2];
 
+enum EntityCollisionEffects {
+    ECEFFECT_NONE         = 0,
+    ECEFFECT_RESETSTORAGE = 1,
+    ECEFFECT_BOXCOL3      = 2,
+};
+
 #if !RETRO_USE_ORIGINAL_CODE
 int32 AddDebugHitbox(uint8 type, Entity *entity, int32 left, int32 top, int32 right, int32 bottom);
 #endif
