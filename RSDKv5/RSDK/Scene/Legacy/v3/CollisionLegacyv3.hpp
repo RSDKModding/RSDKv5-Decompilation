@@ -5,6 +5,8 @@ namespace Legacy
 namespace v3
 {
 
+#define COLSTORE_COUNT (2)
+
 enum CollisionSides { 
     CSIDE_FLOOR  = 0, 
     CSIDE_LWALL  = 1, 

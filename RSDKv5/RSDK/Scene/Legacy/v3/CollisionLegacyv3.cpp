@@ -2152,78 +2152,97 @@ void RSDK::Legacy::v3::ObjectEntityGrip(int32 direction, int32 extendBottomCol, 
     collisionRight  = playerHitbox->right[0];
     collisionBottom = playerHitbox->bottom[0];
 
-    int32 p = 0;
-    int32 count = 0;
+    int32 storePos   = 0;
+    int32 storeCount = 0;
 
     scriptEng.checkResult = false;
-    if (collisionStorage[0].entityNo != -1) {
-        count++;
-        scriptEng.checkResult = true;
+
+    for (int32 i = 0; i < COLSTORE_COUNT; i++) {
+        if (collisionStorage[i].entityNo != -1) {
+            storeCount++;
+            storePos              = i;
+            scriptEng.checkResult = true;
+        }
     }
-    if (collisionStorage[1].entityNo != -1) {
-        p = 1;
-        count++;
-        scriptEng.checkResult = true;
-    }
+
     switch (effect) {
         case 0:
         case 1: {
-            if (count) {
+            if (storeCount == 1) {
                 scriptEng.checkResult = false;
                 int32 extendedBottomCol = (extendBottomCol != 0) ? collisionBottom + 5 : -5;
-                Entity *entity          = &objectEntityList[collisionStorage[p].entityNo];
-                int32 yCheck1           = ((collisionStorage[p].top + extendedBottomCol) << 16) + entity->YPos;
-                int32 yCheck2           = ((collisionStorage[p].bottom + extendedBottomCol) << 16) + entity->YPos;
-                int32 xCheck1           = (collisionStorage[p].left << 16) + entity->XPos;
-                int32 xCheck2           = (collisionStorage[p].right << 16) + entity->XPos;
+                Entity *entity          = &objectEntityList[collisionStorage[storePos].entityNo];
+                int32 yCheck1           = ((collisionStorage[storePos].top + extendedBottomCol) << 16) + entity->YPos;
+                int32 yCheck2           = ((collisionStorage[storePos].bottom + extendedBottomCol) << 16) + entity->YPos;
+                int32 xCheck1           = (collisionStorage[storePos].left << 16) + entity->XPos;
+                int32 xCheck2           = (collisionStorage[storePos].right << 16) + entity->XPos;
 
                 if (direction) {
-                    if ((((collisionLeft << 16) + player->XPos) <= xCheck2) && xCheck2 < (player->XPos - player->XVelocity)) {
-                        player->XPos = xCheck2 - (collisionLeft << 16);
-                        if (yCheck1 < player->YPos + (collisionBottom << 16) && player->YPos + (collisionTop << 16) < yCheck2)
+                    if ((collisionLeft << 16) + player->XPos <= xCheck2 && xCheck2 < player->XPos - player->XVelocity) {
+                        if (yCheck1 < player->YPos + (collisionBottom << 16) && player->YPos + (collisionTop << 16) < yCheck2) {
+                            player->XPos          = xCheck2 - (collisionLeft << 16);
                             scriptEng.checkResult = true;
+                        }
                         else {
                             if (effect == 1) {
-                                for (int32 i = 0; i < 2; i++) {
-                                    collisionStorage[i].entityNo = -1;
-                                    collisionStorage[i].type     = -1;
-                                    collisionStorage[i].left     = 0;
-                                    collisionStorage[i].top      = 0;
-                                    collisionStorage[i].right    = 0;
-                                    collisionStorage[i].bottom   = 0;
+                                for (int32 i = 0; i < COLSTORE_COUNT; i++) {
+                                    CollisionStore *entityHitbox = &collisionStorage[i];
+                                    entityHitbox->entityNo       = -1;
+                                    entityHitbox->type           = -1;
+                                    entityHitbox->left           = 0;
+                                    entityHitbox->top            = 0;
+                                    entityHitbox->right          = 0;
+                                    entityHitbox->bottom         = 0;
                                 }
                             }
                         }
                     }
                 }
                 else {
-                    if (((collisionRight << 16) + player->XPos) >= xCheck1 && xCheck1 > (player->XPos - player->XVelocity)) {
+                    if ((collisionRight << 16) + player->XPos >= xCheck1 && xCheck1 > player->XPos - player->XVelocity) {
                         player->XPos = xCheck1 - (collisionRight << 16);
-                        if (yCheck1 < player->YPos + (collisionBottom << 16) && player->YPos + (collisionTop << 16) < yCheck2)
+                        if (yCheck1 < player->YPos + (collisionBottom << 16) && player->YPos + (collisionTop << 16) < yCheck2) {
                             scriptEng.checkResult = true;
+                            player->XPos          = xCheck1 - (collisionRight << 16);
+                        }
                         else {
                             if (effect == 1) {
-                                for (int32 i = 0; i < 2; i++) {
-                                    collisionStorage[i].entityNo = -1;
-                                    collisionStorage[i].type     = -1;
-                                    collisionStorage[i].left     = 0;
-                                    collisionStorage[i].top      = 0;
-                                    collisionStorage[i].right    = 0;
-                                    collisionStorage[i].bottom   = 0;
+                                for (int32 i = 0; i < COLSTORE_COUNT; i++) {
+                                    CollisionStore *entityHitbox = &collisionStorage[i];
+                                    entityHitbox->entityNo       = -1;
+                                    entityHitbox->type           = -1;
+                                    entityHitbox->left           = 0;
+                                    entityHitbox->top            = 0;
+                                    entityHitbox->right          = 0;
+                                    entityHitbox->bottom         = 0;
                                 }
                             }
                         }
                     }
                 }
             }
+            else {
+                if (effect == 1) {
+                    for (int32 i = 0; i < COLSTORE_COUNT; i++) {
+                        CollisionStore *entityHitbox = &collisionStorage[i];
+                        entityHitbox->entityNo       = -1;
+                        entityHitbox->type           = -1;
+                        entityHitbox->left           = 0;
+                        entityHitbox->top            = 0;
+                        entityHitbox->right          = 0;
+                        entityHitbox->bottom         = 0;
+                    }
+                }
+            }
             break;
         }
         case 2: {
-            for (int32 o = 0; o < ENTITY_COUNT; o++) {
+            CollisionStore *entityHitbox = &collisionStorage[storePos];
+            for (int32 o = 0; o < LEGACY_v3_ENTITY_COUNT; o++) {
                 Entity *entity = &objectEntityList[o];
-                if (collisionStorage[p].type == entity->type) {
-                    BoxCollision3(entity->XPos + (collisionStorage[p].left << 16), entity->YPos + (collisionStorage[p].top << 16),
-                                  entity->XPos + (collisionStorage[p].right << 16), entity->YPos + (collisionStorage[p].bottom << 16));
+                if (entityHitbox->type == entity->type) {
+                    BoxCollision3(entity->XPos + (entityHitbox->left << 16), entity->YPos + (entityHitbox->top << 16),
+                                  entity->XPos + (entityHitbox->right << 16), entity->YPos + (entityHitbox->bottom << 16));
                 }
             }
             break;
@@ -2860,7 +2879,6 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
     collisionBottom = playerHitbox->bottom[0];
 
     scriptEng.checkResult = false;
-    int32 entSlot = 0;
 
     sensors[0].collided = false;
     sensors[1].collided = false;
@@ -2871,15 +2889,16 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
     sensors[0].YPos     = (collisionBottom << 16) + player->YPos;
     sensors[1].YPos     = sensors[0].YPos;
     sensors[2].YPos     = sensors[0].YPos;
+
     if (player->YVelocity > -1) {
         for (int32 i = 0; i < 3; ++i) {
-            if (((left < sensors[i].XPos) && (sensors[i].XPos < right)) && ((top <= sensors[i].YPos && (player->YPos - player->YVelocity < top)))) {
-                sensors[i].collided = 1;
+            if ((left < sensors[i].XPos && sensors[i].XPos < right) && (top <= sensors[i].YPos && player->YPos - player->YVelocity < top)) {
+                sensors[i].collided = true;
                 player->flailing[i] = 1;
             }
         }
     }
-    if (((sensors[0].collided) || (sensors[1].collided)) || (sensors[2].collided)) {
+    if (sensors[0].collided || sensors[1].collided || sensors[2].collided) {
         if ((!player->gravity) && (player->collisionMode == CMODE_RWALL || player->collisionMode == CMODE_LWALL)) {
             player->XVelocity = 0;
             player->speed     = 0;
@@ -2897,15 +2916,14 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
         sensors[1].collided = false;
         sensors[0].XPos     = player->XPos + ((collisionLeft + 2) << 16);
         sensors[1].XPos     = player->XPos + ((collisionRight - 2) << 16);
-        sensors[0].YPos     = (collisionTop << 16) + player->YPos;
+        sensors[0].YPos     = player->YPos + (collisionTop << 16);
         sensors[1].YPos     = sensors[0].YPos;
         for (int32 i = 0; i < 2; ++i) {
-            if (((left < sensors[i].XPos) && (sensors[i].XPos < right))
-                && ((sensors[i].YPos <= bottom && (bottom < player->YPos - player->YVelocity)))) {
+            if ((left < sensors[i].XPos && sensors[i].XPos < right) && (sensors[i].YPos <= bottom && bottom < player->YPos - player->YVelocity)) {
                 sensors[i].collided = true;
             }
         }
-        if ((sensors[0].collided) || (sensors[1].collided)) {
+        if (sensors[0].collided || sensors[1].collided) {
             if (player->gravity == 1) {
                 player->YPos = bottom - (collisionTop << 16);
             }
@@ -2917,9 +2935,10 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
         else {
             sensors[0].collided = false;
             sensors[1].collided = false;
-            if ((left <= (collisionRight << 16) + player->XPos) && (player->XPos - player->XVelocity < left)) {
+
+            if (left <= player->XPos + (collisionRight << 16) && player->XPos - player->XVelocity < left) {
                 for (int32 i = 0; i < 2; ++i) {
-                    if ((top < (collisionBottom << 16) + player->YPos) && (sensors[i].YPos < bottom)) {
+                    if (top < player->YPos + (collisionBottom << 16) && sensors[i].YPos < bottom) {
                         sensors[i].collided = true;
                     }
                 }
@@ -2927,15 +2946,28 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
             if (sensors[0].collided || sensors[1].collided) {
                 scriptEng.checkResult = 2;
                 player->XPos          = left - (collisionRight << 16);
-                if (collisionStorage[0].entityNo != -1)
-                    entSlot = 1;
+                for (int32 i = 0; i < COLSTORE_COUNT; i++) {
+                    CollisionStore *entityHitbox = &collisionStorage[i];
+                    if (entityHitbox->entityNo == objectLoop)
+                        break;
+
+                    if (entityHitbox->entityNo == -1) {
+                        entityHitbox->entityNo = objectLoop;
+                        entityHitbox->type     = objectEntityList[objectLoop].type;
+                        entityHitbox->left     = scriptEng.operands[1];
+                        entityHitbox->top      = scriptEng.operands[2];
+                        entityHitbox->right    = scriptEng.operands[3];
+                        entityHitbox->bottom   = scriptEng.operands[4];
+                        break;
+                    }
+                }
             }
             else {
                 sensors[0].collided = false;
                 sensors[1].collided = false;
-                if (((collisionLeft << 16) + player->XPos <= right) && (right < player->XPos - player->XVelocity)) {
+                if ((collisionLeft << 16) + player->XPos <= right && right < player->XPos - player->XVelocity) {
                     for (int32 i = 0; i < 2; ++i) {
-                        if ((top < (collisionBottom << 16) + player->YPos) && sensors[i].YPos < bottom) {
+                        if (top < (collisionBottom << 16) + player->YPos && sensors[i].YPos < bottom) {
                             sensors[i].collided = true;
                         }
                     }
@@ -2943,18 +2975,23 @@ void RSDK::Legacy::v3::BoxCollision3(int32 left, int32 top, int32 right, int32 b
                 if (sensors[0].collided || sensors[1].collided) {
                     scriptEng.checkResult = 3;
                     player->XPos          = right - (collisionLeft << 16);
-                    if (collisionStorage[0].entityNo != -1)
-                        entSlot = 1;
+                    for (int32 i = 0; i < COLSTORE_COUNT; i++) {
+                        CollisionStore *entityHitbox = &collisionStorage[i];
+                        if (entityHitbox->entityNo == objectLoop)
+                            break;
+
+                        if (entityHitbox->entityNo == -1) {
+                            entityHitbox->entityNo = objectLoop;
+                            entityHitbox->type     = objectEntityList[objectLoop].type;
+                            entityHitbox->left     = scriptEng.operands[1];
+                            entityHitbox->top      = scriptEng.operands[2];
+                            entityHitbox->right    = scriptEng.operands[3];
+                            entityHitbox->bottom   = scriptEng.operands[4];
+                            break;
+                        }
+                    }
                 }
             }
-            CollisionStore *entityHitbox = &collisionStorage[entSlot];
-            Entity *entity               = &objectEntityList[objectLoop];
-            entityHitbox->entityNo       = objectLoop;
-            entityHitbox->type           = entity->type;
-            entityHitbox->left           = scriptEng.operands[1];
-            entityHitbox->top            = scriptEng.operands[2];
-            entityHitbox->right          = scriptEng.operands[3];
-            entityHitbox->bottom         = scriptEng.operands[4];
         }
     }
 
