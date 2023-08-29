@@ -5,6 +5,8 @@ namespace Legacy
 namespace v3
 {
 
+#define COLSTORE_COUNT (2)
+
 enum CollisionSides { 
     CSIDE_FLOOR  = 0, 
     CSIDE_LWALL  = 1, 
@@ -60,6 +62,12 @@ struct CollisionStore {
     int32 bottom;
 };
 extern CollisionStore collisionStorage[2];
+
+enum EntityCollisionEffects {
+    ECEFFECT_NONE         = 0,
+    ECEFFECT_RESETSTORAGE = 1,
+    ECEFFECT_BOXCOL3      = 2,
+};
 
 #if !RETRO_USE_ORIGINAL_CODE
 int32 AddDebugHitbox(uint8 type, Entity *entity, int32 left, int32 top, int32 right, int32 bottom);
