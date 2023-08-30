@@ -180,6 +180,9 @@ enum GameRegions {
 #ifndef RETRO_AUDIODEVICE_PORT
 #define RETRO_AUDIODEVICE_PORT (0)
 #endif
+#ifndef RETRO_AUDIODEVICE_MINI
+#define RETRO_AUDIODEVICE_MINI (0)
+#endif
 
 // ============================
 // INPUT DEVICE BACKENDS
@@ -293,7 +296,7 @@ enum GameRegions {
 #error One of RSDK_USE_DX9, RSDK_USE_DX11, RSDK_USE_SDL2, or RSDK_USE_OGL must be defined.
 #endif
 
-#if !RETRO_AUDIODEVICE_PORT
+#if !RETRO_AUDIODEVICE_MINI
 #if !RSDK_USE_SDL2
 #undef RETRO_AUDIODEVICE_XAUDIO
 #define RETRO_AUDIODEVICE_XAUDIO (1)
@@ -317,8 +320,8 @@ enum GameRegions {
 #elif RETRO_PLATFORM == RETRO_LINUX
 
 #if !RETRO_AUDIODEVICE_SDL2
-#undef RETRO_AUDIODEVICE_PORT
-#define RETRO_AUDIODEVICE_PORT (1)
+#undef RETRO_AUDIODEVICE_MINI
+#define RETRO_AUDIODEVICE_MINI (1)
 #endif
 
 #ifdef RSDK_USE_SDL2
@@ -327,8 +330,8 @@ enum GameRegions {
 #undef RETRO_INPUTDEVICE_SDL2
 #define RETRO_INPUTDEVICE_SDL2 (1)
 
-#undef RETRO_AUDIODEVICE_PORT
-#define RETRO_AUDIODEVICE_PORT (0)
+#undef RETRO_AUDIODEVICE_MINI
+#define RETRO_AUDIODEVICE_MINI (0)
 #undef RETRO_AUDIODEVICE_SDL2
 #define RETRO_AUDIODEVICE_SDL2 (1)
 
@@ -416,6 +419,12 @@ enum GameRegions {
 #include <XAudio2.h>
 #elif RETRO_AUDIODEVICE_PORT
 #include <portaudio.h>
+#elif RETRO_AUDIODEVICE_MINI
+#define MA_NO_DECODING
+#define MA_NO_ENCODING
+#define MA_NO_RESOURCE_MANAGER 
+#define MA_NO_ENGINE
+#include <miniaudio/miniaudio.h>
 #endif
 
 #if RETRO_INPUTDEVICE_XINPUT
@@ -461,6 +470,12 @@ enum GameRegions {
 
 #if RETRO_AUDIODEVICE_PORT
 #include <portaudio.h>
+#elif RETRO_AUDIODEVICE_MINI
+#define MA_NO_DECODING
+#define MA_NO_ENCODING
+#define MA_NO_RESOURCE_MANAGER 
+#define MA_NO_ENGINE
+#include <miniaudio/miniaudio.h>
 #endif
 
 #if RETRO_RENDERDEVICE_GLFW

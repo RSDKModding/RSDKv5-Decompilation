@@ -565,7 +565,7 @@ void RSDK::Legacy::v3::LoadActLayout()
             entity->type = ReadInt8(&info);
 
 #if RETRO_USE_MOD_LOADER
-            if (loadGlobalScripts && offsetCount && entity->type >= globalObjCount)
+            if (loadGlobalScripts && offsetCount && entity->type > globalObjCount)
                 entity->type += offsetCount; // offset it by our mod count
 #endif
 
