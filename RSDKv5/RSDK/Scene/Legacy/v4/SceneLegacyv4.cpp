@@ -59,11 +59,11 @@ void RSDK::Legacy::v4::ProcessStage(void)
             stageMode         = STAGEMODE_NORMAL;
 
 #if RSDK_AUTOBUILD
-			// Prevent playing as Amy if on autobuilds
-			if (GetGlobalVariableByName("PLAYER_AMY") && playerListPos == GetGlobalVariableByName("PLAYER_AMY"))
-				playerListPos = 0;
-			else if (GetGlobalVariableByName("PLAYER_AMY_TAILS") && playerListPos == GetGlobalVariableByName("PLAYER_AMY_TAILS"))
-				playerListPos = 0;
+            // Prevent playing as Amy if on autobuilds
+            if (GetGlobalVariableByName("PLAYER_AMY") && playerListPos == GetGlobalVariableByName("PLAYER_AMY"))
+                playerListPos = 0;
+            else if (GetGlobalVariableByName("PLAYER_AMY_TAILS") && playerListPos == GetGlobalVariableByName("PLAYER_AMY_TAILS"))
+                playerListPos = 0;
 #endif
 
 #if RETRO_USE_MOD_LOADER
