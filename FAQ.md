@@ -1,6 +1,6 @@
 # General
 ### Q: Why is the DLC disabled in release builds and autobuilds?
-A: Long story short, it's to minimize piracy and ensure an extra layer of legal protection for Mania Plus. Giving players paid content for free is not the goal of this project.
+A: Long story short, it's to minimize piracy and ensure an extra layer of legal protection for Sonic Mania Plus and Sonic Origins Plus. Giving players paid content for free is not the goal of this project.
 
 ### Q: How do I change the username?
 A: In the `Game` category of settings.ini, add a tag called `username` and enter the desired username in it.
@@ -17,6 +17,10 @@ A: Sonic Origins doesn't have any music or sound effects contained in the games'
 
 ### Q: Why is the Drop Dash disabled by default? How do I turn it on?
 A: By default, the game mode is set to Classic Mode, which disables the Drop Dash. The only way to change this is through a mod, either by changing the default value of the `game.playMode` global variable in `GameConfig.bin` or by setting the variable to another value via scripts.
+
+### Q: How do I play as the Origins Plus characters?
+A: Sonic Team implemented Amy (and Knuckles in Sonic CD) in a way where they aren't playable on the decomp out of the box. This can be fixed via mods. **Do not ask about this in an issue, as we will not be able to help you.**
+There are also checks implemented in the engine to prevent playing as these characters on release builds and autobuilds.
 
 # Miscellaneous
 ### Q: Is there a decompilation for RSDKv3 and/or RSDKv4 alone?

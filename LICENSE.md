@@ -8,10 +8,10 @@ Original authors of RSDK and authors of the decompilation are not held responsib
 
 You may copy, modify, contribute, and distribute, for public or private use, **as long as the following are followed:**
 - All pre-built executables provided TO ANYONE *PRIVATE OR OTHERWISE* **must be built with DLC disabled by __default.__**
-  - DLC is managed by the DummyCore Usercore. A define, `RSDK_AUTOBUILD`, is already provided for you to force DLC off. 
+  - DLC is managed by the DummyCore Usercore. A define, `RSDK_AUTOBUILD`, and a CMake flag, `RETRO_DISABLE_PLUS`, are already provided for you to force DLC off.
   - Creating a configuration setting *is allowed,* so long as it is set to off by default.
     - *No such configuration will be pushed to the master repository.*
-  - This is to ensure an extra layer of legal protection for Mania Plus.
+  - This is to ensure an extra layer of legal protection for Sonic Mania Plus and Sonic Origins Plus.
 - You may not use the decompilation for commercial (any sort of profit) use.
 - You must clearly specify that the decompilation and original code are not yours: the developers of both must be credited.
 - You may not distribute assets used to run any game not directly provided by the repository (other than unique, modded assets).
