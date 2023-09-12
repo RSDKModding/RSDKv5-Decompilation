@@ -230,15 +230,20 @@ enum GameRegions {
 // Determines if the engine should use EGS features like achievements or not (must be rev02)
 #define RETRO_VER_EGS (RETRO_REV02 && 0)
 
-// enables only EGS's ingame achievements popup without enabling anything else
+// Enables only EGS's ingame achievements popup without enabling anything else
 #define RETRO_USE_DUMMY_ACHIEVEMENTS (RETRO_REV02 && 1)
 
-// enables the use of the mod loader
+// Forces all DLC flags to be disabled, this should be enabled in any public releases
+#ifndef RSDK_AUTOBUILD
+#define RSDK_AUTOBUILD (0)
+#endif
+
+// Enables the use of the mod loader
 #ifndef RETRO_USE_MOD_LOADER
 #define RETRO_USE_MOD_LOADER (!RETRO_USE_ORIGINAL_CODE && 1)
 #endif
 
-// defines the version of the mod loader, this should be changed ONLY if the ModFunctionTable is updated in any way
+// Defines the version of the mod loader, this should be changed ONLY if the ModFunctionTable is updated in any way
 #ifndef RETRO_MOD_LOADER_VER
 #define RETRO_MOD_LOADER_VER (2)
 #endif

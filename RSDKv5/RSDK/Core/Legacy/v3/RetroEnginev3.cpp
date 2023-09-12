@@ -169,11 +169,7 @@ bool32 RSDK::Legacy::v3::LoadGameConfig(const char *filepath)
         v3::LoadGameXML();
         SetGlobalVariableByName("Options.DevMenuFlag", engine.devMenu ? 1 : 0);
         SetGlobalVariableByName("Engine.Standalone", 0);
-#if !RSDK_AUTOBUILD
-        SetGlobalVariableByName("game.hasPlusDLC", 1);
-#else
-        SetGlobalVariableByName("game.hasPlusDLC", 0);
-#endif
+        SetGlobalVariableByName("game.hasPlusDLC", !RSDK_AUTOBUILD);
 #endif
 
         SetGlobalVariableByName("Engine.PlatformId", gamePlatformID);

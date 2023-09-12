@@ -3025,6 +3025,11 @@ void RSDK::Legacy::v3::EnemyCollision(int32 left, int32 top, int32 right, int32 
 {
     TouchCollision(left, top, right, bottom);
 
+#if RSDK_AUTOBUILD
+    // Skip the hammer hitboxes on autobuilds, just in case
+    return;
+#endif
+
     Player *player           = &playerList[activePlayer];
 
     int32 hammerHitboxLeft   = 0;
