@@ -1,4 +1,4 @@
-# RSDKv5(U) DECOMPILATION SOURCE CODE LICENSE v2
+# RSDKv5(U) DECOMPILATION SOURCE CODE LICENSE v2.1
 
 The code in this repository is a decompilation of RSDK (Retro-Engine) version 5 and 5-Ultimate.
 There is original code in this repo, but most of the code is to be functionally the same as the version of RSDK this repo specifies.
