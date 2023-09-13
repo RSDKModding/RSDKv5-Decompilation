@@ -85,7 +85,7 @@ void RSDK::Legacy::LoadSfx(char *filename, uint8 slot, uint8 scope)
 
 void RSDK::Legacy::v3::SetSfxAttributes(int32 channelID, int32 loop, int8 pan)
 {
-    if (channelID < 0 || channelID > CHANNEL_COUNT)
+    if (channelID < 0 || channelID >= CHANNEL_COUNT)
         return;
 
     if (channels[channelID].state == CHANNEL_SFX) {
