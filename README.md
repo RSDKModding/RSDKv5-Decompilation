@@ -32,7 +32,7 @@ If you've already cloned the repo, run this command inside of the repository:
 [Install vcpkg](https://github.com/microsoft/vcpkg#quick-start-windows), then run the following:
 - `[vcpkg root]\vcpkg.exe install libtheora libogg --triplet=x64-windows-static` (the triplet can be whatever preferred)
 
-Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCKPG_TARGET_TRIPLET=(chosen triplet)` as arguments for `cmake ..`.
+Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=(chosen triplet)` as arguments for `cmake ..`.
 
 ### Linux
 Install the following dependencies: then follow the [compilation steps below](#compiling):
@@ -58,8 +58,6 @@ Follow the android build instructions [here.](./dependencies/android/README.md)
 
 Compiling is as simple as typing the following:
 ```
-mkdir build
-cd build
 cmake -Bbuild # arguments go here
 cmake --build build
 ```
