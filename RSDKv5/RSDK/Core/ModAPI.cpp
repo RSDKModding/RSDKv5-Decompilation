@@ -215,7 +215,7 @@ void RSDK::SortMods()
         }
     }
 
-    std::stable_sort(modList.begin(), modList.end(), [](ModInfo a, ModInfo b) {
+    std::stable_sort(modList.begin(), modList.end(), [](const ModInfo& a, const ModInfo& b) {
         if (!(a.active && b.active))
             return a.active;
         // keep it unsorted i guess
@@ -428,7 +428,7 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
                     RenderDevice::FlipScreen();
                 }
             }
-        } catch (fs::filesystem_error fe) {
+        } catch (fs::filesystem_error& fe) {
             PrintLog(PRINT_ERROR, "Mod File Scanning Error: %s", fe.what());
         }
     }
@@ -572,7 +572,7 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
                     }
                 }
             }
-        } catch (fs::filesystem_error fe) {
+        } catch (fs::filesystem_error& fe) {
             PrintLog(PRINT_ERROR, "Mods folder scanning error: %s", fe.what());
         }
     }
@@ -587,7 +587,7 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
     LoadModSettings();
 }
 
-void loadCfg(ModInfo *info, std::string path)
+void loadCfg(ModInfo *info, const std::string& path)
 {
     FileInfo cfg;
     InitFileInfo(&cfg);
@@ -621,7 +621,7 @@ void loadCfg(ModInfo *info, std::string path)
     }
 }
 
-bool32 RSDK::LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 active, bool32 getVersion)
+bool32 RSDK::LoadMod(ModInfo *info, const std::string& modsPath, const std::string& folder, bool32 active, bool32 getVersion)
 {
     if (!info)
         return false;
@@ -1512,7 +1512,7 @@ bool32 RSDK::ForeachSetting(const char *id, String *setting)
 }
 #endif
 
-void SetModSettingsValue(const char *key, std::string val)
+void SetModSettingsValue(const char *key, const std::string& val)
 {
     if (!currentMod)
         return;
