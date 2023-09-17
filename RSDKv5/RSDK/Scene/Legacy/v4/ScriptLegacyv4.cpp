@@ -1050,8 +1050,11 @@ void RSDK::Legacy::v4::CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1094,8 +1097,11 @@ void RSDK::Legacy::v4::CheckAliasText(char *text)
     }
     else if (FindStringToken(text, "privatealias", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1139,8 +1145,11 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
 {
     if (FindStringToken(text, "publicvalue", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1191,8 +1200,11 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
     }
     else if (FindStringToken(text, "privatevalue", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1248,8 +1260,11 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
 
     if (FindStringToken(text, "publictable", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return false;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1317,8 +1332,11 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
     }
     else if (FindStringToken(text, "privatetable", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return false;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];

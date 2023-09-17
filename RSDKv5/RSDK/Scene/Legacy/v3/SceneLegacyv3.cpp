@@ -66,6 +66,18 @@ void RSDK::Legacy::v3::ProcessStage()
             vertexCount = 0;
             faceCount   = 0;
 
+#if RSDK_AUTOBUILD
+            // Prevent playing as Knuckles or Amy if on autobuilds
+            if (GetGlobalVariableByName("PLAYER_KNUCKLES") && playerListPos == GetGlobalVariableByName("PLAYER_KNUCKLES"))
+                playerListPos = 0;
+            else if (GetGlobalVariableByName("PLAYER_KNUCKLES_TAILS") && playerListPos == GetGlobalVariableByName("PLAYER_KNUCKLES_TAILS"))
+                playerListPos = 0;
+            else if (GetGlobalVariableByName("PLAYER_AMY") && playerListPos == GetGlobalVariableByName("PLAYER_AMY"))
+                playerListPos = 0;
+            else if (GetGlobalVariableByName("PLAYER_AMY_TAILS") && playerListPos == GetGlobalVariableByName("PLAYER_AMY_TAILS"))
+                playerListPos = 0;
+#endif
+
             for (int32 p = 0; p < LEGACY_v3_PLAYER_COUNT; ++p) {
                 memset(&playerList[p], 0, sizeof(playerList[p]));
                 playerList[p].visible            = true;
@@ -565,7 +577,7 @@ void RSDK::Legacy::v3::LoadActLayout()
             entity->type = ReadInt8(&info);
 
 #if RETRO_USE_MOD_LOADER
-            if (loadGlobalScripts && offsetCount && entity->type >= globalObjCount)
+            if (loadGlobalScripts && offsetCount && entity->type > globalObjCount)
                 entity->type += offsetCount; // offset it by our mod count
 #endif
 

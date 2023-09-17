@@ -10,7 +10,7 @@ struct DummyCore : UserCore {
         valueCount = 1;
 
 #if !RSDK_AUTOBUILD
-        // disable plus on autobuilds
+        // enable dlc
         for (int32 v = 0; v < valueCount; ++v) values[v] = true;
 #endif
     }

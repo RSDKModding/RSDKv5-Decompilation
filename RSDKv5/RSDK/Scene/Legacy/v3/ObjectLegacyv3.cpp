@@ -108,7 +108,7 @@ void RSDK::Legacy::v3::ProcessPausedObjects()
 {
     for (int32 i = 0; i < LEGACY_DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
 
-    for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
+    for (objectLoop = 0; objectLoop < LEGACY_v3_ENTITY_COUNT; ++objectLoop) {
         Entity *entity = &objectEntityList[objectLoop];
 
         if (entity->priority == PRIORITY_ALWAYS && entity->type > OBJ_TYPE_BLANKOBJECT) {
