@@ -1939,13 +1939,14 @@ void RSDK::Legacy::v3::ObjectLWallGrip(int32 xOffset, int32 yOffset, int32 cPath
     int32 YPos            = (entity->YPos >> 16) + yOffset;
     int32 startX          = XPos;
     XPos                  = XPos - 16;
+    int32 chunk           = xOffset;
     for (int32 i = 3; i > 0; i--) {
         if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7 && !scriptEng.checkResult) {
             int32 chunkX    = XPos >> 7;
             int32 tileX     = (XPos & 0x7F) >> 4;
             int32 chunkY    = YPos >> 7;
             int32 tileY     = (YPos & 0x7F) >> 4;
-            int32 chunk     = (stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6) + tileX + (tileY << 3);
+            chunk           = (stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6) + tileX + (tileY << 3);
             int32 tileIndex = tiles128x128.tileIndex[chunk];
             if (tiles128x128.collisionFlags[cPath][chunk] < SOLID_NONE) {
                 switch (tiles128x128.direction[chunk]) {
@@ -1996,7 +1997,7 @@ void RSDK::Legacy::v3::ObjectLWallGrip(int32 xOffset, int32 yOffset, int32 cPath
             return;
         }
         entity->XPos          = (startX - xOffset) << 16;
-        scriptEng.checkResult = false;
+        scriptEng.checkResult = tiles128x128.collisionFlags[cPath][chunk] == 1;
     }
 }
 void RSDK::Legacy::v3::ObjectRoofGrip(int32 xOffset, int32 yOffset, int32 cPath)
@@ -2077,13 +2078,14 @@ void RSDK::Legacy::v3::ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath
     int32 YPos            = (entity->YPos >> 16) + yOffset;
     int32 startX          = XPos;
     XPos                  = XPos + 16;
+    int32 chunk           = xOffset;
     for (int32 i = 3; i > 0; i--) {
         if (XPos > 0 && XPos < stageLayouts[0].xsize << 7 && YPos > 0 && YPos < stageLayouts[0].ysize << 7 && !scriptEng.checkResult) {
             int32 chunkX    = XPos >> 7;
             int32 tileX     = (XPos & 0x7F) >> 4;
             int32 chunkY    = YPos >> 7;
             int32 tileY     = (YPos & 0x7F) >> 4;
-            int32 chunk     = (stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6) + tileX + (tileY << 3);
+            chunk           = (stageLayouts[0].tiles[chunkX + (chunkY << 8)] << 6) + tileX + (tileY << 3);
             int32 tileIndex = tiles128x128.tileIndex[chunk];
             if (tiles128x128.collisionFlags[cPath][chunk] < SOLID_NONE) {
                 switch (tiles128x128.direction[chunk]) {
@@ -2134,7 +2136,7 @@ void RSDK::Legacy::v3::ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath
             return;
         }
         entity->XPos          = (startX - xOffset) << 16;
-        scriptEng.checkResult = false;
+        scriptEng.checkResult = tiles128x128.collisionFlags[cPath][chunk] == 1;
     }
 }
 
