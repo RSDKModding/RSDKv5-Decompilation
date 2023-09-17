@@ -6,10 +6,12 @@ namespace v4
 {
 
 enum CollisionSides {
-    CSIDE_FLOOR = 0,
-    CSIDE_LWALL = 1,
-    CSIDE_RWALL = 2,
-    CSIDE_ROOF  = 3,
+    CSIDE_FLOOR   = 0,
+    CSIDE_LWALL   = 1,
+    CSIDE_RWALL   = 2,
+    CSIDE_ROOF    = 3,
+    CSIDE_LENTITY = 4,
+    CSIDE_RENTITY = 5,
 };
 
 enum CollisionModes {
