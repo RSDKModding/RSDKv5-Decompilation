@@ -6,6 +6,8 @@
 
 * libtheora: [Download](https://xiph.org/downloads/) and unzip it in `dependencies/android/libtheora`.
 
+## Set up symlinks
+
 * Ensure the symbolic links in `[root]/android/app/jni` are correct: 
   * `RSDKv5` -> root of the RSDKv5 repository
   * `Game` -> root of the Mania repository (or any other game that you may be compiling)
