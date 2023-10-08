@@ -13,12 +13,12 @@ We do not condone using this project as a means for piracy in any form. This pro
 * Added a built-in shader compiler for backends/platforms that support it.
 * Added various other backends to windows aside from the usual DirectX 9 backends
 
-## If you are here for Sonic Mania's source code:
-You probably want to head to [the Sonic Mania Decompilation repo](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation) instead.
+## If you are here for Sonic Mania:
+You have the option of building RSDKv5 alongside Mania in [the Sonic Mania Decompilation repo](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation).
 
 # How to Build
 
-This project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/). **(Make sure to enable the feature to add CMake to the system PATH during the installation!)**
+This project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/). **(Make sure to enable the feature to add CMake to the system PATH during the installation if you're on Windows!)**
 
 ## Get the source code
 
