@@ -6,8 +6,7 @@ find_package(PkgConfig REQUIRED)
 add_executable(RetroEngine ${RETRO_FILES})
 
 set(RETRO_SUBSYSTEM "OGL" CACHE STRING "The subsystem to use")
-# WSL doesn't like port audio. this is unfortunately how we fix it
-option(USE_SDL_AUDIO "Whether or not to use SDL for audio instead of the default PortAudio." OFF)
+option(USE_SDL_AUDIO "Whether or not to use SDL for audio instead of the default MiniAudio." OFF)
 
 pkg_check_modules(OGG ogg)
 
@@ -82,19 +81,7 @@ elseif(RETRO_SUBSYSTEM STREQUAL "SDL2")
 endif()
 
 if(NOT RETRO_SUBSYSTEM STREQUAL SDL2)
-    if(NOT USE_SDL_AUDIO)
-        pkg_check_modules(PORTAUDIO portaudio-2.0)
-
-        if(NOT PORTAUDIO_FOUND)
-            message("could not find portaudio, attempting to build from source")
-            add_subdirectory(dependencies/all/portaudio)
-        else()
-            message("found portaudio")
-            target_link_libraries(RetroEngine ${PORTAUDIO_STATIC_LIBRARIES})
-            target_link_options(RetroEngine PRIVATE ${PORTAUDIO_STATIC_LDLIBS_OTHER})
-            target_compile_options(RetroEngine PRIVATE ${PORTAUDIO_STATIC_CFLAGS})
-        endif()
-    else()
+    if(USE_SDL_AUDIO)
         pkg_check_modules(SDL2 sdl2 REQUIRED)
         target_link_libraries(RetroEngine ${SDL2_STATIC_LIBRARIES})
         target_link_options(RetroEngine PRIVATE ${SDL2_STATIC_LDLIBS_OTHER})

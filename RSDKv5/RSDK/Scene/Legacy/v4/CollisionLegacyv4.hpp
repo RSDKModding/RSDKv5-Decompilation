@@ -6,10 +6,12 @@ namespace v4
 {
 
 enum CollisionSides {
-    CSIDE_FLOOR = 0,
-    CSIDE_LWALL = 1,
-    CSIDE_RWALL = 2,
-    CSIDE_ROOF  = 3,
+    CSIDE_FLOOR   = 0,
+    CSIDE_LWALL   = 1,
+    CSIDE_RWALL   = 2,
+    CSIDE_ROOF    = 3,
+    CSIDE_LENTITY = 4, // Added in Origins Plus
+    CSIDE_RENTITY = 5, // Added in Origins Plus
 };
 
 enum CollisionModes {
@@ -94,6 +96,8 @@ void ObjectFloorGrip(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectLWallGrip(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectRoofGrip(int32 xOffset, int32 yOffset, int32 cPath);
 void ObjectRWallGrip(int32 xOffset, int32 yOffset, int32 cPath);
+void ObjectLEntityGrip(int32 xOffset, int32 yOffset, int32 cPath); // Added in Origins Plus
+void ObjectREntityGrip(int32 xOffset, int32 yOffset, int32 cPath); // Added in Origins Plus
 
 } // namespace v4
 

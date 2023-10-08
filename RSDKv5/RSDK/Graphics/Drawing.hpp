@@ -6,10 +6,12 @@ namespace RSDK
 
 #define SURFACE_COUNT (0x40)
 
+#ifndef SCREEN_COUNT
 #if RETRO_REV02
 #define SCREEN_COUNT (4)
 #else
 #define SCREEN_COUNT (2)
+#endif
 #endif
 #define CAMERA_COUNT (4)
 

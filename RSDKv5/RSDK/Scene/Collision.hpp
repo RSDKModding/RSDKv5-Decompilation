@@ -37,7 +37,7 @@ struct DebugHitboxInfo {
     Vector2 pos;
 };
 
-enum DebugHitboxTypes { H_TYPE_TOUCH, H_TYPE_CIRCLE, H_TYPE_BOX, H_TYPE_PLAT };
+enum DebugHitboxTypes { H_TYPE_TOUCH, H_TYPE_CIRCLE, H_TYPE_BOX, H_TYPE_PLAT, H_TYPE_HAMMER };
 
 extern bool32 showHitboxes;
 extern int32 debugHitboxCount;

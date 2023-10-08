@@ -130,7 +130,7 @@ inline int16 GetFrameID(Animator *animator)
 
 void ProcessAnimation(Animator *animator);
 
-inline void SetSpriteAnimation(uint16 aniFrames, uint16 animationID, Animator *animator, bool32 forceApply, int16 frameID)
+inline void SetSpriteAnimation(uint16 aniFrames, uint16 animationID, Animator *animator, bool32 forceApply, int32 frameID)
 {
     if (aniFrames >= SPRFILE_COUNT || !animator) {
         if (animator)

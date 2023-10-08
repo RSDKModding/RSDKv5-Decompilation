@@ -1050,8 +1050,11 @@ void RSDK::Legacy::v4::CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1094,8 +1097,11 @@ void RSDK::Legacy::v4::CheckAliasText(char *text)
     }
     else if (FindStringToken(text, "privatealias", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1139,8 +1145,11 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
 {
     if (FindStringToken(text, "publicvalue", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1191,8 +1200,11 @@ void RSDK::Legacy::v4::CheckStaticText(char *text)
     }
     else if (FindStringToken(text, "privatevalue", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1248,8 +1260,11 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
 
     if (FindStringToken(text, "publictable", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return false;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1317,8 +1332,11 @@ bool32 RSDK::Legacy::v4::CheckTableText(char *text)
     }
     else if (FindStringToken(text, "privatetable", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT)
-            PrintLog(PRINT_NORMAL, "WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= LEGACY_v4_SCRIPT_VAR_COUNT) {
+            RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases, static values, and tables\nFILE: %s", scriptFile);
+            gameMode = ENGINE_SCRIPTERROR;
+            return false;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1825,7 +1843,39 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                         case 'B': list = STAGELIST_BONUS; break;
                         case 'S': list = STAGELIST_SPECIAL; break;
                     }
-                    // s = GetSceneID(list, &arrayStr[2]);
+                    if (list <= 3) {
+                        char scnName[0x40];
+                        int32 scnPos          = 0;
+                        int32 pos             = 0;
+                        const char *sceneName = &arrayStr[2];
+
+                        while (sceneName[scnPos]) {
+                            if (sceneName[scnPos] != ' ')
+                                scnName[pos++] = sceneName[scnPos];
+                            ++scnPos;
+                        }
+                        scnName[pos] = 0;
+                        SceneListInfo *listCat = &sceneInfo.listCategory[list];
+                        int32 l                = listCat->sceneOffsetStart;
+                        for (int32 c = 0; c < listCat->sceneCount; ++c) {
+                            char nameBuffer[0x40];
+
+                            scnPos = 0;
+                            pos    = 0;
+                            while (sceneInfo.listData[l].name[scnPos]) {
+                                if (sceneInfo.listData[l].name[scnPos] != ' ')
+                                    nameBuffer[pos++] = sceneInfo.listData[l].name[scnPos];
+                                ++scnPos;
+                            }
+                            nameBuffer[pos] = 0;
+
+                            if (StrComp(scnName, nameBuffer)) {
+                                s = c;
+                                break;
+                            }
+                            l++;
+                        }
+                    }
                 }
 
                 if (s == -1) {
@@ -2127,7 +2177,39 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
                     case 'B': list = STAGELIST_BONUS; break;
                     case 'S': list = STAGELIST_SPECIAL; break;
                 }
-                // s = GetSceneID(list, &arrayStr[2]);
+                if (list <= 3) {
+                    char scnName[0x40];
+                    int32 scnPos          = 0;
+                    int32 pos             = 0;
+                    const char *sceneName = &arrayStr[2];
+
+                    while (sceneName[scnPos]) {
+                        if (sceneName[scnPos] != ' ')
+                            scnName[pos++] = sceneName[scnPos];
+                        ++scnPos;
+                    }
+                    scnName[pos]           = 0;
+                    SceneListInfo *listCat = &sceneInfo.listCategory[list];
+                    int32 l                = listCat->sceneOffsetStart;
+                    for (int32 c = 0; c < listCat->sceneCount; ++c) {
+                        char nameBuffer[0x40];
+
+                        scnPos = 0;
+                        pos    = 0;
+                        while (sceneInfo.listData[l].name[scnPos]) {
+                            if (sceneInfo.listData[l].name[scnPos] != ' ')
+                                nameBuffer[pos++] = sceneInfo.listData[l].name[scnPos];
+                            ++scnPos;
+                        }
+                        nameBuffer[pos] = 0;
+
+                        if (StrComp(scnName, nameBuffer)) {
+                            s = c;
+                            break;
+                        }
+                        l++;
+                    }
+                }
             }
 
             if (s == -1) {
@@ -2332,7 +2414,39 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                         case 'B': list = STAGELIST_BONUS; break;
                         case 'S': list = STAGELIST_SPECIAL; break;
                     }
-                    // s = GetSceneID(list, &arrayStr[2]);
+                    if (list <= 3) {
+                        char scnName[0x40];
+                        int32 scnPos          = 0;
+                        int32 pos             = 0;
+                        const char *sceneName = &arrayStr[2];
+
+                        while (sceneName[scnPos]) {
+                            if (sceneName[scnPos] != ' ')
+                                scnName[pos++] = sceneName[scnPos];
+                            ++scnPos;
+                        }
+                        scnName[pos]           = 0;
+                        SceneListInfo *listCat = &sceneInfo.listCategory[list];
+                        int32 l                = listCat->sceneOffsetStart;
+                        for (int32 c = 0; c < listCat->sceneCount; ++c) {
+                            char nameBuffer[0x40];
+
+                            scnPos = 0;
+                            pos    = 0;
+                            while (sceneInfo.listData[l].name[scnPos]) {
+                                if (sceneInfo.listData[l].name[scnPos] != ' ')
+                                    nameBuffer[pos++] = sceneInfo.listData[l].name[scnPos];
+                                ++scnPos;
+                            }
+                            nameBuffer[pos] = 0;
+
+                            if (StrComp(scnName, nameBuffer)) {
+                                s = c;
+                                break;
+                            }
+                            l++;
+                        }
+                    }
                 }
 
                 if (s == -1) {
@@ -4712,8 +4826,10 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     default: break;
                     case CSIDE_FLOOR: ObjectFloorCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_LWALL: ObjectLWallCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
-                    case CSIDE_RWALL: ObjectRWallCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
-                    case CSIDE_ROOF: ObjectRoofCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_RWALL: ObjectRWallCollision(scriptEng.operands[1] - 1, scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_ROOF: ObjectRoofCollision(scriptEng.operands[1], scriptEng.operands[2] - 1, scriptEng.operands[3]); break;
+                    case CSIDE_LENTITY: ObjectLWallCollision(scriptEng.operands[2], 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
+                    case CSIDE_RENTITY: ObjectLWallCollision(scriptEng.operands[2] - 1, 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
                 }
                 break;
             case FUNC_OBJECTTILEGRIP:
@@ -4722,8 +4838,10 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     default: break;
                     case CSIDE_FLOOR: ObjectFloorGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_LWALL: ObjectLWallGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
-                    case CSIDE_RWALL: ObjectRWallGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
-                    case CSIDE_ROOF: ObjectRoofGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_RWALL: ObjectRWallGrip(scriptEng.operands[1] - 1, scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_ROOF: ObjectRoofGrip(scriptEng.operands[1], scriptEng.operands[2] - 1, scriptEng.operands[3]); break;
+                    case CSIDE_LENTITY: ObjectLEntityGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_RENTITY: ObjectREntityGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                 }
                 break;
             case FUNC_NOT: scriptEng.operands[0] = ~scriptEng.operands[0]; break;

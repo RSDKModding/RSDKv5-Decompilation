@@ -883,6 +883,14 @@ void RSDK::Legacy::v3::CheckAliasText(char *text)
     if (FindStringToken(text, "#alias", 1) != 0)
         return;
 
+#if !RETRO_USE_ORIGINAL_CODE
+    if (aliasCount >= LEGACY_v3_ALIAS_COUNT) {
+        RSDK::PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Too many aliases\nFILE: %s", scriptFile);
+        gameMode = ENGINE_SCRIPTERROR;
+        return;
+    }
+#endif
+
     int32 textPos     = 6;
     int32 aliasStrPos = 0;
     int32 parseMode   = 0;
@@ -1269,7 +1277,39 @@ void RSDK::Legacy::v3::ConvertFunctionText(char *text)
                         case 'B': list = STAGELIST_BONUS; break;
                         case 'S': list = STAGELIST_SPECIAL; break;
                     }
-                    // s = GetSceneID(list, &arrayStr[2]);
+                    if (list <= 3) {
+                        char scnName[0x40];
+                        int32 scnPos          = 0;
+                        int32 pos             = 0;
+                        const char *sceneName = &arrayStr[2];
+
+                        while (sceneName[scnPos]) {
+                            if (sceneName[scnPos] != ' ')
+                                scnName[pos++] = sceneName[scnPos];
+                            ++scnPos;
+                        }
+                        scnName[pos]           = 0;
+                        SceneListInfo *listCat = &sceneInfo.listCategory[list];
+                        int32 l                = listCat->sceneOffsetStart;
+                        for (int32 c = 0; c < listCat->sceneCount; ++c) {
+                            char nameBuffer[0x40];
+
+                            scnPos = 0;
+                            pos    = 0;
+                            while (sceneInfo.listData[l].name[scnPos]) {
+                                if (sceneInfo.listData[l].name[scnPos] != ' ')
+                                    nameBuffer[pos++] = sceneInfo.listData[l].name[scnPos];
+                                ++scnPos;
+                            }
+                            nameBuffer[pos] = 0;
+
+                            if (StrComp(scnName, nameBuffer)) {
+                                s = c;
+                                break;
+                            }
+                            l++;
+                        }
+                    }
                 }
 
                 if (s == -1) {
@@ -3390,12 +3430,22 @@ void RSDK::Legacy::v3::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                                      entity->XPos + (scriptEng.operands[3] << 16), entity->YPos + (scriptEng.operands[4] << 16));
                         break;
                     case C_BOX2:
-                        PlatformCollision(entity->XPos + (scriptEng.operands[1] << 16), entity->YPos + (scriptEng.operands[2] << 16),
-                                          entity->XPos + (scriptEng.operands[3] << 16), entity->YPos + (scriptEng.operands[4] << 16));
+                        BoxCollision2(entity->XPos + (scriptEng.operands[1] << 16), entity->YPos + (scriptEng.operands[2] << 16),
+                                      entity->XPos + (scriptEng.operands[3] << 16), entity->YPos + (scriptEng.operands[4] << 16));
                         break;
                     case C_PLATFORM:
                         PlatformCollision(entity->XPos + (scriptEng.operands[1] << 16), entity->YPos + (scriptEng.operands[2] << 16),
                                           entity->XPos + (scriptEng.operands[3] << 16), entity->YPos + (scriptEng.operands[4] << 16));
+                        break;
+                    case C_BOX3:
+                        BoxCollision3(entity->XPos + (scriptEng.operands[1] << 16), entity->YPos + (scriptEng.operands[2] << 16),
+                                      entity->XPos + (scriptEng.operands[3] << 16), entity->YPos + (scriptEng.operands[4] << 16));
+                        break;
+                    case C_ENEMY:
+                        scriptEng.operands[5] = entity->XPos >> 16;
+                        scriptEng.operands[6] = entity->YPos >> 16;
+                        EnemyCollision(scriptEng.operands[5] + scriptEng.operands[1], scriptEng.operands[6] + scriptEng.operands[2],
+                                       scriptEng.operands[5] + scriptEng.operands[3], scriptEng.operands[6] + scriptEng.operands[4]);
                         break;
                 }
                 break;
@@ -3518,6 +3568,7 @@ void RSDK::Legacy::v3::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     case CSIDE_LWALL: ObjectLWallGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_RWALL: ObjectRWallGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_ROOF: ObjectRoofGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_ENTITY: ObjectEntityGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                 }
                 break;
             case FUNC_LOADVIDEO:

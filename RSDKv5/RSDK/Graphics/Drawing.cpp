@@ -2509,26 +2509,34 @@ void RSDK::DrawBlendedFace(Vector2 *vertices, uint32 *colors, int32 vertCount, i
                 for (int32 s = topScreen; s <= bottomScreen; ++s) {
                     int32 start  = edge->start;
                     int32 count  = edge->end - edge->start;
-                    // int32 deltaR = 0;
-                    // int32 deltaG = 0;
-                    // int32 deltaB = 0;
-                    // if (count > 0) {
-                    //     deltaR = (edge->endR - edge->startR) / count;
-                    //     deltaG = (edge->endG - edge->startG) / count;
-                    //     deltaB = (edge->endB - edge->startB) / count;
-                    // }
-                    // int32 startR = edge->startR;
-                    // int32 startG = edge->startG;
-                    // int32 startB = edge->startB;
+
+#if RETRO_USE_ORIGINAL_CODE
+                    // Unused, ifdef'd out to help out ports for weaker hardware
+                    int32 deltaR = 0;
+                    int32 deltaG = 0;
+                    int32 deltaB = 0;
+                    if (count > 0) {
+                        deltaR = (edge->endR - edge->startR) / count;
+                        deltaG = (edge->endG - edge->startG) / count;
+                        deltaB = (edge->endB - edge->startB) / count;
+                    }
+                    int32 startR = edge->startR;
+                    int32 startG = edge->startG;
+                    int32 startB = edge->startB;
+#endif
 
                     if (start > currentScreen->clipBound_X2) {
                         edge->start = currentScreen->clipBound_X2;
                     }
 
                     if (start < currentScreen->clipBound_X1) {
-                        // startR += deltaR * (currentScreen->clipBound_X1 - edge->start);
-                        // startG += deltaG * (currentScreen->clipBound_X1 - edge->start);
-                        // startB += deltaB * (currentScreen->clipBound_X1 - edge->start);
+#if RETRO_USE_ORIGINAL_CODE
+                        // Unused, ifdef'd out to help out ports for weaker hardware
+                        startR += deltaR * (currentScreen->clipBound_X1 - edge->start);
+                        startG += deltaG * (currentScreen->clipBound_X1 - edge->start);
+                        startB += deltaB * (currentScreen->clipBound_X1 - edge->start);
+#endif
+
                         count -= (currentScreen->clipBound_X1 - edge->start);
                         edge->start = currentScreen->clipBound_X1;
                     }
@@ -2545,9 +2553,12 @@ void RSDK::DrawBlendedFace(Vector2 *vertices, uint32 *colors, int32 vertCount, i
                     for (int32 x = 0; x < count; ++x) {
                         frameBuffer[edge->start + x] = tintLookupTable[frameBuffer[edge->start + x]];
 
-                        // startR += deltaR;
-                        // startG += deltaG;
-                        // startB += deltaB;
+#if RETRO_USE_ORIGINAL_CODE
+                        // Unused, ifdef'd out to help out ports for weaker hardware
+                        startR += deltaR;
+                        startG += deltaG;
+                        startB += deltaB;
+#endif
                     }
 
                     ++edge;

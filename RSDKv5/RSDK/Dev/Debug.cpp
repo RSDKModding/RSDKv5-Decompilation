@@ -103,7 +103,9 @@ void RSDK::PrintLog(int32 mode, const char *message, ...)
         }
 
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_PLATFORM != RETRO_ANDROID
-        FileIO *file = fOpen(BASE_PATH "log.txt", "a");
+        char logPath[0x100];
+        sprintf_s(logPath, sizeof(logPath), "%slog.txt", SKU::userFileDir);
+        FileIO *file = fOpen(logPath, "a");
         if (file) {
             fWrite(&outputString, 1, strlen(outputString), file);
             fClose(file);
@@ -484,9 +486,22 @@ void RSDK::DevMenu_MainMenu()
                 break;
 
             case 2:
+#if RETRO_REV0U && RETRO_USE_MOD_LOADER
+                if (engine.version == 5) {
+                    devMenu.state     = DevMenu_CategorySelectMenu;
+                    devMenu.selection = 0;
+                    devMenu.timer     = 1;
+                }
+                else {
+                    devMenu.state     = DevMenu_PlayerSelectMenu;
+                    devMenu.scrollPos = 0;
+                    devMenu.selection = 0;
+                }
+#else
                 devMenu.state     = DevMenu_CategorySelectMenu;
                 devMenu.selection = 0;
                 devMenu.timer     = 1;
+#endif
                 break;
 
             case 3:
@@ -643,12 +658,27 @@ void RSDK::DevMenu_CategorySelectMenu()
     }
 #if !RETRO_USE_ORIGINAL_CODE
     else if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
+#if RETRO_REV0U && RETRO_USE_MOD_LOADER
+        if (engine.version == 5) {
+            devMenu.state     = DevMenu_MainMenu;
+            devMenu.listPos   = 0;
+            devMenu.scrollPos = 0;
+            devMenu.selection = 2;
+        }
+        else {
+            devMenu.state     = DevMenu_PlayerSelectMenu;
+            devMenu.listPos   = 0;
+            devMenu.scrollPos = 0;
+            devMenu.selection = 0;
+        }
+#else
         devMenu.state     = DevMenu_MainMenu;
         devMenu.listPos   = 0;
         devMenu.scrollPos = 0;
         devMenu.selection = 2;
+#endif //! RETRO_REV0U && RETRO_USE_MOD_LOADER
     }
-#endif
+#endif // ! !RETRO_USE_ORIGINAL_CODE
 }
 void RSDK::DevMenu_SceneSelectMenu()
 {
@@ -671,7 +701,7 @@ void RSDK::DevMenu_SceneSelectMenu()
         if (devMenu.scrollPos + i < list->sceneCount) {
             DrawDevString(sceneInfo.listData[start + (devMenu.scrollPos + i)].name, currentScreen->center.x + 96, y, ALIGN_RIGHT, selectionColors[i]);
             y += 8;
-            devMenu.scrollPos = devMenu.scrollPos;
+            devMenu.scrollPos = devMenu.scrollPos; //? look into
         }
     }
 
@@ -766,13 +796,22 @@ void RSDK::DevMenu_SceneSelectMenu()
                 case 5: sceneInfo.state = ENGINESTATE_LOAD; break;
                 case 4:
                 case 3:
+#if !RETRO_USE_ORIGINAL_CODE
+                    RSDK::Legacy::debugMode = confirm;
+#endif
+#if RETRO_USE_MOD_LOADER
+                    switch (engine.version) {
+                        case 3: RSDK::Legacy::v3::playerListPos = devMenu.playerListPos; break;
+                        case 4: RSDK::Legacy::v4::playerListPos = devMenu.playerListPos; break;
+                    }
+#endif
                     RSDK::Legacy::gameMode  = RSDK::Legacy::ENGINE_MAINGAME;
                     RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD;
                     break;
             }
 #else
             sceneInfo.state = ENGINESTATE_LOAD;
-#endif
+#endif //! RETRO_REV0U
 
                 // Bug Details(?):
                 // rev01 had this here, rev02 does not.
@@ -1625,7 +1664,7 @@ void RSDK::DevMenu_DebugOptionsMenu()
                     }
                 }
 
-                DrawDevString(valueStr, currentScreen->center.x + 96, dy, ALIGN_CENTER, selectionColors[i]);
+                DrawDevString(valueStr, currentScreen->center.x + 96, dy, ALIGN_CENTER, 0xF0F080);
             }
             dy += 8;
         }
@@ -1902,6 +1941,113 @@ void RSDK::DevMenu_ModsMenu()
             engine.version = devMenu.startingVersion;
         }
 #endif
+    }
+}
+#endif
+
+#if RETRO_REV0U && RETRO_USE_MOD_LOADER
+void RSDK::DevMenu_PlayerSelectMenu()
+{
+    uint32 selectionColors[] = {
+        0x808090, 0x808090, 0x808090, 0x808090, 0x808090, 0x808090, 0x808090, 0x808090,
+    };
+    selectionColors[devMenu.selection - devMenu.scrollPos] = 0xF0F0F0;
+
+    int32 dy = currentScreen->center.y;
+    DrawRectangle(currentScreen->center.x - 128, dy - 84, 0x100, 0x30, 0x80, 0xFF, INK_NONE, true);
+
+    dy -= 68;
+    DrawDevString("SELECT PLAYER", currentScreen->center.x, dy, ALIGN_CENTER, 0xF0F0F0);
+    DrawRectangle(currentScreen->center.x - 128, dy + 36, 0x100, 0x48, 0x80, 0xFF, INK_NONE, true);
+
+    int32 y = dy + 40;
+    for (int32 i = 0; i < 8; ++i) {
+        if (devMenu.scrollPos + i < modSettings.playerCount) {
+            DrawDevString(modSettings.playerNames[devMenu.scrollPos + i], currentScreen->center.x - 64, y, ALIGN_LEFT, selectionColors[i]);
+            y += 8;
+        }
+    }
+
+    DevMenu_HandleTouchControls(CORNERBUTTON_START);
+
+    if (controller[CONT_ANY].keyUp.press) {
+        if (--devMenu.selection < 0)
+            devMenu.selection = modSettings.playerCount - 1;
+
+        if (devMenu.selection >= devMenu.scrollPos) {
+            if (devMenu.selection > devMenu.scrollPos + 7)
+                devMenu.scrollPos = devMenu.selection - 7;
+        }
+        else {
+            devMenu.scrollPos = devMenu.selection;
+        }
+
+        devMenu.timer = 1;
+    }
+    else if (controller[CONT_ANY].keyUp.down) {
+        if (!devMenu.timer && --devMenu.selection < 0)
+            devMenu.selection = modSettings.playerCount - 1;
+
+        devMenu.timer = (devMenu.timer + 1) & 7;
+
+        if (devMenu.selection >= devMenu.scrollPos) {
+            if (devMenu.selection > devMenu.scrollPos + 7)
+                devMenu.scrollPos = devMenu.selection - 7;
+        }
+        else {
+            devMenu.scrollPos = devMenu.selection;
+        }
+    }
+
+    if (controller[CONT_ANY].keyDown.press) {
+        if (++devMenu.selection >= modSettings.playerCount)
+            devMenu.selection = 0;
+
+        if (devMenu.selection >= devMenu.scrollPos) {
+            if (devMenu.selection > devMenu.scrollPos + 7)
+                devMenu.scrollPos = devMenu.selection - 7;
+        }
+        else {
+            devMenu.scrollPos = devMenu.selection;
+        }
+
+        devMenu.timer = 1;
+    }
+    else if (controller[CONT_ANY].keyDown.down) {
+        if (!devMenu.timer && ++devMenu.selection >= modSettings.playerCount)
+            devMenu.selection = 0;
+
+        devMenu.timer = (devMenu.timer + 1) & 7;
+
+        if (devMenu.selection >= devMenu.scrollPos) {
+            if (devMenu.selection > devMenu.scrollPos + 7)
+                devMenu.scrollPos = devMenu.selection - 7;
+        }
+        else {
+            devMenu.scrollPos = devMenu.selection;
+        }
+    }
+
+    bool32 confirm = controller[CONT_ANY].keyA.press;
+#if RETRO_REV02
+    bool32 swap = SKU::userCore->GetConfirmButtonFlip();
+#else
+    bool32 swap = SKU::GetConfirmButtonFlip();
+#endif
+    if (swap)
+        confirm = controller[CONT_ANY].keyB.press;
+
+    if (controller[CONT_ANY].keyStart.press || confirm) {
+        devMenu.state         = DevMenu_CategorySelectMenu;
+        devMenu.playerListPos = devMenu.selection;
+        devMenu.selection     = 0;
+        devMenu.timer         = 1;
+    }
+    else if (swap ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
+        devMenu.state         = DevMenu_MainMenu;
+        devMenu.playerListPos = 0;
+        devMenu.scrollPos     = 0;
+        devMenu.selection     = 2;
     }
 }
 #endif

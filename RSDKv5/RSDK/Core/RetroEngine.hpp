@@ -157,10 +157,6 @@ enum GameRegions {
 
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
-#ifndef BASE_PATH
-#define BASE_PATH ""
-#endif
-
 // ============================
 // RENDER DEVICE BACKENDS
 // ============================
@@ -183,6 +179,9 @@ enum GameRegions {
 #define RETRO_AUDIODEVICE_OBOE (0)
 #ifndef RETRO_AUDIODEVICE_PORT
 #define RETRO_AUDIODEVICE_PORT (0)
+#endif
+#ifndef RETRO_AUDIODEVICE_MINI
+#define RETRO_AUDIODEVICE_MINI (0)
 #endif
 
 // ============================
@@ -231,15 +230,20 @@ enum GameRegions {
 // Determines if the engine should use EGS features like achievements or not (must be rev02)
 #define RETRO_VER_EGS (RETRO_REV02 && 0)
 
-// enables only EGS's ingame achievements popup without enabling anything else
+// Enables only EGS's ingame achievements popup without enabling anything else
 #define RETRO_USE_DUMMY_ACHIEVEMENTS (RETRO_REV02 && 1)
 
-// enables the use of the mod loader
+// Forces all DLC flags to be disabled, this should be enabled in any public releases
+#ifndef RSDK_AUTOBUILD
+#define RSDK_AUTOBUILD (0)
+#endif
+
+// Enables the use of the mod loader
 #ifndef RETRO_USE_MOD_LOADER
 #define RETRO_USE_MOD_LOADER (!RETRO_USE_ORIGINAL_CODE && 1)
 #endif
 
-// defines the version of the mod loader, this should be changed ONLY if the ModFunctionTable is updated in any way
+// Defines the version of the mod loader, this should be changed ONLY if the ModFunctionTable is updated in any way
 #ifndef RETRO_MOD_LOADER_VER
 #define RETRO_MOD_LOADER_VER (2)
 #endif
@@ -297,7 +301,7 @@ enum GameRegions {
 #error One of RSDK_USE_DX9, RSDK_USE_DX11, RSDK_USE_SDL2, or RSDK_USE_OGL must be defined.
 #endif
 
-#if !RETRO_AUDIODEVICE_PORT
+#if !RETRO_AUDIODEVICE_MINI
 #if !RSDK_USE_SDL2
 #undef RETRO_AUDIODEVICE_XAUDIO
 #define RETRO_AUDIODEVICE_XAUDIO (1)
@@ -321,8 +325,8 @@ enum GameRegions {
 #elif RETRO_PLATFORM == RETRO_LINUX
 
 #if !RETRO_AUDIODEVICE_SDL2
-#undef RETRO_AUDIODEVICE_PORT
-#define RETRO_AUDIODEVICE_PORT (1)
+#undef RETRO_AUDIODEVICE_MINI
+#define RETRO_AUDIODEVICE_MINI (1)
 #endif
 
 #ifdef RSDK_USE_SDL2
@@ -331,8 +335,8 @@ enum GameRegions {
 #undef RETRO_INPUTDEVICE_SDL2
 #define RETRO_INPUTDEVICE_SDL2 (1)
 
-#undef RETRO_AUDIODEVICE_PORT
-#define RETRO_AUDIODEVICE_PORT (0)
+#undef RETRO_AUDIODEVICE_MINI
+#define RETRO_AUDIODEVICE_MINI (0)
 #undef RETRO_AUDIODEVICE_SDL2
 #define RETRO_AUDIODEVICE_SDL2 (1)
 
@@ -420,6 +424,12 @@ enum GameRegions {
 #include <XAudio2.h>
 #elif RETRO_AUDIODEVICE_PORT
 #include <portaudio.h>
+#elif RETRO_AUDIODEVICE_MINI
+#define MA_NO_DECODING
+#define MA_NO_ENCODING
+#define MA_NO_RESOURCE_MANAGER 
+#define MA_NO_ENGINE
+#include <miniaudio/miniaudio.h>
 #endif
 
 #if RETRO_INPUTDEVICE_XINPUT
@@ -465,6 +475,12 @@ enum GameRegions {
 
 #if RETRO_AUDIODEVICE_PORT
 #include <portaudio.h>
+#elif RETRO_AUDIODEVICE_MINI
+#define MA_NO_DECODING
+#define MA_NO_ENCODING
+#define MA_NO_RESOURCE_MANAGER 
+#define MA_NO_ENGINE
+#include <miniaudio/miniaudio.h>
 #endif
 
 #if RETRO_RENDERDEVICE_GLFW
@@ -649,9 +665,12 @@ void InitEngine();
 void StartGameObjects();
 
 #if RETRO_USE_MOD_LOADER
-void LoadXMLObjects();
-void LoadXMLSoundFX();
-int32 LoadXMLStages(int32 mode, int32 gcListCount, int32 gcStageCount);
+void LoadGameXML(bool pal = false);
+void LoadXMLWindowText(const tinyxml2::XMLElement *gameElement);
+void LoadXMLPalettes(const tinyxml2::XMLElement *gameElement);
+void LoadXMLObjects(const tinyxml2::XMLElement* gameElement);
+void LoadXMLSoundFX(const tinyxml2::XMLElement* gameElement);
+void LoadXMLStages(const tinyxml2::XMLElement* gameElement);
 #endif
 
 void LoadGameConfig();
