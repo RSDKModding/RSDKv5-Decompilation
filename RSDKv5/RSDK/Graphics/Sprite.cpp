@@ -952,6 +952,16 @@ uint16 RSDK::LoadSpriteSheet(const char *filename, uint8 scope)
 
         surface->pixels = NULL;
         AllocateStorage((void **)&surface->pixels, surface->width * surface->height, DATASET_STG, false);
+#if !RETRO_USE_ORIGINAL_CODE
+        // Bug details: On a failed allocation, image.pixels will end up being reallocated in image.Load().
+        // Pixel data would then be loaded in this temporary buffer, but surface->pixels would never point to the actual data.
+        // This issue would only happen on cases where the STG mempool is full, such as ports with lower storage limits
+        // or with mods that use a lot of spritesheets.
+        // As a last resort, let's try a new allocation in TMP for surface->pixels.
+        // NOTE: This is a workaround, and will still cause a crash if the TMP allocation fails as well.
+        if (!surface->pixels)
+            AllocateStorage((void **)&surface->pixels, surface->width * surface->height, DATASET_TMP, false);
+#endif
         image.pixels = surface->pixels;
         image.Load(NULL, false);
 
@@ -991,7 +1001,7 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double fadeSp
         if (image.width == RETRO_VIDEO_TEXTURE_W && image.height == RETRO_VIDEO_TEXTURE_H) {
             RenderDevice::SetupImageTexture(image.width, image.height, image.pixels);
         }
-#if !RETRO_USING_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE
         else {
             PrintLog(PRINT_NORMAL, "ERROR: Images must be 1024x512!");
         }
@@ -1007,10 +1017,7 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double fadeSp
         sceneInfo.state           = ENGINESTATE_SHOWIMAGE;
         engine.imageFadeSpeed     = fadeSpeed / 60.0;
 
-#if RETRO_USE_ORIGINAL_CODE
-        image.palette = NULL;
-#endif
-        image.pixels  = NULL;
+        image.pixels = NULL;
         image.Close();
         return true;
     }
@@ -1019,7 +1026,7 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double fadeSp
         if (image.width == RETRO_VIDEO_TEXTURE_W && image.height == RETRO_VIDEO_TEXTURE_H) {
             RenderDevice::SetupImageTexture(image.width, image.height, image.pixels);
         }
-#if !RETRO_USING_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE
         else {
             PrintLog(PRINT_NORMAL, "ERROR: Images must be 1024x512!");
         }
@@ -1035,19 +1042,13 @@ bool32 RSDK::LoadImage(const char *filename, double displayLength, double fadeSp
         sceneInfo.state           = ENGINESTATE_SHOWIMAGE;
         engine.imageFadeSpeed     = fadeSpeed / 60.0;
 
-#if RETRO_USE_ORIGINAL_CODE
-        image.palette = NULL;
-#endif
-        image.pixels  = NULL;
+        image.pixels = NULL;
         image.Close();
         return true;
     }
 #endif
     else {
-#if RETRO_USE_ORIGINAL_CODE
-        image.palette = NULL;
-#endif
-        image.pixels  = NULL;
+        image.pixels = NULL;
         image.Close();
     }
     return false;

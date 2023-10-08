@@ -238,7 +238,7 @@ inline void SetActiveMod(int32 id) { modSettings.activeMod = id; }
 void InitModAPI(bool32 getVersion = false);
 void UnloadMods();
 void LoadMods(bool newOnly = false, bool32 getVersion = false);
-bool32 LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool32 active, bool32 getVersion = false);
+bool32 LoadMod(ModInfo *info, const std::string& modsPath, const std::string& folder, bool32 active, bool32 getVersion);
 void SaveMods();
 void SortMods();
 void LoadModSettings();
@@ -290,7 +290,7 @@ Object *ModFindObject(const char *name);
 
 void *GetGlobals();
 
-bool32 LoadModInfo(const char *folder, String *name, String *description, String *version, bool32 *active);
+bool32 LoadModInfo(const char *id, String *name, String *description, String *version, bool32 *active);
 void GetModPath(const char *id, String *result);
 int32 GetModCount(bool32 active);
 const char *GetModIDByIndex(uint32 index);
