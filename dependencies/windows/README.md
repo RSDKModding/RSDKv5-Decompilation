@@ -7,7 +7,7 @@
 
 
 * libtheora: https://www.theora.org/downloads/
-  *Build the VS2010 static library (win32/VS2010/libtheora_static.sln)
+  * Build the VS2010 static library (win32/VS2010/libtheora_static.sln)
 
 
 * For the OGL backends, visit the OGL README [here.](../ogl/README.md)
