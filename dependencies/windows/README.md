@@ -6,7 +6,7 @@
   * Build the static library
 
 
-* libtheora: https://www.theora.org/downloads/
+* libtheora: 
   * Build the VS2010 static library (win32/VS2010/libtheora_static.sln)
 
 
