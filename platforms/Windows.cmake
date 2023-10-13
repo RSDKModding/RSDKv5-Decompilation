@@ -1,6 +1,6 @@
 project(RetroEngine)
 
-add_executable(RetroEngine ${RETRO_FILES})
+add_executable(RetroEngine WIN32 ${RETRO_FILES})
 
 set(RETRO_SUBSYSTEM "DX9" CACHE STRING "The subsystem to use")
 option(USE_MINIAUDIO "Whether or not to use MiniAudio or default to XAudio." OFF)
@@ -130,4 +130,3 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 endif()
     
 target_sources(RetroEngine PRIVATE ${RETRO_NAME}/${RETRO_NAME}.rc)
-target_link_options(RetroEngine PRIVATE /subsystem:windows)
