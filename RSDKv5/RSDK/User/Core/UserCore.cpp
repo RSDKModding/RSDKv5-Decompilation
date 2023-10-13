@@ -321,6 +321,7 @@ void RSDK::LoadSettingsINI()
         customSettings.xyButtonFlip              = customSettings.confirmButtonFlip;
         customSettings.enableControllerDebugging = iniparser_getboolean(ini, "Game:enableControllerDebugging", false);
         customSettings.disableFocusPause         = iniparser_getboolean(ini, "Game:disableFocusPause", false);
+        engine.fastForwardSpeed                  = iniparser_getint(ini, "Game:fastForwardSpeed", 8);
 
 #if RETRO_REV0U
         customSettings.forceScripts = iniparser_getboolean(ini, "Game:txtScripts", false);
@@ -605,6 +606,9 @@ void RSDK::SaveSettingsINI(bool32 writeToFile)
 
             WriteText(file, "; Determines if the engine should pause when window focus is lost or not\n");
             WriteText(file, "disableFocusPause=%s\n", (customSettings.disableFocusPause ? "y" : "n"));
+
+            WriteText(file, "; The speed to run the game at while holding backspace. Defaults to x8 speed\n");
+            WriteText(file, "fastForwardSpeed=%d\n", engine.fastForwardSpeed);
 
             if (strcmp(iniparser_getstring(ini, "Game:username", ";unknown;"), ";unknown;") != 0)
                 WriteText(file, "username=%s\n", iniparser_getstring(ini, "Game:username", ""));
