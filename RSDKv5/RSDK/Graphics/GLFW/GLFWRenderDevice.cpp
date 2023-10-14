@@ -761,6 +761,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         vert                   = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vert, 3, glchar, NULL);
         glCompileShader(vert);
+        RemoveStorageEntry((void **)&fileData);
 
         glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
         if (!success) {
@@ -785,6 +786,7 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         frag                   = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(frag, 3, glchar, NULL);
         glCompileShader(frag);
+        RemoveStorageEntry((void **)&fileData);
 
         glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
         if (!success) {
