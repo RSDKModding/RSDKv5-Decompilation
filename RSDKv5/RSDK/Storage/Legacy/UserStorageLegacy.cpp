@@ -132,12 +132,9 @@ void RSDK::Legacy::v4::NotifyCallback(int32 *callback, int32 *param1, int32 *par
         case NOTIFY_BOSS_END: PrintLog(PRINT_NORMAL, "NOTIFY: BossEnd() -> %d", *param1); break;
         case NOTIFY_SPECIAL_END: PrintLog(PRINT_NORMAL, "NOTIFY: SpecialEnd() -> %d", *param1); break;
         case NOTIFY_DEBUGPRINT:
-            // This callback can be called with either CallNativeFunction2 or CallNativeFunction4
-            // todo: find a better way to check for which one was used
-            if (*param2 == 264865096)
-                PrintLog(PRINT_NORMAL, "NOTIFY: DebugPrint() -> %d", *param1);
-            else
-                PrintLog(PRINT_NORMAL, "NOTIFY: DebugPrint() -> %d, %d, %d", *param1, *param2, *param3);
+            // Although there are instances of this being called from both CallNativeFunction2 and CallNativeFunction4 in Origins' scripts, there's no way we can tell which one was used here to handle possible errors
+            // Due to this, we'll only print param1 regardless of the opcode used
+            PrintLog(PRINT_NORMAL, "NOTIFY: DebugPrint() -> %d", *param1);
             break;
         case NOTIFY_KILL_BOSS: PrintLog(PRINT_NORMAL, "NOTIFY: KillBoss() -> %d", *param1); break;
         case NOTIFY_TOUCH_EMERALD: PrintLog(PRINT_NORMAL, "NOTIFY: TouchEmerald() -> %d", *param1); break;
