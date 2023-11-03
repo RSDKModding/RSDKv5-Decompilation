@@ -488,7 +488,7 @@ public:
 
         Handle ret = NULL;
         if (prefix) {
-            int32 last = path.find_last_of('/') + 1;
+            int32 last = (int32)path.find_last_of('/') + 1;
             if (last == std::string::npos + 1)
                 ret = PlatformLoadLibrary(prefix + path);
             else

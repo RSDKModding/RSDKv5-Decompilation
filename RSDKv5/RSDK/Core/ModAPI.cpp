@@ -215,7 +215,7 @@ void RSDK::SortMods()
         }
     }
 
-    std::stable_sort(modList.begin(), modList.end(), [](const ModInfo& a, const ModInfo& b) {
+    std::stable_sort(modList.begin(), modList.end(), [](const ModInfo &a, const ModInfo &b) {
         if (!(a.active && b.active))
             return a.active;
         // keep it unsorted i guess
@@ -428,7 +428,7 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
                     RenderDevice::FlipScreen();
                 }
             }
-        } catch (fs::filesystem_error& fe) {
+        } catch (fs::filesystem_error &fe) {
             PrintLog(PRINT_ERROR, "Mod File Scanning Error: %s", fe.what());
         }
     }
@@ -572,7 +572,7 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
                     }
                 }
             }
-        } catch (fs::filesystem_error& fe) {
+        } catch (fs::filesystem_error &fe) {
             PrintLog(PRINT_ERROR, "Mods folder scanning error: %s", fe.what());
         }
     }
@@ -587,7 +587,7 @@ void RSDK::LoadMods(bool newOnly, bool32 getVersion)
     LoadModSettings();
 }
 
-void loadCfg(ModInfo *info, const std::string& path)
+void loadCfg(ModInfo *info, const std::string &path)
 {
     FileInfo cfg;
     InitFileInfo(&cfg);
@@ -621,7 +621,7 @@ void loadCfg(ModInfo *info, const std::string& path)
     }
 }
 
-bool32 RSDK::LoadMod(ModInfo *info, const std::string& modsPath, const std::string& folder, bool32 active, bool32 getVersion)
+bool32 RSDK::LoadMod(ModInfo *info, const std::string &modsPath, const std::string &folder, bool32 active, bool32 getVersion)
 {
     if (!info)
         return false;
@@ -705,7 +705,7 @@ bool32 RSDK::LoadMod(ModInfo *info, const std::string& modsPath, const std::stri
                 std::string buf;
                 while (std::getline(stream, buf, ',')) {
                     buf = trim(buf);
-                    DrawStatus(("Starting logic" + buf + "...").c_str());
+                    DrawStatus(("Starting logic " + buf + "...").c_str());
                     bool linked = false;
 
                     fs::path file(modDir + "/" + buf);
@@ -771,8 +771,8 @@ bool32 RSDK::LoadMod(ModInfo *info, const std::string& modsPath, const std::stri
 
                 fClose(set);
                 using namespace std;
-                auto modSettingsIni  = iniparser_load((modDir + "/modSettings.ini").c_str());
-                int32 sec = iniparser_getnsec(modSettingsIni);
+                auto modSettingsIni = iniparser_load((modDir + "/modSettings.ini").c_str());
+                int32 sec           = iniparser_getnsec(modSettingsIni);
                 if (sec) {
                     for (int32 i = 0; i < sec; ++i) {
                         const char *secn  = iniparser_getsecname(modSettingsIni, i);
@@ -789,7 +789,8 @@ bool32 RSDK::LoadMod(ModInfo *info, const std::string& modsPath, const std::stri
                 else {
                     // either you use categories or you don't, i don't make the rules
                     map<string, string> secset;
-                    for (int32 j = 0; j < modSettingsIni->n; ++j) secset.insert(pair<string, string>(modSettingsIni->key[j] + 1, modSettingsIni->val[j]));
+                    for (int32 j = 0; j < modSettingsIni->n; ++j)
+                        secset.insert(pair<string, string>(modSettingsIni->key[j] + 1, modSettingsIni->val[j]));
                     info->settings.insert(pair<string, map<string, string>>("", secset));
                 }
                 iniparser_freedict(modSettingsIni);
@@ -838,8 +839,8 @@ bool32 RSDK::LoadMod(ModInfo *info, const std::string& modsPath, const std::stri
                             saveCfg = true;
                             fClose(set);
                             using namespace std;
-                            auto cfgIni  = iniparser_load(file.string().c_str());
-                            int32 sec = iniparser_getnsec(cfgIni);
+                            auto cfgIni = iniparser_load(file.string().c_str());
+                            int32 sec   = iniparser_getnsec(cfgIni);
                             for (int32 i = 0; i < sec; ++i) {
                                 const char *secn  = iniparser_getsecname(cfgIni, i);
                                 int32 len         = iniparser_getsecnkeys(cfgIni, secn);
@@ -1512,7 +1513,7 @@ bool32 RSDK::ForeachSetting(const char *id, String *setting)
 }
 #endif
 
-void SetModSettingsValue(const char *key, const std::string& val)
+void SetModSettingsValue(const char *key, const std::string &val)
 {
     if (!currentMod)
         return;
