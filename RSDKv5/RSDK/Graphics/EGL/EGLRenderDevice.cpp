@@ -164,7 +164,7 @@ bool RenderDevice::SetupRendering()
     }
     ANativeWindow_setBuffersGeometry(window, 0, 0, format);
     SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
-    SwappyGL_setAutoSwapInterval(false);
+    SwappyGL_setMaxAutoSwapIntervalNS(SWAPPY_SWAP_60FPS);
 #endif
 
     surface = eglCreateWindowSurface(display, config, window, nullptr);

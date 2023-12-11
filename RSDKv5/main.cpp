@@ -45,7 +45,7 @@ void android_main(struct android_app *ap)
 
     SwappyGL_init(jni->env, jni->thiz);
     SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
-    SwappyGL_setAutoSwapInterval(false);
+    SwappyGL_setMaxAutoSwapIntervalNS(SWAPPY_SWAP_60FPS);
 
     getFD    = jni->env->GetMethodID(jni->clazz, "getFD", "([BB)I");
     writeLog = jni->env->GetMethodID(jni->clazz, "writeLog", "([BI)V");
