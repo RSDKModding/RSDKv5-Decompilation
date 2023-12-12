@@ -4,6 +4,7 @@
 #endif
 
 #include <set>
+#include <cfloat> // FLT_MAX
 
 // :sob: :sob: :sob:
 #include "BackupShaders.hpp"
