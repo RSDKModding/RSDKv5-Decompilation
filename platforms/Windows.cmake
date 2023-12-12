@@ -90,7 +90,7 @@ elseif(RETRO_SUBSYSTEM STREQUAL "VK")
 
     find_package(Vulkan REQUIRED)
 
-    target_compile_definitions(RetroEngine VULKAN_USE_GLFW=1)
+    target_compile_definitions(RetroEngine PRIVATE VULKAN_USE_GLFW=1)
     target_link_libraries(RetroEngine
         glfw
         Vulkan::Vulkan
