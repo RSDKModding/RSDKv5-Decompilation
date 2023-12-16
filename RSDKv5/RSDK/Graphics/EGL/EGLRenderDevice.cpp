@@ -163,6 +163,7 @@ bool RenderDevice::SetupRendering()
         return true; // lie so we can properly swtup later
     }
     ANativeWindow_setBuffersGeometry(window, 0, 0, format);
+    SwappyGL_setAutoSwapInterval(false);
     SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
     SwappyGL_setMaxAutoSwapIntervalNS(SWAPPY_SWAP_60FPS);
 #endif
