@@ -15,8 +15,8 @@ struct AudioDevice : public AudioDeviceBase, public oboe::AudioStreamDataCallbac
 
     static pthread_mutex_t mutex;
 
-    oboe::DataCallbackResult onAudioReady(oboe::AudioStream *, void *data, int32 len);
-    bool onError(oboe::AudioStream *, oboe::Result error);
+    oboe::DataCallbackResult onAudioReady(oboe::AudioStream *s, void *data, int32 len);
+    void onErrorAfterClose(oboe::AudioStream *s, oboe::Result error);
 
 private:
     static uint8 contextInitialized;
@@ -33,5 +33,8 @@ private:
         LoadStream((ChannelInfo *)channel);
         pthread_exit(NULL);
     };
+
+    static bool createStream();
+    static bool shutdownStream();
 };
 } // namespace RSDK
