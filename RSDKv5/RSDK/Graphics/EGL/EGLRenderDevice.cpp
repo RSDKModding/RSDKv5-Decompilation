@@ -83,8 +83,14 @@ GLuint RenderDevice::VBO;
 GLuint RenderDevice::screenTextures[SCREEN_COUNT];
 GLuint RenderDevice::imageTexture;
 
-double RenderDevice::lastFrame;
-double RenderDevice::targetFreq;
+#if RETRO_PLATFORM == RETRO_ANDROID
+#include <ratio>
+#include <chrono>
+std::chrono::steady_clock::time_point lastFrame;
+// Lock at 60 fps on Android because refresh rate is all over the place
+using FramePeriod = std::chrono::duration<double, std::ratio<1, 60>>;
+FramePeriod targetFreq;
+#endif
 
 int32 RenderDevice::monitorIndex;
 
@@ -583,10 +589,28 @@ void RenderDevice::InitVertexBuffer()
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(RenderVertex) * (!RETRO_REV02 ? 24 : 60), vertBuffer);
 }
 
-void RenderDevice::InitFPSCap() {}
+void RenderDevice::InitFPSCap() {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    lastFrame  = std::chrono::steady_clock::now();
+    targetFreq = FramePeriod{1}; // One frame (1/60Hz)
+#endif
+}
 
-bool RenderDevice::CheckFPSCap() { return true; }
-void RenderDevice::UpdateFPSCap() {}
+bool RenderDevice::CheckFPSCap() {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    if (lastFrame + targetFreq < std::chrono::steady_clock::now())
+        return true;
+
+    return false;
+#else
+    return true; // FPS cap using VSync
+#endif
+}
+void RenderDevice::UpdateFPSCap() {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    lastFrame = std::chrono::steady_clock::now();
+#endif
+}
 
 void RenderDevice::CopyFrameBuffer()
 {

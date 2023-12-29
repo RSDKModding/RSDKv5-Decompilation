@@ -79,9 +79,6 @@ private:
     static GLuint VAO;
     static GLuint VBO;
 
-    static double lastFrame;
-    static double targetFreq;
-
     static uint32 *videoBuffer;
 };
 
