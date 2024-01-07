@@ -65,6 +65,14 @@ endif()
 
 include(platforms/${PLATFORM}.cmake)
 
+# Set C++ standard after including the platform file since they could override mod loader support
+# which relies on C++17. Otherwise the engine is mostly C++11.
+if(RETRO_MOD_LOADER)
+    set_target_properties(RetroEngine PROPERTIES CXX_STANDARD 17)
+else()
+    set_target_properties(RetroEngine PROPERTIES CXX_STANDARD 11)
+endif()
+
 set_target_properties(RetroEngine PROPERTIES OUTPUT_NAME ${RETRO_OUTPUT_NAME})
 
 if(COMPILE_OGG)
