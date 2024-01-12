@@ -132,6 +132,7 @@ RSDK::SKU::InputDeviceGLFW *RSDK::SKU::InitGLFWInputDevice(uint32 id, uint8 cont
     else if (strstr(name, "Nintendo") || strstr(name, "Switch")) {
         controllerType   = DEVICE_SWITCH_PRO;
         device->swapABXY = true;
+        engine.confirmFlip = true;
     }
     else if (strstr(name, "Saturn"))
         controllerType = DEVICE_SATURN;
