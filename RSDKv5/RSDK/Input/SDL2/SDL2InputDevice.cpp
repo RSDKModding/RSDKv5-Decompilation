@@ -212,6 +212,7 @@ RSDK::SKU::InputDeviceSDL *RSDK::SKU::InitSDL2InputDevice(uint32 id, SDL_GameCon
         else if (strstr(name, "Switch") || strstr(name, "Wii U")) {
             controllerType   = DEVICE_SWITCH_PRO;
             device->swapABXY = true;
+            engine.confirmFlip = true;
         }
         else if (strstr(name, "Saturn"))
             controllerType = DEVICE_SATURN;
