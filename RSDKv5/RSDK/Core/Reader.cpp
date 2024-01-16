@@ -241,9 +241,12 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
     strcpy(fullFilePath, filename);
 
 #if RETRO_USE_MOD_LOADER
+    // Fixes ".ani" ".Ani" bug and any other case differences
     char pathLower[0x100];
-    memset(pathLower, 0, sizeof(pathLower));
-    for (int32 c = 0; c < strlen(filename); ++c) pathLower[c] = tolower(filename[c]);
+    memset(pathLower, 0, sizeof(char) * 0x100);
+    for (int32 c = 0; c < strlen(fullFilePath); ++c) {
+        pathLower[c] = tolower(fullFilePath[c]);
+    }
 
     bool32 addPath = false;
     int32 m        = modSettings.activeMod != -1 ? modSettings.activeMod : 0;
@@ -263,7 +266,7 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
         }
         if (modSettings.activeMod != -1) {
             PrintLog(PRINT_NORMAL, "[MOD] Failed to find file %s in active mod %s", filename, modList[m].id.c_str());
-            // TODO return false? check original impl later
+            break; // no one ever checked the original implementation... :pensive:
         }
     }
 
