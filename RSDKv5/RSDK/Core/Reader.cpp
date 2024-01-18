@@ -241,7 +241,12 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
     strcpy(fullFilePath, filename);
 
 #if RETRO_USE_MOD_LOADER
-    // Fixes ".ani" ".Ani" bug and any other case differences
+    // this code is pretty much just v5's but with a little difference
+    // now it uses fullFilePath, instead of using filename for the pathLower stuff
+    // not sure of why the original code was using filename instead of the fullFilePath variable
+    // and considering how most of the code here uses fullFilePath instead of filename, it gets a bit more confusing
+    // but eh, atleast this new code works, and if it works, then that means that it got an "works on my machine" certificate :thumbsup:
+    // also before anyone asks me, nah, the memset code is literally the same but with different words, so nothing to worry in here, atleast for what i think :shrug:
     char pathLower[0x100];
     memset(pathLower, 0, sizeof(char) * 0x100);
     for (int32 c = 0; c < strlen(fullFilePath); ++c) {
@@ -266,7 +271,12 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
         }
         if (modSettings.activeMod != -1) {
             PrintLog(PRINT_NORMAL, "[MOD] Failed to find file %s in active mod %s", filename, modList[m].id.c_str());
-            break; // no one ever checked the original implementation... :pensive:
+            // TODO return false? check original impl later
+            // weirdly enough, the original impl uses a break case here
+            // but according to Mephiles, this just skips all the mods in the mod list?
+            // considering how differently v5 handles the modding API compared to v3 & v4, though
+            // it makes this having sense, but yeah, i'll prob test this code later with other stuff than the break cases
+            // but for now, have only some new comments that explain better what i changed from the og lowercase code from v5
         }
     }
 
