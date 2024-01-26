@@ -90,6 +90,10 @@ bool RenderDevice::Init()
         PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
         return false;
     }
+    if (videoSettings.windowed) {
+        const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        glfwSetWindowPos(window, (mode->width - videoSettings.windowWidth) / 2, (mode->height - videoSettings.windowHeight) / 2);
+    }
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
 
     glfwSetKeyCallback(window, ProcessKeyEvent);
@@ -850,6 +854,10 @@ void RenderDevice::RefreshWindow()
     if (!window) {
         PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
         return;
+    }
+    if (videoSettings.windowed) {
+        const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        glfwSetWindowPos(window, (mode->width - videoSettings.windowWidth) / 2, (mode->height - videoSettings.windowHeight) / 2);
     }
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
 
