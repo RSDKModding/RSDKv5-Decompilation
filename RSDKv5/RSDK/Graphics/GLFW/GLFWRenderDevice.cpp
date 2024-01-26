@@ -93,6 +93,7 @@ GLFWwindow *RenderDevice::CreateGLFWWindow(void)
         glfwGetMonitorPos(monitor, &x, &y);
         glfwSetWindowPos(window, x + (mode->width - videoSettings.windowWidth) / 2, y + (mode->height - videoSettings.windowHeight) / 2);
     }
+    glfwShowWindow(window);
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
 
     glfwSetKeyCallback(window, ProcessKeyEvent);
@@ -110,6 +111,7 @@ bool RenderDevice::Init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _GLVERSION % 10);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     if ((window = CreateGLFWWindow()) == NULL)
         return false;
