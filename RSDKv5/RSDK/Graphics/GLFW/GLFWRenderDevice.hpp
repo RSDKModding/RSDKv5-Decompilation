@@ -70,6 +70,8 @@ private:
 
     static void SetLinear(bool32 linear);
 
+    static GLFWwindow *CreateGLFWWindow(void);
+
     static int32 monitorIndex;
 
     static GLuint VAO;

@@ -55,19 +55,14 @@ int32 RenderDevice::monitorIndex;
 
 uint32 *RenderDevice::videoBuffer;
 
-bool RenderDevice::Init()
+// Creates a window using the video settings
+GLFWwindow *RenderDevice::CreateGLFWWindow(void)
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _GLVERSION / 10);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _GLVERSION % 10);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    if (!videoSettings.bordered)
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-
+    GLFWwindow *win;
     GLFWmonitor *monitor = NULL;
     int32 w, h;
+
+    glfwWindowHint(GLFW_DECORATED, videoSettings.bordered);
 
     if (videoSettings.windowed) {
         w = videoSettings.windowWidth;
@@ -85,18 +80,43 @@ bool RenderDevice::Init()
         h       = videoSettings.fsHeight;
     }
 
-    window = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
-    if (!window) {
+    win = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
+    if (!win) {
         PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
-        return false;
+        return NULL;
     }
+    if (videoSettings.windowed) {
+        // Center the window
+        monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+        int x, y;
+        glfwGetMonitorPos(monitor, &x, &y);
+        glfwSetWindowPos(win, x + (mode->width - videoSettings.windowWidth) / 2, y + (mode->height - videoSettings.windowHeight) / 2);
+    }
+    glfwShowWindow(win);
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
 
-    glfwSetKeyCallback(window, ProcessKeyEvent);
+    glfwSetKeyCallback(win, ProcessKeyEvent);
+    glfwSetMouseButtonCallback(win, ProcessMouseEvent);
+    glfwSetWindowFocusCallback(win, ProcessFocusEvent);
+    glfwSetWindowMaximizeCallback(win, ProcessMaximizeEvent);
+
+    return win;
+}
+
+bool RenderDevice::Init()
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _GLVERSION / 10);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _GLVERSION % 10);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
+    if ((window = CreateGLFWWindow()) == NULL)
+        return false;
+
     glfwSetJoystickCallback(ProcessJoystickEvent);
-    glfwSetMouseButtonCallback(window, ProcessMouseEvent);
-    glfwSetWindowFocusCallback(window, ProcessFocusEvent);
-    glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
 
     if (!SetupRendering() || !AudioDevice::Init())
         return false;
@@ -742,7 +762,6 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         return;
 
     ShaderEntry *shader = &shaderList[shaderCount];
-    shader->linear      = linear;
     sprintf_s(shader->name, sizeof(shader->name), "%s", fileName);
 
     GLint success;
@@ -798,6 +817,8 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     else
         return;
 
+    shader->linear = linear;
+
     shader->programID = glCreateProgram();
     glAttachShader(shader->programID, vert);
     glAttachShader(shader->programID, frag);
@@ -824,39 +845,9 @@ void RenderDevice::RefreshWindow()
     videoSettings.windowState = WINDOWSTATE_UNINITIALIZED;
 
     Release(true);
-    if (!videoSettings.bordered)
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
-    GLFWmonitor *monitor = NULL;
-    int32 w, h;
-
-    if (videoSettings.windowed) {
-        w = videoSettings.windowWidth;
-        h = videoSettings.windowHeight;
-    }
-    else if (videoSettings.fsWidth <= 0 || videoSettings.fsHeight <= 0) {
-        monitor                 = glfwGetPrimaryMonitor();
-        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-        w                       = mode->width;
-        h                       = mode->height;
-    }
-    else {
-        monitor = glfwGetPrimaryMonitor();
-        w       = videoSettings.fsWidth;
-        h       = videoSettings.fsHeight;
-    }
-
-    window = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
-    if (!window) {
-        PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
+    if ((window = CreateGLFWWindow()) == NULL)
         return;
-    }
-    PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
-
-    glfwSetKeyCallback(window, ProcessKeyEvent);
-    glfwSetMouseButtonCallback(window, ProcessMouseEvent);
-    glfwSetWindowFocusCallback(window, ProcessFocusEvent);
-    glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
 
     glfwMakeContextCurrent(window);
 
