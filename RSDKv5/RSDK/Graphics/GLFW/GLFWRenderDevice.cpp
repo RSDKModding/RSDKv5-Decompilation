@@ -56,7 +56,7 @@ int32 RenderDevice::monitorIndex;
 uint32 *RenderDevice::videoBuffer;
 
 // Creates a window using the video settings
-static GLFWwindow *CreateGLFWWindow(void)
+GLFWwindow *RenderDevice::CreateGLFWWindow(void)
 {
     GLFWwindow *window;
     GLFWmonitor *monitor = NULL;
@@ -94,6 +94,12 @@ static GLFWwindow *CreateGLFWWindow(void)
         glfwSetWindowPos(window, x + (mode->width - videoSettings.windowWidth) / 2, y + (mode->height - videoSettings.windowHeight) / 2);
     }
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
+
+    glfwSetKeyCallback(window, ProcessKeyEvent);
+    glfwSetMouseButtonCallback(window, ProcessMouseEvent);
+    glfwSetWindowFocusCallback(window, ProcessFocusEvent);
+    glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
+
     return window;
 }
 
@@ -108,11 +114,7 @@ bool RenderDevice::Init()
     if ((window = CreateGLFWWindow()) == NULL)
         return false;
 
-    glfwSetKeyCallback(window, ProcessKeyEvent);
     glfwSetJoystickCallback(ProcessJoystickEvent);
-    glfwSetMouseButtonCallback(window, ProcessMouseEvent);
-    glfwSetWindowFocusCallback(window, ProcessFocusEvent);
-    glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
 
     if (!SetupRendering() || !AudioDevice::Init())
         return false;
@@ -844,11 +846,6 @@ void RenderDevice::RefreshWindow()
 
     if ((window = CreateGLFWWindow()) == NULL)
         return;
-
-    glfwSetKeyCallback(window, ProcessKeyEvent);
-    glfwSetMouseButtonCallback(window, ProcessMouseEvent);
-    glfwSetWindowFocusCallback(window, ProcessFocusEvent);
-    glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
 
     glfwMakeContextCurrent(window);
 
