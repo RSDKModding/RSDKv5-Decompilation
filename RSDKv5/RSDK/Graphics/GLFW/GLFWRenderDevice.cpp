@@ -742,7 +742,6 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         return;
 
     ShaderEntry *shader = &shaderList[shaderCount];
-    shader->linear      = linear;
     sprintf_s(shader->name, sizeof(shader->name), "%s", fileName);
 
     GLint success;
@@ -797,6 +796,8 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     }
     else
         return;
+
+    shader->linear = linear;
 
     shader->programID = glCreateProgram();
     glAttachShader(shader->programID, vert);
