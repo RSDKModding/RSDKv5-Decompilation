@@ -58,7 +58,7 @@ uint32 *RenderDevice::videoBuffer;
 // Creates a window using the video settings
 GLFWwindow *RenderDevice::CreateGLFWWindow(void)
 {
-    GLFWwindow *window;
+    GLFWwindow *win;
     GLFWmonitor *monitor = NULL;
     int32 w, h;
 
@@ -80,8 +80,8 @@ GLFWwindow *RenderDevice::CreateGLFWWindow(void)
         h       = videoSettings.fsHeight;
     }
 
-    window = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
-    if (!window) {
+    win = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
+    if (!win) {
         PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
         return NULL;
     }
@@ -91,17 +91,17 @@ GLFWwindow *RenderDevice::CreateGLFWWindow(void)
         const GLFWvidmode *mode = glfwGetVideoMode(monitor);
         int x, y;
         glfwGetMonitorPos(monitor, &x, &y);
-        glfwSetWindowPos(window, x + (mode->width - videoSettings.windowWidth) / 2, y + (mode->height - videoSettings.windowHeight) / 2);
+        glfwSetWindowPos(win, x + (mode->width - videoSettings.windowWidth) / 2, y + (mode->height - videoSettings.windowHeight) / 2);
     }
-    glfwShowWindow(window);
+    glfwShowWindow(win);
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
 
-    glfwSetKeyCallback(window, ProcessKeyEvent);
-    glfwSetMouseButtonCallback(window, ProcessMouseEvent);
-    glfwSetWindowFocusCallback(window, ProcessFocusEvent);
-    glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
+    glfwSetKeyCallback(win, ProcessKeyEvent);
+    glfwSetMouseButtonCallback(win, ProcessMouseEvent);
+    glfwSetWindowFocusCallback(win, ProcessFocusEvent);
+    glfwSetWindowMaximizeCallback(win, ProcessMaximizeEvent);
 
-    return window;
+    return win;
 }
 
 bool RenderDevice::Init()
