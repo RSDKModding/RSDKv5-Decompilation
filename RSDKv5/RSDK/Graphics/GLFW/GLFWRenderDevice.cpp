@@ -55,6 +55,7 @@ int32 RenderDevice::monitorIndex;
 
 uint32 *RenderDevice::videoBuffer;
 
+// Creates a window using the video settings
 static GLFWwindow *CreateGLFWWindow(void)
 {
     GLFWwindow *window;
@@ -85,8 +86,12 @@ static GLFWwindow *CreateGLFWWindow(void)
         return NULL;
     }
     if (videoSettings.windowed) {
-        const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        glfwSetWindowPos(window, (mode->width - videoSettings.windowWidth) / 2, (mode->height - videoSettings.windowHeight) / 2);
+        // Center the window
+        monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+        int x, y;
+        glfwGetMonitorPos(monitor, &x, &y);
+        glfwSetWindowPos(window, x + (mode->width - videoSettings.windowWidth) / 2, y + (mode->height - videoSettings.windowHeight) / 2);
     }
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
     return window;
