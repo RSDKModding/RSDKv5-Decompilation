@@ -117,38 +117,28 @@ extern uint32 randSeed;
 inline void SetRandSeed(int32 key) { randSeed = key; }
 inline int32 Rand(int32 min, int32 max)
 {
-    int32 seed1 = 1103515245 * randSeed + 12345;
-    int32 seed2 = 1103515245 * seed1 + 12345;
-    randSeed    = 1103515245 * seed2 + 12345;
-
-    int32 result = ((randSeed >> 16) & 0x7FF) ^ ((((seed1 >> 6) & 0x1FFC00) ^ ((seed2 >> 16) & 0x7FF)) << 10);
-    int32 size   = abs(max - min);
-
-    if (min > max)
-        return (result - result / size * size + max);
-    else if (min < max)
-        return (result - result / size * size + min);
-    else
-        return max;
+    uint32 seed1 = randSeed * 0x41c64e6d + 0x3039;
+    uint32 seed2 = seed1 * 0x41c64e6d + 0x3039;
+    randSeed = seed2 * 0x41c64e6d + 0x3039;
+    int32 res = ((seed1 >> 0x10 & 0x7ff) << 10 ^ seed2 >> 0x10 & 0x7ff) << 10 ^ randSeed >> 0x10 & 0x7ff;
+    if (min < max) {
+        return min + res % (max - min);
+    }
+    return max + res % (min - max);
 }
 inline int32 RandSeeded(int32 min, int32 max, int32 *randSeed)
 {
     if (!randSeed)
         return 0;
 
-    int32 seed1 = 1103515245 * *randSeed + 12345;
-    int32 seed2 = 1103515245 * seed1 + 12345;
-    *randSeed   = 1103515245 * seed2 + 12345;
-
-    int32 result = ((*randSeed >> 16) & 0x7FF) ^ ((((seed1 >> 6) & 0x1FFC00) ^ ((seed2 >> 16) & 0x7FF)) << 10);
-    int32 size   = abs(max - min);
-
-    if (min > max)
-        return (result - result / size * size + max);
-    else if (min < max)
-        return (result - result / size * size + min);
-    else
-        return max;
+    uint32 seed1 = *randSeed * 0x41c64e6d + 0x3039;
+    uint32 seed2 = seed1 * 0x41c64e6d + 0x3039;
+    *randSeed = seed2 * 0x41c64e6d + 0x3039;
+    int32 res = ((seed1 >> 0x10 & 0x7ff) << 10 ^ seed2 >> 0x10 & 0x7ff) << 10 ^ *randSeed >> 0x10 & 0x7ff;
+    if (min < max) {
+        return min + res % (max - min);
+    }
+    return max + res % (min - max);
 }
 
 } // namespace RSDK
