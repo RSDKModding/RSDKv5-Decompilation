@@ -218,6 +218,7 @@ JNIEXPORT jbyteArray JNICALL jnifunc(nativeLoadFile, RSDK, jstring file) {
         env->ReleaseStringUTFChars(file, path);
         return ret;
     }
+    env->ReleaseStringUTFChars(file, path);
     return NULL;
 }
 

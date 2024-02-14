@@ -4,7 +4,9 @@ std::vector<SceneListEntry> listData;
 std::vector<SceneListInfo> listCategory;
 #endif
 
-namespace RSDK::Legacy
+namespace RSDK
+{
+namespace Legacy
 {
 
 #include "v3/RetroEnginev3.cpp"
@@ -43,4 +45,5 @@ void CalculateTrigAnglesM7()
     sinM7LookupTable[0x180] = -0x1000;
 }
 
-} // namespace RSDK::Legacy
+} // namespace Legacy
+} // namespace RSDK

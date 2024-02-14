@@ -36,6 +36,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class LoadingIcon extends AppCompatImageView {
     private RSDK game;
@@ -167,12 +168,14 @@ public class LoadingIcon extends AppCompatImageView {
         spr.frames = new SpriteFrame[reader.getInt()];
 
         int sheetCount = Byte.toUnsignedInt(reader.get());
+        AtomicInteger loaded_sheets = new AtomicInteger(0);
         int start = sheets.size();
 
         for (int i = 0; i < sheetCount; ++i) {
-
-            byte[] data = RSDK.nativeLoadFile("Data/Sprites/" + readString(reader));
+            String path = "Data/Sprites/" + readString(reader);
+            byte[] data = RSDK.nativeLoadFile(path);
             if (data == null) {
+                Log.d("RSDKv5-J", "Couldn't load: " + path);
                 return null;
             }
 
@@ -191,12 +194,12 @@ public class LoadingIcon extends AppCompatImageView {
                                 }
                             }//*/
                             sheets.add(resource);
+                            loaded_sheets.incrementAndGet();
 
                         }
 
                         @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                        }
+                        public void onLoadCleared(@Nullable Drawable placeholder) {}
                     });
         }
 
@@ -236,6 +239,15 @@ public class LoadingIcon extends AppCompatImageView {
 
             // hitboxes, we don't need em
         }
+
+        // Wait for sheets to be fully loaded (not ideal but it prevents races on spritesheets)
+        int loaded_num = loaded_sheets.get();
+        Log.d("RSDKv5-J", "Waiting for sheets to be loaded: " + loaded_num + "/" + sheetCount);
+        while (loaded_num != sheetCount) {
+            loaded_num = loaded_sheets.get();
+        }
+        Log.d("RSDKv5-J", "Sheets loaded successfully");
+
         return spr;
     }
 

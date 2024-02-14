@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.rems.rsdkv5" android:versionCode="100" android:versionName="1.0.0" android:installLocation="auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionCode="100" android:versionName="1.0.0" android:installLocation="auto">
 
     <uses-feature android:glEsVersion="0x00020000"/>
 
@@ -44,7 +45,7 @@
             android:icon="@mipmap/ic_launcher"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
-            android:screenOrientation="userLandscape"
+            android:screenOrientation="sensorLandscape"
             android:configChanges="orientation|keyboardHidden|screenSize"
 
             android:theme="@style/AppTheme">

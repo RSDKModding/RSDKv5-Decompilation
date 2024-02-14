@@ -297,7 +297,7 @@ public class RSDK extends GameActivity {
         List<String> out = new ArrayList<String>();
         for (DocumentFile file : dir.listFiles()) {
             if (file.isDirectory())
-                out.add(path + "/" + file.getName());
+                out.add(new String(path) + "/" + file.getName());
         }
         return out.toArray(new String[0]);
     }

@@ -44,6 +44,7 @@ void android_main(struct android_app *ap)
     Paddleboat_init(jni->env, jni->thiz);
 
     SwappyGL_init(jni->env, jni->thiz);
+    SwappyGL_setAutoSwapInterval(false);
     SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
     SwappyGL_setMaxAutoSwapIntervalNS(SWAPPY_SWAP_60FPS);
 
