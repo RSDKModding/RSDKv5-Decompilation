@@ -26,10 +26,3 @@
 Delete `android/app/build` and try again. This occurs when the path is short enough to build, but too long for a rebuild. 
 ### `make: Interrupt/exception caught (code = 0xc0000005)`
 Your paths are too long. Try renaming the symbolic links to something shorter, or make a symbolic link to RSDKv5 closer to the root of the drive and open the project through there (e.x. C:/RSDKv5/android). *I haven't had either issue since I did this.*
-
-## Known issues
-These issues will not be fixed here as they are minor, but feel free to have a look at them for yourself in a fork!
-
-### Audio device doesn't disconnect properly
-
-The audio callback for the lost stream will continue to fire (AAudioDevice's AudioCallback) so you only end up hearing half on the new stream. All examples I looked at while porting didn't show any issues or workarounds for this. I tried to remedy by checking the stream's pointer, but that didn't fix anything.
