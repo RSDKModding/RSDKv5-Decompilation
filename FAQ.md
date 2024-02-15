@@ -28,3 +28,23 @@ A: There is! You can find RSDKv3 [here](https://github.com/Rubberduckycooly/Soni
 
 ### Q: Are there anymore decompilation projects in the works, such as other RSDK versions?
 A: Absolutely not. This project took about 1 and a half years to do, and between the last two and this one, we're done with decompiling, at least for the time being. Please do not expect any more decompilations from us, Sonic or otherwise!
+
+### Q: Why aren't videos/filters working while using GL?
+A: There's a mod for it that you have to make. Refer to the following directions:
+
+Create the following directory structure inside your mods directory:
+```
+GLShaders/
+| Data/
+| | ...
+| mod.ini
+```
+
+Inside `mods/GLShaders/Data/`, copy the `RSDKv5/Shaders` directory, and inside the `mod.ini`, paste this:
+```
+Name=GLShaders
+Description=GL3 shaders
+Author=Ducky
+Version=1.0.0
+TargetVersion=5
+```

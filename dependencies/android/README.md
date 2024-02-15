@@ -6,6 +6,8 @@
 
 * libtheora: [Download](https://xiph.org/downloads/) and unzip it in `dependencies/android/libtheora`.
 
+## Set up symlinks
+
 * Ensure the symbolic links in `[root]/android/app/jni` are correct: 
   * `RSDKv5` -> root of the RSDKv5 repository
   * `Game` -> root of the Mania repository (or any other game that you may be compiling)
@@ -16,7 +18,7 @@
       * Linux: `ln -s "[path]" "[name-of-symlink]"`
 * Open `[root]/android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 
-The working directory will be at `[sdcard root]/RSDK/v5`. **Please note that GL shaders are required, or you will get a black screen.** Read the Shaders section in [the OGL README](../ogl/README.md#shaders) for a guide on how to install them.
+**Please note that GL shaders are required, or you may get a black screen or crash.** Read [the Shaders question in the FAQ](../../FAQ.md#q-why-arent-videosfilters-working-while-using-gl) for a guide on how to install them.
 
 
 ## Common build issues (Windows)
@@ -30,4 +32,4 @@ These issues will not be fixed here as they are minor, but feel free to have a l
 
 ### Audio device doesn't disconnect properly
 
-The audio callback for the lost stream will continue to fire (AAudioDevice's AudioCallback) so you only end up hearing half on the new stream. All examples I (RMG) looked at while porting didn't show any issues or workarounds for this. I tried to remedy by checking the stream's pointer, but that didn't fix anything.
+The audio callback for the lost stream will continue to fire (AAudioDevice's AudioCallback) so you only end up hearing half on the new stream. All examples I looked at while porting didn't show any issues or workarounds for this. I tried to remedy by checking the stream's pointer, but that didn't fix anything.

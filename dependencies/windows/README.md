@@ -1,5 +1,7 @@
 # Windows
 
+**This document was intended for a now outdated method of building this decompilation and is only left in this repository for reference purposes. It's highly recommended to follow the [CMake guide](./../../README.md#how-to-build) instead.**
+
 ## Installing dependencies 
 
 * libogg: https://xiph.org/downloads/ (libogg)
