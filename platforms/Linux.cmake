@@ -8,6 +8,10 @@ add_executable(RetroEngine ${RETRO_FILES})
 set(RETRO_SUBSYSTEM "OGL" CACHE STRING "The subsystem to use")
 option(USE_SDL_AUDIO "Whether or not to use SDL for audio instead of the default MiniAudio." OFF)
 
+# Some distros like Debian 11 need this to prevent link errors (used by std::thread in Audio devices)
+find_package(Threads REQUIRED)
+target_link_libraries(RetroEngine Threads::Threads)
+
 pkg_check_modules(OGG ogg)
 
 if(NOT OGG_FOUND)
