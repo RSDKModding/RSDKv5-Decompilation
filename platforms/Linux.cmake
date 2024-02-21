@@ -89,10 +89,3 @@ if(NOT RETRO_SUBSYSTEM STREQUAL SDL2)
         target_compile_definitions(RetroEngine PRIVATE RETRO_AUDIODEVICE_SDL2=1)
     endif()
 endif()
-
-if(RETRO_MOD_LOADER)
-    set_target_properties(RetroEngine PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-    )
-endif()

@@ -118,13 +118,6 @@ target_link_libraries(RetroEngine
     comctl32
 )
 
-if(RETRO_MOD_LOADER)
-    set_target_properties(RetroEngine PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-    )
-endif()
-
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(RetroEngine PRIVATE -Wno-microsoft-cast -Wno-microsoft-exception-spec)
 endif()

@@ -54,13 +54,6 @@ elseif(RETRO_SUBSYSTEM STREQUAL "SDL2")
     target_compile_options(RetroEngine PRIVATE ${SDL2_STATIC_CFLAGS})
 endif()
 
-if(RETRO_MOD_LOADER)
-    set_target_properties(RetroEngine PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-    )
-endif()
-
 add_custom_command(TARGET RetroEngine POST_BUILD
     COMMAND ${NX_NACPTOOL_EXE} 
     --create "${RETRO_NAME}" "SEGA, ES, Rubberduckycooly, stxtic" "${DECOMP_VERSION}"
