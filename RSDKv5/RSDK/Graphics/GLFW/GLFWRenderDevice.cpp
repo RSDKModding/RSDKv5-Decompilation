@@ -91,7 +91,12 @@ GLFWwindow *RenderDevice::CreateGLFWWindow(void)
         const GLFWvidmode *mode = glfwGetVideoMode(monitor);
         int x, y;
         glfwGetMonitorPos(monitor, &x, &y);
-        glfwSetWindowPos(win, x + (mode->width - videoSettings.windowWidth) / 2, y + (mode->height - videoSettings.windowHeight) / 2);
+        // Get scaling for HiDPI screens
+        float xscale, yscale;
+        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+        int xpos = x + (mode->width - (int)((float)videoSettings.windowWidth * xscale)) / 2;
+        int ypos = y + (mode->height - (int)((float)videoSettings.windowHeight * yscale)) / 2;
+        glfwSetWindowPos(win, xpos, ypos);
     }
     glfwShowWindow(win);
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
@@ -112,6 +117,11 @@ bool RenderDevice::Init()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE); // HiDPI scaling support
+#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
+    // Disable framebuffer scaling which (surprisingly) makes the framebuffer scale correctly on Wayland
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
+#endif
 
     if ((window = CreateGLFWWindow()) == NULL)
         return false;
