@@ -1430,7 +1430,7 @@ void RenderDevice::FlipScreen()
         imageInfo.sampler = shaderList[videoSettings.shaderID].linear ? samplerLinear : samplerPoint;
     }
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderList[videoSettings.shaderID].shaderPipeline);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderList[videoSettings.shaderSupport ? videoSettings.shaderID : 0].shaderPipeline);
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
     VkBuffer vertexBuffers[] = { vertexBuffer };
