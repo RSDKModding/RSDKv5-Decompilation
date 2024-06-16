@@ -1875,7 +1875,10 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         createInfo.codeSize = info.fileSize;
         createInfo.pCode    = reinterpret_cast<const uint32_t *>(fileData);
 
-        if (vkCreateShaderModule(device, &createInfo, nullptr, &vertModule) != VK_SUCCESS) {
+        VkResult res = vkCreateShaderModule(device, &createInfo, nullptr, &vertModule);
+        RemoveStorageEntry((void **)&fileData);
+
+        if (res != VK_SUCCESS) {
             PrintLog(PRINT_NORMAL, "[VK] Failed to create vertex module for %s", shader->name);
             return;
         }
@@ -1897,7 +1900,10 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         createInfo.codeSize = info.fileSize;
         createInfo.pCode    = reinterpret_cast<const uint32_t *>(fileData);
 
-        if (vkCreateShaderModule(device, &createInfo, nullptr, &fragModule) != VK_SUCCESS) {
+        VkResult res = vkCreateShaderModule(device, &createInfo, nullptr, &fragModule);
+        RemoveStorageEntry((void **)&fileData);
+
+        if (res != VK_SUCCESS) {
             PrintLog(PRINT_NORMAL, "[VK] Failed to create fragment module for %s", shader->name);
             return;
         }
