@@ -26,6 +26,10 @@ layout (binding = 1) uniform RSDKBuffer {
 #define intencity   vec3(1.2, 0.9, 0.9)   // how much to "dim" the screen when simulating a CRT effect
 #define brightness  1.25                    // the brightness multipler of the colors
 
+// In GLSL results are undefined if x < 0 (yet it works fine with OpenGL...).
+// This hack is enough to make the shader work correctly on Vulkan.
+#define pow(x,y) pow(abs(x),(y))
+
 void main()
 {
     vec2 texelPos = (textureSize.xy / pixelSize.xy) * ex_UV.xy;
