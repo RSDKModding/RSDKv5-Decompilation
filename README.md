@@ -5,7 +5,7 @@ A complete decompilation of Retro Engine v5 and v5Ultimate.
 # **SUPPORT THE DEVELOPERS OF THE RETRO ENGINE**
 We do not own the Retro Engine in any way, shape or form, and this project would not have been possible had they not developed RSDKv5(U) in the first place. Retro Engine is currently owned by [Evening Star](https://eveningstar.studio/); we highly urge you to follow & support their projects if you enjoyed this project of ours!
 
-## **DO NOT USE THIS DECOMPILATION PROJECT AS A MEANS TO PIRATE SONIC MANIA OR ANY OTHER RSDKv5(U) GAMES.**
+## **DO NOT USE THIS DECOMPILATION PROJECT AS A MEANS TO PIRATE SONIC MANIA (PLUS) OR ANY OTHER RSDKv5(U) GAMES.**
 We do not condone using this project as a means for piracy in any form. This project was made with love and care for the source material and was created for purely educational purposes.
 
 # Additional Tweaks
@@ -14,7 +14,7 @@ We do not condone using this project as a means for piracy in any form. This pro
 * Added various other backends to windows aside from the usual DirectX 9 backends
 
 ## If you are here for Sonic Mania:
-You have the option of building RSDKv5 alongside Mania in [the Sonic Mania Decompilation repo](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation).
+You have the option of building RSDKv5 alongside Mania in [the Sonic Mania Decompilation repo](https://github.com/RSDKModding/Sonic-Mania-Decompilation).
 
 # How to Build
 
@@ -25,7 +25,7 @@ This project uses [CMake](https://cmake.org/), a versatile building system that 
 In order to clone the repository, you need to install Git, which you can get [here](https://git-scm.com/downloads).
 
 Clone the repo **recursively**, using:
-`git clone --recursive https://github.com/Rubberduckycooly/RSDKv5-Decompilation`
+`git clone --recursive https://github.com/RSDKModding/RSDKv5-Decompilation`
 
 If you've already cloned the repo, run this command inside of the repository:
 ```git submodule update --init```
@@ -48,7 +48,7 @@ Install the following dependencies: then follow the [compilation steps below](#c
 - **apt (Debian/Ubuntu):** `sudo apt install build-essential cmake libglew-dev libglfw3-dev libtheora-dev`
 - **rpm (Fedora):** `sudo dnf install make cmake gcc glew-devel glfw-devel libtheora-devel zlib-devel`
 - **xbps (Void):** `sudo xbps-install make cmake gcc pkg-config glew-devel glfw-devel libtheora-devel zlib-devel`
-- Your favorite package manager here, [make a pull request](https://github.com/Rubberduckycooly/RSDKv5-Decompilation/fork) (also update [Mania](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation)!)
+- Your favorite package manager here, [make a pull request](https://github.com/RSDKModding/RSDKv5-Decompilation/fork) (also update [Mania](https://github.com/RSDKModding/Sonic-Mania-Decompilation)!)
 
 #### (make sure to [install GL shaders!](FAQ.md#q-why-arent-videosfilters-working-while-using-gl))
 
