@@ -460,9 +460,6 @@ void RSDK::SetupFunctionTables()
     ADD_RSDK_FUNCTION(FunctionTable_GetSfx, GetSfx);
     ADD_RSDK_FUNCTION(FunctionTable_PlaySfx, PlaySfx);
     ADD_RSDK_FUNCTION(FunctionTable_StopSfx, StopSfx);
-#if RETRO_REV0U
-    ADD_RSDK_FUNCTION(FunctionTable_StopAllSfx, StopAllSfx);
-#endif
     ADD_RSDK_FUNCTION(FunctionTable_PlayMusic, PlayStream);
     ADD_RSDK_FUNCTION(FunctionTable_SetChannelAttributes, SetChannelAttributes);
     ADD_RSDK_FUNCTION(FunctionTable_StopChannel, StopChannel);
@@ -531,6 +528,7 @@ void RSDK::SetupFunctionTables()
 #if RETRO_REV0U
     ADD_RSDK_FUNCTION(FunctionTable_NotifyCallback, NULL);
     ADD_RSDK_FUNCTION(FunctionTable_SetGameFinished, SetGameFinished);
+    ADD_RSDK_FUNCTION(FunctionTable_StopAllSfx, StopAllSfx);
 #endif
 
 #if RETRO_USE_MOD_LOADER
