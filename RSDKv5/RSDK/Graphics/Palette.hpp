@@ -81,7 +81,7 @@ inline uint16 *GetTintLookupTable() { return tintLookupTable; }
 inline uint16 *GetTintLookupTable() { return tintLookupTable; }
 #endif
 
-inline void CopyPalette(uint8 sourceBank, uint8 srcBankStart, uint8 destinationBank, uint8 destBankStart, uint16 count)
+inline void CopyPalette(uint8 sourceBank, uint8 srcBankStart, uint8 destinationBank, uint8 destBankStart, uint8 count)
 {
     if (sourceBank < PALETTE_BANK_COUNT && destinationBank < PALETTE_BANK_COUNT) {
         for (int32 i = 0; i < count; ++i) {
