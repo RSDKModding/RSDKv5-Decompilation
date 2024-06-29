@@ -27,8 +27,8 @@ void DefaultObject_StageLoad();
 #if RETRO_REV0U
 void DefaultObject_StaticLoad(ObjectDefaultObject *staticVars);
 #endif
-void DefaultObject_EditorDraw();
 void DefaultObject_EditorLoad();
+void DefaultObject_EditorDraw();
 void DefaultObject_Serialize();
 
 // Extra Entity Functions

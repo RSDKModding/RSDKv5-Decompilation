@@ -38,8 +38,8 @@ void DevOutput_StageLoad();
 #if RETRO_REV0U
 void DevOutput_StaticLoad(ObjectDevOutput *staticVars);
 #endif
-void DevOutput_EditorDraw();
 void DevOutput_EditorLoad();
+void DevOutput_EditorDraw();
 void DevOutput_Serialize();
 
 // Extra Entity Functions

@@ -73,9 +73,9 @@ void RSDK::DevOutput_StageLoad() {}
 void RSDK::DevOutput_StaticLoad(ObjectDevOutput *staticVars) { memset(staticVars, 0, sizeof(*staticVars)); }
 #endif
 
-void RSDK::DevOutput_EditorDraw() {}
-
 void RSDK::DevOutput_EditorLoad() {}
+
+void RSDK::DevOutput_EditorDraw() {}
 
 void RSDK::DevOutput_Serialize() {}
 
