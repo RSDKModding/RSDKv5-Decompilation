@@ -528,6 +528,15 @@ void RSDK::DevMenu_MainMenu()
             default: break;
         }
     }
+#if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_REV02
+    else if (SKU::userCore->GetConfirmButtonFlip() ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
+#else
+    else if (SKU::GetConfirmButtonFlip() ? controller[CONT_ANY].keyA.press : controller[CONT_ANY].keyB.press) {
+#endif
+        CloseDevMenu();
+    }
+#endif
 }
 void RSDK::DevMenu_CategorySelectMenu()
 {
