@@ -72,7 +72,7 @@ uint16 RSDK::LoadSpriteAnimation(const char *filePath, uint8 scope)
         for (int32 a = 0; a < spr->animCount; ++a) {
             SpriteAnimationEntry *animation = &spr->animations[a];
             ReadString(&info, textBuffer);
-            GEN_HASH_MD5(textBuffer, animation->hash);
+            GEN_HASH_MD5_BUFFER(textBuffer, animation->hash);
 
             animation->frameCount      = ReadInt16(&info);
             animation->frameListOffset = frameID;

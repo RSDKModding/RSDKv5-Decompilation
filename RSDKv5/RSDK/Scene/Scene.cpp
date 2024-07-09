@@ -190,7 +190,7 @@ void RSDK::LoadSceneFolder()
             ReadString(&info, textBuffer);
 
             RETRO_HASH_MD5(hash);
-            GEN_HASH_MD5(textBuffer, hash);
+            GEN_HASH_MD5_BUFFER(textBuffer, hash);
 
             stageObjectIDs[sceneInfo.classCount] = 0;
             for (int32 id = 0; id < objectClassCount; ++id) {
@@ -372,7 +372,7 @@ void RSDK::LoadSceneAssets()
             (void)visibleInEditor; // unused
 
             ReadString(&info, textBuffer);
-            GEN_HASH_MD5(textBuffer, layer->name);
+            GEN_HASH_MD5_BUFFER(textBuffer, layer->name);
 
             layer->type         = ReadInt8(&info);
             layer->drawGroup[0] = ReadInt8(&info);
