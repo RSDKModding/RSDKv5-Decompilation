@@ -330,10 +330,10 @@ void GetAchievementInfo(uint32 id, String *name, String *description, String *id
 int32 GetAchievementIndexByID(const char *id);
 int32 GetAchievementCount();
 
-void StateMachineRun(void (*state)());
-bool32 HandleRunState_HighPriority(void *state);
-void HandleRunState_LowPriority(void *state, bool32 skipState);
-void RegisterStateHook(void (*state)(), bool32 (*hook)(bool32 skippedState), bool32 priority);
+void StateMachineRun(void (*state)(void));
+bool32 HandleRunState_HighPriority(void (*state)(void));
+void HandleRunState_LowPriority(void (*state)(void), bool32 skipState);
+void RegisterStateHook(void (*state)(void), bool32 (*hook)(bool32 skippedState), bool32 priority);
 
 #if RETRO_MOD_LOADER_VER >= 2
 
