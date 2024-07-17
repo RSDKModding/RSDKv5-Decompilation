@@ -1472,7 +1472,7 @@ void RSDK::Legacy::DrawScaledTintMask(int32 direction, int32 XPos, int32 YPos, i
             int32 w         = width;
             while (w--) {
                 if (*gfxDataPtr > 0)
-                    *frameBufferPtr = tintLookupTable[*gfxDataPtr];
+                    *frameBufferPtr = tintLookupTable[*frameBufferPtr];
                 int32 offsetX = finalscaleX + roundXPos;
                 gfxDataPtr -= offsetX >> 11;
                 gfxPitch += offsetX >> 11;
@@ -1494,7 +1494,7 @@ void RSDK::Legacy::DrawScaledTintMask(int32 direction, int32 XPos, int32 YPos, i
             int32 w         = width;
             while (w--) {
                 if (*gfxData > 0)
-                    *frameBufferPtr = tintLookupTable[*gfxData];
+                    *frameBufferPtr = tintLookupTable[*frameBufferPtr];
                 int32 offsetX = finalscaleX + roundXPos;
                 gfxData += offsetX >> 11;
                 gfxPitch += offsetX >> 11;
