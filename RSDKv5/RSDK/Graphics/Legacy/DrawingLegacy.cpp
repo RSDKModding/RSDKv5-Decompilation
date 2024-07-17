@@ -1397,12 +1397,12 @@ void RSDK::Legacy::DrawTintRectangle(int32 XPos, int32 YPos, int32 width, int32 
         height += YPos;
         YPos = 0;
     }
-    if (width <= 0 || height <= 0)
+    if (width < 0 || height < 0)
         return;
     int32 yOffset = GFX_LINESIZE - width;
     for (uint16 *frameBufferPtr = &currentScreen->frameBuffer[XPos + GFX_LINESIZE * YPos];; frameBufferPtr += yOffset) {
         height--;
-        if (!height)
+        if (height < 0)
             break;
         int32 w = width;
         while (w--) {
@@ -2929,7 +2929,7 @@ void RSDK::Legacy::v4::DrawTexturedFaceBlended(void *v, uint8 sheetID)
 
             uint16 *framebufferPtr = &frameBuffer[startX];
             frameBuffer += GFX_LINESIZE;
-            int32 counter = posDifference + 1;
+            int32 counter = posDifference;
             while (counter--) {
                 if (UPos < 0)
                     UPos = 0;
