@@ -68,7 +68,7 @@ inline uint32 GetPaletteEntryPacked(uint8 bankID, uint8 index)
     return R | G | B;
 }
 
-inline void CopyPalette(uint8 sourcePalette, uint8 srcPaletteStart, uint8 destinationPalette, uint8 destPaletteStart, uint16 count)
+inline void CopyPalette(uint8 sourcePalette, uint8 srcPaletteStart, uint8 destinationPalette, uint8 destPaletteStart, uint8 count)
 {
     if (sourcePalette < LEGACY_PALETTE_COUNT && destinationPalette < LEGACY_PALETTE_COUNT) {
         for (int32 i = 0; i < count; ++i) {
