@@ -261,7 +261,7 @@ bool32 RSDK::CheckObjectCollisionTouch(Entity *thisEntity, Hitbox *thisHitbox, E
 #if !RETRO_USE_ORIGINAL_CODE
     if (showHitboxes) {
         int32 thisHitboxID  = RSDK::AddDebugHitbox(H_TYPE_TOUCH, thisEntity->direction, thisEntity, thisHitbox);
-        int32 otherHitboxID = RSDK::AddDebugHitbox(H_TYPE_TOUCH, thisEntity->direction, otherEntity, otherHitbox);
+        int32 otherHitboxID = RSDK::AddDebugHitbox(H_TYPE_TOUCH, otherEntity->direction, otherEntity, otherHitbox);
 
         if (thisHitboxID >= 0 && collided)
             debugHitboxList[thisHitboxID].collision |= 1 << (collided - 1);
