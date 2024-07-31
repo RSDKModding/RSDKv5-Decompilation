@@ -17,9 +17,5 @@ struct DummyAchievements : UserAchievements {
     void RemoveLastAchievementID();
 #endif
     void TryUnlockAchievement(AchievementID *id);
-
-#if RETRO_VER_EGS
-
-#endif
 };
 #endif

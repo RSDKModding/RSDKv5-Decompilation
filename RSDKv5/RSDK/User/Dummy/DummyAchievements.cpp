@@ -49,7 +49,9 @@ String *DummyAchievements::GetAchievementString(String *string)
 }
 String *DummyAchievements::GetAchievementName(String *name, uint32 id)
 {
+#if !RETRO_VER_EGS
     id--;
+#endif
     if (id <= achievementList.size())
         InitString(name, achievementList[id].name.c_str(), 0);
     return name;
