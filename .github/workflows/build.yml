@@ -8,92 +8,92 @@ on: workflow_dispatch
 #     branches:
 #       - master
 
-# TODO: readd with: submodules: recursive once we can
+env:
+  GENERAL_FLAGS: "-DRETRO_DISABLE_PLUS=ON -DCMAKE_BUILD_TYPE=Release"
+  V5_FLAGS: "-DRETRO_REVISION=2"
+  V5U_FLAGS: "-DRETRO_REVISION=3"
+  # Normally you would use $VCPKG_INSTALLATION_PATH, but it's broken...so hardcode C:/vcpkg
+  GENERAL_WIN_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+  WIN32_FLAGS: "-DVCPKG_TARGET_TRIPLET=x86-windows-static -A Win32"
+  WIN64_FLAGS: "-DVCPKG_TARGET_TRIPLET=x64-windows-static"
+  # FIXME: For some reason ubuntu enables _FORTIFY_SOURCE by default, so let's override it to prevent IO bugs
+  GENERAL_LINUX_FLAGS: "-DCMAKE_CXX_FLAGS='-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0'"
 
 jobs:
   v5-windows:
-    runs-on: windows-2022
-    defaults:
-      run:
-        shell: msys2 {0}
+    runs-on: windows-latest
     steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW32
-          update: true
-          install: pkg-config make git mingw-w64-i686-gcc mingw-w64-i686-libogg mingw-w64-i686-libtheora
+      - name: Install dependencies
+        run: vcpkg install libtheora libogg --triplet=x86-windows-static
       - name: Build RSDKv5 + U
         run: |
-          make -j8 RSDK_ONLY=1 AUTOBUILD=1
-          make -j8 clean-rsdk
-          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
+          cmake -B build_v5 ${{env.GENERAL_FLAGS}} ${{env.GENERAL_WIN_FLAGS}} ${{env.WIN32_FLAGS}} ${{env.V5_FLAGS}}
+          cmake --build build_v5 --parallel --config Release
+          cmake -B build_v5U ${{env.GENERAL_FLAGS}} ${{env.GENERAL_WIN_FLAGS}} ${{env.WIN32_FLAGS}} ${{env.V5U_FLAGS}}
+          cmake --build build_v5U --parallel --config Release
       - name: Move artifacts
         run: |
           mkdir artifacts
-          mv ./bin/Windows/DX9/*.exe ./artifacts
+          mv ./build_*/Release/*.exe ./artifacts
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: v5-windows
           path: artifacts
   v5-windows-x64:
-    runs-on: windows-2022
-    defaults:
-      run:
-        shell: msys2 {0}
+    runs-on: windows-latest
     steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: pkg-config make git mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libtheora
+      - name: Install dependencies
+        run: vcpkg install libtheora libogg --triplet=x64-windows-static
       - name: Build RSDKv5 + U
         run: |
-          make -j8 RSDK_ONLY=1 AUTOBUILD=1
-          make -j8 clean-rsdk
-          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
+          cmake -B build_v5 ${{env.GENERAL_FLAGS}} ${{env.GENERAL_WIN_FLAGS}} ${{env.WIN64_FLAGS}} ${{env.V5_FLAGS}}
+          cmake --build build_v5 --parallel --config Release
+          cmake -B build_v5U ${{env.GENERAL_FLAGS}} ${{env.GENERAL_WIN_FLAGS}} ${{env.WIN64_FLAGS}} ${{env.V5U_FLAGS}}
+          cmake --build build_v5U --parallel --config Release
       - name: Move artifacts
         run: |
           mkdir artifacts
-          mv ./bin/Windows/DX9/*.exe ./artifacts
+          mv ./build_*/Release/*.exe ./artifacts
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: v5-windows-x64
           path: artifacts
   v5-linux:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libsdl2-dev libtheora-dev libglew-dev libglfw3-dev
+          sudo apt-get install libogg-dev libtheora-dev libglew-dev libglfw3-dev
       - name: Build RSDKv5 + U OGL
         run: |
-          make -j8 RSDK_ONLY=1 AUTOBUILD=1
-          make -j8 clean-rsdk
-          make -j8 RSDK_ONLY=1 RSDK_REVISION=3 AUTOBUILD=1
-      - name: Build RSDKv5 + U SDL2
+          cmake -B build_v5 ${{env.GENERAL_FLAGS}} ${{env.GENERAL_LINUX_FLAGS}} ${{env.V5_FLAGS}}
+          cmake --build build_v5 --parallel
+          cmake -B build_v5U ${{env.GENERAL_FLAGS}} ${{env.GENERAL_LINUX_FLAGS}} ${{env.V5U_FLAGS}}
+          cmake --build build_v5U --parallel
+      # tar the executables so that they don't lose exec permissions
+      # see: https://github.com/actions/upload-artifact?tab=readme-ov-file#permission-loss
+      - name: Move artifacts
         run: |
-          make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 AUTOBUILD=1
-          make -j8 clean-rsdk
-          make -j8 RSDK_ONLY=1 SUBSYSTEM=SDL2 RSDK_REVISION=3 AUTOBUILD=1
+          mkdir artifacts
+          mv ./build_*/RSDKv5* ./artifacts
+          tar -czvf linux.tar.gz -C ./artifacts .
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: v5-linux
-          path: bin/Linux
+          path: linux.tar.gz
