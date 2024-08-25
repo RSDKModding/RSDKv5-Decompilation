@@ -672,7 +672,7 @@ void RSDK::InitEngine()
 
             Legacy::v4::LoadGameConfig("Data/Game/GameConfig.bin");
             if (!useDataPack)
-                strcat(gameVerInfo.gameTitle, " (Data Folder)");
+                strcat(gameVerInfo.gameTitle, " (Using Data Folder)");
             strcpy(gameVerInfo.version, "Legacy v4 Mode");
 
             RSDK::GenerateBlendLookupTable();
@@ -713,7 +713,7 @@ void RSDK::InitEngine()
 
             Legacy::v3::LoadGameConfig("Data/Game/GameConfig.bin");
             if (!useDataPack)
-                strcat(gameVerInfo.gameTitle, " (Data Folder)");
+                strcat(gameVerInfo.gameTitle, " (Using Data Folder)");
             strcpy(gameVerInfo.version, "Legacy v3 Mode");
 
             RSDK::GenerateBlendLookupTable();
