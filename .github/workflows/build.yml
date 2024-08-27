@@ -97,3 +97,80 @@ jobs:
         with:
           name: v5-linux
           path: linux.tar.gz
+  v5-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout RSDKv5
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Checkout Sonic Mania
+        uses: actions/checkout@v4
+        with:
+          repository: "RSDKModding/Sonic-Mania-Decompilation"
+          path: "Sonic-Mania-Decompilation"
+      - name: Checkout Example-Mods
+        uses: actions/checkout@v4
+        with:
+          repository: "RSDKModding/RSDKv5-Example-Mods"
+          path: "RSDKv5-Example-Mods"
+      - name: Checkout GameAPI
+        uses: actions/checkout@v4
+        with:
+          repository: "RSDKModding/RSDKv5-GameAPI"
+          path: "RSDKv5-GameAPI"
+      - name: Setup RSDKv5 dependencies
+        working-directory: ./dependencies/android
+        run: |
+          curl -L -O https://downloads.xiph.org/releases/ogg/libogg-1.3.5.zip
+          curl -L -O https://downloads.xiph.org/releases/theora/libtheora-1.1.1.zip
+          unzip \*.zip
+          rm *.zip
+          rsync -ar libogg-*/* libogg
+          mv libtheora-* libtheora
+      - name: Setup RSDKv5 & mods symlinks
+        run: |
+          rm Game
+          rmdir $PWD/Sonic-Mania-Decompilation/dependencies/RSDKv5
+          ln -s $PWD $PWD/Sonic-Mania-Decompilation/dependencies/RSDKv5
+          ln -s $PWD/RSDKv5-GameAPI RSDKv5-Example-Mods/ManiaTouchControls/GameAPI
+          ln -s $PWD/RSDKv5-GameAPI RSDKv5-Example-Mods/UltrawideMania/GameAPI
+          ln -s $PWD/Sonic-Mania-Decompilation ./android/app/jni/Game
+          ln -s $PWD/RSDKv5-GameAPI ./android/app/jni/GameAPI
+          ln -s $PWD/RSDKv5-Example-Mods/ManiaTouchControls ./android/app/jni/MTC
+          ln -s $PWD/RSDKv5-Example-Mods/UltrawideMania ./android/app/jni/UWM
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Build Mania+RSDKv5 Android
+        working-directory: ./android
+        run: |
+          ./gradlew assemble --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a" -PRETRO_DISABLE_PLUS -PRETRO_REVISION=3
+          mv app/build/outputs/apk/release/*.apk rsdkv5u_mania.apk
+          ./gradlew clean
+          ./gradlew  assemble --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a" -PRETRO_DISABLE_PLUS -PRETRO_REVISION=2
+          mv app/build/outputs/apk/release/*.apk rsdkv5_mania.apk
+      - name: Bundle APK & mods
+        run: |
+          mkdir -p artifacts/mods
+          cp -r android/*.apk artifacts
+          mkdir -p artifacts/mods/MTC
+          cp -r android/app/jni/MTC/build/* artifacts/mods/MTC
+          mkdir -p artifacts/mods/UWM
+          cp -r android/app/jni/UWM/build/* artifacts/mods/UWM
+          mkdir -p artifacts/mods/GLShaders/Data/Shaders
+          cp -r RSDKv5/Shaders/OGL artifacts/mods/GLShaders/Data/Shaders
+          printf "Name=GLShaders\nDescription=OGLShaders\nAuthor=Ducky\nVersion=1.0.0\nTargetVersion=5\n" > artifacts/mods/GLShaders/mod.ini
+          printf "[Mods]\nMTC=y\nUWM=y\nGLShaders=y\n" > artifacts/mods/modconfig.ini
+      # HACK: Remove RSDKv5 symlink in Mania to prevent warning in post checkout cleanup
+      - name: Cleanup
+        run: rm $PWD/Sonic-Mania-Decompilation/dependencies/RSDKv5
+      - name: Upload artifact Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: v5-android
+          path: artifacts

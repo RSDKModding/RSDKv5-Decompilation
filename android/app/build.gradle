@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+def autobuildFlag = false
+def retroRevision = 3
+
 android {
     ndkVersion "24.0.8215888"
     compileSdkVersion 33
@@ -9,12 +12,16 @@ android {
     defaultConfig {
         applicationId "org.rems.rsdkv5"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 100
         versionName "1.0.0"
+        if(project.hasProperty("RETRO_DISABLE_PLUS"))
+            autobuildFlag = true
+        if(project.hasProperty("RETRO_REVISION"))
+            retroRevision = project.property("RETRO_REVISION")
         externalNativeBuild {
             cmake {
-                arguments = ["-DANDROID_STL=c++_shared", "-DPLATFORM=Android"]
+                arguments = ["-DANDROID_STL=c++_shared", "-DPLATFORM=Android", "-DRETRO_DISABLE_PLUS=$autobuildFlag", "-DRETRO_REVISION=$retroRevision"]
             }
         }
         ndk {
@@ -22,10 +29,20 @@ android {
             abiFilters.addAll(ABIFILTERS.split(';').collect{it as String})
         }
     }
+    signingConfigs {
+        release {
+            storeFile file("../release-key.jks")
+            storePassword "retroengine"
+            keyAlias "key0"
+            keyPassword "retroengine"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt')
+            signingConfig signingConfigs.release
         }
     }
     namespace 'org.rems.rsdkv5'

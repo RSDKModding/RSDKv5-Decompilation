@@ -42,6 +42,7 @@
         </activity>
 
         <activity android:name=".RSDK"
+            android:exported="true" 
             android:icon="@mipmap/ic_launcher"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
