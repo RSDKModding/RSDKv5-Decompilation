@@ -79,11 +79,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "RSDKv5U By Evening Star, Decompilation By Rubberduckycooly/RMGRich"
             VALUE "FileDescription", "RSDKv5U"
-            VALUE "FileVersion", "1.0.0"
+            VALUE "FileVersion", "1.1.0"
             VALUE "InternalName", "RSDKv5U.exe"
             VALUE "OriginalFilename", "RSDKv5U.exe"
             VALUE "ProductName", "RSDKv5U"
-            VALUE "ProductVersion", "1.0.0"
+            VALUE "ProductVersion", "1.1.0"
         END
     END
     BLOCK "VarFileInfo"
