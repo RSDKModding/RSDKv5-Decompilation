@@ -138,8 +138,9 @@ bool RenderDevice::Init()
 bool RenderDevice::SetupRendering()
 {
     glfwMakeContextCurrent(window);
-    GLenum err;
-    if ((err = glewInit()) != GLEW_OK) {
+    GLenum err = glewInit();
+    // Wayland workaround, see https://github.com/nigels-com/glew/issues/172
+    if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY) {
         PrintLog(PRINT_NORMAL, "ERROR: failed to initialize GLEW: %s", glewGetErrorString(err));
         return false;
     }
