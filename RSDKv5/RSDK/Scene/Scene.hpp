@@ -259,14 +259,14 @@ inline int32 GetTileAngle(uint16 tile, uint8 cPlane, uint8 cMode)
         case CMODE_RWALL: return tileInfo[cPlane & 1][tile & 0xFFF].rWallAngle;
     }
 }
-inline void SetTileAngle(uint16 tile, uint8 cPlane, uint8 cMode, int32 angle)
+inline void SetTileAngle(uint16 tile, uint8 cPlane, uint8 cMode, uint8 angle)
 {
     switch (cMode) {
         default: break;
-        case CMODE_FLOOR: tileInfo[cPlane & 1][tile & 0xFFF].floorAngle = angle; break;
-        case CMODE_LWALL: tileInfo[cPlane & 1][tile & 0xFFF].lWallAngle = angle; break;
-        case CMODE_ROOF: tileInfo[cPlane & 1][tile & 0xFFF].roofAngle = angle; break;
-        case CMODE_RWALL: tileInfo[cPlane & 1][tile & 0xFFF].rWallAngle = angle; break;
+        case CMODE_FLOOR: tileInfo[cPlane & 1][tile & 0x3FF].floorAngle = angle; break;
+        case CMODE_LWALL: tileInfo[cPlane & 1][tile & 0x3FF].lWallAngle = angle; break;
+        case CMODE_ROOF: tileInfo[cPlane & 1][tile & 0x3FF].roofAngle = angle; break;
+        case CMODE_RWALL: tileInfo[cPlane & 1][tile & 0x3FF].rWallAngle = angle; break;
     }
 }
 
