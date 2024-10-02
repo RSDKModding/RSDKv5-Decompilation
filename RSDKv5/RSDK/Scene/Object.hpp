@@ -92,7 +92,7 @@ enum DefaultObjects {
 };
 
 struct Object {
-    int16 classID;
+    uint16 classID;
     uint8 active;
 };
 
