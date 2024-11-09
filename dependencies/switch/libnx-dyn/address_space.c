@@ -1,4 +1,6 @@
 #include <address_space.h>
+#include <string.h>
+#include <stdlib.h>
 #define RESULT_OK 0
 #define ARRAY_LENGTH(a) sizeof((a))/sizeof((a)[0])
 
@@ -114,7 +116,7 @@ void *as_reserve(size_t len) {
 			continue;
 		}
 		
-		if((r = svcQueryMemory(&memory_info, &page_info, (void*) addr)) != RESULT_OK) {
+		if((r = svcQueryMemory(&memory_info, &page_info, addr)) != RESULT_OK) {
 			goto fail_mutex;
 		}
 	} while(memory_info.type != 0 || memory_info.attr != 0 || memory_info.perm != 0 || (uint64_t) memory_info.addr + memory_info.size < addr + len);

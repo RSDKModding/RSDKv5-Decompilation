@@ -154,7 +154,7 @@ static Result _dynLoad_elf(const char *path, DynModule *mod)
 
         for (uint64_t i = 0; i < data->num_segments; i++) {
             Dyn_Elf64_Seg *seg = &data->segments[i];
-            if (R_FAILED(res = svcMapProcessCodeMemory(ownHandle, seg->dst, seg->src, seg->size))) {
+            if (R_FAILED(res = svcMapProcessCodeMemory(ownHandle, (uint64_t)seg->dst, (uint64_t)seg->src, seg->size))) {
                 res = 0;
                 /*for (uint64_t j = 0; j < i; j++) {
                     svcUnmapProcessCodeMemory(ownHandle, seg->dst, seg->src, seg->size);
@@ -246,10 +246,10 @@ static Result _dynLoad_nrovsc(const char *path, DynModule *mod)
             res = ldrRoLoadNro(&nro_addr, (u64)nro, filesz, (u64)bss, bss_sz);
 
         if ((res == 0)) {
-            mod->input.nro  = nro;
+            mod->input.nro  = (void*)nro;
             mod->input.nrr  = nrr;
             mod->input.bss  = bss;
-            mod->input.base = nro_addr;
+            mod->input.base = (void*)nro_addr;
         }
     }
     return res;
@@ -276,15 +276,15 @@ static Result _dynScan(DynModule *mod)
     if (mod_header->magic != MOD0_MAGIC)
         return MAKERESULT(Module_LibnxDyn, LibnxDynError_InvalidInputNro);
 
-    Result r = dynElfFindOffset(dynamic, DT_HASH, &mod->hash, module_base);
+    Result r = dynElfFindOffset(dynamic, DT_HASH, (void**)&mod->hash, module_base);
     if ((r != 0) && (r != MAKERESULT(Module_LibnxDyn, LibnxDynError_MissingDtEntry)))
         return r;
 
-    r = dynElfFindOffset(dynamic, DT_STRTAB, &mod->strtab, module_base);
+    r = dynElfFindOffset(dynamic, DT_STRTAB, (void**)&mod->strtab, module_base);
     if ((r != 0) && (r != MAKERESULT(Module_LibnxDyn, LibnxDynError_MissingDtEntry)))
         return r;
 
-    r = dynElfFindOffset(mod->dynamic, DT_SYMTAB, &mod->symtab, module_base);
+    r = dynElfFindOffset(mod->dynamic, DT_SYMTAB, (void**)&mod->symtab, module_base);
     if ((r != 0) && (r != MAKERESULT(Module_LibnxDyn, LibnxDynError_MissingDtEntry)))
         return r;
 
@@ -652,7 +652,7 @@ static Result _dynUnload(DynModule *mod)
             Dyn_Elf64_Data *data = mod->input.loader_data;
             for (uint64_t i = 0; i < data->num_segments; i++) {
                 Dyn_Elf64_Seg *seg = &data->segments[i];
-                svcUnmapProcessCodeMemory(ownHandle, seg->dst, seg->src, seg->size);
+                svcUnmapProcessCodeMemory(ownHandle, (uint64_t)seg->dst, (uint64_t)seg->src, seg->size);
                 if (seg->clone) {
                     free(seg->clone);
                 }
