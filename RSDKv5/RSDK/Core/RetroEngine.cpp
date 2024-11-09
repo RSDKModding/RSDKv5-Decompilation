@@ -1155,7 +1155,7 @@ void RSDK::LoadGameConfig()
                     scene->filter = 0xFF;
 #endif
             }
-            category->sceneOffsetEnd = category->sceneOffsetStart + category->sceneCount;
+            category->sceneOffsetEnd = category->sceneCount ? category->sceneOffsetStart + category->sceneCount - 1 : 0;
             sceneID += category->sceneCount;
         }
 

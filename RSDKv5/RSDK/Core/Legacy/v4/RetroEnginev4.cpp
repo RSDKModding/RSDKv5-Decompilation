@@ -161,7 +161,7 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
                 ReadInt8(&info);
             }
 
-            category->sceneOffsetEnd = category->sceneOffsetStart + category->sceneCount;
+            category->sceneOffsetEnd = category->sceneOffsetStart + category->sceneCount - 1;
             sceneID += category->sceneCount;
         }
 
