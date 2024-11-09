@@ -861,8 +861,9 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                 case SDL_SCANCODE_F1:
                     if (engine.devMenu) {
                         sceneInfo.listPos--;
-                        if (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart
-                            || sceneInfo.listPos >= sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd) {
+                        while (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart
+                            || sceneInfo.listPos > sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd
+                            || !sceneInfo.listCategory[sceneInfo.activeCategory].sceneCount) {
                             sceneInfo.activeCategory--;
                             if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
                                 sceneInfo.activeCategory = sceneInfo.categoryCount - 1;
@@ -886,7 +887,9 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                 case SDL_SCANCODE_F2:
                     if (engine.devMenu) {
                         sceneInfo.listPos++;
-                        if (sceneInfo.listPos >= sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd || sceneInfo.listPos == 0) {
+                        while (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart
+                            || sceneInfo.listPos > sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd
+                            || !sceneInfo.listCategory[sceneInfo.activeCategory].sceneCount) {
                             sceneInfo.activeCategory++;
                             if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
                                 sceneInfo.activeCategory = 0;
