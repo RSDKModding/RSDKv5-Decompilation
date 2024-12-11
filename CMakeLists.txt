@@ -151,14 +151,14 @@ endif()
 target_compile_definitions(RetroEngine PRIVATE
     RETRO_REVISION=${RETRO_REVISION}
     RSDK_USE_${RETRO_SUBSYSTEM}=1
-    
+
     RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
     RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
 
     RETRO_STANDALONE=$<NOT:$<BOOL:${GAME_STATIC}>>
-    
+
     RSDK_AUTOBUILD=$<BOOL:${RETRO_DISABLE_PLUS}>
-    
+
     RETRO_DEV_EXTRA="${PLATFORM} - ${RETRO_SUBSYSTEM} - ${CMAKE_CXX_COMPILER_ID}"
     DECOMP_VERSION="${DECOMP_VERSION}"
 )
@@ -190,16 +190,16 @@ if(WITH_RSDK)
     if (GAME_TYPE STREQUAL "1") # Sonic Mania
         target_compile_definitions(${GAME_NAME} PRIVATE
             RETRO_REVISION=${RETRO_REVISION}
-	    
+
             RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
             RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
-        
+
             GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
             GAME_VERSION=${GAME_VERSION}
-	    
+
             MANIA_PREPLUS=$<BOOL:${MANIA_PREPLUS}>
             MANIA_FIRST_RELEASE=$<BOOL:${MANIA_FIRST_RELEASE}>
-	    
+
             GAME_TYPE=${GAME_TYPE}
             GAME_NO_GLOBALS=$<BOOL:${GAME_NO_GLOBALS}>
             GAME_NO_VARIABLES=$<BOOL:${GAME_NO_VARIABLES}>
@@ -208,16 +208,16 @@ if(WITH_RSDK)
     elseif(GAME_TYPE STREQUAL "2") # Sonic 3 & Knuckles
         target_compile_definitions(${GAME_NAME} PRIVATE
             RETRO_REVISION=${RETRO_REVISION}
-	    
+
             RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
             RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
-        
+
             GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
             GAME_VERSION=${GAME_VERSION}
-	    
+
             ORIGINS_PREPLUS=$<BOOL:${ORIGINS_PREPLUS}>
             ORIGINS_FIRST_RELEASE=$<BOOL:${ORIGINS_FIRST_RELEASE}>
-	    
+
             GAME_TYPE=${GAME_TYPE}
             GAME_NO_GLOBALS=$<BOOL:${GAME_NO_GLOBALS}>
             GAME_NO_VARIABLES=$<BOOL:${GAME_NO_VARIABLES}>
@@ -226,13 +226,13 @@ if(WITH_RSDK)
     else() # None Gametype
         target_compile_definitions(${GAME_NAME} PRIVATE
             RETRO_REVISION=${RETRO_REVISION}
-	    
+
             RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
             RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
-        
+
             GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
             GAME_VERSION=${GAME_VERSION}
-	    
+
             GAME_TYPE=${GAME_TYPE}
             GAME_NO_GLOBALS=$<BOOL:${GAME_NO_GLOBALS}>
             GAME_NO_VARIABLES=$<BOOL:${GAME_NO_VARIABLES}>
