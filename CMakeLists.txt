@@ -171,16 +171,72 @@ if(WITH_RSDK)
             $<TARGET_FILE_DIR:RetroEngine>)
     endif()
 
-    target_compile_definitions(${GAME_NAME} PRIVATE
-        RETRO_REVISION=${RETRO_REVISION}
+    if(NOT DEFINED GAME_TYPE)
+        set(GAME_TYPE 1)
+    endif()
 
-        RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
-        RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
-    
-        GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
+    if(NOT DEFINED GAME_NO_GLOBALS)
+        set(GAME_NO_GLOBALS OFF)
+    endif()
 
-        MANIA_PREPLUS=$<BOOL:${MANIA_PREPLUS}>
-        MANIA_FIRST_RELEASE=$<BOOL:${MANIA_FIRST_RELEASE}>
-        GAME_VERSION=${GAME_VERSION}
-    )
+    if(NOT DEFINED GAME_NO_VARIABLES)
+        set(GAME_NO_VARIABLES OFF)
+    endif()
+
+    if(NOT DEFINED GAME_CUSTOMLINKLOGIC)
+        set(GAME_CUSTOMLINKLOGIC OFF)
+    endif()
+
+    if (GAME_TYPE STREQUAL "1") # Sonic Mania
+        target_compile_definitions(${GAME_NAME} PRIVATE
+            RETRO_REVISION=${RETRO_REVISION}
+	    
+            RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
+            RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
+        
+            GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
+            GAME_VERSION=${GAME_VERSION}
+	    
+            MANIA_PREPLUS=$<BOOL:${MANIA_PREPLUS}>
+            MANIA_FIRST_RELEASE=$<BOOL:${MANIA_FIRST_RELEASE}>
+	    
+            GAME_TYPE=${GAME_TYPE}
+            GAME_NO_GLOBALS=$<BOOL:${GAME_NO_GLOBALS}>
+            GAME_NO_VARIABLES=$<BOOL:${GAME_NO_VARIABLES}>
+            GAME_CUSTOMLINKLOGIC=$<BOOL:${GAME_CUSTOMLINKLOGIC}>
+        )
+    elseif(GAME_TYPE STREQUAL "2") # Sonic 3 & Knuckles
+        target_compile_definitions(${GAME_NAME} PRIVATE
+            RETRO_REVISION=${RETRO_REVISION}
+	    
+            RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
+            RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
+        
+            GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
+            GAME_VERSION=${GAME_VERSION}
+	    
+            ORIGINS_PREPLUS=$<BOOL:${ORIGINS_PREPLUS}>
+            ORIGINS_FIRST_RELEASE=$<BOOL:${ORIGINS_FIRST_RELEASE}>
+	    
+            GAME_TYPE=${GAME_TYPE}
+            GAME_NO_GLOBALS=$<BOOL:${GAME_NO_GLOBALS}>
+            GAME_NO_VARIABLES=$<BOOL:${GAME_NO_VARIABLES}>
+            GAME_CUSTOMLINKLOGIC=$<BOOL:${GAME_CUSTOMLINKLOGIC}>
+        )
+    else() # None Gametype
+        target_compile_definitions(${GAME_NAME} PRIVATE
+            RETRO_REVISION=${RETRO_REVISION}
+	    
+            RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
+            RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
+        
+            GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
+            GAME_VERSION=${GAME_VERSION}
+	    
+            GAME_TYPE=${GAME_TYPE}
+            GAME_NO_GLOBALS=$<BOOL:${GAME_NO_GLOBALS}>
+            GAME_NO_VARIABLES=$<BOOL:${GAME_NO_VARIABLES}>
+            GAME_CUSTOMLINKLOGIC=$<BOOL:${GAME_CUSTOMLINKLOGIC}>
+        )
+    endif()
 endif()
