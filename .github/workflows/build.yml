@@ -133,7 +133,6 @@ jobs:
           ln -s $PWD/RSDKv5-GameAPI RSDKv5-Example-Mods/ManiaTouchControls/GameAPI
           ln -s $PWD/RSDKv5-GameAPI RSDKv5-Example-Mods/UltrawideMania/GameAPI
           ln -s $PWD/Sonic-Mania-Decompilation ./android/app/jni/Game
-          ln -s $PWD/RSDKv5-GameAPI ./android/app/jni/GameAPI
           ln -s $PWD/RSDKv5-Example-Mods/ManiaTouchControls ./android/app/jni/MTC
           ln -s $PWD/RSDKv5-Example-Mods/UltrawideMania ./android/app/jni/UWM
       - name: Set up JDK 21
