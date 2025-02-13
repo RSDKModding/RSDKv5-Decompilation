@@ -11,6 +11,9 @@ A: RSDKv5U adds compatibility for playing RSDKv3 (i.e. Sonic CD) and RSDKv4 (i.e
 ### Q: The screen is tearing, how do I fix it?
 A: Try turning on VSync in settings.ini.
 
+### Q: I'm trying to use a non-Xbox controller on a Windows build, why isn't it working?
+A: The default DirectX backends for Windows only support XInput controllers (i.e. Xbox controllers), with no support for DirectInput. To use other controllers, you'll need to [build the decompilation](README.md#how-to-build) with the OpenGL backend by setting the [`RETRO_SUBSYSTEM` build flag](README.md#rsdkv5-flags) to `OGL`. It's also recommended to download a [gamecontrollerdb.txt](https://github.com/mdqinc/SDL_GameControllerDB/blob/master/gamecontrollerdb.txt) file and place it next to the executable file.
+
 ### Q: Why aren't videos/filters working while using GL?
 A: There's a mod for it that you have to make. Refer to the following directions:
 
