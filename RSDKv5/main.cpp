@@ -5,10 +5,7 @@
 #define LinkGameLogic RSDK::LinkGameLogic
 #else
 #define EngineInfo RSDK::EngineInfo
-#ifndef GAMEAPI_INC
-#define GAMEAPI_INC <GameObjects.h>
-#endif
-#include GAMEAPI_INC
+#include <GameObjects.h>
 #define LinkGameLogic LinkGameLogicDLL
 #endif
 
