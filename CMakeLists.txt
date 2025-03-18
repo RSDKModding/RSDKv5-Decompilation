@@ -179,6 +179,10 @@ if(WITH_RSDK)
         set(GAME_TYPE 1)
     endif()
 
+    if(NOT DEFINED GAMEAPI_INC)
+        set(GAMEAPI_INC <GameObjects.h>)
+    endif()
+
     target_compile_definitions(${GAME_NAME} PRIVATE
         RETRO_REVISION=${RETRO_REVISION}
 
@@ -188,6 +192,7 @@ if(WITH_RSDK)
         GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
         GAME_VERSION=${GAME_VERSION}
         GAME_TYPE=${GAME_TYPE}
+        GAMEAPI_INC=${GAMEAPI_INC}
     )
 
     if(DEFINED GAME_NO_GLOBALS)
