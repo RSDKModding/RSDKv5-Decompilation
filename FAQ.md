@@ -31,7 +31,7 @@ Name=GLShaders
 Description=GL3 shaders
 Author=Ducky
 Version=1.0.0
-TargetVersion=5
+TargetVersion=-1
 ```
 
 ### Q: I found a bug/I have a feature request!

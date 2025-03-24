@@ -160,7 +160,7 @@ jobs:
           cp -r android/app/jni/UWM/build/* artifacts/mods/UWM
           mkdir -p artifacts/mods/GLShaders/Data/Shaders
           cp -r RSDKv5/Shaders/OGL artifacts/mods/GLShaders/Data/Shaders
-          printf "Name=GLShaders\nDescription=OGLShaders\nAuthor=Ducky\nVersion=1.0.0\nTargetVersion=5\n" > artifacts/mods/GLShaders/mod.ini
+          printf "Name=GLShaders\nDescription=OGLShaders\nAuthor=Ducky\nVersion=1.0.0\nTargetVersion=-1\n" > artifacts/mods/GLShaders/mod.ini
           printf "[Mods]\nMTC=y\nUWM=y\nGLShaders=y\n" > artifacts/mods/modconfig.ini
       # HACK: Remove RSDKv5 symlink in Mania to prevent warning in post checkout cleanup
       - name: Cleanup
