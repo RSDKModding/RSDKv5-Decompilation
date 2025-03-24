@@ -2,6 +2,7 @@
 
 #if !RETRO_USE_ORIGINAL_CODE
 #include <D3Dcompiler.h>
+#include "BackupShaders.hpp"
 #endif
 
 #include <atlbase.h>
@@ -972,6 +973,10 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
         }
 
 #if !RETRO_USE_ORIGINAL_CODE
+        else {
+            PrintLog(PRINT_NORMAL, "Could not find vertex shader for '%s', aborting", fileName);
+            return;
+        }
     }
 #endif
 
@@ -1091,6 +1096,147 @@ void RenderDevice::LoadShader(const char *fileName, bool32 linear)
     shaderCount++;
 }
 
+bool RenderDevice::LoadBackupShader()
+{
+    ShaderEntry *shader = &shaderList[0];
+    sprintf_s(shader->name, sizeof(shader->name), "%s", "BACKUP");
+
+    const D3D_SHADER_MACRO defines[] = {
+#if RETRO_REV02
+        "RETRO_REV02", "1",
+#endif
+        NULL, NULL
+    };
+
+    void *bytecode      = NULL;
+    size_t bytecodeSize = 0;
+
+    // Try to compile the vertex shader source
+    UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+    if (engine.devMenu) {
+        flags |= D3DCOMPILE_DEBUG;
+        flags |= D3DCOMPILE_OPTIMIZATION_LEVEL0;
+        flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
+    }
+    else {
+        flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+    }
+
+    ID3DBlob *shaderBlob = nullptr;
+    ID3DBlob *errorBlob  = nullptr;
+    HRESULT result       = D3DCompile(backupHLSL, strlen(backupHLSL), "BACKUP", defines, NULL, "VSMain", "vs_5_0", flags, 0, &shaderBlob, &errorBlob);
+
+    if (FAILED(result)) {
+        if (errorBlob) {
+            PrintLog(PRINT_NORMAL, "ERROR COMPILING VERTEX SHADER: %s", (char *)errorBlob->GetBufferPointer());
+            errorBlob->Release();
+        }
+
+        if (shaderBlob)
+            shaderBlob->Release();
+
+        return false;
+    }
+    else {
+        PrintLog(PRINT_NORMAL, "Successfully compiled vertex shader!");
+        if (errorBlob)
+            PrintLog(PRINT_NORMAL, "Vertex shader warnings:\n%s", (char *)errorBlob->GetBufferPointer());
+
+        if (FAILED(dx11Device->CreateVertexShader((DWORD *)shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL,
+                                                    &shader->vertexShaderObject))) {
+            if (shader->vertexShaderObject) {
+                shader->vertexShaderObject->Release();
+                shader->vertexShaderObject = NULL;
+            }
+
+            return false;
+        }
+#pragma comment(lib, "dxguid.lib")
+        shader->vertexShaderObject->SetPrivateData(WKPDID_D3DDebugObjectName, strlen("BACKUP"), "BACKUP");
+    }
+
+    bytecode     = shaderBlob->GetBufferPointer();
+    bytecodeSize = shaderBlob->GetBufferSize();
+
+    // create the vertex layout stuff using the vertex shader
+    {
+        D3D11_INPUT_ELEMENT_DESC elements[2];
+
+        elements[0].SemanticName         = "SV_POSITION";
+        elements[0].SemanticIndex        = 0;
+        elements[0].Format               = DXGI_FORMAT_R32G32B32_FLOAT;
+        elements[0].InputSlot            = 0;
+        elements[0].AlignedByteOffset    = offsetof(RenderVertex, pos);
+        elements[0].InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
+        elements[0].InstanceDataStepRate = 0;
+
+        elements[1].SemanticName         = "TEXCOORD";
+        elements[1].SemanticIndex        = 0;
+        elements[1].Format               = DXGI_FORMAT_R32G32_FLOAT;
+        elements[1].InputSlot            = 0;
+        elements[1].AlignedByteOffset    = offsetof(RenderVertex, tex);
+        elements[1].InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
+        elements[1].InstanceDataStepRate = 0;
+
+        // elements[2].SemanticName         = "COLOR";
+        // elements[2].SemanticIndex        = 0;
+        // elements[2].Format               = DXGI_FORMAT_R32G32B32_UINT;
+        // elements[2].InputSlot            = 0;
+        // elements[2].AlignedByteOffset    = offsetof(RenderVertex, color);
+        // elements[2].InputSlotClass       = D3D11_INPUT_PER_VERTEX_DATA;
+        // elements[2].InstanceDataStepRate = 0;
+
+        HRESULT res = dx11Device->CreateInputLayout(elements, ARRAYSIZE(elements), bytecode, bytecodeSize, &shader->vertexDeclare);
+        if (FAILED(res))
+            return false;
+    }
+
+    // Try to compile the pixel shader source
+    {
+        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+        if (engine.devMenu) {
+            flags |= D3DCOMPILE_DEBUG;
+            flags |= D3DCOMPILE_OPTIMIZATION_LEVEL0;
+            flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
+        }
+        else {
+            flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+        }
+
+        ID3DBlob *shaderBlob = nullptr;
+        ID3DBlob *errorBlob  = nullptr;
+        HRESULT result = D3DCompile(backupHLSL, strlen(backupHLSL), "BACKUP", defines, NULL, "PSMain", "ps_5_0", flags, 0, &shaderBlob, &errorBlob);
+
+        if (FAILED(result)) {
+            if (errorBlob) {
+                PrintLog(PRINT_NORMAL, "ERROR COMPILING PIXEL SHADER:\n%s", (char *)errorBlob->GetBufferPointer());
+                errorBlob->Release();
+            }
+
+            if (shaderBlob)
+                shaderBlob->Release();
+        }
+        else {
+            PrintLog(PRINT_NORMAL, "Successfully compiled pixel shader!");
+            if (errorBlob)
+                PrintLog(PRINT_NORMAL, "Pixel shader warnings:\n%s", (char *)errorBlob->GetBufferPointer());
+
+            if (FAILED(dx11Device->CreatePixelShader((DWORD *)shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL,
+                                                     &shader->pixelShaderObject))) {
+                if (shader->vertexShaderObject) {
+                    shader->vertexShaderObject->Release();
+                    shader->vertexShaderObject = NULL;
+                }
+
+                return false;
+            }
+        }
+    }
+
+    shader->linear = videoSettings.windowed ? false : shader->linear;
+    return true;
+}
+
 bool RenderDevice::InitShaders()
 {
     D3D11_RASTERIZER_DESC rDesc = {};
@@ -1169,6 +1315,16 @@ bool RenderDevice::InitShaders()
         shaderList[0].linear = videoSettings.windowed ? false : shaderList[0].linear;
         maxShaders           = 1;
         shaderCount          = 1;
+    }
+
+    // Load backup shader if no shaders have been found
+    if (!maxShaders) {
+        PrintLog(PRINT_NORMAL, "[DX11] No shaders loaded correctly, attempting backup");
+        maxShaders                  = 1;
+        shaderCount                 = 1;
+        if (!LoadBackupShader())
+            PrintLog(PRINT_NORMAL, "[DX11] Failed to load backup shaders!");
+
     }
 
     videoSettings.shaderID = videoSettings.shaderID >= maxShaders ? 0 : videoSettings.shaderID;
