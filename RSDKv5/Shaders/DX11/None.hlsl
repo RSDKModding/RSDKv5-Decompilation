@@ -57,11 +57,7 @@ float4 PSMain(PixelInput input) : SV_TARGET
 {
     float2 viewScale = frac((1.0 / pixelSize) * viewSize) - 0.01;
 
-    //return float4(input.tex, 0.0, 1.0);
- 
     // if viewSize is an integer scale of pixelSize (within a small margin of error)
-    return float4(viewScale, 0.0, 1.0);
-    
     if (viewScale.x < 0 && viewScale.y < 0) {
         // just get the pixel at this fragment with no filtering
 #if defined(RETRO_REV02) 
