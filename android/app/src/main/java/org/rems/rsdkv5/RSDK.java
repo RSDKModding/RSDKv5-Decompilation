@@ -2,6 +2,7 @@ package org.rems.rsdkv5;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -84,8 +85,10 @@ public class RSDK extends GameActivity {
         if (basePath == null) {
             if (getIntent().getData() != null) {
                 basePath = getIntent().getData();
-            } else
+            } else {
+                Launcher.basePathStore = new File(getFilesDir(), "basePathStore"); 
                 basePath = Launcher.refreshStore();
+            }
 
             if (basePath == null) {
                 Log.e("RSDKv5-J", "Base path file not found; game cannot be started standalone.");

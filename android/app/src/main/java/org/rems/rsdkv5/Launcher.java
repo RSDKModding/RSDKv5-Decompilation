@@ -33,7 +33,7 @@ public class Launcher extends AppCompatActivity {
 
     public static Launcher instance = null;
 
-    private static File basePathStore;
+    public static File basePathStore;
 
     private static ActivityResultLauncher<Intent> folderLauncher = null;
     private static ActivityResultLauncher<Intent> gameLauncher = null;
