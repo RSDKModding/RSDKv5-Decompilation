@@ -12,6 +12,11 @@
 std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 #endif
 
+// Disables the log, not recommended unless it impacts performance
+#ifndef RETRO_DISABLE_LOG
+#define RETRO_DISABLE_LOG (0)
+#endif
+
 using namespace RSDK;
 
 bool32 RSDK::engineDebugMode = true;
@@ -29,7 +34,7 @@ inline void PrintConsole(const char *message) { printf("%s", message); }
 
 void RSDK::PrintLog(int32 mode, const char *message, ...)
 {
-#ifndef RETRO_DISABLE_LOG
+#if RETRO_DISABLE_LOG
     if (engineDebugMode) {
         // make the full string
         va_list args;

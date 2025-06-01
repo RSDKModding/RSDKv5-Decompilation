@@ -10,7 +10,7 @@ option(RETRO_DISABLE_PLUS "Disable plus. Should be set on for any public release
 option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
 set(RETRO_MOD_LOADER_VER 2 CACHE STRING "Sets the mod loader version. Defaults to latest")
 
-option(RETRO_DISABLE_LOG "Enables or disables printing text to the log file. Defaults to OFF." OFF)
+option(RETRO_DISABLE_LOG "Disables the log. Defaults to OFF." OFF)
 
 set(RETRO_NAME "RSDKv5")
 
