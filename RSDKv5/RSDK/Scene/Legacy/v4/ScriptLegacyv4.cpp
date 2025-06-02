@@ -3389,8 +3389,6 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     }
                     case VAR_OBJECTJUMPPRESS: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].jumpPress;
-                        if (scriptEng.operands[i])
-                            printf("");
                         break;
                     }
                     case VAR_OBJECTJUMPHOLD: {
