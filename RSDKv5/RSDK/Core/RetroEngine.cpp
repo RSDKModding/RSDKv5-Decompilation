@@ -623,11 +623,13 @@ void RSDK::ParseArguments(int32 argc, char *argv[])
         }
 #endif
 
+#if !RETRO_DISABLE_LOG
         find = strstr(argv[a], "console=true");
         if (find) {
             engine.consoleEnabled = true;
             engine.devMenu        = true;
         }
+#endif
     }
 }
 
