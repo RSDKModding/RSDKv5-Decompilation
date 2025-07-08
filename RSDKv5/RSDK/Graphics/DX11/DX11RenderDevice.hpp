@@ -97,6 +97,7 @@ private:
     static bool SetupRendering();
     static void InitVertexBuffer();
     static bool InitGraphicsAPI();
+    static bool LoadBackupShader();
 
     static void GetDisplays();
 

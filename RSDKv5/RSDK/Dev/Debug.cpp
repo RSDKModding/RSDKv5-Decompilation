@@ -29,7 +29,7 @@ inline void PrintConsole(const char *message) { printf("%s", message); }
 
 void RSDK::PrintLog(int32 mode, const char *message, ...)
 {
-#ifndef RETRO_DISABLE_LOG
+#if !RETRO_DISABLE_LOG
     if (engineDebugMode) {
         // make the full string
         va_list args;

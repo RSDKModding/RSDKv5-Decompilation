@@ -10,6 +10,8 @@ option(RETRO_DISABLE_PLUS "Disable plus. Should be set on for any public release
 option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
 set(RETRO_MOD_LOADER_VER 2 CACHE STRING "Sets the mod loader version. Defaults to latest")
 
+option(RETRO_DISABLE_LOG "Disables the log. Defaults to OFF." OFF)
+
 set(RETRO_NAME "RSDKv5")
 
 if(RETRO_REVISION STREQUAL "3")
@@ -158,6 +160,7 @@ target_compile_definitions(RetroEngine PRIVATE
     RETRO_STANDALONE=$<NOT:$<BOOL:${GAME_STATIC}>>
 
     RSDK_AUTOBUILD=$<BOOL:${RETRO_DISABLE_PLUS}>
+    RETRO_DISABLE_LOG=$<BOOL:${RETRO_DISABLE_LOG}>
 
     RETRO_DEV_EXTRA="${PLATFORM} - ${RETRO_SUBSYSTEM} - ${CMAKE_CXX_COMPILER_ID}"
     DECOMP_VERSION="${DECOMP_VERSION}"

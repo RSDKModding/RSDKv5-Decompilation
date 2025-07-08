@@ -3389,8 +3389,6 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     }
                     case VAR_OBJECTJUMPPRESS: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].jumpPress;
-                        if (scriptEng.operands[i])
-                            printf("");
                         break;
                     }
                     case VAR_OBJECTJUMPHOLD: {
@@ -5852,7 +5850,7 @@ void RSDK::Legacy::v4::ProcessScript(int32 scriptCodeStart, int32 jumpTableStart
                     case VAR_STAGELISTPOS: {
                         SceneListInfo *list = &sceneInfo.listCategory[sceneInfo.activeCategory];
 
-                        if (list->sceneOffsetStart + scriptEng.operands[i] < list->sceneOffsetEnd)
+                        if (list->sceneOffsetStart + scriptEng.operands[i] <= list->sceneOffsetEnd)
                             sceneInfo.listPos = list->sceneOffsetStart + scriptEng.operands[i];
                         break;
                     }

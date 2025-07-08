@@ -8,8 +8,7 @@
 
 ## Set up symlinks
 
-* Ensure the symbolic links in `[root]/android/app/jni` are correct: 
-  * `RSDKv5` -> root of the RSDKv5 repository
+* Ensure the symbolic links in `[root]/android/app/jni` are correct:
   * `Game` -> root of the Mania repository (or any other game that you may be compiling)
   * Extra symbolic links can be added for things like mods, **as mods do not use the local files for logic.** Just ensure that there are `CMakeLists.txt` files at the root of them. 
   

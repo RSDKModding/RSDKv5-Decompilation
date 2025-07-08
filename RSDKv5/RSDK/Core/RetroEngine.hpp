@@ -248,6 +248,11 @@ enum GameRegions {
 #define RETRO_MOD_LOADER_VER (2)
 #endif
 
+// Disables the log, not recommended unless it impacts performance
+#ifndef RETRO_DISABLE_LOG
+#define RETRO_DISABLE_LOG (0)
+#endif
+
 // ============================
 // PLATFORM INIT
 // ============================
