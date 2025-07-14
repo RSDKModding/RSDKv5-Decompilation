@@ -1219,9 +1219,9 @@ void RSDK::GetSettingsString(const char *id, const char *key, String *result, co
 
     std::string v = GetModSettingsValue(id, key);
     if (!v.length()) {
+        InitString(result, fallback, 0);
         if (currentMod->id == id)
             SetSettingsString(key, result);
-        InitString(result, fallback, 0);
         return;
     }
     InitString(result, v.c_str(), 0);
@@ -1532,7 +1532,7 @@ void RSDK::SetSettingsInteger(const char *key, int32 val) { SetModSettingsValue(
 void RSDK::SetSettingsFloat(const char *key, float val) { SetModSettingsValue(key, std::to_string(val)); }
 void RSDK::SetSettingsString(const char *key, String *val)
 {
-    char *buf = new char[val->length];
+    char *buf = new char[val->length + 1]; // Take into account '\0'
     GetCString(buf, val);
     SetModSettingsValue(key, buf);
     delete[] buf;
