@@ -43,7 +43,7 @@ def main():
     data = encode_font(img_file)
 
     # Using img_file.with_name() will save it in the same directory as img_file
-    output_file = img_file.with_name(img_file.stem + ".hpp")
+    output_file = Path(sys.argv[2]) if len(sys.argv) > 2 else img_file.with_name(img_file.stem + ".hpp")
     print(f"Writing to {output_file}...")
     try:
         with output_file.open("w") as hpp_file:
