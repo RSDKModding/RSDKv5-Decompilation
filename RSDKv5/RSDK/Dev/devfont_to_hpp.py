@@ -1,5 +1,5 @@
 # Requires the Pillow dependency
-import sys, os, math, itertools
+import sys, math, itertools
 from PIL import Image
 from pathlib import Path
 
@@ -23,12 +23,10 @@ def encode_font(image_path):
     row = 0
     col = 0
     for char in range(CHARCOUNT):
-        px = char * (WIDTH * HEIGHT)
         h = row * HEIGHT
         for y in range(h, h + HEIGHT):
             for x in range(WIDTH):
                 data.append("0x01" if img.getpixel((x + (col * WIDTH), y)) else "0x00")
-                px += 1
         col += 1
         if col >= COLCOUNT:
             col = 0
