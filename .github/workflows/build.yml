@@ -13,8 +13,7 @@ env:
   GENERAL_WIN_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
   WIN32_FLAGS: "-DVCPKG_TARGET_TRIPLET=x86-windows-static -A Win32"
   WIN64_FLAGS: "-DVCPKG_TARGET_TRIPLET=x64-windows-static"
-  # FIXME: For some reason ubuntu enables _FORTIFY_SOURCE by default, so let's override it to prevent IO bugs
-  GENERAL_LINUX_FLAGS: "-DCMAKE_CXX_FLAGS='-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0'"
+  GENERAL_LINUX_FLAGS: ""
 
 jobs:
   v5-windows:
