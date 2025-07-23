@@ -103,6 +103,8 @@ void RSDK::Legacy::v4::ProcessStage(void)
                 ProcessObjects();
                 HandleCameras();
                 ProcessParallaxAutoScroll();
+
+                DrawStageGFX();
             }
 #endif
 
