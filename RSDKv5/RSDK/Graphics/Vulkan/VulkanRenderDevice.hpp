@@ -165,7 +165,7 @@ private:
     static ShaderConstants *uniformMap;
 
     static VkDescriptorPool descriptorPool;
-    static VkDescriptorSet descriptorSet;
+    static VkDescriptorSet descriptorSet[SCREEN_COUNT];
 
     static VkRenderPass renderPass;
     static VkDescriptorSetLayout setLayout;
