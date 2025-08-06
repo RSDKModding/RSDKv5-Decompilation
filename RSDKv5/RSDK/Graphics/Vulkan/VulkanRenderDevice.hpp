@@ -78,6 +78,8 @@ private:
 
     static void SetLinear(bool32 linear);
 
+    static GLFWwindow *CreateGLFWWindow(void);
+
 #if VK_DEBUG
     static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT messageType,

@@ -183,17 +183,14 @@ VkPipelineColorBlendAttachmentState colorBlendAttachment;
 VkPipelineColorBlendStateCreateInfo colorBlending;
 VkPipelineMultisampleStateCreateInfo multisampleInfo;
 
-bool RenderDevice::Init()
+// Creates a window using the video settings
+GLFWwindow *RenderDevice::CreateGLFWWindow(void)
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    if (!videoSettings.bordered)
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-
+    GLFWwindow *win;
     GLFWmonitor *monitor = NULL;
     int32 w, h;
+
+    glfwWindowHint(GLFW_DECORATED, videoSettings.bordered);
 
     if (videoSettings.windowed) {
         w = videoSettings.windowWidth;
@@ -211,18 +208,51 @@ bool RenderDevice::Init()
         h       = videoSettings.fsHeight;
     }
 
-    window = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
-    if (!window) {
+    win = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
+    if (!win) {
         PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
-        return false;
+        return NULL;
     }
+    if (videoSettings.windowed) {
+        // Center the window
+        monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+        int x, y;
+        glfwGetMonitorPos(monitor, &x, &y);
+        // Get scaling for HiDPI screens
+        float xscale, yscale;
+        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+        int xpos = x + (mode->width - (int)((float)videoSettings.windowWidth * xscale)) / 2;
+        int ypos = y + (mode->height - (int)((float)videoSettings.windowHeight * yscale)) / 2;
+        glfwSetWindowPos(win, xpos, ypos);
+    }
+    glfwShowWindow(win);
     PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
 
-    glfwSetKeyCallback(window, ProcessKeyEvent);
+    glfwSetKeyCallback(win, ProcessKeyEvent);
+    glfwSetMouseButtonCallback(win, ProcessMouseEvent);
+    glfwSetWindowFocusCallback(win, ProcessFocusEvent);
+    glfwSetWindowMaximizeCallback(win, ProcessMaximizeEvent);
+
+    return win;
+}
+
+bool RenderDevice::Init()
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE); // HiDPI scaling support
+#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
+    // Disable framebuffer scaling which (surprisingly) makes the framebuffer scale correctly on Wayland
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
+#endif
+
+    if ((window = CreateGLFWWindow()) == NULL)
+        return false;
+
     glfwSetJoystickCallback(ProcessJoystickEvent);
-    glfwSetMouseButtonCallback(window, ProcessMouseEvent);
-    glfwSetWindowFocusCallback(window, ProcessFocusEvent);
-    glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
 
     if (!SetupRendering() || !AudioDevice::Init())
         return false;
@@ -1969,44 +1999,16 @@ void RenderDevice::RefreshWindow()
     videoSettings.windowState = WINDOWSTATE_UNINITIALIZED;
 
     Release(true);
-    if (!videoSettings.bordered)
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-
-    GLFWmonitor *monitor = NULL;
-    int32 w, h;
-
-    if (videoSettings.windowed) {
-        w = videoSettings.windowWidth;
-        h = videoSettings.windowHeight;
-    }
-    else if (videoSettings.fsWidth <= 0 || videoSettings.fsHeight <= 0) {
-        monitor                 = glfwGetPrimaryMonitor();
-        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-        w                       = mode->width;
-        h                       = mode->height;
-    }
-    else {
-        monitor = glfwGetPrimaryMonitor();
-        w       = videoSettings.fsWidth;
-        h       = videoSettings.fsHeight;
-    }
-
-    window = glfwCreateWindow(w, h, gameVerInfo.gameTitle, monitor, NULL);
-    if (!window) {
-        PrintLog(PRINT_NORMAL, "ERROR: [GLFW] window creation failed");
+    if ((window = CreateGLFWWindow()) == NULL)
         return;
-    }
-    PrintLog(PRINT_NORMAL, "w: %d h: %d windowed: %d", w, h, videoSettings.windowed);
-
-    glfwSetKeyCallback(window, ProcessKeyEvent);
-    glfwSetMouseButtonCallback(window, ProcessMouseEvent);
-    glfwSetWindowFocusCallback(window, ProcessFocusEvent);
-    glfwSetWindowMaximizeCallback(window, ProcessMaximizeEvent);
 
     if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
         PrintLog(PRINT_NORMAL, "[VK] Vulkan surface could not be created");
         return;
     }
+
+    // Update swapchain details to refresh capabilities ({min/max}ImageExtent)
+    QuerySwapChainDetails(physicalDevice);
 
     descriptorSet[0] = VK_NULL_HANDLE;
 
