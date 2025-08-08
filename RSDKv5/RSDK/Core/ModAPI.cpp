@@ -8,6 +8,14 @@ using namespace RSDK;
 #include "Legacy/ModAPILegacy.cpp"
 #endif
 
+#if RETRO_MOD_LOADER_HOOK
+#if RETRO_PLATFORM == RETRO_WIN
+#include <detours/detours.h>
+#else
+#include <dobby.h>
+#endif
+#endif
+
 #include <filesystem>
 #include <stdexcept>
 #include <functional>
@@ -65,6 +73,10 @@ void *RSDK::modFunctionTable[RSDK::ModTable_Count];
 
 std::map<uint32, uint32> RSDK::superLevels;
 int32 RSDK::inheritLevel = 0;
+
+#if RETRO_MOD_LOADER_HOOK
+std::unordered_map<void *, RSDK::PublicFunctionHook> RSDK::modPublicFunctionHooks;
+#endif
 
 #define ADD_MOD_FUNCTION(id, func) modFunctionTable[id] = (void *)func;
 
@@ -195,6 +207,10 @@ void RSDK::InitModAPI(bool32 getVersion)
     ADD_MOD_FUNCTION(ModTable_FindRWallPosition, FindRWallPosition);
     ADD_MOD_FUNCTION(ModTable_CopyCollisionMask, CopyCollisionMask);
     ADD_MOD_FUNCTION(ModTable_GetCollisionInfo, GetCollisionInfo);
+#endif
+
+#if RETRO_MOD_LOADER_VER >= 3
+    ADD_MOD_FUNCTION(ModTable_HookPublicFunction, HookPublicFunction);
 #endif
 
     superLevels.clear();
@@ -2043,6 +2059,79 @@ bool32 RSDK::GetGroupEntities(uint16 group, void **entity)
     return false;
 }
 
+#endif
+
+#if RETRO_MOD_LOADER_VER >= 3
+
+void *RSDK::HookPublicFunction(const char *functionName, void *functionPtr)
+{
+#if !RETRO_MOD_LOADER_HOOK
+    // Unsupported platform, log and ignore
+    PrintLog(PRINT_ERROR, "[MOD] HookPublicFunction is not supported on this platform");
+    return NULL;
+#else
+    // TODO: This currently only supports one hook per public function (shared across all active mods).
+    // Potential multihook implementation would have to daisy-chain mod hooks and keep them in a stack.
+    // Cleanup would need to pop hooks from the stack to detach each of them.
+    // Example from typical startup:
+    //     (Engine startup)
+    //     [Mod 1 Hook setup]: returned OG function is public function
+    //     [Mod 2 Hook setup]: returned OG function is Mod 1's hook
+    // Priority-wise, mods at the bottom of the list will have their hook called first:
+    //     (Public function call)
+    //     [Mod 2 Hook call]: may or may not call its OG function (Mod 1's hook)
+    //     [Mod 1 Hook call]: may or may not call OG function (public function)
+
+    void *publicFuncPtr = GetPublicFunction(NULL, functionName);
+    // Prevent multihook for now, just log an error message.
+    if (modPublicFunctionHooks.find(publicFuncPtr) != modPublicFunctionHooks.end()) {
+        PrintLog(PRINT_ERROR, "[MOD] ERROR: Public function '%s' has already been hooked by another mod", functionName);
+        return NULL;
+    }
+
+    void *originalPtr = NULL;
+    int32 ret = 0;
+
+#if RETRO_PLATFORM == RETRO_WIN
+    // Use Detours on Windows
+    originalPtr = publicFuncPtr;
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    ret = DetourAttach(&originalPtr, functionPtr);
+    DetourTransactionCommit();
+#else
+    // Use Dobby on the other supported platforms (Linux/Android/MacOS)
+    ret = DobbyHook(publicFuncPtr, functionPtr, &originalPtr);
+#endif
+
+    if (ret) {
+        PrintLog(PRINT_ERROR, "[MOD] ERROR: Failed to hook public function '%s' (code %d)", functionName, ret);
+        return NULL;
+    }
+
+    // Update current hook mapping
+    modPublicFunctionHooks[publicFuncPtr] = PublicFunctionHook{originalPtr, functionPtr};
+
+    return originalPtr;
+#endif
+}
+void RSDK::UnHookPublicFunctions() {
+#if RETRO_MOD_LOADER_HOOK
+    for (const auto [pubFunc, hookData] : modPublicFunctionHooks) {
+#if RETRO_PLATFORM == RETRO_WIN
+        void *og = hookData.ogFunc;
+        void *hk = hookData.hookFunc;
+        DetourTransactionBegin();
+        DetourUpdateThread(GetCurrentThread());
+        DetourDetach(&og, hk);
+        DetourTransactionCommit();
+#else
+        DobbyDestroy(pubFunc);
+#endif
+    }
+    modPublicFunctionHooks.clear();
+#endif
+}
 #endif
 
 #endif

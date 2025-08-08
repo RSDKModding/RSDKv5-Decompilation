@@ -93,3 +93,11 @@ if(NOT RETRO_SUBSYSTEM STREQUAL SDL2)
         target_compile_definitions(RetroEngine PRIVATE RETRO_AUDIODEVICE_SDL2=1)
     endif()
 endif()
+
+# Build dobby library and link statically
+if(RETRO_MOD_LOADER)
+    add_subdirectory(dependencies/all/Dobby)
+    target_include_directories(RetroEngine PRIVATE dependencies/all/Dobby/include)
+    target_link_libraries(RetroEngine dobby_static)
+    set(RETRO_MOD_LOADER_HOOK ON)
+endif()
