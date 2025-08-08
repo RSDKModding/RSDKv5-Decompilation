@@ -4,3 +4,6 @@
 [submodule "dependencies/all/stb_vorbis"]
 	path = dependencies/all/stb_vorbis
 	url = https://github.com/nothings/stb
+[submodule "dependencies/all/Dobby"]
+	path = dependencies/all/Dobby
+	url = https://github.com/RSDKModding/Dobby
