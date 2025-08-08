@@ -153,15 +153,15 @@ endif()
 target_compile_definitions(RetroEngine PRIVATE
     RETRO_REVISION=${RETRO_REVISION}
     RSDK_USE_${RETRO_SUBSYSTEM}=1
-    
+
     RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
     RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
 
     RETRO_STANDALONE=$<NOT:$<BOOL:${GAME_STATIC}>>
-    
+
     RSDK_AUTOBUILD=$<BOOL:${RETRO_DISABLE_PLUS}>
     RETRO_DISABLE_LOG=$<BOOL:${RETRO_DISABLE_LOG}>
-    
+
     RETRO_DEV_EXTRA="${PLATFORM} - ${RETRO_SUBSYSTEM} - ${CMAKE_CXX_COMPILER_ID}"
     DECOMP_VERSION="${DECOMP_VERSION}"
 )
@@ -174,16 +174,46 @@ if(WITH_RSDK)
             $<TARGET_FILE_DIR:RetroEngine>)
     endif()
 
+    if(NOT DEFINED GAME_VERSION)
+        set(GAME_VERSION 0)
+    endif()
+
+    if(NOT DEFINED GAME_TYPE)
+        set(GAME_TYPE 1)
+    endif()
+
     target_compile_definitions(${GAME_NAME} PRIVATE
         RETRO_REVISION=${RETRO_REVISION}
 
         RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
         RETRO_MOD_LOADER_VER=${RETRO_MOD_LOADER_VER}
-    
-        GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
 
-        MANIA_PREPLUS=$<BOOL:${MANIA_PREPLUS}>
-        MANIA_FIRST_RELEASE=$<BOOL:${MANIA_FIRST_RELEASE}>
+        GAME_INCLUDE_EDITOR=$<BOOL:${GAME_INCLUDE_EDITOR}>
         GAME_VERSION=${GAME_VERSION}
+        GAME_TYPE=${GAME_TYPE}
     )
+
+    if(DEFINED GAME_NO_GLOBALS)
+        target_compile_definitions(${GAME_NAME} PRIVATE GAME_NO_GLOBALS)
+    endif()
+
+    if(DEFINED GAME_NO_VARIABLES)
+        target_compile_definitions(${GAME_NAME} PRIVATE GAME_NO_VARIABLES)
+    endif()
+
+    if(DEFINED GAME_CUSTOMLINKLOGIC)
+        target_compile_definitions(${GAME_NAME} PRIVATE GAME_CUSTOMLINKLOGIC=$<BOOL:${GAME_CUSTOMLINKLOGIC}>)
+    endif()
+
+    if (GAME_TYPE STREQUAL "1") # Sonic Mania
+        target_compile_definitions(${GAME_NAME} PRIVATE
+            MANIA_PREPLUS=$<BOOL:${MANIA_PREPLUS}>
+            MANIA_FIRST_RELEASE=$<BOOL:${MANIA_FIRST_RELEASE}>
+        )
+    elseif(GAME_TYPE STREQUAL "2") # Sonic 3 & Knuckles
+        target_compile_definitions(${GAME_NAME} PRIVATE
+            ORIGINS_PREPLUS=$<BOOL:${ORIGINS_PREPLUS}>
+            ORIGINS_FIRST_RELEASE=$<BOOL:${ORIGINS_FIRST_RELEASE}>
+        )
+    endif()
 endif()
