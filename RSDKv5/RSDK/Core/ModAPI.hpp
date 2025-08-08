@@ -140,6 +140,10 @@ enum ModFunctionTableIDs {
     ModTable_GetCollisionInfo,
 #endif
 
+#if RETRO_MOD_LOADER_VER >= 3
+    ModTable_HookPublicFunction,
+#endif
+
     ModTable_Count
 };
 
@@ -232,6 +236,14 @@ extern void *modFunctionTable[ModTable_Count];
 extern int32 currentObjectID;
 
 extern ModInfo *currentMod;
+
+#if RETRO_MOD_LOADER_HOOK
+struct PublicFunctionHook {
+    void *ogFunc;   // Patched original function (with Detours, this one is needed for Detach)
+    void *hookFunc; // The user defined hook function
+};
+extern std::unordered_map<void *, PublicFunctionHook> modPublicFunctionHooks;
+#endif
 
 inline void SetActiveMod(int32 id) { modSettings.activeMod = id; }
 
@@ -419,6 +431,11 @@ inline void *GetChannel(uint8 id)
 
 // Objects/Entities
 bool32 GetGroupEntities(uint16 group, void **entity);
+#endif
+
+#if RETRO_MOD_LOADER_VER >= 3
+void *HookPublicFunction(const char *functionName, void *functionPtr);
+void UnHookPublicFunctions();
 #endif
 
 #endif

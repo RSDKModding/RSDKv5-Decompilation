@@ -121,5 +121,14 @@ target_link_libraries(RetroEngine
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(RetroEngine PRIVATE -Wno-microsoft-cast -Wno-microsoft-exception-spec)
 endif()
-    
+
 target_sources(RetroEngine PRIVATE ${RETRO_NAME}/${RETRO_NAME}.rc)
+
+# Setup Detours
+if(RETRO_MOD_LOADER)
+    find_path(DETOURS_INCLUDE_DIRS "detours/detours.h")
+    find_library(DETOURS_LIBRARY detours REQUIRED)
+    target_include_directories(RetroEngine PRIVATE ${DETOURS_INCLUDE_DIRS})
+    target_link_libraries(RetroEngine ${DETOURS_LIBRARY})
+    set(RETRO_MOD_LOADER_HOOK ON)
+endif()

@@ -245,7 +245,7 @@ enum GameRegions {
 
 // Defines the version of the mod loader, this should be changed ONLY if the ModFunctionTable is updated in any way
 #ifndef RETRO_MOD_LOADER_VER
-#define RETRO_MOD_LOADER_VER (2)
+#define RETRO_MOD_LOADER_VER (3)
 #endif
 
 // Disables the log, not recommended unless it impacts performance
