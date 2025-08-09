@@ -461,6 +461,8 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
 
 void RSDK::UnloadMods()
 {
+    UnHookPublicFunctions();
+
     for (ModInfo &mod : modList) {
         if (mod.unloadMod)
             mod.unloadMod();
