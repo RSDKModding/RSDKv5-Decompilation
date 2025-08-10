@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <unordered_map>
 #include <regex>
 #include "tinyxml2.h"
 
