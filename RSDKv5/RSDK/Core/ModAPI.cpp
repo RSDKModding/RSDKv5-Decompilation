@@ -2065,12 +2065,12 @@ bool32 RSDK::GetGroupEntities(uint16 group, void **entity)
 
 #if RETRO_MOD_LOADER_VER >= 3
 
-void *RSDK::HookPublicFunction(const char *functionName, void *functionPtr)
+void RSDK::HookPublicFunction(const char *functionName, void *functionPtr, void **originalPtr)
 {
 #if !RETRO_MOD_LOADER_HOOK
     // Unsupported platform, log and ignore
     PrintLog(PRINT_ERROR, "[MOD] HookPublicFunction is not supported on this platform");
-    return NULL;
+    return;
 #else
     // TODO: This currently only supports one hook per public function (shared across all active mods).
     // Potential multihook implementation would have to daisy-chain mod hooks and keep them in a stack.
@@ -2088,44 +2088,41 @@ void *RSDK::HookPublicFunction(const char *functionName, void *functionPtr)
     // Prevent multihook for now, just log an error message.
     if (modPublicFunctionHooks.find(publicFuncPtr) != modPublicFunctionHooks.end()) {
         PrintLog(PRINT_ERROR, "[MOD] ERROR: Public function '%s' has already been hooked by another mod", functionName);
-        return NULL;
+        *originalPtr = NULL;
+        return;
     }
 
-    void *originalPtr = NULL;
     int32 ret = 0;
 
 #if RETRO_PLATFORM == RETRO_WIN
     // Use Detours on Windows
-    originalPtr = publicFuncPtr;
+    *originalPtr = publicFuncPtr;
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-    ret = DetourAttach(&originalPtr, functionPtr);
+    ret = DetourAttach(originalPtr, functionPtr);
     DetourTransactionCommit();
 #else
     // Use Dobby on the other supported platforms (Linux/Android/MacOS)
-    ret = DobbyHook(publicFuncPtr, functionPtr, &originalPtr);
+    ret = DobbyHook(publicFuncPtr, functionPtr, originalPtr);
 #endif
 
     if (ret) {
         PrintLog(PRINT_ERROR, "[MOD] ERROR: Failed to hook public function '%s' (code %d)", functionName, ret);
-        return NULL;
+        *originalPtr = NULL;
+        return;
     }
 
     // Update current hook mapping
     modPublicFunctionHooks[publicFuncPtr] = PublicFunctionHook{originalPtr, functionPtr};
-
-    return originalPtr;
 #endif
 }
 void RSDK::UnHookPublicFunctions() {
 #if RETRO_MOD_LOADER_HOOK
     for (const auto [pubFunc, hookData] : modPublicFunctionHooks) {
 #if RETRO_PLATFORM == RETRO_WIN
-        void *og = hookData.ogFunc;
-        void *hk = hookData.hookFunc;
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
-        DetourDetach(&og, hk);
+        DetourDetach(hookData.ogFunc, hookData.hookFunc);
         DetourTransactionCommit();
 #else
         DobbyDestroy(pubFunc);
