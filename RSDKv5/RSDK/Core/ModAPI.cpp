@@ -456,7 +456,9 @@ bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoa
 
 void RSDK::UnloadMods()
 {
+#if RETRO_MOD_LOADER_VER >= 3
     UnHookPublicFunctions();
+#endif
 
     for (ModInfo &mod : modList) {
         if (mod.unloadMod)
