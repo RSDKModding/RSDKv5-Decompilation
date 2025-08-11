@@ -348,14 +348,9 @@ void DrawStatus(const char *str)
     RenderDevice::FlipScreen();
 }
 
-#if RETRO_RENDERDEVICE_EGL
-// egl devices are slower in I/O so render more increments
+// Mod loading progress bar constants
 #define BAR_THRESHOLD (10.F)
 #define RENDER_COUNT  (200)
-#else
-#define BAR_THRESHOLD (100.F)
-#define RENDER_COUNT  (200)
-#endif
 
 bool32 RSDK::ScanModFolder(ModInfo *info, const char *targetFile, bool32 fromLoadMod, bool32 loadingBar)
 {
