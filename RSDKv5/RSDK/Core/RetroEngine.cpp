@@ -1333,6 +1333,9 @@ void RSDK::InitGameLink()
 #if RETRO_USE_MOD_LOADER
     }
 
+    // All public functions should be registered now, sort them for binary search to work in GetPublicFunction
+    SortPublicFunctions(gamePublicFuncs);
+
     for (int32 m = 0; m < modList.size(); ++m) {
         currentMod = &modList[m];
         if (!currentMod->active)
@@ -1341,6 +1344,8 @@ void RSDK::InitGameLink()
             if (!linkModLogic(&info, modList[m].id.c_str())) {
                 modList[m].active = false;
                 PrintLog(PRINT_ERROR, "[MOD] Failed to link logic for mod %s!", modList[m].id.c_str());
+            } else {
+                SortPublicFunctions(modList[m].functionList);
             }
         }
     }
