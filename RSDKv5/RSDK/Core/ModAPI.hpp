@@ -229,6 +229,7 @@ extern std::vector<ModInfo> modList;
 extern std::vector<ModCallbackSTD> modCallbackList[MODCB_MAX];
 extern std::vector<StateHook> stateHookList;
 extern std::vector<ObjectHook> objectHookList;
+extern std::vector<ModPublicFunctionInfo> gamePublicFuncs;
 extern ModVersionInfo targetModVersion;
 
 extern char customUserFileDir[0x100];
@@ -256,6 +257,7 @@ void SaveMods();
 void SortMods();
 void LoadModSettings();
 void ApplyModChanges();
+void SortPublicFunctions(std::vector<ModPublicFunctionInfo> &funcList);
 
 bool32 ScanModFolder(ModInfo *info, const char *targetFile = nullptr, bool32 fromLoadMod = false, bool32 loadingBar = true);
 inline void RefreshModFolders(bool32 versionOnly = false, bool32 loadingBar = true)
