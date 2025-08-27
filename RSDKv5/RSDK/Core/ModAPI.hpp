@@ -437,7 +437,7 @@ bool32 GetGroupEntities(uint16 group, void **entity);
 #endif
 
 #if RETRO_MOD_LOADER_VER >= 3
-void HookPublicFunction(const char *functionName, void *functionPtr, void **originalPtr);
+void HookPublicFunction(const char *id, const char *functionName, void *functionPtr, void **originalPtr);
 void UnHookPublicFunctions();
 #endif
 

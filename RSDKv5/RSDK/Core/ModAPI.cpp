@@ -2072,11 +2072,12 @@ bool32 RSDK::GetGroupEntities(uint16 group, void **entity)
 
 #if RETRO_MOD_LOADER_VER >= 3
 
-void RSDK::HookPublicFunction(const char *functionName, void *functionPtr, void **originalPtr)
+void RSDK::HookPublicFunction(const char *id, const char *functionName, void *functionPtr, void **originalPtr)
 {
 #if !RETRO_MOD_LOADER_HOOK
     // Unsupported platform, log and ignore
     PrintLog(PRINT_ERROR, "[MOD] HookPublicFunction is not supported on this platform");
+    *originalPtr = NULL;
     return;
 #else
     // TODO: This currently only supports one hook per public function (shared across all active mods).
@@ -2091,7 +2092,13 @@ void RSDK::HookPublicFunction(const char *functionName, void *functionPtr, void 
     //     [Mod 2 Hook call]: may or may not call its OG function (Mod 1's hook)
     //     [Mod 1 Hook call]: may or may not call OG function (public function)
 
-    void *publicFuncPtr = GetPublicFunction(NULL, functionName);
+    void *publicFuncPtr = GetPublicFunction(id, functionName);
+    if (publicFuncPtr == NULL) {
+        PrintLog(PRINT_ERROR, "[MOD] ERROR: Public function '%s' does not exist for id '%s'", functionName, id);
+        *originalPtr = NULL;
+        return;
+    }
+
     // Prevent multihook for now, just log an error message.
     if (modPublicFunctionHooks.find(publicFuncPtr) != modPublicFunctionHooks.end()) {
         PrintLog(PRINT_ERROR, "[MOD] ERROR: Public function '%s' has already been hooked by another mod", functionName);
@@ -2123,7 +2130,9 @@ void RSDK::HookPublicFunction(const char *functionName, void *functionPtr, void 
     modPublicFunctionHooks[publicFuncPtr] = PublicFunctionHook{originalPtr, functionPtr};
 #endif
 }
-void RSDK::UnHookPublicFunctions() {
+
+void RSDK::UnHookPublicFunctions()
+{
 #if RETRO_MOD_LOADER_HOOK
     for (const auto [pubFunc, hookData] : modPublicFunctionHooks) {
 #if RETRO_PLATFORM == RETRO_WIN
@@ -2138,6 +2147,7 @@ void RSDK::UnHookPublicFunctions() {
     modPublicFunctionHooks.clear();
 #endif
 }
-#endif
+
+#endif /* RETRO_MOD_LOADER_VER >= 3 */
 
 #endif
