@@ -2121,7 +2121,13 @@ void RSDK::HookPublicFunction(const char *id, const char *functionName, void *fu
     }
 
     // Update current hook mapping
+#if RETRO_PLATFORM == RETRO_WIN
+    hookStack.push({originalPtr, functionPtr});
+#else
+    // Dobby needs the hooked function's address to know where to unhook later, so save that instead
     hookStack.push({(void**)topHookFunc, functionPtr});
+#endif
+
 #endif
 }
 
