@@ -211,7 +211,11 @@ void RSDK::InitModAPI(bool32 getVersion)
 #endif
 
 #if RETRO_MOD_LOADER_VER >= 3
+    // Mod hooks (Public Functions override)
     ADD_MOD_FUNCTION(ModTable_HookPublicFunction, HookPublicFunction);
+
+    // Platform info
+    ADD_MOD_FUNCTION(ModTable_GetRetroPlatform, GetRetroPlatform);
 #endif
 
     superLevels.clear();
