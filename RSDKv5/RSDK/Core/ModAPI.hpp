@@ -143,7 +143,11 @@ enum ModFunctionTableIDs {
 #endif
 
 #if RETRO_MOD_LOADER_VER >= 3
+    // Mod hooks (Public Functions override)
     ModTable_HookPublicFunction,
+
+    // Platform info
+    ModTable_GetRetroPlatform,
 #endif
 
     ModTable_Count
@@ -438,8 +442,12 @@ bool32 GetGroupEntities(uint16 group, void **entity);
 #endif
 
 #if RETRO_MOD_LOADER_VER >= 3
+// Mod hooks (Public Functions override)
 void HookPublicFunction(const char *id, const char *functionName, void *functionPtr, void **originalPtr);
 void UnHookPublicFunctions();
+
+// Platform info
+inline int32 GetRetroPlatform(void) { return RETRO_PLATFORM; }
 #endif
 
 #endif
