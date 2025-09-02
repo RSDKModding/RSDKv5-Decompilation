@@ -216,6 +216,14 @@ void RSDK::InitModAPI(bool32 getVersion)
 
     // Platform info
     ADD_MOD_FUNCTION(ModTable_GetRetroPlatform, GetRetroPlatform);
+
+    // IO
+    ADD_MOD_FUNCTION(ModTable_IOOpen, IOOpen);
+    ADD_MOD_FUNCTION(ModTable_IORead, IORead);
+    ADD_MOD_FUNCTION(ModTable_IOSeek, IOSeek);
+    ADD_MOD_FUNCTION(ModTable_IOTell, IOTell);
+    ADD_MOD_FUNCTION(ModTable_IOClose, IOClose);
+    ADD_MOD_FUNCTION(ModTable_IOWrite, IOWrite);
 #endif
 
     superLevels.clear();
@@ -2155,6 +2163,32 @@ void RSDK::UnHookPublicFunctions()
     }
     modPublicFunctionHooks.clear();
 #endif
+}
+
+// IO
+
+IOHandle RSDK::IOOpen(const char *filename, const char *mode) {
+    return fOpen(filename, mode);
+}
+
+uint32 RSDK::IORead(void *buffer, uint32 elementSize, uint32 elementCount, IOHandle file) {
+    return fRead(buffer, elementSize, elementCount, file);
+}
+
+int32 RSDK::IOSeek(IOHandle file, int32 offset, int32 whence) {
+    return fSeek(file, offset, whence);
+}
+
+int32 RSDK::IOTell(IOHandle file) {
+    return fTell(file);
+}
+
+int32 RSDK::IOClose(IOHandle file) {
+    return fClose(file);
+}
+
+uint32 RSDK::IOWrite(const void *buffer, uint32 elementSize, uint32 elementCount, IOHandle file) {
+    return fWrite(buffer, elementSize, elementCount, file);
 }
 
 #endif /* RETRO_MOD_LOADER_VER >= 3 */
