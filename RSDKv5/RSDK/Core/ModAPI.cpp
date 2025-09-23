@@ -2219,10 +2219,18 @@ bool32 RSDK::FileExists(const char *path)
 
 // Game Title
 
-void RSDK::GetGameTitle(String *result) { InitString(result, gameVerInfo.gameTitle, 0); }
+void RSDK::GetGameTitle(String *result)
+{
+    std::string buf = gameVerInfo.gameTitle;
+    if (MODAPI_ENDS_WITH(" (Data Folder)"))
+        buf.erase(buf.length() - strlen(" (Data Folder)"));
+    InitString(result, buf.c_str(), 0);
+}
 
 void RSDK::SetGameTitle(const char *name) {
     strcpy(gameVerInfo.gameTitle, name);
+    if (!useDataPack)
+        strcat(gameVerInfo.gameTitle, " (Data Folder)");
     RenderDevice::SetWindowTitle();
 }
 
