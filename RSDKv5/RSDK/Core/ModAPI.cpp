@@ -2251,21 +2251,11 @@ void RSDK::LoadPaletteLegacy(uint8 bankID, const char *filename, int32 startDstI
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         Seek_Set(&info, 3 * startSrcIndex);
 
-        if (bankID) {
-            for (int32 i = startSrcIndex; i < endSrcIndex; ++i) {
-                uint8 red   = ReadInt8(&info);
-                uint8 green = ReadInt8(&info);
-                uint8 blue  = ReadInt8(&info);
-                fullPalette[bankID][i] = rgb32To16_B[blue] | rgb32To16_G[green] | rgb32To16_R[red];
-            }
-        }
-        else {
-            for (int32 i = startSrcIndex; i < endSrcIndex; ++i) {
-                uint8 red   = ReadInt8(&info);
-                uint8 green = ReadInt8(&info);
-                uint8 blue  = ReadInt8(&info);
-                fullPalette[bankID][i] = rgb32To16_B[blue] | rgb32To16_G[green] | rgb32To16_R[red];
-            }
+        for (int32 i = startSrcIndex; i < endSrcIndex; ++i) {
+            uint8 red   = ReadInt8(&info);
+            uint8 green = ReadInt8(&info);
+            uint8 blue  = ReadInt8(&info);
+            fullPalette[bankID][startDstIndex++] = rgb32To16_B[blue] | rgb32To16_G[green] | rgb32To16_R[red];
         }
 
         CloseFile(&info);
