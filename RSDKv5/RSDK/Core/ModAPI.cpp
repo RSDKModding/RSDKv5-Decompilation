@@ -2228,7 +2228,8 @@ void RSDK::GetGameTitle(String *result)
 }
 
 void RSDK::SetGameTitle(const char *name) {
-    strcpy(gameVerInfo.gameTitle, name);
+    // Keep enough space for appending " (Data Folder)" and '\0'
+    strncpy(gameVerInfo.gameTitle, name, sizeof(gameVerInfo.gameTitle) - strlen(" (Data Folder)") - 1);
     if (!useDataPack)
         strcat(gameVerInfo.gameTitle, " (Data Folder)");
     RenderDevice::SetWindowTitle();
