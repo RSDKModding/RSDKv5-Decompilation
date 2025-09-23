@@ -156,6 +156,16 @@ enum ModFunctionTableIDs {
     ModTable_IOTell,
     ModTable_IOClose,
     ModTable_IOWrite,
+
+    // Files
+    ModTable_FileExists,
+
+    // Game Title
+    ModTable_GetGameTitle,
+    ModTable_SetGameTitle,
+
+    // Graphics
+    ModTable_LoadPaletteLegacy,
 #endif
 
     ModTable_Count
@@ -465,6 +475,16 @@ int32 IOSeek(IOHandle file, int32 offset, int32 whence);
 int32 IOTell(IOHandle file);
 int32 IOClose(IOHandle file);
 uint32 IOWrite(const void *buffer, uint32 elementSize, uint32 elementCount, IOHandle file);
+
+// Files
+bool32 FileExists(const char *path);
+
+// Game Title
+void GetGameTitle(String *result);
+void SetGameTitle(const char *name);
+
+// Graphics
+void LoadPaletteLegacy(uint8 bankID, const char *filename, int32 startDstIndex, int32 startSrcIndex, int32 endSrcIndex);
 #endif
 
 #endif

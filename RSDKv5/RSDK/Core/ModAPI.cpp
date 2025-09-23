@@ -224,6 +224,16 @@ void RSDK::InitModAPI(bool32 getVersion)
     ADD_MOD_FUNCTION(ModTable_IOTell, IOTell);
     ADD_MOD_FUNCTION(ModTable_IOClose, IOClose);
     ADD_MOD_FUNCTION(ModTable_IOWrite, IOWrite);
+
+    // Files
+    ADD_MOD_FUNCTION(ModTable_FileExists, FileExists);
+
+    // Game Name
+    ADD_MOD_FUNCTION(ModTable_GetGameTitle, GetGameTitle);
+    ADD_MOD_FUNCTION(ModTable_SetGameTitle, SetGameTitle);
+
+    // Graphics
+    ADD_MOD_FUNCTION(ModTable_LoadPaletteLegacy, LoadPaletteLegacy);
 #endif
 
     superLevels.clear();
@@ -2084,6 +2094,8 @@ bool32 RSDK::GetGroupEntities(uint16 group, void **entity)
 
 #if RETRO_MOD_LOADER_VER >= 3
 
+// Mod hooks (Public Functions override)
+
 void RSDK::HookPublicFunction(const char *id, const char *functionName, void *functionPtr, void **originalPtr)
 {
 #if !RETRO_MOD_LOADER_HOOK
@@ -2189,6 +2201,66 @@ int32 RSDK::IOClose(IOHandle file) {
 
 uint32 RSDK::IOWrite(const void *buffer, uint32 elementSize, uint32 elementCount, IOHandle file) {
     return fWrite(buffer, elementSize, elementCount, file);
+}
+
+// Files
+
+bool32 RSDK::FileExists(const char *path)
+{
+    FileInfo info;
+    InitFileInfo(&info);
+
+    if (LoadFile(&info, path, FMODE_RB)) {
+        CloseFile(&info);
+        return true;
+    }
+    return false;
+}
+
+// Game Title
+
+void RSDK::GetGameTitle(String *result)
+{
+    std::string buf = gameVerInfo.gameTitle;
+    if (MODAPI_ENDS_WITH(" (Data Folder)"))
+        buf.erase(buf.length() - strlen(" (Data Folder)"));
+    InitString(result, buf.c_str(), 0);
+}
+
+void RSDK::SetGameTitle(const char *name) {
+    // Keep enough space for appending " (Data Folder)" and '\0'
+    strncpy(gameVerInfo.gameTitle, name, sizeof(gameVerInfo.gameTitle) - strlen(" (Data Folder)") - 1);
+    if (!useDataPack)
+        strcat(gameVerInfo.gameTitle, " (Data Folder)");
+    RenderDevice::SetWindowTitle();
+}
+
+// Graphics
+
+void RSDK::LoadPaletteLegacy(uint8 bankID, const char *filename, int32 startDstIndex, int32 startSrcIndex, int32 endSrcIndex)
+{
+    if (endSrcIndex > PALETTE_BANK_SIZE)
+        endSrcIndex = PALETTE_BANK_SIZE;
+    if (bankID >= PALETTE_BANK_COUNT || startDstIndex >= PALETTE_BANK_SIZE || startSrcIndex >= PALETTE_BANK_SIZE || startSrcIndex >= endSrcIndex)
+        return;
+
+    char fullFilePath[0x80];
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Palettes/%s", filename);
+
+    FileInfo info;
+    InitFileInfo(&info);
+    if (LoadFile(&info, fullFilePath, FMODE_RB)) {
+        Seek_Set(&info, 3 * startSrcIndex);
+
+        for (int32 i = startSrcIndex; i < endSrcIndex; ++i) {
+            uint8 red   = ReadInt8(&info);
+            uint8 green = ReadInt8(&info);
+            uint8 blue  = ReadInt8(&info);
+            fullPalette[bankID][startDstIndex++] = rgb32To16_B[blue] | rgb32To16_G[green] | rgb32To16_R[red];
+        }
+
+        CloseFile(&info);
+    }
 }
 
 #endif /* RETRO_MOD_LOADER_VER >= 3 */
