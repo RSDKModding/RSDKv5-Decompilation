@@ -215,7 +215,6 @@ void RSDK::LoadSceneFolder()
                     objClass->staticLoad(*objClass->staticVars);
                 else
                     LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
-
 #else
                 LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
 #endif
