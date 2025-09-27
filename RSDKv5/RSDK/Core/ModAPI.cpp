@@ -234,6 +234,13 @@ void RSDK::InitModAPI(bool32 getVersion)
 
     // Graphics
     ADD_MOD_FUNCTION(ModTable_LoadPaletteLegacy, LoadPaletteLegacy);
+
+    // Audio
+    ADD_MOD_FUNCTION(ModTable_GetChannelAttributes, GetChannelAttributes);
+
+    // Dev Menu Characters
+    ADD_MOD_FUNCTION(ModTable_AddDevMenuCharacter, AddDevMenuCharacter);
+    ADD_MOD_FUNCTION(ModTable_GetActiveDevMenuCharacter, GetActiveDevMenuCharacter);
 #endif
 
     superLevels.clear();
@@ -512,11 +519,13 @@ void RSDK::UnloadMods()
     memset(Legacy::modScriptFlags, 0, sizeof(Legacy::modScriptFlags));
     Legacy::modObjCount = 0;
 
-    memset(modSettings.playerNames, 0, sizeof(modSettings.playerNames));
-    modSettings.playerCount = 0;
-
     modSettings.versionOverride = 0;
     modSettings.activeMod       = -1;
+#endif
+
+#if RETRO_REV0U || RETRO_MOD_LOADER_VER >= 3
+    memset(modSettings.players, 0, sizeof(modSettings.players));
+    modSettings.playerCount = 0;
 #endif
 
     customUserFileDir[0] = 0;
@@ -2261,6 +2270,34 @@ void RSDK::LoadPaletteLegacy(uint8 bankID, const char *filename, int32 startDstI
 
         CloseFile(&info);
     }
+}
+
+// Audio
+
+void RSDK::GetChannelAttributes(uint8 channel, float *volume, float *panning, float *speed)
+{
+    if (channel < CHANNEL_COUNT) {
+        if (volume)
+            *volume = channels[channel].volume;
+        if (panning)
+            *panning = channels[channel].pan;
+        if (speed)
+            *speed = (float)(channels[channel].speed) / TO_FIXED(1);
+    }
+}
+
+// Dev Menu Characters
+
+void RSDK::AddDevMenuCharacter(const char *playerName, int32 id)
+{
+    if (modSettings.playerCount >= PLAYERNAME_COUNT) {
+        PrintLog(PRINT_ERROR, "[MOD] ERROR: Failed to add dev menu character '%s' (max limit reached)", playerName);
+        return;
+    }
+
+    StrCopy(modSettings.players[modSettings.playerCount].name, playerName);
+    modSettings.players[modSettings.playerCount].id = id;
+    modSettings.playerCount++;
 }
 
 #endif /* RETRO_MOD_LOADER_VER >= 3 */

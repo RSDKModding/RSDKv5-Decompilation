@@ -643,6 +643,9 @@ void RSDK::InitEngine()
     switch (engine.version) {
         case 5:
 #endif
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+            RSDK::playerListPos = -1;
+#endif
             StartGameObjects();
 #if RETRO_REV0U
             break;
@@ -791,6 +794,9 @@ void RSDK::LoadGameXML(bool pal)
                     LoadXMLWindowText(gameElement);
                     LoadXMLObjects(gameElement);
                     LoadXMLSoundFX(gameElement);
+#if RETRO_MOD_LOADER_VER >= 3
+                    LoadXMLPlayers(gameElement);
+#endif
                     LoadXMLStages(gameElement);
                 }
             }
@@ -810,8 +816,12 @@ void RSDK::LoadXMLWindowText(const tinyxml2::XMLElement *gameElement)
     const tinyxml2::XMLElement *titleElement = gameElement->FirstChildElement("title");
     if (titleElement) {
         const tinyxml2::XMLAttribute *nameAttr = titleElement->FindAttribute("name");
-        if (nameAttr)
-            strcpy(gameVerInfo.gameTitle, nameAttr->Value());
+        if (nameAttr) {
+            // Keep enough space for appending " (Data Folder)" and '\0'
+            strncpy(gameVerInfo.gameTitle, nameAttr->Value(), sizeof(gameVerInfo.gameTitle) - strlen(" (Data Folder)") - 1);
+            if (!useDataPack)
+                strcat(gameVerInfo.gameTitle, " (Data Folder)");
+        }
     }
 }
 
@@ -932,6 +942,29 @@ void RSDK::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement)
     }
 }
 
+#if RETRO_MOD_LOADER_VER >= 3
+void RSDK::LoadXMLPlayers(const tinyxml2::XMLElement *gameElement)
+{
+    const tinyxml2::XMLElement *playersElement = gameElement->FirstChildElement("players");
+    if (playersElement) {
+        for (const tinyxml2::XMLElement *plrElement = playersElement->FirstChildElement("player"); plrElement;
+             plrElement                             = plrElement->NextSiblingElement("player")) {
+            const tinyxml2::XMLAttribute *nameAttr = plrElement->FindAttribute("name");
+            const char *plrName                    = "unknownPlayer";
+            if (nameAttr)
+                plrName = nameAttr->Value();
+
+            const tinyxml2::XMLAttribute *idAttr = plrElement->FindAttribute("id");
+            int32 id                             = 0;
+            if (idAttr)
+                id = idAttr->IntValue();
+
+            AddDevMenuCharacter(plrName, id);
+        }
+    }
+}
+#endif
+
 #if !RETRO_REV0U
 std::vector<SceneListEntry> listData;
 std::vector<SceneListInfo> listCategory;
@@ -1019,6 +1052,10 @@ void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
 
 void RSDK::LoadGameConfig()
 {
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    modSettings.playerCount = 0;
+#endif
+
     FileInfo info;
     InitFileInfo(&info);
 

@@ -62,7 +62,8 @@ bool32 RSDK::Legacy::v3::LoadGameConfig(const char *filepath)
 
 #if RETRO_USE_MOD_LOADER
             // needed for PlayerName[] stuff in scripts
-            StrCopy(modSettings.playerNames[p], strBuffer);
+            StrCopy(modSettings.players[p].name, strBuffer);
+            modSettings.players[p].id = p;
             modSettings.playerCount++;
 #endif
         }
@@ -599,8 +600,10 @@ void RSDK::Legacy::v3::LoadXMLWindowText(const tinyxml2::XMLElement *gameElement
     const tinyxml2::XMLElement *titleElement = gameElement->FirstChildElement("title");
     if (titleElement) {
         const tinyxml2::XMLAttribute *nameAttr = titleElement->FindAttribute("name");
-        if (nameAttr)
-            StrCopy(gameVerInfo.gameTitle, nameAttr->Value());
+        if (nameAttr) {
+            // Keep enough space for appending '\0'
+            strncpy(gameVerInfo.gameTitle, nameAttr->Value(), sizeof(gameVerInfo.gameTitle) - 1);
+        }
     }
 }
 
@@ -774,7 +777,7 @@ void RSDK::Legacy::v3::LoadXMLPlayers(const tinyxml2::XMLElement *gameElement)
             if (nameAttr)
                 plrName = nameAttr->Value();
 
-            StrCopy(modSettings.playerNames[modSettings.playerCount++], plrName);
+            AddDevMenuCharacter(plrName, modSettings.playerCount);
         }
     }
 }
