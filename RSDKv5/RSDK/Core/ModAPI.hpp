@@ -19,7 +19,7 @@ namespace RSDK
 
 #if RETRO_USE_MOD_LOADER
 
-#define LEGACY_PLAYERNAME_COUNT (0x10)
+#define PLAYERNAME_COUNT (0x10)
 
 extern std::map<uint32, uint32> superLevels;
 extern int32 inheritLevel;
@@ -166,6 +166,13 @@ enum ModFunctionTableIDs {
 
     // Graphics
     ModTable_LoadPaletteLegacy,
+
+    // Audio
+    ModTable_GetChannelAttributes,
+
+    // Dev Menu Characters
+    ModTable_AddDevMenuCharacter,
+    ModTable_GetActiveDevMenuCharacter,
 #endif
 
     ModTable_Count
@@ -233,6 +240,13 @@ struct StateHook {
     bool32 priority;
 };
 
+#if RETRO_REV0U || RETRO_MOD_LOADER_VER >= 3
+struct PlayerInfo {
+    char name[0x20];
+    int32 id;
+};
+#endif
+
 struct ModSettings {
     int32 activeMod         = -1;
     bool32 redirectSaveRAM  = false;
@@ -241,8 +255,10 @@ struct ModSettings {
 #if RETRO_REV0U
     int32 versionOverride = 0;
     bool32 forceScripts   = false;
+#endif
 
-    char playerNames[LEGACY_PLAYERNAME_COUNT][0x20];
+#if RETRO_REV0U || RETRO_MOD_LOADER_VER >= 3
+    PlayerInfo players[PLAYERNAME_COUNT];
     int32 playerCount = 0;
 #endif
 };
@@ -485,6 +501,18 @@ void SetGameTitle(const char *name);
 
 // Graphics
 void LoadPaletteLegacy(uint8 bankID, const char *filename, int32 startDstIndex, int32 startSrcIndex, int32 endSrcIndex);
+
+// Audio
+void GetChannelAttributes(uint8 channel, float *volume, float *panning, float *speed);
+
+// Dev Menu Characters
+void AddDevMenuCharacter(const char *playerName, int32 id);
+inline int32 GetActiveDevMenuCharacter(void)
+{
+    if (!modSettings.playerCount)
+        return -1;
+    return playerListPos;
+}
 #endif
 
 #endif

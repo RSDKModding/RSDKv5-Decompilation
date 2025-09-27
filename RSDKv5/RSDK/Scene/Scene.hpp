@@ -163,6 +163,10 @@ extern uint8 currentSceneFilter;
 
 extern SceneInfo sceneInfo;
 
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+extern int32 playerListPos;
+#endif
+
 extern uint8 tilesetPixels[TILESET_SIZE * 4];
 
 void LoadSceneFolder();
@@ -177,6 +181,9 @@ void ProcessSceneTimer();
 void SetScene(const char *categoryName, const char *sceneName);
 inline void LoadScene()
 {
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    RSDK::playerListPos = -1;
+#endif
     if ((sceneInfo.state & ENGINESTATE_STEPOVER) == ENGINESTATE_STEPOVER)
         sceneInfo.state = ENGINESTATE_LOAD | ENGINESTATE_STEPOVER;
     else

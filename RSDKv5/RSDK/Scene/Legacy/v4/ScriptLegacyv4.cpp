@@ -1806,9 +1806,9 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                 funcName[1] = 0;
 
                 int32 p = 0;
-                for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
+                for (; p < PLAYERNAME_COUNT; ++p) {
                     char buf[0x40];
-                    char *str = modSettings.playerNames[p];
+                    char *str = modSettings.players[p].name;
                     int32 pos = 0;
 
                     while (*str) {
@@ -1825,7 +1825,7 @@ void RSDK::Legacy::v4::ConvertFunctionText(char *text)
                     }
                 }
 
-                if (p == LEGACY_PLAYERNAME_COUNT)
+                if (p == PLAYERNAME_COUNT)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
             }
 
@@ -2140,9 +2140,9 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
             caseValue[1] = 0;
 
             int32 p = 0;
-            for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
+            for (; p < PLAYERNAME_COUNT; ++p) {
                 char buf[0x40];
-                char *str = modSettings.playerNames[p];
+                char *str = modSettings.players[p].name;
                 int32 pos = 0;
 
                 while (*str) {
@@ -2159,7 +2159,7 @@ void RSDK::Legacy::v4::CheckCaseNumber(char *text)
                 }
             }
 
-            if (p == LEGACY_PLAYERNAME_COUNT)
+            if (p == PLAYERNAME_COUNT)
                 PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
         }
 
@@ -2377,9 +2377,9 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                 caseValue[1] = 0;
 
                 int32 p = 0;
-                for (; p < LEGACY_PLAYERNAME_COUNT; ++p) {
+                for (; p < PLAYERNAME_COUNT; ++p) {
                     char buf[0x40];
-                    char *str = modSettings.playerNames[p];
+                    char *str = modSettings.players[p].name;
                     int32 pos = 0;
 
                     while (*str) {
@@ -2396,7 +2396,7 @@ bool32 RSDK::Legacy::v4::ReadSwitchCase(char *text)
                     }
                 }
 
-                if (p == LEGACY_PLAYERNAME_COUNT)
+                if (p == PLAYERNAME_COUNT)
                     PrintLog(PRINT_NORMAL, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
             }
 

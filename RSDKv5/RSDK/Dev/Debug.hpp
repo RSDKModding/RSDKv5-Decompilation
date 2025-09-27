@@ -115,7 +115,7 @@ struct DevMenu {
 #if RETRO_USE_MOD_LOADER
     bool32 modsChanged;
     uint8 startingVersion;
-#if RETRO_REV0U
+#if RETRO_REV0U || RETRO_MOD_LOADER_VER >= 3
     int32 playerListPos;
 #endif
 #endif
