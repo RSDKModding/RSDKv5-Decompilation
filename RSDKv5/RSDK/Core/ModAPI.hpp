@@ -170,6 +170,7 @@ enum ModFunctionTableIDs {
 
     // Graphics
     ModTable_LoadPaletteLegacy,
+    ModTable_DrawDevString,
 
     // Audio
     ModTable_GetChannelAttributes,

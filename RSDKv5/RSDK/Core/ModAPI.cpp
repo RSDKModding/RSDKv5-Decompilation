@@ -234,6 +234,7 @@ void RSDK::InitModAPI(bool32 getVersion)
 
     // Graphics
     ADD_MOD_FUNCTION(ModTable_LoadPaletteLegacy, LoadPaletteLegacy);
+    ADD_MOD_FUNCTION(ModTable_DrawDevString, DrawDevString);
 
     // Audio
     ADD_MOD_FUNCTION(ModTable_GetChannelAttributes, GetChannelAttributes);
