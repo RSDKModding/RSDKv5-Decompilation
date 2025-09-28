@@ -196,8 +196,16 @@ namespace RSDK
 {
 void DevMenu_HandleTouchControls(int8 cornerButton)
 {
+    InputState *keyConfirm = &controller[CONT_ANY].keyA;
+#if RETRO_REV02
+    if (SKU::userCore->GetConfirmButtonFlip())
+#else
+    if (SKU::GetConfirmButtonFlip())
+#endif
+        keyConfirm = &controller[CONT_ANY].keyB;
+
     bool32 cornerCheck = cornerButton != CORNERBUTTON_START ? !controller[CONT_ANY].keyLeft.down && !controller[CONT_ANY].keyRight.down
-                                                            : !controller[CONT_ANY].keyStart.down;
+                                                            : !controller[CONT_ANY].keyStart.down && !keyConfirm->down;
 
     if (cornerCheck && !controller[CONT_ANY].keyUp.down && !controller[CONT_ANY].keyDown.down) {
         for (int32 t = 0; t < touchInfo.count; ++t) {
@@ -225,34 +233,38 @@ void DevMenu_HandleTouchControls(int8 cornerButton)
                 }
                 else if (tx > screens->center.x) {
                     if (ty > screens->center.y) {
-                        if (cornerButton == CORNERBUTTON_START) {
-                            if (!controller[CONT_ANY].keyStart.down)
-                                controller[CONT_ANY].keyStart.press = true;
+                        InputState *keyL = cornerButton == CORNERBUTTON_START ? keyConfirm : &controller[CONT_ANY].keyLeft;
+                        InputState *keyR = cornerButton == CORNERBUTTON_START ? &controller[CONT_ANY].keyStart : &controller[CONT_ANY].keyRight;
 
-                            controller[CONT_ANY].keyStart.down = true;
+                        if (tx < screens->size.x * 0.75) {
+                            if (!keyL->down)
+                                keyL->press = true;
+
+                            keyL->down = true;
+                            break;
                         }
                         else {
-                            if (tx < screens->size.x * 0.75) {
-                                if (!controller[CONT_ANY].keyLeft.down)
-                                    controller[CONT_ANY].keyLeft.press = true;
+                            if (!keyR->down)
+                                keyR->press = true;
 
-                                controller[CONT_ANY].keyLeft.down = true;
-                            }
-                            else {
-                                if (!controller[CONT_ANY].keyRight.down)
-                                    controller[CONT_ANY].keyRight.press = true;
-
-                                controller[CONT_ANY].keyRight.down = true;
-                                break;
-                            }
+                            keyR->down = true;
+                            break;
                         }
                         break;
                     }
                     else {
-                        if (!controller[CONT_ANY].keyB.down)
-                            controller[CONT_ANY].keyB.press = true;
+                        InputState *keyBack = &controller[CONT_ANY].keyB;
+#if RETRO_REV02
+                        if (SKU::userCore->GetConfirmButtonFlip())
+#else
+                        if (SKU::GetConfirmButtonFlip())
+#endif
+                            keyBack = &controller[CONT_ANY].keyA;
 
-                        controller[CONT_ANY].keyB.down = true;
+                        if (!keyBack->down)
+                            keyBack->press = true;
+
+                        keyBack->down = true;
                         break;
                     }
                 }
