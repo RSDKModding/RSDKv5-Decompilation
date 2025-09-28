@@ -200,27 +200,27 @@ void DevMenu_HandleTouchControls(int8 cornerButton)
     // Up
     int32 x = 32, y = 32;
     DrawRectangle(x - 8, y - 8, 16, 16, 0x80, 0xFF, INK_NONE, true);
-    DrawDevString("^", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
+    DrawDevString("\x1E", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
 
     // Down
     y = currentScreen->size.y - 32;
     DrawRectangle(x - 8, y - 8, 16, 16, 0x80, 0xFF, INK_NONE, true);
-    DrawDevString("v", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
+    DrawDevString("\x1F", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
 
     // Back
     x = currentScreen->size.x - 32, y = 32;
     DrawRectangle(x - 8, y - 8, 16, 16, 0x80, 0xFF, INK_NONE, true);
-    DrawDevString("<-", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
+    DrawDevString("\x1B", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
 
     // OK / Right
     y = currentScreen->size.y - 32;
     DrawRectangle(x - 8, y - 8, 16, 16, 0x80, 0xFF, INK_NONE, true);
-    DrawDevString(cornerButton == CORNERBUTTON_CONFIRM ? "OK" : ">", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
+    DrawDevString(cornerButton == CORNERBUTTON_CONFIRM ? "OK" : "\x10", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
 
     // A / Left
-    x = currentScreen->size.x - (currentScreen->size.x * 0.25) - 8;
+    x = currentScreen->size.x - (int32)(currentScreen->size.x * 0.25) - 8;
     DrawRectangle(x - 8, y - 8, 16, 16, 0x80, 0xFF, INK_NONE, true);
-    DrawDevString(cornerButton == CORNERBUTTON_CONFIRM ? "A" : "<", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
+    DrawDevString(cornerButton == CORNERBUTTON_CONFIRM ? "A" : "\x11", x, y - 4, ALIGN_CENTER, 0xF0F0F0);
 #endif
 
     InputState *keyConfirm = &controller[CONT_ANY].keyA;
