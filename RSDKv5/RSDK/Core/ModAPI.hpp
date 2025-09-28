@@ -36,6 +36,10 @@ enum ModCallbackEvents {
     MODCB_ONSHADERLOAD,
     MODCB_ONVIDEOSKIPCB,
     MODCB_ONSCANLINECB,
+#if RETRO_MOD_LOADER_VER >= 3
+    MODCB_BEFORESTAGELOAD,
+    MODCB_BEFORESTATICUPDATE,
+#endif
     MODCB_MAX,
 };
 
@@ -166,6 +170,7 @@ enum ModFunctionTableIDs {
 
     // Graphics
     ModTable_LoadPaletteLegacy,
+    ModTable_DrawDevString,
 
     // Audio
     ModTable_GetChannelAttributes,
