@@ -541,7 +541,17 @@ void RSDK::Legacy::v4::LoadXMLPlayers(const tinyxml2::XMLElement *gameElement)
             if (nameAttr)
                 plrName = nameAttr->Value();
 
+#if RETRO_MOD_LOADER_VER <= 2
+            if (modSettings.playerCount >= PLAYERNAME_COUNT)
+                PrintLog(PRINT_ERROR, "[MOD] ERROR: Failed to add dev menu character '%s' (max limit reached)", plrName);
+            else {
+                StrCopy(modSettings.players[modSettings.playerCount].name, plrName);
+                modSettings.players[modSettings.playerCount].id = modSettings.playerCount;
+                modSettings.playerCount++;
+            }
+#else
             AddDevMenuCharacter(plrName, modSettings.playerCount);
+#endif
         }
     }
 }
