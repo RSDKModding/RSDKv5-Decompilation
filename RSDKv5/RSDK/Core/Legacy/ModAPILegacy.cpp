@@ -52,6 +52,17 @@ void RSDK::Legacy::v4::GetModVersion(int32 *textMenu, int32 *highlight, uint32 *
     menu->entryHighlight[menu->rowCount] = *highlight;
     AddTextMenuEntry(menu, modList[*id].version.c_str());
 }
+void RSDK::Legacy::v4::GetModID(int32 *unused, const char *modFolder)
+{
+    for (int32 n = 0; n < (int)modList.size(); ++n) {
+        if (modList[n].folderName == modFolder) {
+            scriptEng.checkResult = n;
+            return;
+        }
+    }
+
+    scriptEng.checkResult = -1;
+}
 void RSDK::Legacy::v4::GetModActive(uint32 *id, int32 *unused)
 {
     scriptEng.checkResult = false;

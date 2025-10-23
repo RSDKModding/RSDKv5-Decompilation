@@ -24,6 +24,7 @@ void GetModName(int32 *textMenu, int32 *highlight, uint32 *id, int32 *unused);
 void GetModDescription(int32 *textMenu, int32 *highlight, uint32 *id, int32 *unused);
 void GetModAuthor(int32 *textMenu, int32 *highlight, uint32 *id, int32 *unused);
 void GetModVersion(int32 *textMenu, int32 *highlight, uint32 *id, int32 *unused);
+void GetModID(int32 *unused, const char *modFolder);
 void GetModActive(uint32 *id, int32 *unused);
 void SetModActive(uint32 *id, int32 *active);
 void MoveMod(uint32 *id, int32 *up);

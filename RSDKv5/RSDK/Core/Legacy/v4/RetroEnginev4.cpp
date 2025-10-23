@@ -233,6 +233,7 @@ bool32 RSDK::Legacy::v4::LoadGameConfig(const char *filepath)
     AddNativeFunction("GetModDescription", GetModDescription);
     AddNativeFunction("GetModAuthor", GetModAuthor);
     AddNativeFunction("GetModVersion", GetModVersion);
+    AddNativeFunction("GetModID", GetModID);
     AddNativeFunction("GetModActive", GetModActive);
     AddNativeFunction("SetModActive", SetModActive);
     AddNativeFunction("MoveMod", MoveMod);
