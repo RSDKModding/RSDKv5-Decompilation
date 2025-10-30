@@ -560,13 +560,16 @@ void RSDK::LoadSettingsINI()
 
 void RSDK::SaveSettingsINI(bool32 writeToFile)
 {
-    // only done on windows and "dev", consoles use "options.bin"
+    // the original only saves this file on windows and "dev", consoles use "options.bin"
+    // for the decomp, however, we want to save it regardless of platform
+#if RETRO_USE_ORIGINAL_CODE
 #if RETRO_REV02
     if (SKU::curSKU.platform != PLATFORM_PC && SKU::curSKU.platform != PLATFORM_DEV)
         return;
 #else
     if (gameVerInfo.platform != PLATFORM_PC && gameVerInfo.platform != PLATFORM_DEV)
         return;
+#endif
 #endif
 
     if (changedVideoSettings || writeToFile) {
