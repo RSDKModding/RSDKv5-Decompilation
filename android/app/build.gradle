@@ -14,7 +14,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 33
         versionCode 100
-        versionName "1.1.0"
+        versionName "1.1.1"
         if(project.hasProperty("RETRO_DISABLE_PLUS"))
             autobuildFlag = true
         if(project.hasProperty("RETRO_REVISION"))

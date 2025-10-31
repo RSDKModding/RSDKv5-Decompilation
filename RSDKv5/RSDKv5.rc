@@ -77,13 +77,13 @@ BEGIN
     BEGIN
         BLOCK "0c0904b0"
         BEGIN
-            VALUE "CompanyName", "RSDKv5 By Christian 'The Taxman' Whitehead, Decompilation By Rubberduckycooly/RMGRich"
+            VALUE "CompanyName", "RSDKv5 By Christian 'The Taxman' Whitehead, Decompilation By Rubberduckycooly/stxtic"
             VALUE "FileDescription", "RSDKv5"
-            VALUE "FileVersion", "1.1.0"
+            VALUE "FileVersion", "1.1.1"
             VALUE "InternalName", "RSDKv5.exe"
             VALUE "OriginalFilename", "RSDKv5.exe"
             VALUE "ProductName", "RSDKv5"
-            VALUE "ProductVersion", "1.1.0"
+            VALUE "ProductVersion", "1.1.1"
         END
     END
     BLOCK "VarFileInfo"

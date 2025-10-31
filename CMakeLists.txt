@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(RetroEngine)
 
-set(DECOMP_VERSION 1.1.0-a)
+set(DECOMP_VERSION 1.1.1)
 
 set(RETRO_REVISION 3 CACHE STRING "What revision to compile for. Defaults to v5U = 3")
 option(RETRO_DISABLE_PLUS "Disable plus. Should be set on for any public releases." OFF)
@@ -162,8 +162,7 @@ target_compile_definitions(RetroEngine PRIVATE
     RSDK_AUTOBUILD=$<BOOL:${RETRO_DISABLE_PLUS}>
     RETRO_DISABLE_LOG=$<BOOL:${RETRO_DISABLE_LOG}>
     
-    RETRO_DEV_EXTRA="${PLATFORM} - ${RETRO_SUBSYSTEM} - ${CMAKE_CXX_COMPILER_ID}"
-    DECOMP_VERSION="${DECOMP_VERSION}"
+    RETRO_DEV_EXTRA="${RETRO_SUBSYSTEM} - ${DECOMP_VERSION}"
 )
 
 if(WITH_RSDK)
