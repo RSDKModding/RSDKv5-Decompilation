@@ -575,7 +575,7 @@ void RSDK::Legacy::v3::LoadXMLVariables(const tinyxml2::XMLElement *gameElement)
     const tinyxml2::XMLElement *variablesElement = gameElement->FirstChildElement("variables");
     if (variablesElement) {
         for (const tinyxml2::XMLElement *varElement = variablesElement->FirstChildElement("variable"); varElement;
-             varElement                             = varElement->NextSiblingElement("variable")) {
+            varElement                             = varElement->NextSiblingElement("variable")) {
             const tinyxml2::XMLAttribute *nameAttr = varElement->FindAttribute("name");
             const char *varName                    = "unknownVariable";
             if (nameAttr)
@@ -586,9 +586,13 @@ void RSDK::Legacy::v3::LoadXMLVariables(const tinyxml2::XMLElement *gameElement)
             if (valAttr)
                 varValue = valAttr->IntValue();
 
-            StrCopy(globalVariables[globalVariablesCount].name, varName);
-            globalVariables[globalVariablesCount].value = varValue;
-            globalVariablesCount++;
+            if (globalVariablesCount >= LEGACY_GLOBALVAR_COUNT)
+                PrintLog(PRINT_ERROR, "[MOD] ERROR: Failed to add global variable '%s' (max limit reached)", varName);
+            else if (GetGlobalVariableID(varName) == 0xFF) {
+                StrCopy(globalVariables[globalVariablesCount].name, varName);
+                globalVariables[globalVariablesCount].value = varValue;
+                globalVariablesCount++;
+            }
         }
     }
 }
