@@ -152,6 +152,7 @@ void RSDK::Legacy::v4::SetWindowScale(int32 *scale, int32 *unused)
         return;
 
     SetVideoSetting(VIDEOSETTING_WINDOW_WIDTH, videoSettings.pixWidth * *scale);
+    SetVideoSetting(VIDEOSETTING_WINDOW_HEIGHT, SCREEN_YSIZE * *scale);
 }
 void RSDK::Legacy::v4::GetWindowScaleMode() { scriptEng.checkResult = GetVideoSetting(VIDEOSETTING_SHADERID); }
 void RSDK::Legacy::v4::SetWindowScaleMode(int32 *mode, int32 *unused)
