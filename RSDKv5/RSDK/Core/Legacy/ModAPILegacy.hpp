@@ -16,8 +16,6 @@ namespace v4
 {
 
 // Native Functions
-int32 OpenModMenu();
-
 void RefreshEngine();
 void GetModCount();
 void GetModName(int32 *textMenu, int32 *highlight, uint32 *id, int32 *unused);

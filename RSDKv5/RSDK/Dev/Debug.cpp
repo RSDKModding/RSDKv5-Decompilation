@@ -317,8 +317,57 @@ void RSDK::CloseDevMenu()
     sceneInfo.state           = devMenu.sceneState;
 #endif
 
+#if RETRO_USE_MOD_LOADER
+    if (devMenu.modMenuCalled) {
+        devMenu.modMenuCalled = false;
+
+        if (!CheckValidScene()) {
+            sceneInfo.activeCategory = 0;
+            sceneInfo.listPos        = 0;
+        }
+
+#if RETRO_REV0U
+        switch (engine.version) {
+            default: break;
+            case 5: LoadScene(); break;
+            case 4:
+            case 3:
+                RSDK::Legacy::ResetCurrentStageFolder();
+                RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD;
+                break;
+        }
+#else
+        LoadScene();
+#endif
+    }
+#endif
+
     ResumeSound();
 }
+
+#if RETRO_USE_MOD_LOADER
+void RSDK::OpenModMenu()
+{
+    LoadMods(true); // reload our mod list real quick
+    if (modList.size() != 0) {
+        OpenDevMenu();
+        devMenu.state         = DevMenu_ModsMenu;
+        devMenu.modMenuCalled = true;
+    }
+    else {
+#if RETRO_REV0U
+        switch (engine.version) {
+            default: break;
+            case 5: LoadScene(); break;
+            case 4:
+            case 3: RSDK::Legacy::stageMode = RSDK::Legacy::STAGEMODE_LOAD; break;
+        }
+#else
+        LoadScene();
+#endif
+    }
+}
+#endif
 
 void RSDK::DevMenu_MainMenu()
 {
@@ -1951,6 +2000,9 @@ void RSDK::DevMenu_ModsMenu()
             engine.version = devMenu.startingVersion;
         }
 #endif
+
+        if (devMenu.modMenuCalled)
+            CloseDevMenu();
     }
 }
 #endif

@@ -543,10 +543,7 @@ void RSDK::Legacy::v3::RetroEngineCallback(int32 callbackID)
             RSDK::UpdateGameWindow();
             break;
         }
-        case CALLBACK_OPENMODMENU:
-            OpenDevMenu();
-            devMenu.state = DevMenu_ModsMenu;
-            break;
+        case CALLBACK_OPENMODMENU: OpenModMenu(); break;
 #endif
     }
 }
