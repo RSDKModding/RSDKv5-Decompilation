@@ -204,6 +204,8 @@ void RSDK::Legacy::v3::ProcessEngine()
             ResetCurrentStageFolder();
             break;
 
+        case ENGINE_EXITGAME: RSDK::SKU::ExitGame(); break;
+
         case ENGINE_WAIT: break;
 
         case ENGINE_SCRIPTERROR: {
