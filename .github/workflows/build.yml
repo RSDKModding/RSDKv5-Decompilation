@@ -1,7 +1,15 @@
-name: Build RSDKv5
+name: Build RSDKv5 + U
 
 on:
   push:
+    paths:
+      - android/**
+      - dependencies/**
+      - RSDKv5/**
+      - RSDKv5U/**
+      - platforms/**
+      - .github/workflows/build.yml
+      - CMakeLists.txt
     branches:
       - master
 
