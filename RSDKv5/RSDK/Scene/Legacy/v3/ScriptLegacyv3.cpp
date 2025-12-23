@@ -1457,7 +1457,8 @@ void RSDK::Legacy::v3::CheckCaseNumber(char *text)
             jumpTable[stackValue] = caseID;
     }
     else {
-        PrintLog(PRINT_NORMAL, "WARNING: unable to convert case string \"%s\" to int32, on line %d", caseString, lineID);
+        PrintLog(PRINT_SCRIPTERR, "SCRIPT ERROR: Invalid switch case\nOPCODE: %s\nLINE: %d\nFILE: %s", caseString, lineID, scriptFile);
+        gameMode = ENGINE_SCRIPTERROR;
     }
 }
 bool32 RSDK::Legacy::v3::ReadSwitchCase(char *text)
