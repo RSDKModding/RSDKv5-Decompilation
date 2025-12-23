@@ -242,6 +242,9 @@ void RSDK::InitModAPI(bool32 getVersion)
     // Dev Menu Characters
     ADD_MOD_FUNCTION(ModTable_AddDevMenuCharacter, AddDevMenuCharacter);
     ADD_MOD_FUNCTION(ModTable_GetActiveDevMenuCharacter, GetActiveDevMenuCharacter);
+
+    // Mod Menu
+    ADD_MOD_FUNCTION(ModTable_OpenModMenu, OpenModMenu);
 #endif
 
     superLevels.clear();
