@@ -1,4 +1,11 @@
-using ShaderEntry = ShaderEntryBase;
+#pragma once
+
+#include <RSDK/Core/RetroEngine.hpp>
+using namespace RSDK;
+
+struct ShaderEntry : public ShaderEntryBase {
+    SDL_GPURenderState *state;
+};
 
 class RenderDevice : public RenderDeviceBase
 {
@@ -41,6 +48,7 @@ public:
     static void UpdateFPSCap();
 
     static bool InitShaders();
+    static void ReleaseShaderRenderStates();
     static void LoadShader(const char *fileName, bool32 linear);
 
     static inline void ShowCursor(bool32 shown) { if (shown )SDL_ShowCursor(); else SDL_HideCursor(); }
@@ -54,6 +62,7 @@ public:
 
     static SDL_Window *window;
     static SDL_Renderer *renderer;
+    static SDL_GPUDevice *device;
     static SDL_Texture *screenTexture[SCREEN_COUNT];
 
     static SDL_Texture *imageTexture;
