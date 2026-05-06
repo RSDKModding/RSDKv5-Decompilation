@@ -267,7 +267,9 @@ struct ModSettings {
 
 #if RETRO_REV0U || RETRO_MOD_LOADER_VER >= 3
     PlayerInfo players[PLAYERNAME_COUNT];
-    int32 playerCount     = 0;
+    int32 playerCount = 0;
+#endif
+#if RETRO_MOD_LOADER_VER >= 3
     int32 gamePlayerCount = 0;
 #endif
 };
