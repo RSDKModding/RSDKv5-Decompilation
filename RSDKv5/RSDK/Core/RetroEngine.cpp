@@ -762,7 +762,13 @@ void RSDK::StartGameObjects()
     for (int32 l = 0; l < DRAWGROUP_COUNT; ++l) engine.drawGroupVisible[l] = true;
 
     SetupFunctionTables();
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    modSettings.playerCount = 0;
+#endif
     InitGameLink();
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    modSettings.gamePlayerCount = modSettings.playerCount;
+#endif
     LoadGameConfig();
 }
 
@@ -1053,7 +1059,7 @@ void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
 void RSDK::LoadGameConfig()
 {
 #if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
-    modSettings.playerCount = 0;
+    modSettings.playerCount = modSettings.gamePlayerCount;
 #endif
 
     FileInfo info;
