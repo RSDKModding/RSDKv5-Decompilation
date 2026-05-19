@@ -152,9 +152,6 @@ jobs:
       - name: Build Mania+RSDKv5 Android
         working-directory: ./android
         run: |
-          ./gradlew assemble --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a" -PRETRO_DISABLE_PLUS -PRETRO_REVISION=3
-          mv app/build/outputs/apk/release/*.apk rsdkv5u_mania.apk
-          ./gradlew clean
           ./gradlew  assemble --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a" -PRETRO_DISABLE_PLUS -PRETRO_REVISION=2
           mv app/build/outputs/apk/release/*.apk rsdkv5_mania.apk
       - name: Bundle APK & mods
