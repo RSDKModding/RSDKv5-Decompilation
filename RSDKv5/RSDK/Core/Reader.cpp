@@ -263,7 +263,7 @@ bool32 RSDK::LoadFile(FileInfo *info, const char *filename, uint8 fileMode)
         }
         if (modSettings.activeMod != -1) {
             PrintLog(PRINT_NORMAL, "[MOD] Failed to find file %s in active mod %s", filename, modList[m].id.c_str());
-            // TODO return false? check original impl later
+            break;
         }
     }
 

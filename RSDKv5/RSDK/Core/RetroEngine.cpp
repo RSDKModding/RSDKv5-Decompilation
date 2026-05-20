@@ -779,7 +779,7 @@ void RSDK::LoadGameXML(bool pal)
     SortMods();
     for (int32 m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
-            break;
+            continue;
         SetActiveMod(m);
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
@@ -978,7 +978,6 @@ std::vector<SceneListInfo> listCategory;
 
 void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
 {
-
     for (const tinyxml2::XMLElement *listElement = gameElement->FirstChildElement("category"); listElement;
         listElement                             = listElement->NextSiblingElement("category")) {
         SceneListInfo *list = nullptr;
@@ -1033,8 +1032,9 @@ void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
             if (stgFilter)
                 stgFilter = filterAttr->IntValue();
 #endif
-            listData.emplace(listData.begin() + list->sceneOffsetEnd);
-            SceneListEntry *scene = &listData[list->sceneOffsetEnd];
+
+            listData.emplace(listData.begin() + list->sceneOffsetStart + list->sceneCount);
+            SceneListEntry *scene = &listData[list->sceneOffsetStart + list->sceneCount];
 
             sprintf_s(scene->name, sizeof(scene->name), "%s", stgName);
             GEN_HASH_MD5(scene->name, scene->hash);
@@ -1046,6 +1046,7 @@ void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
             if (scene->filter == 0x00)
                 scene->filter = 0xFF;
 #endif
+
             list->sceneCount++;
             list->sceneOffsetEnd++;
             for (int32 l = listID + 1; l < listCategory.size(); ++l) listCategory[l].sceneOffsetStart++;
