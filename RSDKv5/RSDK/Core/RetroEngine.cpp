@@ -779,7 +779,7 @@ void RSDK::LoadGameXML(bool pal)
     SortMods();
     for (int32 m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
-            continue;
+            break;
         SetActiveMod(m);
         InitFileInfo(&info);
         if (LoadFile(&info, "Data/Game/Game.xml", FMODE_RB)) {
