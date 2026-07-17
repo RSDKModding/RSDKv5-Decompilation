@@ -124,7 +124,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
             if (SKU::userCore->CheckEnginePause())
                 continue;
 
-                // Focus Checks
+            // Focus Checks
 #if !RETRO_USE_ORIGINAL_CODE
             if (customSettings.disableFocusPause)
                 engine.focusState = 0;
@@ -831,12 +831,12 @@ void RSDK::LoadXMLWindowText(const tinyxml2::XMLElement *gameElement)
     }
 }
 
-void RSDK::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
+void RSDK::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement, bool stage)
 {
     const tinyxml2::XMLElement *paletteElement = gameElement->FirstChildElement("palette");
     if (paletteElement) {
         for (const tinyxml2::XMLElement *clrElement = paletteElement->FirstChildElement("color"); clrElement;
-            clrElement                             = clrElement->NextSiblingElement("color")) {
+             clrElement                             = clrElement->NextSiblingElement("color")) {
             const tinyxml2::XMLAttribute *bankAttr = clrElement->FindAttribute("bank");
             int32 bank                             = 0;
             if (bankAttr)
@@ -862,11 +862,17 @@ void RSDK::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
             if (bAttr)
                 b = bAttr->IntValue();
 
-            SetPaletteEntry(bank, index, (r << 16) | (g << 8) | b);
+            if (!stage) {
+                SetPaletteEntry(bank, index, (r << 16) | (g << 8) | b);
+            }
+            else {
+                stagePalette[bank][index] = rgb32To16_B[b] | rgb32To16_G[g] | rgb32To16_R[r];
+                activeStageRows[bank] |= 1 << (index >> 4);
+            }
         }
 
         for (const tinyxml2::XMLElement *clrsElement = paletteElement->FirstChildElement("colors"); clrsElement;
-            clrsElement                             = clrsElement->NextSiblingElement("colors")) {
+             clrsElement                             = clrsElement->NextSiblingElement("colors")) {
             const tinyxml2::XMLAttribute *bankAttr = clrsElement->FindAttribute("bank");
             int32 bank                             = 0;
             if (bankAttr)
@@ -896,19 +902,31 @@ void RSDK::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
                     color   = (r << 16) | (g << 8) | b;
                 }
 
-                SetPaletteEntry(bank, index++, color);
+                if (!stage) {
+                    SetPaletteEntry(bank, index++, color);
+                }
+                else {
+                    int32 r = (color >> 16) & 0xFF;
+                    int32 g = (color >> 8) & 0xFF;
+                    int32 b = (color >> 0) & 0xFF;
+
+                    stagePalette[bank][index] = rgb32To16_B[b] | rgb32To16_G[g] | rgb32To16_R[r];
+                    activeStageRows[bank] |= 1 << (index >> 4);
+                    index++;
+                }
+
                 text = match.suffix();
             }
         }
     }
 }
 
-void RSDK::LoadXMLObjects(const tinyxml2::XMLElement *gameElement)
+void RSDK::LoadXMLObjects(const tinyxml2::XMLElement *gameElement, bool stage)
 {
     const tinyxml2::XMLElement *objectsElement = gameElement->FirstChildElement("objects");
     if (objectsElement) {
         for (const tinyxml2::XMLElement *objElement = objectsElement->FirstChildElement("object"); objElement;
-            objElement                             = objElement->NextSiblingElement("object")) {
+             objElement                             = objElement->NextSiblingElement("object")) {
             const tinyxml2::XMLAttribute *nameAttr = objElement->FindAttribute("name");
             const char *objName                    = "unknownObject";
             if (nameAttr)
@@ -916,23 +934,68 @@ void RSDK::LoadXMLObjects(const tinyxml2::XMLElement *gameElement)
 
             RETRO_HASH_MD5(hash);
             GEN_HASH_MD5(objName, hash);
-            globalObjectIDs[globalObjectCount] = 0;
-            for (int32 objID = 0; objID < objectClassCount; ++objID) {
-                if (HASH_MATCH_MD5(hash, objectClassList[objID].hash)) {
-                    globalObjectIDs[globalObjectCount] = objID;
-                    globalObjectCount++;
+
+            if (!stage) {
+                globalObjectIDs[globalObjectCount] = 0;
+                for (int32 objID = 0; objID < objectClassCount; ++objID) {
+                    if (HASH_MATCH_MD5(hash, objectClassList[objID].hash)) {
+                        globalObjectIDs[globalObjectCount] = objID;
+                        globalObjectCount++;
+                    }
+                }
+            }
+            else {
+                uint16 startClassCount = sceneInfo.classCount;
+
+                stageObjectIDs[sceneInfo.classCount] = 0;
+                for (int32 id = 0; id < objectClassCount; ++id) {
+                    if (HASH_MATCH_MD5(hash, objectClassList[id].hash)) {
+                        stageObjectIDs[sceneInfo.classCount] = id;
+                        sceneInfo.classCount++;
+                    }
+                }
+
+                for (int32 o = startClassCount; o < sceneInfo.classCount; ++o) {
+                    ObjectClass *objClass = &objectClassList[stageObjectIDs[o]];
+                    if (objClass->staticVars && !*objClass->staticVars) {
+                        AllocateStorage((void **)objClass->staticVars, objClass->staticClassSize, DATASET_STG, true);
+
+#if RETRO_REV0U
+                        // Assign classID early so that SUPER_STATICLOAD works correctly
+                        (*objClass->staticVars)->classID = o;
+
+                        if (objClass->staticLoad)
+                            objClass->staticLoad(*objClass->staticVars);
+                        else
+#endif
+                            LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
+
+                        // even though the static load event is rev0U only, this point in the engine is "static loading"
+                        RunModCallbacks(MODCB_ONSTATICLOAD, (void *)objClass);
+
+                        for (ModInfo &mod : modList) {
+                            if (mod.staticVars.find(objClass->hash) != mod.staticVars.end()) {
+                                auto sVars = mod.staticVars.at(objClass->hash);
+                                RegisterStaticVariables((void **)sVars.staticVars, sVars.name.c_str(), sVars.size);
+                            }
+                        }
+
+                        (*objClass->staticVars)->classID = o;
+                        if (o >= TYPE_DEFAULT_COUNT)
+                            (*objClass->staticVars)->active = ACTIVE_NORMAL;
+                    }
                 }
             }
         }
     }
 }
 
-void RSDK::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement)
+void RSDK::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement, bool stage)
 {
     const tinyxml2::XMLElement *soundsElement = gameElement->FirstChildElement("sounds");
     if (soundsElement) {
         for (const tinyxml2::XMLElement *sfxElement = soundsElement->FirstChildElement("soundfx"); sfxElement;
-            sfxElement                             = sfxElement->NextSiblingElement("soundfx")) {
+             sfxElement                             = sfxElement->NextSiblingElement("soundfx")) {
             const tinyxml2::XMLAttribute *valAttr = sfxElement->FindAttribute("path");
             const char *sfxPath                   = "unknownSFX.wav";
             if (valAttr)
@@ -943,7 +1006,7 @@ void RSDK::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement)
             if (playsAttr)
                 maxConcurrentPlays = playsAttr->IntValue();
 
-            LoadSfx((char *)sfxPath, maxConcurrentPlays, SCOPE_GLOBAL);
+            LoadSfx((char *)sfxPath, maxConcurrentPlays, stage ? SCOPE_STAGE : SCOPE_GLOBAL);
         }
     }
 }
@@ -979,7 +1042,7 @@ std::vector<SceneListInfo> listCategory;
 void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
 {
     for (const tinyxml2::XMLElement *listElement = gameElement->FirstChildElement("category"); listElement;
-        listElement                             = listElement->NextSiblingElement("category")) {
+         listElement                             = listElement->NextSiblingElement("category")) {
         SceneListInfo *list = nullptr;
         int32 listID;
 
@@ -1010,7 +1073,7 @@ void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
         }
 
         for (const tinyxml2::XMLElement *stgElement = listElement->FirstChildElement("stage"); stgElement;
-            stgElement                             = stgElement->NextSiblingElement("stage")) {
+             stgElement                             = stgElement->NextSiblingElement("stage")) {
             const tinyxml2::XMLAttribute *nameAttr = stgElement->FindAttribute("name");
             const char *stgName                    = "unknownStage";
             if (nameAttr)
@@ -1054,6 +1117,97 @@ void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
     }
     sceneInfo.listData     = listData.data();
     sceneInfo.listCategory = listCategory.data();
+}
+
+void RSDK::LoadStageXML()
+{
+    FileInfo info;
+    SortMods();
+
+    char fullFilePath[0x40];
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.xml", currentSceneFolder);
+
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
+        SetActiveMod(m);
+        InitFileInfo(&info);
+        if (LoadFile(&info, fullFilePath, FMODE_RB)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            ReadBytes(&info, xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+            CloseFile(&info);
+
+            doc->Parse(xmlData);
+            const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage"); // stageElement is nullptr if parse failure
+
+            if (stageElement) {
+                LoadXMLObjects(stageElement, true);
+                LoadXMLSoundFX(stageElement, true);
+                LoadXMLPalettes(stageElement, true);
+            }
+            else {
+                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse StageConfig.xml file for mod %s", modList[m].id.c_str());
+            }
+
+            delete[] xmlData;
+            delete doc;
+        }
+    }
+    SetActiveMod(-1);
+}
+
+// slightly hacky for the purpose of using this in the middle of LoadSceneFolder
+bool RSDK::StageXMLUseGlobalObjects()
+{
+    FileInfo info;
+    SortMods();
+
+    bool hasAttribute = false;
+
+    char fullFilePath[0x40];
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.xml", currentSceneFolder);
+
+    // don't need extra logging here
+    bool32 engineDebugStore = engineDebugMode;
+
+    engineDebugMode = false;
+
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
+
+        SetActiveMod(m);
+        InitFileInfo(&info);
+        if (LoadFile(&info, fullFilePath, FMODE_RB)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            ReadBytes(&info, xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+            CloseFile(&info);
+
+            doc->Parse(xmlData);
+            const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage");
+
+            if (stageElement) {
+                const tinyxml2::XMLAttribute *valAttr = stageElement->FindAttribute("useGlobalObjects");
+                if (valAttr)
+                    sceneInfo.useGlobalObjects = valAttr->BoolValue();
+
+                hasAttribute = valAttr != NULL;
+            }
+
+            delete[] xmlData;
+            delete doc;
+        }
+    }
+
+    SetActiveMod(-1);
+    engineDebugMode = engineDebugStore;
+    return hasAttribute;
 }
 #endif
 
@@ -1308,12 +1462,12 @@ void RSDK::InitGameLink()
 
     info.functionTable = RSDKFunctionTable;
 
-    info.gameInfo = &gameVerInfo;
+    info.gameInfo  = &gameVerInfo;
     info.sceneInfo = &sceneInfo;
 
     info.controllerInfo = controller;
-    info.stickInfo = stickL;
-    info.touchInfo = &touchInfo;
+    info.stickInfo      = stickL;
+    info.touchInfo      = &touchInfo;
 
     info.screenInfo = screens;
 
@@ -1389,7 +1543,8 @@ void RSDK::InitGameLink()
             if (!linkModLogic(&info, modList[m].id.c_str())) {
                 modList[m].active = false;
                 PrintLog(PRINT_ERROR, "[MOD] Failed to link logic for mod %s!", modList[m].id.c_str());
-            } else {
+            }
+            else {
                 SortPublicFunctions(modList[m].functionList);
             }
         }
@@ -1421,7 +1576,7 @@ void RSDK::ProcessDebugCommands()
     int32 state          = engine.version == 5 ? sceneInfo.state : Legacy::stageMode;
     const int32 stepOver = engine.version == 5 ? (int32)ENGINESTATE_STEPOVER : (int32)Legacy::STAGEMODE_STEPOVER;
 #else
-    uint8 state = sceneInfo.state;
+    uint8 state          = sceneInfo.state;
     const uint8 stepOver = ENGINESTATE_STEPOVER;
 #endif
 

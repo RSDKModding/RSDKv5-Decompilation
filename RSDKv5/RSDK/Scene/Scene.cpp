@@ -168,6 +168,16 @@ void RSDK::LoadSceneFolder()
 
     FileInfo info;
     InitFileInfo(&info);
+
+#if RETRO_USE_MOD_LOADER
+    // StageXMLUseGlobalObjects sets sceneInfo.useGlobalObjects
+
+    // We're using its return value to determine if StageConfig.xml has
+    // the useGlobalObjects at all, if it does then we'll just ignore
+    // the value from StageConfig.bin
+    bool32 hasAttribute = StageXMLUseGlobalObjects();
+#endif
+
     if (LoadFile(&info, fullFilePath, FMODE_RB)) {
         uint32 sig = ReadInt32(&info, false);
 
@@ -176,8 +186,15 @@ void RSDK::LoadSceneFolder()
             return;
         }
 
+#if RETRO_USE_MOD_LOADER
+        uint8 useGlobalObjects = ReadInt8(&info);
+        if (!hasAttribute)
+            sceneInfo.useGlobalObjects = useGlobalObjects;
+#else
         sceneInfo.useGlobalObjects = ReadInt8(&info);
-        sceneInfo.classCount       = 0;
+#endif
+
+        sceneInfo.classCount = 0;
 
         if (sceneInfo.useGlobalObjects) {
             for (int32 o = 0; o < globalObjectCount; ++o) stageObjectIDs[o] = globalObjectIDs[o];
@@ -185,7 +202,6 @@ void RSDK::LoadSceneFolder()
         }
         else {
             for (int32 o = 0; o < TYPE_DEFAULT_COUNT; ++o) stageObjectIDs[o] = globalObjectIDs[o];
-
             sceneInfo.classCount = TYPE_DEFAULT_COUNT;
         }
 
@@ -210,19 +226,16 @@ void RSDK::LoadSceneFolder()
             if (objClass->staticVars && !*objClass->staticVars) {
                 AllocateStorage((void **)objClass->staticVars, objClass->staticClassSize, DATASET_STG, true);
 
-#if RETRO_USE_MOD_LOADER && RETRO_REV0U
+#if RETRO_REV0U
+#if RETRO_USE_MOD_LOADER
                 // Assign classID early so that SUPER_STATICLOAD works correctly
                 (*objClass->staticVars)->classID = o;
 #endif
-
-#if RETRO_REV0U
                 if (objClass->staticLoad)
                     objClass->staticLoad(*objClass->staticVars);
                 else
-                    LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
-#else
-                LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
 #endif
+                    LoadStaticVariables((uint8 *)*objClass->staticVars, objClass->hash, sizeof(Object));
 
 #if RETRO_USE_MOD_LOADER
                 // even though the static load event is rev0U only, this point in the engine is "static loading"
@@ -272,6 +285,8 @@ void RSDK::LoadSceneFolder()
 
         CloseFile(&info);
     }
+
+    LoadStageXML();
 
     sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/16x16Tiles.gif", currentSceneFolder);
     LoadStageGIF(fullFilePath);
@@ -1123,7 +1138,7 @@ void RSDK::ProcessParallax(TileLayer *layer)
 
             uint16 scrollPos =
                 FROM_FIXED((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.x << 8)) & 0xFFFF0000)) % pixelWidth;
- 
+
             uint8 *lineScrollPtr = &layer->lineScroll[scrollPos];
 
             // Above water

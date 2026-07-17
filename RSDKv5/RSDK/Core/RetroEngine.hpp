@@ -432,7 +432,7 @@ enum GameRegions {
 #elif RETRO_AUDIODEVICE_MINI
 #define MA_NO_DECODING
 #define MA_NO_ENCODING
-#define MA_NO_RESOURCE_MANAGER 
+#define MA_NO_RESOURCE_MANAGER
 #define MA_NO_ENGINE
 #include <miniaudio/miniaudio.h>
 #endif
@@ -483,7 +483,7 @@ enum GameRegions {
 #elif RETRO_AUDIODEVICE_MINI
 #define MA_NO_DECODING
 #define MA_NO_ENCODING
-#define MA_NO_RESOURCE_MANAGER 
+#define MA_NO_RESOURCE_MANAGER
 #define MA_NO_ENGINE
 #include <miniaudio/miniaudio.h>
 #endif
@@ -672,13 +672,16 @@ void StartGameObjects();
 #if RETRO_USE_MOD_LOADER
 void LoadGameXML(bool pal = false);
 void LoadXMLWindowText(const tinyxml2::XMLElement *gameElement);
-void LoadXMLPalettes(const tinyxml2::XMLElement *gameElement);
-void LoadXMLObjects(const tinyxml2::XMLElement* gameElement);
-void LoadXMLSoundFX(const tinyxml2::XMLElement* gameElement);
+void LoadXMLPalettes(const tinyxml2::XMLElement *gameElement, bool stage = false);
+void LoadXMLObjects(const tinyxml2::XMLElement *gameElement, bool stage = false);
+void LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement, bool stage = false);
 #if RETRO_MOD_LOADER_VER >= 3
 void LoadXMLPlayers(const tinyxml2::XMLElement *gameElement);
 #endif
 void LoadXMLStages(const tinyxml2::XMLElement *gameElement);
+
+void LoadStageXML();
+bool StageXMLUseGlobalObjects();
 #endif
 
 void LoadGameConfig();
