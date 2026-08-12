@@ -2007,7 +2007,7 @@ void RSDK::DrawLayerBasic(TileLayer *layer)
             tileRemainX = TILE_SIZE - sheetX;
             layout      = &layer->layout[tx + (ty << layer->widthShift)];
 
-            if (*layout != 0xFFFF) {
+            if (*layout == 0xFFFF) {
                 frameBuffer += tileRemainX;
             }
             else {
@@ -2130,9 +2130,8 @@ void RSDK::DrawLayerBasic(TileLayer *layer)
                     }
 
                     pixels += tileRemainX;
+                    frameBuffer += currentScreen->pitch - sheetX;
                 }
-
-                frameBuffer += currentScreen->pitch - sheetX;
             }
         }
     }
