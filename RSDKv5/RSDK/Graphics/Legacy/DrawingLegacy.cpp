@@ -1293,7 +1293,7 @@ void RSDK::Legacy::Draw3DSkyLayer(int32 layerID)
         int32 YPos       = layerZPos + (3 * cosValue * (layerYPos / (i << 8)) >> 2) - yBuffer * SCREEN_XSIZE;
         int32 lineBuffer = 0;
 
-        while (lineBuffer < GFX_LINESIZE_DOUBLE;) {
+        while (lineBuffer < GFX_LINESIZE_DOUBLE) {
             int32 tileX = XPos >> 12;
             int32 tileY = YPos >> 12;
             if (tileX > -1 && tileX < layerWidth && tileY > -1 && tileY < layerHeight) {
