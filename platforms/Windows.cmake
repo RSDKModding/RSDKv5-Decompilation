@@ -110,6 +110,8 @@ if(USE_MINIAUDIO)
         message(FATAL_ERROR "portaudio not supported for DX9 and DX11.")
     endif()
     target_compile_definitions(RetroEngine PRIVATE RETRO_AUDIODEVICE_MINI=1)
+elseif(MINGW AND WIN32)
+    target_link_libraries(RetroEngine ksuser xaudio2_8)
 endif()
 
 target_compile_definitions(RetroEngine PRIVATE _CRT_SECURE_NO_WARNINGS)
