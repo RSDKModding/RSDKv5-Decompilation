@@ -1,6 +1,6 @@
 #ifdef VK_INTELLISENSE
-#include "RetroEngine.hpp"
-#include "VulkanRenderDevice.hpp"
+#include <RSDK/Core/RetroEngine.hpp>
+using namespace RSDK;
 #endif
 
 #include <set>
@@ -146,7 +146,7 @@ VkBuffer RenderDevice::vertexBuffer;
 VkDeviceMemory RenderDevice::vertexBufferMemory;
 
 VkCommandPool RenderDevice::commandPool;
-VkCommandBuffer RenderDevice::commandBuffer;
+std::vector<VkCommandBuffer> RenderDevice::commandBuffers;
 
 VkQueue RenderDevice::graphicsQueue;
 VkQueue RenderDevice::presentQueue;
@@ -154,10 +154,11 @@ uint32 RenderDevice::graphicsIndex;
 uint32 RenderDevice::presentIndex;
 
 VkViewport RenderDevice::viewport;
+VkRect2D RenderDevice::scissors;
 
-VkSemaphore RenderDevice::imageAvailableSemaphore;
-VkSemaphore RenderDevice::renderFinishedSemaphore;
-VkFence RenderDevice::inFlightFence;
+std::vector<VkSemaphore> RenderDevice::waitSemaphore;
+std::vector<VkSemaphore> RenderDevice::signalSemaphore;
+std::vector<VkFence> RenderDevice::flightFence;
 
 int32 RenderDevice::monitorIndex;
 
@@ -215,7 +216,7 @@ GLFWwindow *RenderDevice::CreateGLFWWindow(void)
     }
     if (videoSettings.windowed) {
         // Center the window
-        monitor = glfwGetPrimaryMonitor();
+        monitor                 = glfwGetPrimaryMonitor();
         const GLFWvidmode *mode = glfwGetVideoMode(monitor);
         int x, y;
         glfwGetMonitorPos(monitor, &x, &y);
@@ -245,8 +246,7 @@ bool RenderDevice::Init()
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE); // HiDPI scaling support
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
-    // Disable framebuffer scaling which (surprisingly) makes the framebuffer scale correctly on Wayland
-    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
 #endif
 
     if ((window = CreateGLFWWindow()) == NULL)
@@ -273,8 +273,8 @@ bool RenderDevice::SetupRendering()
     appInfo.pApplicationName = "RSDK" ENGINE_V_NAME;
     appInfo.pEngineName      = "RSDK" ENGINE_V_NAME;
     // i aint trying to populate these vers
-    appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-    appInfo.engineVersion      = VK_MAKE_API_VERSION(0, 1, 0, 0);
+    appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 2, 0);
+    appInfo.engineVersion      = VK_MAKE_API_VERSION(0, 1, 2, 0);
     appInfo.apiVersion         = VK_API_VERSION_1_1;
 
     VkInstanceCreateInfo instanceInfo{};
@@ -337,8 +337,8 @@ bool RenderDevice::SetupRendering()
     callbackInfo.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     callbackInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
                                    | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    callbackInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
-                               | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    callbackInfo.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+                                   | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     callbackInfo.pfnUserCallback = DebugCallback;
     callbackInfo.pUserData       = nullptr;
 
@@ -411,13 +411,6 @@ bool RenderDevice::SetupRendering()
     deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 
     deviceInfo.pEnabledFeatures = &deviceFeatures;
-
-#ifndef VK_DEBUG
-    deviceInfo.enabledLayerCount = 0;
-#else
-    deviceInfo.enabledLayerCount   = sizeof(validationLayers) / sizeof(const char *);
-    deviceInfo.ppEnabledLayerNames = validationLayers;
-#endif
 
     deviceInfo.enabledExtensionCount   = sizeof(requiredExtensions) / sizeof(const char *);
     deviceInfo.ppEnabledExtensionNames = requiredExtensions;
@@ -561,7 +554,11 @@ bool RenderDevice::InitGraphicsAPI()
     Vector2 viewportPos{};
     Vector2 lastViewSize;
 
-    glfwGetWindowSize(window, &lastViewSize.x, &lastViewSize.y);
+    if (videoSettings.windowed)
+        glfwGetWindowSize(window, &lastViewSize.x, &lastViewSize.y);
+    else
+        glfwGetFramebufferSize(window, &lastViewSize.x, &lastViewSize.y);
+
     Vector2 viewportSize = lastViewSize;
 
     if ((viewSize.x / viewSize.y) <= ((pixelSize.x / pixelSize.y) + 0.1)) {
@@ -618,11 +615,19 @@ bool RenderDevice::InitGraphicsAPI()
     pickedExtent.height =
         CLAMP(pickedExtent.height, currentSwapDetails.capabilities.minImageExtent.height, currentSwapDetails.capabilities.maxImageExtent.height);
 
+    uint32_t framesInFlight = videoSettings.tripleBuffered ? 2 : 1;
+
+    waitSemaphore.resize(framesInFlight);
+    flightFence.resize(framesInFlight);
+    commandBuffers.resize(framesInFlight);
+
     //! CREATE SWAPCHAIN
     uint32_t imageCount = currentSwapDetails.capabilities.minImageCount + 1;
     if (currentSwapDetails.capabilities.maxImageCount > 0 && imageCount > currentSwapDetails.capabilities.maxImageCount) {
         imageCount = currentSwapDetails.capabilities.maxImageCount;
     }
+
+    signalSemaphore.resize(imageCount);
 
     VkSwapchainCreateInfoKHR swapCreateInfo{};
     swapCreateInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -744,12 +749,15 @@ bool RenderDevice::InitGraphicsAPI()
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
+    scissors.offset = { (int32)viewportPos.x, (int32)viewportPos.y };
+    scissors.extent = { (uint32)viewportSize.x, (uint32)viewportSize.y };
+
     viewportState               = {};
     viewportState.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;
     viewportState.pViewports    = &viewport;
     viewportState.scissorCount  = 1;
-    viewportState.pScissors     = (VkRect2D *)&viewport;
+    viewportState.pScissors     = &scissors;
 
     rasterizer                         = {};
     rasterizer.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -850,9 +858,9 @@ bool RenderDevice::InitGraphicsAPI()
     cmdAllocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     cmdAllocInfo.commandPool        = commandPool;
     cmdAllocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    cmdAllocInfo.commandBufferCount = 1;
+    cmdAllocInfo.commandBufferCount = framesInFlight;
 
-    if (vkAllocateCommandBuffers(device, &cmdAllocInfo, &commandBuffer) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(device, &cmdAllocInfo, commandBuffers.data()) != VK_SUCCESS) {
         PrintLog(PRINT_NORMAL, "[VK] Failed to create command buffer");
         return false;
     }
@@ -865,10 +873,17 @@ bool RenderDevice::InitGraphicsAPI()
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS
-        || vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS
-        || vkCreateFence(device, &fenceInfo, nullptr, &inFlightFence) != VK_SUCCESS) {
-        PrintLog(PRINT_NORMAL, "[VK] Unable to create sephamores");
+    for (int32 i = 0; i < framesInFlight; i++) {
+        if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &waitSemaphore[i]) != VK_SUCCESS
+            || vkCreateFence(device, &fenceInfo, nullptr, &flightFence[i]) != VK_SUCCESS) {
+            PrintLog(PRINT_ERROR, "[VK] Unable to create fence");
+        }
+    }
+
+    for (int32 i = 0; i < imageCount; i++) {
+        if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &signalSemaphore[i]) != VK_SUCCESS) {
+            PrintLog(PRINT_ERROR, "[VK] Unable to create semaphore");
+        }
     }
 
     //! TEXTURE CREATION
@@ -1414,19 +1429,26 @@ bool RenderDevice::ProcessEvents()
 }
 
 VkWriteDescriptorSet descriptorWrites[SCREEN_COUNT][2];
+int32 frameIndex = 0;
 
 void RenderDevice::FlipScreen()
 {
-    vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
+    VkFence inFlightFence = flightFence[frameIndex];
+
+    vkQueueWaitIdle(presentQueue);
     vkResetFences(device, 1, &inFlightFence);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkSemaphore imageAvailableSemaphore = waitSemaphore[frameIndex];
+    VkResult result                     = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+    VkSemaphore renderFinishedSemaphore = signalSemaphore[imageIndex];
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         // RefreshWindow();
         return;
-    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+    }
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         PrintLog(PRINT_NORMAL, "[VK] Failed to acquire swapchain image");
         return;
     }
@@ -1469,7 +1491,7 @@ void RenderDevice::FlipScreen()
 #endif
     }
 
-    vkResetCommandBuffer(commandBuffer, 0);
+    VkCommandBuffer commandBuffer = commandBuffers[frameIndex];
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1499,7 +1521,8 @@ void RenderDevice::FlipScreen()
         imageInfo.sampler = shaderList[videoSettings.shaderID].linear ? samplerLinear : samplerPoint;
     }
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderList[videoSettings.shaderSupport ? videoSettings.shaderID : 0].shaderPipeline);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                      shaderList[videoSettings.shaderSupport ? videoSettings.shaderID : 0].shaderPipeline);
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
     VkBuffer vertexBuffers[] = { vertexBuffer };
@@ -1596,18 +1619,14 @@ void RenderDevice::FlipScreen()
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[]      = { imageAvailableSemaphore };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount     = 1;
-    submitInfo.pWaitSemaphores        = waitSemaphores;
+    submitInfo.pWaitSemaphores        = &imageAvailableSemaphore;
     submitInfo.pWaitDstStageMask      = waitStages;
-
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &commandBuffer;
-
-    VkSemaphore signalSemaphores[]  = { renderFinishedSemaphore };
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores    = signalSemaphores;
+    submitInfo.commandBufferCount     = 1;
+    submitInfo.pCommandBuffers        = &commandBuffer;
+    submitInfo.signalSemaphoreCount   = 1;
+    submitInfo.pSignalSemaphores      = &renderFinishedSemaphore;
 
     if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence) != VK_SUCCESS) {
         PrintLog(PRINT_NORMAL, "[VK] Failed to submit to graphics queue");
@@ -1615,18 +1634,17 @@ void RenderDevice::FlipScreen()
     }
 
     VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
+    presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores    = signalSemaphores;
-
-    VkSwapchainKHR swapChains[] = { swapChain };
-    presentInfo.swapchainCount  = 1;
-    presentInfo.pSwapchains     = swapChains;
-
-    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pWaitSemaphores    = &renderFinishedSemaphore;
+    presentInfo.swapchainCount     = 1;
+    presentInfo.pSwapchains        = &swapChain;
+    presentInfo.pImageIndices      = &imageIndex;
 
     vkQueuePresentKHR(presentQueue, &presentInfo);
+
+    if (videoSettings.tripleBuffered)
+        frameIndex = (frameIndex + 1) % waitSemaphore.capacity();
 }
 
 void RenderDevice::ReleaseShaderPipelines()
@@ -1688,9 +1706,14 @@ void RenderDevice::Release(bool32 isRefresh)
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
 
-    vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
-    vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-    vkDestroyFence(device, inFlightFence, nullptr);
+    for (int32 i = 0; i < waitSemaphore.size(); i++) {
+        vkDestroySemaphore(device, waitSemaphore[i], nullptr);
+        vkDestroyFence(device, flightFence[i], nullptr);
+    }
+
+    for (int32 i = 0; i < signalSemaphore.size(); i++) {
+        vkDestroySemaphore(device, signalSemaphore[i], nullptr);
+    }
 
     vkDestroyCommandPool(device, commandPool, nullptr);
 
@@ -1816,7 +1839,7 @@ bool RenderDevice::InitShaders()
     videoSettings.shaderSupport = true;
     int32 maxShaders            = 0;
 #if RETRO_USE_MOD_LOADER
-    shaderCount                 = 0;
+    shaderCount = 0;
 #endif
 
     LoadShader("None", false);
@@ -2011,6 +2034,7 @@ void RenderDevice::RefreshWindow()
     QuerySwapChainDetails(physicalDevice);
 
     descriptorSet[0] = VK_NULL_HANDLE;
+    frameIndex = 0;
 
     if (!InitGraphicsAPI() || !InitShaders())
         return;
@@ -2224,8 +2248,8 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                     if (engine.devMenu) {
                         sceneInfo.listPos--;
                         while (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart
-                            || sceneInfo.listPos > sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd
-                            || !sceneInfo.listCategory[sceneInfo.activeCategory].sceneCount) {
+                               || sceneInfo.listPos > sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd
+                               || !sceneInfo.listCategory[sceneInfo.activeCategory].sceneCount) {
                             sceneInfo.activeCategory--;
                             if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
                                 sceneInfo.activeCategory = sceneInfo.categoryCount - 1;
@@ -2250,8 +2274,8 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                     if (engine.devMenu) {
                         sceneInfo.listPos++;
                         while (sceneInfo.listPos < sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetStart
-                            || sceneInfo.listPos > sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd
-                            || !sceneInfo.listCategory[sceneInfo.activeCategory].sceneCount) {
+                               || sceneInfo.listPos > sceneInfo.listCategory[sceneInfo.activeCategory].sceneOffsetEnd
+                               || !sceneInfo.listCategory[sceneInfo.activeCategory].sceneCount) {
                             sceneInfo.activeCategory++;
                             if (sceneInfo.activeCategory >= sceneInfo.categoryCount) {
                                 sceneInfo.activeCategory = 0;
