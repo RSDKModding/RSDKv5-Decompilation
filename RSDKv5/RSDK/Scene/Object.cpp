@@ -314,6 +314,13 @@ void RSDK::InitObjects()
 
 #if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
     RunModCallbacks(MODCB_BEFORESTAGELOAD, NULL);
+
+    // Create mod entities *before* any events are called
+    for (int32 e = 0; e < ENTITY_COUNT; ++e) {
+        Entity *entity = &objectEntityList[e];
+        if (entity->classID)
+            CreateModEntitiesFor(entity, &objectClassList[stageObjectIDs[entity->classID]]);
+    }
 #endif
 
     for (int32 o = 0; o < sceneInfo.classCount; ++o) {
@@ -854,7 +861,7 @@ void RSDK::ProcessObjectDrawLists()
                                     case ACTIVE_NEVER: break;
 
                                     case ACTIVE_ALWAYS:
-                                    case ACTIVE_NORMAL: 
+                                    case ACTIVE_NORMAL:
                                     case ACTIVE_PAUSED:
                                         DrawRectangle(entity->position.x, entity->position.y, TO_FIXED(1), TO_FIXED(1), 0x0000FF, 0xFF, INK_NONE,
                                                       false);
@@ -1032,6 +1039,54 @@ uint16 RSDK::FindObject(const char *name)
     return TYPE_DEFAULTOBJECT;
 }
 
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+void RSDK::CreateModEntitiesFor(Entity *entity, ObjectClass *objClass)
+{
+    if (!objClass->staticVars || !*objClass->staticVars)
+        return;
+
+    for (size_t i = 0; i < modList.size(); ++i) {
+        if (!modList[i].active)
+            continue;
+
+        for (auto &registration : modList[i].objectsRegistered) {
+            // no struct or it isn't inheriting from ModEntity so we shouldn't allocate anything
+            if (registration.modEntityClassSize < sizeof(ModEntity))
+                continue;
+
+            ObjectClass *modObjClass = registration.info;
+            if (!modObjClass->staticVars || !*modObjClass->staticVars)
+                continue;
+
+            if ((*modObjClass->staticVars)->classID != (*objClass->staticVars)->classID)
+                continue;
+
+            ModEntity *modEntity = (ModEntity *)(new byte[registration.modEntityClassSize]);
+            memset(modEntity, 0, registration.modEntityClassSize);
+            modEntity->index = i;
+
+            registration.entities[entity] = modEntity;
+        }
+    }
+}
+
+void RSDK::DestroyModEntitiesFor(Entity *entity)
+{
+    for (auto &mod : modList) {
+        if (!mod.active)
+            continue;
+
+        for (auto &registration : mod.objectsRegistered) {
+            if (!registration.entities[entity])
+                continue;
+
+            delete[] registration.entities[entity];
+            registration.entities[entity] = nullptr;
+        }
+    }
+}
+#endif
+
 int32 RSDK::GetEntityCount(uint16 classID, bool32 isActive)
 {
     if (classID >= TYPE_COUNT)
@@ -1052,6 +1107,11 @@ void RSDK::ResetEntity(Entity *entity, uint16 classID, void *data)
 {
     if (entity) {
         ObjectClass *info = &objectClassList[stageObjectIDs[classID]];
+
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+        DestroyModEntitiesFor(entity);
+#endif
+
         memset(entity, 0, info->entityClassSize);
 
         if (info->create) {
@@ -1062,6 +1122,9 @@ void RSDK::ResetEntity(Entity *entity, uint16 classID, void *data)
 #if RETRO_USE_MOD_LOADER
             int32 superStore          = superLevels[inheritLevel];
             superLevels[inheritLevel] = 0;
+#if RETRO_MOD_LOADER_VER >= 3
+            CreateModEntitiesFor(sceneInfo.entity, info);
+#endif
 #endif
             info->create(data);
 #if RETRO_USE_MOD_LOADER
@@ -1082,6 +1145,11 @@ void RSDK::ResetEntitySlot(uint16 slot, uint16 classID, void *data)
     slot                = slot < ENTITY_COUNT ? slot : (ENTITY_COUNT - 1);
 
     Entity *entity = &objectEntityList[slot];
+
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    DestroyModEntitiesFor(entity);
+#endif
+
     memset(&objectEntityList[slot], 0, object->entityClassSize);
 
     if (object->create) {
@@ -1092,6 +1160,9 @@ void RSDK::ResetEntitySlot(uint16 slot, uint16 classID, void *data)
 #if RETRO_USE_MOD_LOADER
         int32 superStore          = superLevels[inheritLevel];
         superLevels[inheritLevel] = 0;
+#if RETRO_MOD_LOADER_VER >= 3
+        CreateModEntitiesFor(sceneInfo.entity, object);
+#endif
 #endif
         object->create(data);
 #if RETRO_USE_MOD_LOADER
@@ -1135,10 +1206,18 @@ Entity *RSDK::CreateEntity(uint16 classID, void *data, int32 x, int32 y)
         ++loopCnt;
     }
 
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    DestroyModEntitiesFor(entity);
+#endif
+
     memset(entity, 0, object->entityClassSize);
     entity->position.x  = x;
     entity->position.y  = y;
     entity->interaction = true;
+
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    CreateModEntitiesFor(entity, object);
+#endif
 
     if (object->create) {
         Entity *curEnt = sceneInfo.entity;
