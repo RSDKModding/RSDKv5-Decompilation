@@ -2229,7 +2229,9 @@ void *RSDK::GetModEntityForModID(Entity *entityPtr, const char *modID)
 {
     if (modID == nullptr && currentMod != nullptr) {
         for (auto &registration : currentMod->objectsRegistered) {
-            return registration.entities[entityPtr];
+            auto it = registration.entities.find(entityPtr);
+            if (it != registration.entities.end())
+                return it->second;
         }
     }
 
@@ -2239,7 +2241,9 @@ void *RSDK::GetModEntityForModID(Entity *entityPtr, const char *modID)
 
         if (mod.id == std::string(modID)) {
             for (auto &registration : mod.objectsRegistered) {
-                return registration.entities[entityPtr];
+                auto it = registration.entities.find(entityPtr);
+                if (it != registration.entities.end())
+                    return it->second;
             }
         }
     }
@@ -2251,7 +2255,9 @@ void *RSDK::GetModEntityForModIndex(Entity *entityPtr, int32 modIndex)
 {
     if (modIndex == -1 && currentMod != nullptr) {
         for (auto &registration : currentMod->objectsRegistered) {
-            return registration.entities[entityPtr];
+            auto it = registration.entities.find(entityPtr);
+            if (it != registration.entities.end())
+                return it->second;
         }
     }
 
@@ -2261,7 +2267,9 @@ void *RSDK::GetModEntityForModIndex(Entity *entityPtr, int32 modIndex)
 
         if (i == modIndex) {
             for (auto &registration : modList[i].objectsRegistered) {
-                return registration.entities[entityPtr];
+                auto it = registration.entities.find(entityPtr);
+                if (it != registration.entities.end())
+                    return it->second;
             }
         }
     }

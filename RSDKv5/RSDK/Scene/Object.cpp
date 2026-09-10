@@ -1077,11 +1077,12 @@ void RSDK::DestroyModEntitiesFor(Entity *entity)
             continue;
 
         for (auto &registration : mod.objectsRegistered) {
-            if (!registration.entities[entity])
+            auto it = registration.entities.find(entity);
+            if (!it->second || it == registration.entities.end())
                 continue;
 
-            delete[] registration.entities[entity];
-            registration.entities[entity] = nullptr;
+            delete[] it->second;
+            registration.entities.erase(it);
         }
     }
 }
