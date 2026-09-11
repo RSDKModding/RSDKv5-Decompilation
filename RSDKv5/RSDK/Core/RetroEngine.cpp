@@ -1241,6 +1241,10 @@ void RSDK::LoadGameConfig()
 void RSDK::InitGameLink()
 {
 #if RETRO_USE_MOD_LOADER
+#if RETRO_MOD_LOADER_VER >= 3
+    DestroyModEntitiesAll();
+#endif
+
     objectClassCount = 0;
     memset(globalObjectIDs, 0, sizeof(globalObjectIDs));
     memset(objectEntityList, 0, sizeof(objectEntityList));

@@ -214,6 +214,10 @@ void RSDK::InitModAPI(bool32 getVersion)
     // Mod hooks (Public Functions override)
     ADD_MOD_FUNCTION(ModTable_HookPublicFunction, HookPublicFunction);
 
+    // Entities
+    ADD_MOD_FUNCTION(ModTable_GetModEntityForModID, GetModEntityForModID);
+    ADD_MOD_FUNCTION(ModTable_GetModEntityForModIndex, GetModEntityForModIndex);
+
     // Platform info
     ADD_MOD_FUNCTION(ModTable_GetRetroPlatform, GetRetroPlatform);
 
@@ -1732,32 +1736,51 @@ void RSDK::ModRegisterGlobalVariables(const char *globalsPath, void **globals, u
 
 #if RETRO_REV0U
 void RSDK::ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                             uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
+#if RETRO_MOD_LOADER_VER >= 3
+                             uint32 modEntityClassSize,
+#endif
+                             uint32 modStaticClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
                              void (*create)(void *), void (*stageLoad)(), void (*editorLoad)(), void (*editorDraw)(), void (*serialize)(),
                              void (*staticLoad)(Object *), const char *inherited)
 {
-    return ModRegisterObject_STD(staticVars, modStaticVars, name, entityClassSize, staticClassSize, modClassSize, update, lateUpdate, staticUpdate,
-                                 draw, create, stageLoad, editorLoad, editorDraw, serialize, staticLoad, inherited);
+    return ModRegisterObject_STD(staticVars, modStaticVars, name, entityClassSize, staticClassSize,
+#if RETRO_MOD_LOADER_VER >= 3
+                                 modEntityClassSize,
+#endif
+                                 modStaticClassSize, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize,
+                                 staticLoad, inherited);
 }
 
 void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                                 uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate,
+#if RETRO_MOD_LOADER_VER >= 3
+                                 uint32 modEntityClassSize,
+#endif
+                                 uint32 modStaticClassSize, std::function<void()> update, std::function<void()> lateUpdate,
                                  std::function<void()> staticUpdate, std::function<void()> draw, std::function<void(void *)> create,
                                  std::function<void()> stageLoad, std::function<void()> editorLoad, std::function<void()> editorDraw,
                                  std::function<void()> serialize, std::function<void(Object *)> staticLoad, const char *inherited)
 #else
-
 void RSDK::ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                             uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
+#if RETRO_MOD_LOADER_VER >= 3
+                             uint32 modEntityClassSize,
+#endif
+                             uint32 modStaticClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
                              void (*create)(void *), void (*stageLoad)(), void (*editorLoad)(), void (*editorDraw)(), void (*serialize)(),
                              const char *inherited)
 {
-    return ModRegisterObject_STD(staticVars, modStaticVars, name, entityClassSize, staticClassSize, modClassSize, update, lateUpdate, staticUpdate,
-                                 draw, create, stageLoad, editorLoad, editorDraw, serialize, inherited);
+    return ModRegisterObject_STD(staticVars, modStaticVars, name, entityClassSize, staticClassSize,
+#if RETRO_MOD_LOADER_VER >= 3
+                                 modEntityClassSize,
+#endif
+                                 modStaticClassSize, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize,
+                                 inherited);
 }
 
 void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                                 uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate,
+#if RETRO_MOD_LOADER_VER >= 3
+                                 uint32 modEntityClassSize,
+#endif
+                                 uint32 modStaticClassSize, std::function<void()> update, std::function<void()> lateUpdate,
                                  std::function<void()> staticUpdate, std::function<void()> draw, std::function<void(void *)> create,
                                  std::function<void()> stageLoad, std::function<void()> editorLoad, std::function<void()> editorDraw,
                                  std::function<void()> serialize, const char *inherited)
@@ -1813,6 +1836,29 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, co
 
     ObjectClass *info = &objectClassList[objectClassCount - 1];
 
+#if RETRO_MOD_LOADER_VER >= 3
+    if (curMod != nullptr)
+        curMod->objectsRegistered.push_back({ info, modEntityClassSize });
+
+    if (create) {
+        create = [curMod, create](void *data) {
+            currentMod = curMod;
+            CreateModEntitiesFor(sceneInfo.entity, &objectClassList[stageObjectIDs[sceneInfo.entity->classID]]);
+            create(data);
+            currentMod = NULL;
+        };
+    }
+
+    if (editorDraw) {
+        editorDraw = [curMod, editorDraw]() {
+            currentMod = curMod;
+            CreateModEntitiesFor(sceneInfo.entity, &objectClassList[stageObjectIDs[sceneInfo.entity->classID]]);
+            editorDraw();
+            currentMod = NULL;
+        };
+    }
+#endif
+
     // clang-format off
     if (update)       info->update       = [curMod, update]()                       { currentMod = curMod; update();                currentMod = NULL; };
     if (lateUpdate)   info->lateUpdate   = [curMod, lateUpdate]()                   { currentMod = curMod; lateUpdate();            currentMod = NULL; };
@@ -1840,8 +1886,8 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, co
                 ModRegisterObjectHook(staticVars, name);
             }
             // lets also setup mod static vars
-            if (modStaticVars && modClassSize) {
-                curMod->staticVars[info->hash] = { curMod->id + "_" + name, modStaticVars, modClassSize };
+            if (modStaticVars && modStaticClassSize) {
+                curMod->staticVars[info->hash] = { curMod->id + "_" + name, modStaticVars, modStaticClassSize };
             }
         }
 
@@ -2193,6 +2239,64 @@ void RSDK::UnHookPublicFunctions()
     }
     modPublicFunctionHooks.clear();
 #endif
+}
+
+// Entities
+
+void *RSDK::GetModEntityForModID(Entity *entityPtr, const char *modID)
+{
+    if (modID == nullptr && currentMod != nullptr) {
+        for (auto &registration : currentMod->objectsRegistered) {
+            auto it = registration.entities.find(entityPtr);
+            if (it != registration.entities.end())
+                return it->second;
+        }
+
+        return nullptr;
+    }
+
+    for (auto &mod : modList) {
+        if (!mod.active)
+            continue;
+
+        if (mod.id == std::string(modID)) {
+            for (auto &registration : mod.objectsRegistered) {
+                auto it = registration.entities.find(entityPtr);
+                if (it != registration.entities.end())
+                    return it->second;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+void *RSDK::GetModEntityForModIndex(Entity *entityPtr, int32 modIndex)
+{
+    if (modIndex == -1 && currentMod != nullptr) {
+        for (auto &registration : currentMod->objectsRegistered) {
+            auto it = registration.entities.find(entityPtr);
+            if (it != registration.entities.end())
+                return it->second;
+        }
+
+        return nullptr;
+    }
+
+    for (size_t i = 0; i < modList.size(); ++i) {
+        if (!modList[i].active)
+            continue;
+
+        if (i == modIndex) {
+            for (auto &registration : modList[i].objectsRegistered) {
+                auto it = registration.entities.find(entityPtr);
+                if (it != registration.entities.end())
+                    return it->second;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 // IO

@@ -294,6 +294,10 @@ void RSDK::LoadSceneAssets()
     ShowLoadingIcon();
 #endif
 
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    DestroyModEntitiesAll();
+#endif
+
     memset(objectEntityList, 0, ENTITY_COUNT * sizeof(EntityBase));
 
     SceneListEntry *sceneEntry = &sceneInfo.listData[sceneInfo.listPos];
@@ -1123,7 +1127,7 @@ void RSDK::ProcessParallax(TileLayer *layer)
 
             uint16 scrollPos =
                 FROM_FIXED((int32)((layer->scrollPos + (layer->parallaxFactor * currentScreen->position.x << 8)) & 0xFFFF0000)) % pixelWidth;
- 
+
             uint8 *lineScrollPtr = &layer->lineScroll[scrollPos];
 
             // Above water

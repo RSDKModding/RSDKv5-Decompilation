@@ -153,6 +153,10 @@ enum ModFunctionTableIDs {
     // Mod hooks (Public Functions override)
     ModTable_HookPublicFunction,
 
+    // Entities
+    ModTable_GetModEntityForModID,
+    ModTable_GetModEntityForModIndex,
+
     // Platform info
     ModTable_GetRetroPlatform,
 
@@ -218,6 +222,18 @@ struct ModSVInfo {
     uint32 size;
 };
 
+#if RETRO_MOD_LOADER_VER >= 3
+struct ModEntity {
+    int32 index;
+};
+
+struct ModRegisteredObjectInfo {
+    ObjectClass *info;
+    uint32 modEntityClassSize;
+    std::map<Entity *, ModEntity *> entities;
+};
+#endif
+
 struct ModInfo {
     std::string path;
     std::string id;
@@ -235,6 +251,9 @@ struct ModInfo {
     std::map<std::string, std::string> fileMap;
     std::vector<std::string> excludedFiles;
     std::vector<ModPublicFunctionInfo> functionList;
+#if RETRO_MOD_LOADER_VER >= 3
+    std::vector<ModRegisteredObjectInfo> objectsRegistered;
+#endif
     std::vector<Link::Handle> modLogicHandles;
     std::vector<modLinkSTD> linkModLogic;
     void (*unloadMod)();
@@ -330,27 +349,40 @@ void RunModCallbacks(int32 callbackID, void *data);
 void ModRegisterGlobalVariables(const char *globalsPath, void **globals, uint32 size);
 
 void ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                       uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *),
-                       void (*stageLoad)(), void (*editorLoad)(), void (*editorDraw)(), void (*serialize)(), void (*staticLoad)(Object *),
-                       const char *inherited);
+#if RETRO_MOD_LOADER_VER >= 3
+                       uint32 modEntityClassSize,
+#endif
+                       uint32 modStaticClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
+                       void (*create)(void *), void (*stageLoad)(), void (*editorLoad)(), void (*editorDraw)(), void (*serialize)(),
+                       void (*staticLoad)(Object *), const char *inherited);
 
 void ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                           uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate, std::function<void()> staticUpdate,
-                           std::function<void()> draw, std::function<void(void *)> create, std::function<void()> stageLoad,
-                           std::function<void()> editorLoad, std::function<void()> editorDraw, std::function<void()> serialize,
-                           std::function<void(Object *)> staticLoad, const char *inherited);
+#if RETRO_MOD_LOADER_VER >= 3
+                           uint32 modEntityClassSize,
+#endif
+                           uint32 modStaticClassSize, std::function<void()> update, std::function<void()> lateUpdate,
+                           std::function<void()> staticUpdate, std::function<void()> draw, std::function<void(void *)> create,
+                           std::function<void()> stageLoad, std::function<void()> editorLoad, std::function<void()> editorDraw,
+                           std::function<void()> serialize, std::function<void(Object *)> staticLoad, const char *inherited);
 #else
 void ModRegisterGlobalVariables(const char *globalsPath, void **globals, uint32 size);
 
 void ModRegisterObject(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                       uint32 modClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(), void (*create)(void *),
-                       void (*stageLoad)(), void (*editorLoad)(), void (*editorDraw)(), void (*serialize)(), const char *inherited);
+#if RETRO_MOD_LOADER_VER >= 3
+                       uint32 modEntityClassSize,
+#endif
+                       uint32 modStaticClassSize, void (*update)(), void (*lateUpdate)(), void (*staticUpdate)(), void (*draw)(),
+                       void (*create)(void *), void (*stageLoad)(), void (*editorLoad)(), void (*editorDraw)(), void (*serialize)(),
+                       const char *inherited);
 
 void ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, const char *name, uint32 entityClassSize, uint32 staticClassSize,
-                           uint32 modClassSize, std::function<void()> update, std::function<void()> lateUpdate, std::function<void()> staticUpdate,
-                           std::function<void()> draw, std::function<void(void *)> create, std::function<void()> stageLoad,
-                           std::function<void()> editorLoad, std::function<void()> editorDraw, std::function<void()> serialize,
-                           const char *inherited);
+#if RETRO_MOD_LOADER_VER >= 3
+                           uint32 modEntityClassSize,
+#endif
+                           uint32 modStaticClassSize, std::function<void()> update, std::function<void()> lateUpdate,
+                           std::function<void()> staticUpdate, std::function<void()> draw, std::function<void(void *)> create,
+                           std::function<void()> stageLoad, std::function<void()> editorLoad, std::function<void()> editorDraw,
+                           std::function<void()> serialize, const char *inherited);
 #endif
 
 void ModRegisterObjectHook(Object **staticVars, const char *staticName);
@@ -493,6 +525,10 @@ bool32 GetGroupEntities(uint16 group, void **entity);
 // Mod hooks (Public Functions override)
 void HookPublicFunction(const char *id, const char *functionName, void *functionPtr, void **originalPtr);
 void UnHookPublicFunctions();
+
+// Entities
+void *GetModEntityForModID(Entity *entity, const char *modID);
+void *GetModEntityForModIndex(Entity *entity, int32 modIndex);
 
 // Platform info
 inline int32 GetRetroPlatform(void) { return RETRO_PLATFORM; }
