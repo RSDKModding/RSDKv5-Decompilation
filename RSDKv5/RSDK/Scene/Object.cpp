@@ -314,13 +314,6 @@ void RSDK::InitObjects()
 
 #if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
     RunModCallbacks(MODCB_BEFORESTAGELOAD, NULL);
-
-    // Create mod entities *before* any events are called
-    for (int32 e = 0; e < ENTITY_COUNT; ++e) {
-        Entity *entity = &objectEntityList[e];
-        if (entity->classID)
-            CreateModEntitiesFor(entity, &objectClassList[stageObjectIDs[entity->classID]]);
-    }
 #endif
 
     for (int32 o = 0; o < sceneInfo.classCount; ++o) {
@@ -1061,11 +1054,17 @@ void RSDK::CreateModEntitiesFor(Entity *entity, ObjectClass *objClass)
             if ((*modObjClass->staticVars)->classID != (*objClass->staticVars)->classID)
                 continue;
 
-            ModEntity *modEntity = (ModEntity *)(new byte[registration.modEntityClassSize]);
-            memset(modEntity, 0, registration.modEntityClassSize);
-            modEntity->index = i;
+            // We're hijacking the entity's create event to allocate its ModEntities.
+            // We don't want to delete existing ModEntities in this function because RSDKv5 projects will usually use entity->Create() to reset its
+            // properties. However, this is *still* a valid entity instance until we intentionally destroy it.
+            auto it = registration.entities.find(entity);
+            if (it == registration.entities.end()) {
+                ModEntity *modEntity = (ModEntity *)(new byte[registration.modEntityClassSize]);
+                memset(modEntity, 0, registration.modEntityClassSize);
+                modEntity->index = i;
 
-            registration.entities[entity] = modEntity;
+                registration.entities[entity] = modEntity;
+            }
         }
     }
 }
@@ -1078,11 +1077,28 @@ void RSDK::DestroyModEntitiesFor(Entity *entity)
 
         for (auto &registration : mod.objectsRegistered) {
             auto it = registration.entities.find(entity);
-            if (!it->second || it == registration.entities.end())
+            if (it == registration.entities.end() || !it->second)
                 continue;
 
             delete[] it->second;
             registration.entities.erase(it);
+        }
+    }
+}
+
+void RSDK::DestroyModEntitiesAll()
+{
+    for (auto &mod : modList) {
+        if (!mod.active)
+            continue;
+
+        for (auto &registration : mod.objectsRegistered) {
+            for (auto &entity : registration.entities) {
+                if (entity.second != nullptr)
+                    delete[] entity.second;
+            }
+
+            registration.entities.clear();
         }
     }
 }
@@ -1115,6 +1131,11 @@ void RSDK::ResetEntity(Entity *entity, uint16 classID, void *data)
 
         memset(entity, 0, info->entityClassSize);
 
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+        // object->create() would handle this for us, but we also need this to work without the event
+        CreateModEntitiesFor(entity, info);
+#endif
+
         if (info->create) {
             Entity *curEnt = sceneInfo.entity;
 
@@ -1123,9 +1144,6 @@ void RSDK::ResetEntity(Entity *entity, uint16 classID, void *data)
 #if RETRO_USE_MOD_LOADER
             int32 superStore          = superLevels[inheritLevel];
             superLevels[inheritLevel] = 0;
-#if RETRO_MOD_LOADER_VER >= 3
-            CreateModEntitiesFor(sceneInfo.entity, info);
-#endif
 #endif
             info->create(data);
 #if RETRO_USE_MOD_LOADER
@@ -1153,6 +1171,11 @@ void RSDK::ResetEntitySlot(uint16 slot, uint16 classID, void *data)
 
     memset(&objectEntityList[slot], 0, object->entityClassSize);
 
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    // object->create() would handle this for us, but we also need this to work without the event
+    CreateModEntitiesFor(entity, object);
+#endif
+
     if (object->create) {
         Entity *curEnt = sceneInfo.entity;
 
@@ -1161,9 +1184,6 @@ void RSDK::ResetEntitySlot(uint16 slot, uint16 classID, void *data)
 #if RETRO_USE_MOD_LOADER
         int32 superStore          = superLevels[inheritLevel];
         superLevels[inheritLevel] = 0;
-#if RETRO_MOD_LOADER_VER >= 3
-        CreateModEntitiesFor(sceneInfo.entity, object);
-#endif
 #endif
         object->create(data);
 #if RETRO_USE_MOD_LOADER
@@ -1217,6 +1237,7 @@ Entity *RSDK::CreateEntity(uint16 classID, void *data, int32 x, int32 y)
     entity->interaction = true;
 
 #if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    // object->create() would handle this for us, but we also need this to work without the event
     CreateModEntitiesFor(entity, object);
 #endif
 

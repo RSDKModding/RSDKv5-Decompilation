@@ -293,6 +293,7 @@ uint16 FindObject(const char *name);
 #if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
 void CreateModEntitiesFor(Entity *entity, ObjectClass *objClass);
 void DestroyModEntitiesFor(Entity *entity);
+void DestroyModEntitiesAll();
 #endif
 
 inline Entity *GetEntity(uint16 slot) { return &objectEntityList[slot < ENTITY_COUNT ? slot : (ENTITY_COUNT - 1)]; }

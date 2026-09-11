@@ -1242,10 +1242,7 @@ void RSDK::InitGameLink()
 {
 #if RETRO_USE_MOD_LOADER
 #if RETRO_MOD_LOADER_VER >= 3
-    for (int32 e = 0; e < ENTITY_COUNT; ++e) {
-        if (objectEntityList[e].classID)
-            DestroyModEntitiesFor(&objectEntityList[e]);
-    }
+    DestroyModEntitiesAll();
 #endif
 
     objectClassCount = 0;

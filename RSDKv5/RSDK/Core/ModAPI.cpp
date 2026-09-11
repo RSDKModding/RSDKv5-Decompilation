@@ -1839,6 +1839,24 @@ void RSDK::ModRegisterObject_STD(Object **staticVars, Object **modStaticVars, co
 #if RETRO_MOD_LOADER_VER >= 3
     if (curMod != nullptr)
         curMod->objectsRegistered.push_back({ info, modEntityClassSize });
+
+    if (create) {
+        create = [curMod, create](void *data) {
+            currentMod = curMod;
+            CreateModEntitiesFor(sceneInfo.entity, &objectClassList[stageObjectIDs[sceneInfo.entity->classID]]);
+            create(data);
+            currentMod = NULL;
+        };
+    }
+
+    if (editorDraw) {
+        editorDraw = [curMod, editorDraw]() {
+            currentMod = curMod;
+            CreateModEntitiesFor(sceneInfo.entity, &objectClassList[stageObjectIDs[sceneInfo.entity->classID]]);
+            editorDraw();
+            currentMod = NULL;
+        };
+    }
 #endif
 
     // clang-format off
@@ -2233,6 +2251,8 @@ void *RSDK::GetModEntityForModID(Entity *entityPtr, const char *modID)
             if (it != registration.entities.end())
                 return it->second;
         }
+
+        return nullptr;
     }
 
     for (auto &mod : modList) {
@@ -2259,6 +2279,8 @@ void *RSDK::GetModEntityForModIndex(Entity *entityPtr, int32 modIndex)
             if (it != registration.entities.end())
                 return it->second;
         }
+
+        return nullptr;
     }
 
     for (size_t i = 0; i < modList.size(); ++i) {
