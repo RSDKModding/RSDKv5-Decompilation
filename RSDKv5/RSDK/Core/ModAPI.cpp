@@ -2252,6 +2252,7 @@ void *RSDK::GetModEntityForModID(Entity *entityPtr, const char *modID)
         if (currentMod == nullptr)
             return nullptr;
 
+        CreateModEntitiesFor(entityPtr, &objectClassList[stageObjectIDs[entityPtr->classID]]);
         for (auto &registration : currentMod->objectsRegistered) {
             auto it = registration.entities.find(entityPtr);
             if (it != registration.entities.end())
@@ -2261,6 +2262,7 @@ void *RSDK::GetModEntityForModID(Entity *entityPtr, const char *modID)
         return nullptr;
     }
 
+    CreateModEntitiesFor(entityPtr, &objectClassList[stageObjectIDs[entityPtr->classID]]);
     for (auto &mod : modList) {
         if (!mod.active)
             continue;
@@ -2286,6 +2288,7 @@ void *RSDK::GetModEntityForModIndex(Entity *entityPtr, int32 modIndex)
         if (currentMod == nullptr)
             return nullptr;
 
+        CreateModEntitiesFor(entityPtr, &objectClassList[stageObjectIDs[entityPtr->classID]]);
         for (auto &registration : currentMod->objectsRegistered) {
             auto it = registration.entities.find(entityPtr);
             if (it != registration.entities.end())
@@ -2295,6 +2298,7 @@ void *RSDK::GetModEntityForModIndex(Entity *entityPtr, int32 modIndex)
         return nullptr;
     }
 
+    CreateModEntitiesFor(entityPtr, &objectClassList[stageObjectIDs[entityPtr->classID]]);
     for (size_t i = 0; i < modList.size(); ++i) {
         if (!modList[i].active)
             continue;
