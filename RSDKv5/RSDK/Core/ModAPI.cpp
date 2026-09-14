@@ -2245,7 +2245,13 @@ void RSDK::UnHookPublicFunctions()
 
 void *RSDK::GetModEntityForModID(Entity *entityPtr, const char *modID)
 {
-    if (modID == nullptr && currentMod != nullptr) {
+    if (entityPtr == nullptr)
+        return nullptr;
+
+    if (modID == nullptr) {
+        if (currentMod == nullptr)
+            return nullptr;
+
         for (auto &registration : currentMod->objectsRegistered) {
             auto it = registration.entities.find(entityPtr);
             if (it != registration.entities.end())
@@ -2273,7 +2279,13 @@ void *RSDK::GetModEntityForModID(Entity *entityPtr, const char *modID)
 
 void *RSDK::GetModEntityForModIndex(Entity *entityPtr, int32 modIndex)
 {
-    if (modIndex == -1 && currentMod != nullptr) {
+    if (entityPtr == nullptr)
+        return nullptr;
+
+    if (modIndex == -1) {
+        if (currentMod == nullptr)
+            return nullptr;
+
         for (auto &registration : currentMod->objectsRegistered) {
             auto it = registration.entities.find(entityPtr);
             if (it != registration.entities.end())

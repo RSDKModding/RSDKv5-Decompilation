@@ -1035,6 +1035,9 @@ uint16 RSDK::FindObject(const char *name)
 #if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
 void RSDK::CreateModEntitiesFor(Entity *entity, ObjectClass *objClass)
 {
+    if (entity == nullptr)
+        return;
+
     if (!objClass->staticVars || !*objClass->staticVars)
         return;
 
@@ -1059,9 +1062,10 @@ void RSDK::CreateModEntitiesFor(Entity *entity, ObjectClass *objClass)
             // properties. However, this is *still* a valid entity instance until we intentionally destroy it.
             auto it = registration.entities.find(entity);
             if (it == registration.entities.end()) {
-                ModEntity *modEntity = (ModEntity *)(new byte[registration.modEntityClassSize]);
+                ModEntity *modEntity = (ModEntity *)new byte[registration.modEntityClassSize];
                 memset(modEntity, 0, registration.modEntityClassSize);
-                modEntity->index = i;
+                modEntity->classID = (*objClass->staticVars)->classID;
+                modEntity->index   = i;
 
                 registration.entities[entity] = modEntity;
             }
@@ -1082,6 +1086,34 @@ void RSDK::DestroyModEntitiesFor(Entity *entity)
 
             delete[] it->second;
             registration.entities.erase(it);
+        }
+    }
+}
+
+void RSDK::CopyModEntitiesFor(Entity *destEntity, Entity *srcEntity, bool32 clearSrcEntity)
+{
+    for (auto &mod : modList) {
+        if (!mod.active)
+            continue;
+
+        for (auto &registration : mod.objectsRegistered) {
+            auto srcIt = registration.entities.find(srcEntity);
+            if (srcIt == registration.entities.end() || !srcIt->second)
+                continue;
+
+            auto destIt = registration.entities.find(destEntity);
+            if (destIt == registration.entities.end()) {
+                ModEntity *modEntity = (ModEntity *)new byte[registration.modEntityClassSize];
+                memcpy(modEntity, srcIt->second, registration.modEntityClassSize);
+
+                registration.entities[destEntity] = modEntity;
+            }
+            else {
+                memcpy(destIt->second, srcIt->second, registration.modEntityClassSize);
+            }
+
+            if (clearSrcEntity == true)
+                memset(srcIt->second, 0, registration.modEntityClassSize);
         }
     }
 }

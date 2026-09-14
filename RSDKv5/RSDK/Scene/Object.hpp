@@ -293,6 +293,8 @@ uint16 FindObject(const char *name);
 #if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
 void CreateModEntitiesFor(Entity *entity, ObjectClass *objClass);
 void DestroyModEntitiesFor(Entity *entity);
+void CopyModEntitiesFor(Entity *destEntity, Entity *srcEntity, bool32 clearSrcEntity);
+
 void DestroyModEntitiesAll();
 #endif
 
@@ -311,6 +313,10 @@ inline void CopyEntity(void *destEntity, void *srcEntity, bool32 clearSrcEntity)
 
         if (clearSrcEntity)
             memset(srcEntity, 0, sizeof(EntityBase));
+
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+        CopyModEntitiesFor((Entity *)destEntity, (Entity *)srcEntity, clearSrcEntity);
+#endif
     }
 }
 

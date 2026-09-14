@@ -224,6 +224,7 @@ struct ModSVInfo {
 
 #if RETRO_MOD_LOADER_VER >= 3
 struct ModEntity {
+    uint16 classID;
     int32 index;
 };
 
