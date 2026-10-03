@@ -149,8 +149,6 @@ jobs:
           distribution: 'temurin'
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
-        with:
-          packages: 'platform-tools'
       - name: Build Mania+RSDKv5 Android
         working-directory: ./android
         run: |
