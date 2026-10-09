@@ -608,7 +608,7 @@ bool RenderDevice::InitGraphicsAPI()
         }
     }
 
-    pickedExtent = { static_cast<uint32_t>(viewSize.x), static_cast<uint32_t>(viewSize.y) };
+    pickedExtent = { static_cast<uint32_t>(lastViewSize.x), static_cast<uint32_t>(lastViewSize.y) };
 
     pickedExtent.width =
         CLAMP(pickedExtent.width, currentSwapDetails.capabilities.minImageExtent.width, currentSwapDetails.capabilities.maxImageExtent.width);
