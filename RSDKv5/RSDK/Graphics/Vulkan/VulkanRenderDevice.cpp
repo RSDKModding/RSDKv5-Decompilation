@@ -497,8 +497,11 @@ bool RenderDevice::InitGraphicsAPI()
 {
     if (videoSettings.windowed || !videoSettings.exclusiveFS) {
         if (videoSettings.windowed) {
-            viewSize.x = videoSettings.windowWidth;
-            viewSize.y = videoSettings.windowHeight;
+            float2 windowScale;
+            glfwGetWindowContentScale(window, &windowScale.x, &windowScale.y);
+
+            viewSize.x = videoSettings.windowWidth * windowScale.x;
+            viewSize.y = videoSettings.windowHeight * windowScale.y;
         }
         else {
             viewSize.x = displayWidth[monitorIndex];
@@ -554,11 +557,7 @@ bool RenderDevice::InitGraphicsAPI()
     Vector2 viewportPos{};
     Vector2 lastViewSize;
 
-    if (videoSettings.windowed)
-        glfwGetWindowSize(window, &lastViewSize.x, &lastViewSize.y);
-    else
-        glfwGetFramebufferSize(window, &lastViewSize.x, &lastViewSize.y);
-
+    glfwGetFramebufferSize(window, &lastViewSize.x, &lastViewSize.y);
     Vector2 viewportSize = lastViewSize;
 
     if ((viewSize.x / viewSize.y) <= ((pixelSize.x / pixelSize.y) + 0.1)) {
