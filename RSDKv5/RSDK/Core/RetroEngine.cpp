@@ -817,6 +817,95 @@ void RSDK::LoadGameXML(bool pal)
     SetActiveMod(-1);
 }
 
+void RSDK::LoadStageXML()
+{
+    FileInfo info;
+    SortMods();
+
+    char fullFilePath[0x40];
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.xml", currentSceneFolder);
+
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
+        SetActiveMod(m);
+        InitFileInfo(&info);
+        if (LoadFile(&info, fullFilePath, FMODE_RB)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            ReadBytes(&info, xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+            CloseFile(&info);
+
+            doc->Parse(xmlData);
+            const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage"); // stageElement is nullptr if parse failure
+
+            if (stageElement) {
+                LoadXMLObjects(stageElement, true);
+                LoadXMLSoundFX(stageElement, true);
+                LoadXMLPalettes(stageElement, true);
+            }
+            else {
+                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse StageConfig.xml file for mod %s", modList[m].id.c_str());
+            }
+
+            delete[] xmlData;
+            delete doc;
+        }
+    }
+    SetActiveMod(-1);
+}
+
+bool RSDK::StageXMLUseGlobalObjects()
+{
+    FileInfo info;
+    SortMods();
+
+    bool hasAttribute = false;
+
+    char fullFilePath[0x40];
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.xml", currentSceneFolder);
+
+    // don't need extra logging here
+    bool32 engineDebugStore = engineDebugMode;
+
+    engineDebugMode = false;
+
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
+        SetActiveMod(m);
+        InitFileInfo(&info);
+        if (LoadFile(&info, fullFilePath, FMODE_RB)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            ReadBytes(&info, xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+            CloseFile(&info);
+
+            doc->Parse(xmlData);
+            const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage");
+
+            if (stageElement) {
+                const tinyxml2::XMLAttribute *valAttr = stageElement->FindAttribute("useGlobalObjects");
+                if (valAttr)
+                    sceneInfo.useGlobalObjects = valAttr->BoolValue();
+
+                hasAttribute = valAttr != NULL;
+            }
+
+            delete[] xmlData;
+            delete doc;
+        }
+    }
+
+    SetActiveMod(-1);
+    engineDebugMode = engineDebugStore;
+    return hasAttribute;
+}
+
 void RSDK::LoadXMLWindowText(const tinyxml2::XMLElement *gameElement)
 {
     const tinyxml2::XMLElement *titleElement = gameElement->FirstChildElement("title");
@@ -1117,97 +1206,6 @@ void RSDK::LoadXMLStages(const tinyxml2::XMLElement *gameElement)
     }
     sceneInfo.listData     = listData.data();
     sceneInfo.listCategory = listCategory.data();
-}
-
-void RSDK::LoadStageXML()
-{
-    FileInfo info;
-    SortMods();
-
-    char fullFilePath[0x40];
-    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.xml", currentSceneFolder);
-
-    for (int32 m = 0; m < modList.size(); ++m) {
-        if (!modList[m].active)
-            break;
-        SetActiveMod(m);
-        InitFileInfo(&info);
-        if (LoadFile(&info, fullFilePath, FMODE_RB)) {
-            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
-
-            char *xmlData = new char[info.fileSize + 1];
-            ReadBytes(&info, xmlData, info.fileSize);
-            xmlData[info.fileSize] = 0;
-            CloseFile(&info);
-
-            doc->Parse(xmlData);
-            const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage"); // stageElement is nullptr if parse failure
-
-            if (stageElement) {
-                LoadXMLObjects(stageElement, true);
-                LoadXMLSoundFX(stageElement, true);
-                LoadXMLPalettes(stageElement, true);
-            }
-            else {
-                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse StageConfig.xml file for mod %s", modList[m].id.c_str());
-            }
-
-            delete[] xmlData;
-            delete doc;
-        }
-    }
-    SetActiveMod(-1);
-}
-
-// slightly hacky for the purpose of using this in the middle of LoadSceneFolder
-bool RSDK::StageXMLUseGlobalObjects()
-{
-    FileInfo info;
-    SortMods();
-
-    bool hasAttribute = false;
-
-    char fullFilePath[0x40];
-    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.xml", currentSceneFolder);
-
-    // don't need extra logging here
-    bool32 engineDebugStore = engineDebugMode;
-
-    engineDebugMode = false;
-
-    for (int32 m = 0; m < modList.size(); ++m) {
-        if (!modList[m].active)
-            break;
-
-        SetActiveMod(m);
-        InitFileInfo(&info);
-        if (LoadFile(&info, fullFilePath, FMODE_RB)) {
-            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
-
-            char *xmlData = new char[info.fileSize + 1];
-            ReadBytes(&info, xmlData, info.fileSize);
-            xmlData[info.fileSize] = 0;
-            CloseFile(&info);
-
-            doc->Parse(xmlData);
-            const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage");
-
-            if (stageElement) {
-                const tinyxml2::XMLAttribute *valAttr = stageElement->FindAttribute("useGlobalObjects");
-                if (valAttr)
-                    sceneInfo.useGlobalObjects = valAttr->BoolValue();
-
-                hasAttribute = valAttr != NULL;
-            }
-
-            delete[] xmlData;
-            delete doc;
-        }
-    }
-
-    SetActiveMod(-1);
-    engineDebugMode = engineDebugStore;
-    return hasAttribute;
 }
 #endif
 
