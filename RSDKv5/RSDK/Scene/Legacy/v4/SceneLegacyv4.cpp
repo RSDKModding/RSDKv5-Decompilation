@@ -466,10 +466,13 @@ void RSDK::Legacy::v4::LoadStageFiles()
                 SetObjectTypeName(strBuffer, scriptID + i);
             }
 
-#if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
+#if RETRO_USE_MOD_LOADER
+            modObjCount = modObjCountStore;
+#if LEGACY_RETRO_USE_COMPILER
             for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
                 SetObjectTypeName(modTypeNames[i], globalObjectCount + i + 1);
             }
+#endif
 #endif
 
 #if LEGACY_RETRO_USE_COMPILER

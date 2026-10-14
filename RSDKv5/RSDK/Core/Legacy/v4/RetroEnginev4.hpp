@@ -16,7 +16,7 @@ void ProcessEngine();
 
 #if RETRO_USE_MOD_LOADER
 void LoadGameXML(bool pal = false);
-void LoadStageXML(bool objects = false);
+void LoadStageXML(bool obj = false);
 bool StageXMLUseGlobalObjects(bool32 &loadGlobalScripts);
 void LoadXMLWindowText(const tinyxml2::XMLElement *gameElement);
 void LoadXMLVariables(const tinyxml2::XMLElement *gameElement);

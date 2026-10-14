@@ -354,7 +354,7 @@ void RSDK::Legacy::v4::LoadGameXML(bool pal)
     SetActiveMod(-1);
 }
 
-void RSDK::Legacy::v4::LoadStageXML(bool objects)
+void RSDK::Legacy::v4::LoadStageXML(bool obj)
 {
     FileInfo info;
     SortMods();
@@ -376,7 +376,7 @@ void RSDK::Legacy::v4::LoadStageXML(bool objects)
             const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage"); // stageElement is nullptr if parse failure
 
             if (stageElement) {
-                if (objects) {
+                if (obj) {
                     LoadXMLObjects(stageElement, true);
                 }
                 else {
@@ -592,6 +592,9 @@ void RSDK::Legacy::v4::LoadXMLObjects(const tinyxml2::XMLElement *gameElement, b
             modObjCount++;
         }
     }
+
+    if (!stage)
+        modObjCountStore = modObjCount;
 }
 
 void RSDK::Legacy::v4::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement, bool stage)
@@ -612,13 +615,11 @@ void RSDK::Legacy::v4::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement, b
 
             if (!stage) {
                 SetSfxName(sfxName, globalSFXCount);
-
                 RSDK::Legacy::LoadSfx((char *)sfxPath, globalSFXCount, SCOPE_GLOBAL);
                 globalSFXCount++;
             }
             else {
                 SetSfxName(sfxName, globalSFXCount + stageSFXCount);
-
                 RSDK::Legacy::LoadSfx((char *)sfxPath, globalSFXCount + stageSFXCount, SCOPE_STAGE);
                 stageSFXCount++;
             }
