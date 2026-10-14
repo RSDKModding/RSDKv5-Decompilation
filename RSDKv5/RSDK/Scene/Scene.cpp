@@ -286,12 +286,12 @@ void RSDK::LoadSceneFolder()
         CloseFile(&info);
     }
 
-    LoadStageXML();
-
     sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/16x16Tiles.gif", currentSceneFolder);
     LoadStageGIF(fullFilePath);
 
 #if RETRO_USE_MOD_LOADER
+    LoadStageXML();
+
     for (int32 h = 0; h < (int32)objectHookList.size(); ++h) {
         for (int32 i = 0; i < objectClassCount; ++i) {
             if (HASH_MATCH_MD5(objectClassList[i].hash, objectHookList[h].hash)) {

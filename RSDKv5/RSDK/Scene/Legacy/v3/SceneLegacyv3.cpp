@@ -513,7 +513,9 @@ void RSDK::Legacy::v3::LoadStageFiles()
         PrintLog(PRINT_NORMAL, "Reloading Scene %s - %s", sceneInfo.listCategory[sceneInfo.activeCategory].name,
                  sceneInfo.listData[sceneInfo.listPos].name);
     }
+#if RETRO_USE_MOD_LOADER
     LoadStageXML();
+#endif
     LoadStageChunks();
 
     for (int32 i = 0; i < LEGACY_TRACK_COUNT; ++i) SetMusicTrack((char *)"", i, 0, 0);

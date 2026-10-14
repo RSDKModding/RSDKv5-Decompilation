@@ -951,10 +951,8 @@ void RSDK::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement, bool stage)
             if (bAttr)
                 b = bAttr->IntValue();
 
-            if (!stage) {
-                SetPaletteEntry(bank, index, (r << 16) | (g << 8) | b);
-            }
-            else {
+            SetPaletteEntry(bank, index, (r << 16) | (g << 8) | b);
+            if (stage) {
                 stagePalette[bank][index] = rgb32To16_B[b] | rgb32To16_G[g] | rgb32To16_R[r];
                 activeStageRows[bank] |= 1 << (index >> 4);
             }
@@ -991,19 +989,15 @@ void RSDK::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement, bool stage)
                     color   = (r << 16) | (g << 8) | b;
                 }
 
-                if (!stage) {
-                    SetPaletteEntry(bank, index++, color);
-                }
-                else {
+                SetPaletteEntry(bank, index, color);
+                if (stage) {
                     int32 r = (color >> 16) & 0xFF;
                     int32 g = (color >> 8) & 0xFF;
                     int32 b = (color >> 0) & 0xFF;
-
                     stagePalette[bank][index] = rgb32To16_B[b] | rgb32To16_G[g] | rgb32To16_R[r];
                     activeStageRows[bank] |= 1 << (index >> 4);
-                    index++;
                 }
-
+                index++;
                 text = match.suffix();
             }
         }
