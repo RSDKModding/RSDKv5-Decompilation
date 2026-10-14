@@ -519,7 +519,7 @@ void RSDK::UnloadMods()
 
 #if RETRO_REV0U
     memset(Legacy::modTypeNames, 0, sizeof(Legacy::modTypeNames));
-    memset(Legacy::modTypeNames, 0, sizeof(Legacy::modScriptPaths));
+    memset(Legacy::modScriptPaths, 0, sizeof(Legacy::modScriptPaths));
     memset(Legacy::modScriptFlags, 0, sizeof(Legacy::modScriptFlags));
     Legacy::modObjCount = 0;
 
