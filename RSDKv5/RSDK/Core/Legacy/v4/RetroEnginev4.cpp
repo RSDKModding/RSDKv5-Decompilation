@@ -364,7 +364,7 @@ void RSDK::Legacy::v4::LoadStageXML(bool obj)
             break;
         SetActiveMod(m);
         InitFileInfo(&info);
-        if (LoadStageFile("StageConfig.xml", &info)) {
+        if (LoadStageFile("Stage.xml", &info)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
@@ -385,7 +385,7 @@ void RSDK::Legacy::v4::LoadStageXML(bool obj)
                 }
             }
             else {
-                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse StageConfig.xml file for mod %s", modList[m].id.c_str());
+                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse Stage.xml file for mod %s", modList[m].id.c_str());
             }
 
             delete[] xmlData;
@@ -412,7 +412,7 @@ bool RSDK::Legacy::v4::StageXMLUseGlobalObjects(bool32 &loadGlobalScripts)
             break;
         SetActiveMod(m);
         InitFileInfo(&info);
-        if (LoadStageFile("StageConfig.xml", &info)) {
+        if (LoadStageFile("Stage.xml", &info)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];

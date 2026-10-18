@@ -429,7 +429,7 @@ void RSDK::Legacy::v4::LoadStageFiles()
 
         // StageXMLUseGlobalObjects sets loadGlobalScripts
 
-        // We're using its return value to determine if StageConfig.xml has
+        // We're using its return value to determine if Stage.xml has
         // the useGlobalObjects at all, if it does then we'll just ignore
         // the value from StageConfig.bin
         bool32 hasAttribute = StageXMLUseGlobalObjects(loadGlobalScripts);

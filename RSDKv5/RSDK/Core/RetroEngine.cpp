@@ -823,7 +823,7 @@ void RSDK::LoadStageXML()
     SortMods();
 
     char fullFilePath[0x40];
-    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.xml", currentSceneFolder);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/Stage.xml", currentSceneFolder);
 
     for (int32 m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
@@ -847,7 +847,7 @@ void RSDK::LoadStageXML()
                 LoadXMLPalettes(stageElement, true);
             }
             else {
-                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse StageConfig.xml file for mod %s", modList[m].id.c_str());
+                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse Stage.xml file for mod %s", modList[m].id.c_str());
             }
 
             delete[] xmlData;
@@ -865,7 +865,7 @@ bool RSDK::StageXMLUseGlobalObjects()
     bool hasAttribute = false;
 
     char fullFilePath[0x40];
-    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/StageConfig.xml", currentSceneFolder);
+    sprintf_s(fullFilePath, sizeof(fullFilePath), "Data/Stages/%s/Stage.xml", currentSceneFolder);
 
     // don't need extra logging here
     bool32 engineDebugStore = engineDebugMode;
