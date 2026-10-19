@@ -439,9 +439,6 @@ void RSDK::Legacy::v3::LoadStageFiles()
             LoadStageXML(true);
             for (int32 i = 0; i < modObjCount - modObjCountStore; ++i) {
                 SetObjectTypeName(modTypeNames[modObjCountStore + i], (scriptID + stageObjectCount) + i);
-                ParseScriptFile(modScriptPaths[modObjCountStore + i], (scriptID + stageObjectCount) + i);
-                if (gameMode == ENGINE_SCRIPTERROR)
-                    return;
             }
 #endif
 
@@ -490,6 +487,14 @@ void RSDK::Legacy::v3::LoadStageFiles()
             for (uint8 i = 0; i < stageObjectCount; ++i) ReadString(&info, strBuffer);
 
             LoadBytecode(scriptID, false);
+#endif
+
+#if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
+            for (uint8 i = 0; i < modObjCount - modObjCountStore; ++i) {
+                ParseScriptFile(modScriptPaths[modObjCountStore + i], (scriptID + stageObjectCount) + i);
+                if (gameMode == ENGINE_SCRIPTERROR)
+                    return;
+            }
 #endif
 
             stageSFXCount = ReadInt8(&info);

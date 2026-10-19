@@ -554,14 +554,9 @@ void RSDK::Legacy::v4::LoadStageFiles()
             }
 
 #if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
-            uint8 storeObjCount = modObjCount;
             LoadStageXML(true);
-
-            for (uint8 i = 0; i < modObjCount - storeObjCount; ++i) {
-                SetObjectTypeName(modTypeNames[storeObjCount + i], (scriptID + stageObjectCount) + i);
-                ParseScriptFile(modScriptPaths[storeObjCount + i], (scriptID + stageObjectCount) + i);
-                if (gameMode == ENGINE_SCRIPTERROR)
-                    return;
+            for (uint8 i = 0; i < modObjCount - modObjCountStore; ++i) {
+                SetObjectTypeName(modTypeNames[modObjCountStore + i], (scriptID + stageObjectCount) + i);
             }
 #endif
 
@@ -613,6 +608,15 @@ void RSDK::Legacy::v4::LoadStageFiles()
             }
             LoadBytecode(scriptID, false);
 #endif
+
+#if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
+            for (uint8 i = 0; i < modObjCount - modObjCountStore; ++i) {
+                ParseScriptFile(modScriptPaths[modObjCountStore + i], (scriptID + stageObjectCount) + i);
+                if (gameMode == ENGINE_SCRIPTERROR)
+                    return;
+            }
+#endif
+
             CloseFile(&info);
         }
 
