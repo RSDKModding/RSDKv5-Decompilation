@@ -16,11 +16,13 @@ void ProcessEngine();
 
 #if RETRO_USE_MOD_LOADER
 void LoadGameXML(bool pal = false);
+void LoadStageXML(bool obj = false);
+bool StageXMLUseGlobalObjects(bool32 &loadGlobalScripts);
 void LoadXMLWindowText(const tinyxml2::XMLElement *gameElement);
 void LoadXMLVariables(const tinyxml2::XMLElement *gameElement);
 void LoadXMLPalettes(const tinyxml2::XMLElement* gameElement);
-void LoadXMLObjects(const tinyxml2::XMLElement* gameElement);
-void LoadXMLSoundFX(const tinyxml2::XMLElement* gameElement);
+void LoadXMLObjects(const tinyxml2::XMLElement* gameElement, bool stage = false);
+void LoadXMLSoundFX(const tinyxml2::XMLElement* gameElement, bool stage = false);
 void LoadXMLPlayers(const tinyxml2::XMLElement* gameElement);
 void LoadXMLStages(const tinyxml2::XMLElement* gameElement);
 #endif

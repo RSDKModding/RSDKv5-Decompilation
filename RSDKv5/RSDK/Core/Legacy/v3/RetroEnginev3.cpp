@@ -595,6 +595,93 @@ void RSDK::Legacy::v3::LoadGameXML(bool pal)
     SetActiveMod(-1);
 }
 
+void RSDK::Legacy::v3::LoadStageXML(bool obj)
+{
+    FileInfo info;
+    SortMods();
+
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
+        SetActiveMod(m);
+        InitFileInfo(&info);
+        if (LoadStageFile("Stage.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            ReadBytes(&info, xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+            CloseFile(&info);
+
+            doc->Parse(xmlData);
+            const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage"); // stageElement is nullptr if parse failure
+
+            if (stageElement) {
+                if (obj) {
+                    LoadXMLObjects(stageElement, true);
+                }
+                else {
+                    LoadXMLSoundFX(stageElement, true);
+                    LoadXMLPalettes(stageElement);
+                }
+            }
+            else {
+                PrintLog(PRINT_NORMAL, "[MOD] Failed to parse Stage.xml file for mod %s", modList[m].id.c_str());
+            }
+
+            delete[] xmlData;
+            delete doc;
+        }
+    }
+    SetActiveMod(-1);
+}
+
+bool RSDK::Legacy::v3::StageXMLUseGlobalObjects(bool32 &loadGlobalScripts)
+{
+    FileInfo info;
+    SortMods();
+
+    bool hasAttribute = false;
+
+    // don't need extra logging here
+    bool32 engineDebugStore = engineDebugMode;
+
+    engineDebugMode = false;
+
+    for (int32 m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            break;
+        SetActiveMod(m);
+        InitFileInfo(&info);
+        if (LoadStageFile("Stage.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            ReadBytes(&info, xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+            CloseFile(&info);
+
+            doc->Parse(xmlData);
+            const tinyxml2::XMLElement *stageElement = doc->FirstChildElement("stage");
+
+            if (stageElement) {
+                const tinyxml2::XMLAttribute *valAttr = stageElement->FindAttribute("useGlobalObjects");
+                if (valAttr)
+                    loadGlobalScripts = valAttr->BoolValue();
+
+                hasAttribute = valAttr != NULL;
+            }
+
+            delete[] xmlData;
+            delete doc;
+        }
+    }
+
+    SetActiveMod(-1);
+    engineDebugMode = engineDebugStore;
+    return hasAttribute;
+}
+
 void RSDK::Legacy::v3::LoadXMLWindowText(const tinyxml2::XMLElement *gameElement)
 {
     const tinyxml2::XMLElement *titleElement = gameElement->FirstChildElement("title");
@@ -710,9 +797,10 @@ void RSDK::Legacy::v3::LoadXMLPalettes(const tinyxml2::XMLElement *gameElement)
     }
 }
 
-void RSDK::Legacy::v3::LoadXMLObjects(const tinyxml2::XMLElement *gameElement)
+void RSDK::Legacy::v3::LoadXMLObjects(const tinyxml2::XMLElement *gameElement, bool stage)
 {
-    modObjCount = 0;
+    if (!stage)
+        modObjCount = 0;
 
     const tinyxml2::XMLElement *objectsElement = gameElement->FirstChildElement("objects");
     if (objectsElement) {
@@ -734,7 +822,7 @@ void RSDK::Legacy::v3::LoadXMLObjects(const tinyxml2::XMLElement *gameElement)
             // if it is, it'll cause issues!!!!
             const tinyxml2::XMLAttribute *loadAttr = objElement->FindAttribute("forceLoad");
             int32 objForceLoad                     = false;
-            if (loadAttr)
+            if (!stage && loadAttr)
                 objForceLoad = loadAttr->BoolValue();
 
             flags |= (objForceLoad & 1);
@@ -745,9 +833,12 @@ void RSDK::Legacy::v3::LoadXMLObjects(const tinyxml2::XMLElement *gameElement)
             modObjCount++;
         }
     }
+
+    if (!stage)
+        modObjCountStore = modObjCount;
 }
 
-void RSDK::Legacy::v3::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement)
+void RSDK::Legacy::v3::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement, bool stage)
 {
     const tinyxml2::XMLElement *soundsElement = gameElement->FirstChildElement("sounds");
     if (soundsElement) {
@@ -758,10 +849,16 @@ void RSDK::Legacy::v3::LoadXMLSoundFX(const tinyxml2::XMLElement *gameElement)
             if (valAttr)
                 sfxPath = valAttr->Value();
 
-            SetSfxName(sfxPath, globalSFXCount, true);
-
-            RSDK::Legacy::LoadSfx((char *)sfxPath, globalSFXCount, SCOPE_GLOBAL);
-            globalSFXCount++;
+            if (!stage) {
+                SetSfxName(sfxPath, globalSFXCount, true);
+                RSDK::Legacy::LoadSfx((char *)sfxPath, globalSFXCount, SCOPE_GLOBAL);
+                globalSFXCount++;
+            }
+            else {
+                SetSfxName(sfxPath, globalSFXCount + stageSFXCount, false);
+                RSDK::Legacy::LoadSfx((char *)sfxPath, globalSFXCount + stageSFXCount, SCOPE_STAGE);
+                stageSFXCount++;
+            }
         }
     }
 }

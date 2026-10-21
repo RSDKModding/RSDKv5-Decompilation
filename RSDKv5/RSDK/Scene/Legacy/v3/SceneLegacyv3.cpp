@@ -329,12 +329,25 @@ void RSDK::Legacy::v3::LoadStageFiles()
 
 #if RETRO_USE_MOD_LOADER
         loadGlobalScripts = false;
+
+        // StageXMLUseGlobalObjects sets loadGlobalScripts
+
+        // We're using its return value to determine if Stage.xml has
+        // the useGlobalObjects at all, if it does then we'll just ignore
+        // the value from StageConfig.bin
+        bool32 hasAttribute = StageXMLUseGlobalObjects(loadGlobalScripts);
 #else
         bool32 loadGlobalScripts = false;
 #endif
 
         if (LoadStageFile("StageConfig.bin", &info)) {
+#if RETRO_USE_MOD_LOADER
+            uint8 useGlobalScripts = ReadInt8(&info);
+            if (!hasAttribute)
+                loadGlobalScripts = useGlobalScripts;
+#else
             loadGlobalScripts = ReadInt8(&info);
+#endif
             CloseFile(&info);
         }
 
@@ -351,6 +364,7 @@ void RSDK::Legacy::v3::LoadStageFiles()
             }
 
 #if RETRO_USE_MOD_LOADER
+            modObjCount = modObjCountStore;
             for (uint8 i = 0; i < modObjCount && loadGlobalScripts; ++i) {
                 SetObjectTypeName(modTypeNames[i], globalObjectCount + i + 1);
             }
@@ -421,6 +435,13 @@ void RSDK::Legacy::v3::LoadStageFiles()
                 SetObjectTypeName(strBuffer, scriptID + i);
             }
 
+#if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
+            LoadStageXML(true);
+            for (int32 i = 0; i < modObjCount - modObjCountStore; ++i) {
+                SetObjectTypeName(modTypeNames[modObjCountStore + i], (scriptID + stageObjectCount) + i);
+            }
+#endif
+
 #if LEGACY_RETRO_USE_COMPILER
 #if RETRO_USE_MOD_LOADER
             char scriptPath[0x40];
@@ -468,6 +489,14 @@ void RSDK::Legacy::v3::LoadStageFiles()
             LoadBytecode(scriptID, false);
 #endif
 
+#if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
+            for (uint8 i = 0; i < modObjCount - modObjCountStore; ++i) {
+                ParseScriptFile(modScriptPaths[modObjCountStore + i], (scriptID + stageObjectCount) + i);
+                if (gameMode == ENGINE_SCRIPTERROR)
+                    return;
+            }
+#endif
+
             stageSFXCount = ReadInt8(&info);
             for (int32 i = 0; i < stageSFXCount; ++i) {
                 ReadString(&info, strBuffer);
@@ -489,6 +518,9 @@ void RSDK::Legacy::v3::LoadStageFiles()
         PrintLog(PRINT_NORMAL, "Reloading Scene %s - %s", sceneInfo.listCategory[sceneInfo.activeCategory].name,
                  sceneInfo.listData[sceneInfo.listPos].name);
     }
+#if RETRO_USE_MOD_LOADER
+    LoadStageXML();
+#endif
     LoadStageChunks();
 
     for (int32 i = 0; i < LEGACY_TRACK_COUNT; ++i) SetMusicTrack((char *)"", i, 0, 0);

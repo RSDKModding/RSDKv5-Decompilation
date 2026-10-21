@@ -4,7 +4,8 @@
 char RSDK::Legacy::modTypeNames[OBJECT_COUNT][0x40];
 char RSDK::Legacy::modScriptPaths[OBJECT_COUNT][0x40];
 uint8 RSDK::Legacy::modScriptFlags[OBJECT_COUNT];
-uint8 RSDK::Legacy::modObjCount = 0;
+uint8 RSDK::Legacy::modObjCount      = 0;
+uint8 RSDK::Legacy::modObjCountStore = 0;
 
 void RSDK::Legacy::v4::RefreshEngine() { RSDK::ApplyModChanges(); }
 void RSDK::Legacy::v4::GetModCount() { scriptEng.checkResult = RSDK::GetModCount(false); }

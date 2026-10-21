@@ -11,6 +11,7 @@ extern char modTypeNames[OBJECT_COUNT][0x40];
 extern char modScriptPaths[OBJECT_COUNT][0x40];
 extern uint8 modScriptFlags[OBJECT_COUNT];
 extern uint8 modObjCount;
+extern uint8 modObjCountStore;
 
 namespace v4
 {
