@@ -119,8 +119,7 @@ bool RenderDevice::Init()
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE); // HiDPI scaling support
 #if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
-    // Disable framebuffer scaling which (surprisingly) makes the framebuffer scale correctly on Wayland
-    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
 #endif
 
     if ((window = CreateGLFWWindow()) == NULL)
@@ -242,8 +241,11 @@ bool RenderDevice::InitGraphicsAPI()
 
     if (videoSettings.windowed || !videoSettings.exclusiveFS) {
         if (videoSettings.windowed) {
-            viewSize.x = videoSettings.windowWidth;
-            viewSize.y = videoSettings.windowHeight;
+            float2 windowScale;
+            glfwGetWindowContentScale(window, &windowScale.x, &windowScale.y);
+
+            viewSize.x = videoSettings.windowWidth * windowScale.x;
+            viewSize.y = videoSettings.windowHeight * windowScale.y;
         }
         else {
             viewSize.x = displayWidth[monitorIndex];
@@ -299,7 +301,7 @@ bool RenderDevice::InitGraphicsAPI()
     Vector2 viewportPos{};
     Vector2 lastViewSize;
 
-    glfwGetWindowSize(window, &lastViewSize.x, &lastViewSize.y);
+    glfwGetFramebufferSize(window, &lastViewSize.x, &lastViewSize.y);
     Vector2 viewportSize = lastViewSize;
 
     if ((viewSize.x / viewSize.y) <= ((pixelSize.x / pixelSize.y) + 0.1)) {
