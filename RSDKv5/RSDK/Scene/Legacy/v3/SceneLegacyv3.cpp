@@ -436,6 +436,8 @@ void RSDK::Legacy::v3::LoadStageFiles()
             }
 
 #if RETRO_USE_MOD_LOADER && LEGACY_RETRO_USE_COMPILER
+            if (!loadGlobalScripts)
+                modObjCount = modObjCountStore;
             LoadStageXML(true);
             for (int32 i = 0; i < modObjCount - modObjCountStore; ++i) {
                 SetObjectTypeName(modTypeNames[modObjCountStore + i], (scriptID + stageObjectCount) + i);
