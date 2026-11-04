@@ -1,0 +1,77 @@
+
+name: Windows Original Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up vcpkg
+        shell: pwsh
+        run: |
+          $vcpkgRoot = $env:VCPKG_INSTALLATION_ROOT
+          if (-not $vcpkgRoot) {
+            $vcpkgRoot = "C:\vcpkg"
+          }
+
+          if (-not (Test-Path "$vcpkgRoot\vcpkg.exe")) {
+            throw "vcpkg was not found"
+          }
+
+          "VCPKG_ROOT=$vcpkgRoot" >> $env:GITHUB_ENV
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          & "$env:VCPKG_ROOT\vcpkg.exe" install sdl2 libogg libtheora --triplet x64-windows-static
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Dependency installation failed"
+          }
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          cmake -B build `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DRETRO_SUBSYSTEM=SDL2 `
+            -DUSE_MINIAUDIO=ON
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "CMake configuration failed"
+          }
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake --build build --config Release --parallel
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Build failed"
+          }
+
+      - name: Verify executable
+        shell: pwsh
+        run: |
+          $exe = "build/RSDKv5U.exe"
+
+          if (-not (Test-Path $exe)) {
+            Get-ChildItem build -Recurse -Filter *.exe
+            throw "Expected executable was not found"
+          }
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: RSDKv5U-Windows-MiniAudio
+          path: build/RSDKv5U.exe
+          if-no-files-found: error
