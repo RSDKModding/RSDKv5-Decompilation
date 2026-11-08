@@ -1240,7 +1240,13 @@ void RenderDevice::ProcessKeyEvent(GLFWwindow *, int32 key, int32 scancode, int3
                     SKU::ClearKeyState(key);
                     break;
 #endif
-                case GLFW_KEY_BACKSPACE: engine.gameSpeed = 1; break;
+                case GLFW_KEY_BACKSPACE:
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+                    engine.gameSpeed = modSettings.gameSpeed;
+#else
+                    engine.gameSpeed = 1;
+#endif
+                    break;
             }
             break;
         }

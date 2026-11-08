@@ -245,6 +245,9 @@ void RSDK::InitModAPI(bool32 getVersion)
 
     // Mod Menu
     ADD_MOD_FUNCTION(ModTable_OpenModMenu, OpenModMenu);
+
+    // Game Speed
+    ADD_MOD_FUNCTION(ModTable_SetGameSpeed, SetGameSpeed);
 #endif
 
     superLevels.clear();
@@ -2307,6 +2310,15 @@ void RSDK::AddDevMenuCharacter(const char *playerName, int32 id)
     strcpy(modSettings.players[modSettings.playerCount].name, playerName);
     modSettings.players[modSettings.playerCount].id = id;
     modSettings.playerCount++;
+}
+
+// Game Speed
+
+void RSDK::SetGameSpeed(int32 speed)
+{
+    modSettings.gameSpeed = MAX(speed, 1);
+    if (engine.gameSpeed != engine.fastForwardSpeed)
+        engine.gameSpeed = modSettings.gameSpeed;
 }
 
 #endif /* RETRO_MOD_LOADER_VER >= 3 */

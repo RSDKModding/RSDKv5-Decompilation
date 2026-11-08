@@ -1026,7 +1026,13 @@ void RenderDevice::ProcessEvent(SDL_Event event)
                     SKU::ClearKeyState(event.key.keysym.scancode);
                     break;
 #endif
-                case SDL_SCANCODE_BACKSPACE: engine.gameSpeed = 1; break;
+                case SDL_SCANCODE_BACKSPACE:
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+                    engine.gameSpeed = modSettings.gameSpeed;
+#else
+                    engine.gameSpeed = 1;
+#endif
+                    break;
             }
             break;
 
