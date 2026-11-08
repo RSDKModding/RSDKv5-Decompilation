@@ -1592,11 +1592,11 @@ void RSDK::ProcessDebugCommands()
                 engine.frameStep = true;
         }
         else {
-            engine.gameSpeed = (triggerR[CONT_P1].keyTrigger.down || triggerR[CONT_P1].triggerDelta >= 0.3) ? 8 : 1;
+            engine.gameSpeed = (triggerR[CONT_P1].keyTrigger.down || triggerR[CONT_P1].triggerDelta >= 0.3) ? engine.fastForwardSpeed : 1;
         }
     }
     else {
-        if (engine.gameSpeed == 8)
+        if (engine.gameSpeed == engine.fastForwardSpeed)
             engine.gameSpeed = 1;
 
         if (framePaused)
@@ -1626,11 +1626,11 @@ void RSDK::ProcessDebugCommands()
                 engine.frameStep = true;
         }
         else {
-            engine.gameSpeed = (controller[CONT_P1].keyTriggerR.down || stickL[CONT_P1].triggerDeltaR >= 0.3) ? 8 : 1;
+            engine.gameSpeed = (controller[CONT_P1].keyTriggerR.down || stickL[CONT_P1].triggerDeltaR >= 0.3) ? engine.fastForwardSpeed : 1;
         }
     }
     else {
-        if (engine.gameSpeed == 8)
+        if (engine.gameSpeed == engine.fastForwardSpeed)
             engine.gameSpeed = 1;
 
         if (framePaused)
