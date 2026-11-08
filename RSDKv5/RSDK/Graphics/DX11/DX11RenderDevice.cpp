@@ -1841,8 +1841,12 @@ void RenderDevice::ProcessEvent(MSG Msg)
 #endif
 
                 case VK_BACK:
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+                    engine.gameSpeed = modSettings.gameSpeed;
+#else
                     engine.gameSpeed = 1;
-                    handledMsg       = true;
+#endif
+                    handledMsg = true;
                     break;
             }
 

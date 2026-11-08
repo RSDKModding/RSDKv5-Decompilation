@@ -184,6 +184,9 @@ enum ModFunctionTableIDs {
 
     // Mod Menu
     ModTable_OpenModMenu,
+
+    // Game Speed
+    ModTable_SetGameSpeed,
 #endif
 
     ModTable_Count
@@ -262,6 +265,9 @@ struct ModSettings {
     int32 activeMod         = -1;
     bool32 redirectSaveRAM  = false;
     bool32 disableGameLogic = false;
+#if RETRO_MOD_LOADER_VER >= 3
+    int32 gameSpeed = 1;
+#endif
 
 #if RETRO_REV0U
     int32 versionOverride = 0;
@@ -527,6 +533,9 @@ inline int32 GetActiveDevMenuCharacter(void)
         return -1;
     return playerListPos;
 }
+
+// Game Speed
+void SetGameSpeed(int32 speed);
 #endif
 
 #endif

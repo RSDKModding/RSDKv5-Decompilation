@@ -731,6 +731,10 @@ void RSDK::InitEngine()
 #endif
     engine.initialized = true;
     engine.hardPause   = false;
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    modSettings.gameSpeed = 1;
+    engine.gameSpeed      = 1;
+#endif
 #if RETRO_PLATFORM == RETRO_ANDROID
     SetLoadingIcon();
 #endif
@@ -1574,6 +1578,12 @@ void RSDK::ProcessDebugCommands()
 
     bool32 framePaused = (state & stepOver) == stepOver;
 
+#if RETRO_USE_MOD_LOADER && RETRO_MOD_LOADER_VER >= 3
+    const int32 normalGameSpeed = modSettings.gameSpeed;
+#else
+    const int32 normalGameSpeed = 1;
+#endif
+
 #if RETRO_REV02
     if (triggerL[CONT_P1].keyBumper.down) {
         if (triggerL[CONT_P1].keyTrigger.down || triggerL[CONT_P1].triggerDelta >= 0.3) {
@@ -1592,12 +1602,13 @@ void RSDK::ProcessDebugCommands()
                 engine.frameStep = true;
         }
         else {
-            engine.gameSpeed = (triggerR[CONT_P1].keyTrigger.down || triggerR[CONT_P1].triggerDelta >= 0.3) ? engine.fastForwardSpeed : 1;
+            engine.gameSpeed =
+                (triggerR[CONT_P1].keyTrigger.down || triggerR[CONT_P1].triggerDelta >= 0.3) ? engine.fastForwardSpeed : normalGameSpeed;
         }
     }
     else {
         if (engine.gameSpeed == engine.fastForwardSpeed)
-            engine.gameSpeed = 1;
+            engine.gameSpeed = normalGameSpeed;
 
         if (framePaused)
             state ^= stepOver;
@@ -1626,12 +1637,13 @@ void RSDK::ProcessDebugCommands()
                 engine.frameStep = true;
         }
         else {
-            engine.gameSpeed = (controller[CONT_P1].keyTriggerR.down || stickL[CONT_P1].triggerDeltaR >= 0.3) ? engine.fastForwardSpeed : 1;
+            engine.gameSpeed =
+                (controller[CONT_P1].keyTriggerR.down || stickL[CONT_P1].triggerDeltaR >= 0.3) ? engine.fastForwardSpeed : normalGameSpeed;
         }
     }
     else {
         if (engine.gameSpeed == engine.fastForwardSpeed)
-            engine.gameSpeed = 1;
+            engine.gameSpeed = normalGameSpeed;
 
         if (framePaused)
             sceneInfo.state ^= ENGINESTATE_STEPOVER;
